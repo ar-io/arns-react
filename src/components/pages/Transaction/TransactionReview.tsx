@@ -1,38 +1,33 @@
 import { ARIOWriteable, AoARIOWrite, FundFrom } from '@ar.io/sdk/web';
-import ANTDetailsTip from '@src/components/Tooltips/ANTDetailsTip';
-import { AntLogoIcon } from '@src/components/data-display/AntLogoIcon';
-import PaymentOptionsForm, {
-  PaymentMethod,
-} from '@src/components/forms/PaymentOptionsForm/PaymentOptionsForm';
-import { ArNSLogo } from '@src/components/icons';
+import { ANTCard } from '@src/components/cards';
+import { TransactionDetails } from '@src/components/data-display/TransactionDetails/TransactionDetails';
+import WorkflowButtons from '@src/components/inputs/buttons/WorkflowButtons/WorkflowButtons';
 import { StepProgressBar } from '@src/components/layout/progress';
+import PageLoader from '@src/components/layout/progress/PageLoader/PageLoader';
 import { useIsMobile } from '@src/hooks';
-import {
-  COST_DETAIL_STALE_TIME,
-  useCostDetails,
-} from '@src/hooks/useCostDetails';
-import { useCountdown } from '@src/hooks/useCountdown';
-import useDomainInfo from '@src/hooks/useDomainInfo';
+import { useCostDetails } from '@src/hooks/useCostDetails';
 import { dispatchArNSUpdate, useArNSState } from '@src/state';
 import dispatchArIOInteraction from '@src/state/actions/dispatchArIOInteraction';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import {
+  ARNSMapping,
   ARNS_INTERACTION_TYPES,
   ArNSInteractionTypeToIntentMap,
-  TRANSACTION_TYPES,
+  TransactionData,
+  ValidInteractionType,
 } from '@src/types';
 import {
+  getARNSMappingByInteractionType,
   getWorkflowStepsForInteraction,
-  isArweaveTransactionID,
 } from '@src/utils';
-import { DEFAULT_ANT_LOGO, NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { StepProps } from 'antd';
-import { RotateCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
+import { getTransactionHeader } from './transaction-headers';
 
 // page on route transaction/review
 // on completion routes to transaction/complete
@@ -46,16 +41,17 @@ function TransactionReview() {
     { workflowName, interactionType, transactionData, interactionResult },
     dispatchTransactionState,
   ] = useTransactionState();
-  const { data: domainInfo } = useDomainInfo({
-    antId: (transactionData as any)?.processId,
-  });
   const isMobile = useIsMobile();
-
+  const [antProps, setAntProps] = useState<ARNSMapping>();
   const [steps, setSteps] = useState<StepProps[] | undefined>(
     getWorkflowStepsForInteraction(interactionType),
   );
+  const [header, setHeader] = useState<string | JSX.Element | undefined>(
+    getTransactionHeader({
+      workflowName: workflowName as ARNS_INTERACTION_TYPES,
+    }),
+  );
 
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('crypto');
   const [fundingSource, setFundingSource] = useState<FundFrom | undefined>(
     'balance',
   );
@@ -68,18 +64,29 @@ function TransactionReview() {
     fundFrom: fundingSource,
     quantity: (transactionData as any)?.qty,
   };
-  const { data: costDetail, dataUpdatedAt: costDetailTimestamp } =
-    useCostDetails(costDetailsParams);
-
-  const countdownString = useCountdown(
-    costDetailTimestamp + COST_DETAIL_STALE_TIME,
-  );
+  const { data: costDetail } = useCostDetails(costDetailsParams);
 
   useEffect(() => {
     if (!transactionData && !workflowName) {
       navigate('/');
       return;
     }
+    setAntProps(
+      getARNSMappingByInteractionType({
+        interactionType: interactionType as ValidInteractionType,
+        transactionData: {
+          ...transactionData,
+          deployedTransactionId: interactionResult?.id,
+        } as any as TransactionData,
+      }) as ARNSMapping,
+    );
+
+    setSteps(getWorkflowStepsForInteraction(interactionType));
+    setHeader(
+      getTransactionHeader({
+        workflowName: workflowName as ARNS_INTERACTION_TYPES,
+      }),
+    );
   }, [
     transactionData,
     interactionResult,
@@ -92,9 +99,7 @@ function TransactionReview() {
     if (interactionResult?.id) {
       navigate('/transaction/complete');
     }
-
-    setSteps(getWorkflowStepsForInteraction(interactionType));
-  }, [interactionResult, navigate, interactionType]);
+  }, [interactionResult, navigate]);
 
   async function handleNext() {
     try {
@@ -135,17 +140,23 @@ function TransactionReview() {
     }
   }
 
+  if (!antProps) {
+    return (
+      <PageLoader loading={true} message={'Loading transaction data...'} />
+    );
+  }
+
   return (
     <div className="page">
       <div
-        className="flex flex-col center"
+        className="flex flex-column center"
         style={isMobile ? {} : { gap: '0px', maxWidth: '900px', width: '100%' }}
       >
         {steps && steps.length ? (
           <div
             className="flex flex-row"
             style={{
-              marginBottom: '60px',
+              marginBottom: '20px',
               width: '100%',
             }}
           >
@@ -155,100 +166,63 @@ function TransactionReview() {
           <></>
         )}
 
-        <div className="flex gap-6 w-full h-full">
-          <div className="relative flex flex-col w-1/2 h-full bg-gradient-to-r from-[#FEC35F] to-[#EEA5D2] rounded p-[1px] overflow-hidden">
-            {/* domain detail card */}
-            <ArNSLogo className="absolute w-[320px] h-fit top-[0px] right-[0px] " />
-            <div className="flex flex-col size-full bg-gradient-to-b from-[#1C1C1F] to-[#0E0E0F] rounded-t text-light-grey p-6">
-              <div className="flex w-full gap-2 items-center">
-                <AntLogoIcon
-                  id={
-                    isArweaveTransactionID((transactionData as any).processId)
-                      ? domainInfo?.logo
-                      : DEFAULT_ANT_LOGO
-                  }
-                />
-                <div className="flex w-full items-center">
-                  {' '}
-                  <Link
-                    className="link"
-                    to={`${(transactionData as any).name}.${
-                      NETWORK_DEFAULTS.ARNS.HOST
-                    }`}
-                  >
-                    ar://
-                  </Link>
-                  <span> {(transactionData as any).name.slice(0, 10)}</span>
-                </div>{' '}
-                {isArweaveTransactionID((transactionData as any).processId) && (
-                  <ANTDetailsTip antId={(transactionData as any).processId} />
-                )}
-              </div>
-              {/* Order Info */}
-              <div
-                className={`flex flex-col border-y-[1px] border-foreground gap-4 mt-8 py-6 size-full`}
-              >
-                <div className="flex w-full justify-between pb-4">
-                  <span className="whitespace-nowrap">Order Summary</span>
-                </div>
-                <div className="flex flex-row w-full text-sm">
-                  <span className="flex w-1/3 whitespace-nowrap text-grey">
-                    Lease Duration
-                  </span>
-                  <span className="flex w-1/2 whitespace-nowrap">
-                    {(transactionData as any).type === TRANSACTION_TYPES.BUY
-                      ? 'Permanent'
-                      : `${(transactionData as any).years} year${
-                          (transactionData as any).years > 1 ? 's' : ''
-                        }`}
-                  </span>
-                </div>
-
-                <div className="flex flex-row w-full text-sm">
-                  <span className="flex w-1/3 whitespace-nowrap text-grey">
-                    Undernames
-                  </span>
-                  <span className="flex w-1/2 whitespace-nowrap">
-                    10 included
-                  </span>
-                </div>
-              </div>
-              {/* Prices */}
-              <div className="flex flex-col gap-4 py-6">
-                <div className="flex w-full justify-between pb-4">
-                  <span className="whitespace-nowrap">Order Summary</span>
-                </div>
-              </div>
-            </div>
-            {/* Quote update timer */}
-            <div className="flex w-full bg-foreground rounded-b px-6 p-3 text-grey justify-between text-sm">
-              <span>
-                {countdownString ? (
-                  <span className="whitespace-nowrap">
-                    Quote updates in{' '}
-                    <span className="text-white text-bold">
-                      {countdownString}
-                    </span>
-                  </span>
-                ) : (
-                  <span className="animate-pulse">Updating quote...</span>
-                )}
-              </span>
-              <button className="flex gap-2 items-center justify-center text-center text-grey pointer">
-                <RotateCw className="text-grey size-4" />
-                Refresh
-              </button>
-            </div>
+        {typeof header === 'string' ? (
+          <div
+            className="flex flex-row text-large white bold center"
+            style={{
+              height: '100%',
+              padding: '50px 0px',
+              borderTop: steps?.length ? 'solid 1px var(--text-faded)' : '',
+            }}
+          >
+            {header}
           </div>
+        ) : (
+          header
+        )}
+        <ANTCard
+          {...antProps}
+          bordered
+          compact={true}
+          overrides={{
+            ...antProps.overrides,
+            targetId: (transactionData as any)?.targetId?.toString(),
+          }}
+        />
 
-          <div className="w-1/2 flex flex-col">
-            <PaymentOptionsForm
-              paymentMethod={paymentMethod}
-              onPaymentMethodChange={setPaymentMethod}
-              fundingSource={fundingSource}
-              onFundingSourceChange={setFundingSource}
-            />
-          </div>
+        <div className="flex w-full pt-10 box-border">
+          <TransactionDetails
+            details={costDetailsParams}
+            fundingSourceCallback={(v) => setFundingSource(v)}
+          />
+        </div>
+
+        <div
+          className="flex"
+          style={{
+            marginTop: 20,
+            width: '100%',
+            justifyContent: 'flex-end',
+          }}
+        >
+          <WorkflowButtons
+            onNext={
+              !costDetail ||
+              (costDetail.fundingPlan?.shortfall &&
+                costDetail.fundingPlan?.shortfall > 0)
+                ? undefined
+                : () => handleNext()
+            }
+            onBack={() => navigate(-1)}
+            backText={'Back'}
+            nextText={'Confirm'}
+            customBackStyle={{ fontSize: '.875rem', padding: '.625rem' }}
+            customNextStyle={{
+              width: '100px',
+              fontSize: '.875rem',
+              padding: '.625rem',
+            }}
+          />
         </div>
       </div>
     </div>

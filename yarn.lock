@@ -108,15 +108,15 @@
     plimit-lit "^3.0.1"
     warp-contracts "1.4.45"
 
-"@ar.io/sdk@^3.9.0-alpha.3":
-  version "3.9.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-3.9.0-alpha.3.tgz#9dbf53da30016d58f52459ad0707a70750568b16"
-  integrity sha512-GnnT5p49shlmJv+urBAN02uCm5HgTu0f3tvDudnLgkTOq+OcJuEinHh0KHY3S9aAlGABOfD6jIeTqJzQISnx1g==
+"@ar.io/sdk@^3.9.0-alpha.7":
+  version "3.9.0-alpha.7"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-3.9.0-alpha.7.tgz#9b61498f3533d04bacd372ff7118ddbe24453795"
+  integrity sha512-uniJdpn3kQVOQz3kh5RGXiexRdu0D2VLKVvdMN1tpgyd5htPiRlgMFhW7fYkyaUewAEHUVia1LjrLI2/2i2epA==
   dependencies:
     "@dha-team/arbundles" "^1.0.1"
     "@permaweb/aoconnect" "^0.0.57"
     arweave "1.15.5"
-    axios "1.7.9"
+    axios "1.8.2"
     axios-retry "^4.3.0"
     commander "^12.1.0"
     eventemitter3 "^5.0.1"
@@ -7073,10 +7073,10 @@ axios@1.7.2:
     form-data "^4.0.0"
     proxy-from-env "^1.1.0"
 
-axios@1.7.9:
-  version "1.7.9"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.9.tgz#d7d071380c132a24accda1b2cfc1535b79ec650a"
-  integrity sha512-LhLcE7Hbiryz8oMDdDptSrWowmB4Bl6RCt6sIJKpRB4XtVf0iEgewX3au/pJqm+Py1kCASkb/FFKjxQaLtxJvw==
+axios@1.8.2:
+  version "1.8.2"
+  resolved "https://registry.npmjs.org/axios/-/axios-1.8.2.tgz#fabe06e241dfe83071d4edfbcaa7b1c3a40f7979"
+  integrity sha512-ls4GYBm5aig9vWx8AWDSGLpnpDQRtWAfrjU+EuytuODrFBkqesN2RkOQCBzrA1RQNHw1SmRMSDDDSwzNAYQ6Rg==
   dependencies:
     follow-redirects "^1.15.6"
     form-data "^4.0.0"
@@ -8393,14 +8393,9 @@ date-fns@^2.29.3:
   dependencies:
     "@babel/runtime" "^7.21.0"
 
-dayjs@^1.11.11:
+dayjs@^1.11.11, dayjs@^1.11.13:
   version "1.11.13"
   resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.13.tgz#92430b0139055c3ebb60150aa13e860a4b5a366c"
-  integrity sha512-oaMBel6gjolK862uaPQOVTA7q3TZhuSvuMQAAglQDOWYO9A91IrAOUJEyKVlqJlHE0vq5p5UXxzdPfMH/x6xNg==
-
-dayjs@^1.11.13:
-  version "1.11.13"
-  resolved "https://registry.npmjs.org/dayjs/-/dayjs-1.11.13.tgz#92430b0139055c3ebb60150aa13e860a4b5a366c"
   integrity sha512-oaMBel6gjolK862uaPQOVTA7q3TZhuSvuMQAAglQDOWYO9A91IrAOUJEyKVlqJlHE0vq5p5UXxzdPfMH/x6xNg==
 
 debug@4, debug@^4.0.0, debug@^4.1.0, debug@^4.1.1, debug@^4.3.1, debug@^4.3.2, debug@^4.3.4, debug@~4.3.1, debug@~4.3.2:
