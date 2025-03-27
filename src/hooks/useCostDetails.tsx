@@ -7,6 +7,8 @@ import {
 import { useGlobalState } from '@src/state';
 import { useQuery } from '@tanstack/react-query';
 
+export const COST_DETAIL_STALE_TIME = 1000 * 60 * 5;
+
 export function buildCostDetailsQuery(
   params: AoGetCostDetailsParams,
   {
@@ -20,7 +22,7 @@ export function buildCostDetailsQuery(
     queryFn: async () => {
       return await arioContract.getCostDetails(params);
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: COST_DETAIL_STALE_TIME,
     enabled: params?.name?.length > 0,
   };
 }
