@@ -22,9 +22,13 @@ import {
   transactionReducer,
   walletReducer,
 } from './state';
+import { honeycomb } from './utils/honeycomb';
 import { queryClient } from './utils/network';
 // setup sentry
 import './utils/sentry';
+
+// Initialize Honeycomb before app starts
+honeycomb.getInstance();
 
 // Wagmi setup
 const config = createConfig({
