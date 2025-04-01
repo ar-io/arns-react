@@ -1,5 +1,6 @@
 import { useCountdown } from '@src/hooks/useCountdown';
 import useDomainInfo from '@src/hooks/useDomainInfo';
+import { useWalletState } from '@src/state';
 import { isArweaveTransactionID } from '@src/utils';
 import { DEFAULT_ANT_LOGO, NETWORK_DEFAULTS } from '@src/utils/constants';
 import { RotateCw } from 'lucide-react';
@@ -7,12 +8,14 @@ import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
 import ANTDetailsTip from '../Tooltips/ANTDetailsTip';
+import { Tooltip } from '../data-display';
 import { AntLogoIcon } from '../data-display/AntLogoIcon';
 import { ArNSLogo } from '../icons';
 
 export type DomainCheckoutCardProps = {
   domain: string;
   antId?: string;
+  targetId?: string;
   orderSummary: Record<string, ReactNode>;
   fees: Record<string, ReactNode>;
   quoteEndTimestamp: number;
@@ -22,22 +25,24 @@ export type DomainCheckoutCardProps = {
 function DomainCheckoutCard({
   domain,
   antId,
+  targetId,
   orderSummary,
   fees,
   quoteEndTimestamp,
   refresh,
 }: DomainCheckoutCardProps) {
+  const [{ walletAddress }] = useWalletState();
   const { data: domainInfo } = useDomainInfo({
     antId: isArweaveTransactionID(antId) ? antId : undefined,
   });
 
   const countdownString = useCountdown(quoteEndTimestamp);
   return (
-    <div className="relative flex flex-col w-full h-full bg-gradient-to-r from-[#FEC35F] to-[#EEA5D2] rounded p-[1px] overflow-hidden">
+    <div className="relative flex flex-col w-full h-full bg-gradient-to-r from-[#FEC35F] to-[#EEA5D2] rounded p-[1px] overflow-hidden transition-all duration-300">
       {/* domain detail card */}
       <ArNSLogo className="absolute w-[320px] h-fit top-[0px] right-[0px]" />
       <div className="flex flex-col size-full bg-gradient-to-b from-[#1C1C1F] to-[#0E0E0F] rounded-t text-light-grey p-6">
-        <div className="flex w-full gap-2 items-center z-10">
+        <div className="flex w-fit gap-2 items-center z-10">
           <AntLogoIcon
             id={
               isArweaveTransactionID(antId)
@@ -45,7 +50,7 @@ function DomainCheckoutCard({
                 : DEFAULT_ANT_LOGO
             }
           />
-          <div className="flex items-center">
+          <div className="flex items-center w-fit ">
             {' '}
             <Link
               className="text-[#7596B280] hover:text-[#7596B2]"
@@ -55,11 +60,30 @@ function DomainCheckoutCard({
             >
               ar://
             </Link>
-            <span className="text-white"> {domain.slice(0, 10)}</span>
+            <Tooltip
+              tooltipOverrides={{
+                overlayClassName: 'w-fit',
+                overlayInnerStyle: {
+                  whiteSpace: 'nowrap',
+                  width: 'fit-content',
+                  padding: '10px',
+                  border: '1px solid var(--text-faded)',
+                },
+              }}
+              message={domain}
+              icon={
+                <span className="text-white max-w-[180px] truncate">
+                  {' '}
+                  {domain}
+                </span>
+              }
+            />
           </div>{' '}
-          {antId && isArweaveTransactionID(antId) && (
-            <ANTDetailsTip antId={antId} />
-          )}
+          <ANTDetailsTip
+            antId={antId}
+            targetId={domainInfo?.records?.['@'].transactionId ?? targetId}
+            owner={domainInfo?.owner ?? walletAddress?.toString()}
+          />
         </div>
         {/* Order Info */}
         <div

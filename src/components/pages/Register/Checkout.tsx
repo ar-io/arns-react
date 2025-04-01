@@ -25,13 +25,9 @@ import {
   BuyRecordPayload,
   TRANSACTION_TYPES,
 } from '@src/types';
-import {
-  formatARIOWithCommas,
-  getWorkflowStepsForInteraction,
-} from '@src/utils';
+import { formatARIOWithCommas } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
-import { StepProps } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -62,13 +58,19 @@ function Checkout() {
     fundFrom: fundingSource,
     quantity: (transactionData as any)?.qty,
   };
-  const { data: costDetail, dataUpdatedAt: costDetailUpdatedAt } =
-    useCostDetails(costDetailsParams);
+  const {
+    data: costDetail,
+    dataUpdatedAt: costDetailUpdatedAt,
+    isLoading: isLoadingCostDetail,
+  } = useCostDetails(costDetailsParams);
   const isMobile = useIsMobile();
 
-  const [steps, setSteps] = useState<StepProps[] | undefined>(
-    getWorkflowStepsForInteraction(interactionType),
-  );
+  const isInsufficientBalance = useMemo(() => {
+    if (paymentMethod === 'crypto') {
+      return costDetail?.fundingPlan?.shortfall ? true : false;
+    }
+    return true;
+  }, [costDetail, paymentMethod]);
 
   const fees = useMemo(() => {
     if (paymentMethod === 'crypto') {
@@ -135,9 +137,7 @@ function Checkout() {
     if (interactionResult?.id) {
       navigate('/transaction/complete');
     }
-
-    setSteps(getWorkflowStepsForInteraction(interactionType));
-  }, [interactionResult, navigate, interactionType]);
+  }, [interactionResult, navigate]);
 
   function handleRefresh() {
     queryClient.resetQueries({
@@ -192,25 +192,37 @@ function Checkout() {
         className="flex flex-col center"
         style={isMobile ? {} : { gap: '0px', maxWidth: '900px', width: '100%' }}
       >
-        {steps && steps.length ? (
-          <div className="flex flex-row border-b border-dark-grey pb-6 w-full mb-10">
-            <StepProgressBar stage={3} stages={steps} />
-          </div>
-        ) : (
-          <></>
-        )}
+        <div className="flex flex-row border-b border-dark-grey pb-6 w-full mb-10">
+          <StepProgressBar
+            stage={3}
+            stages={[
+              { title: 'Choose', description: 'Pick a name', status: 'finish' },
+              {
+                title: 'Configure',
+                description: 'Choose purchase duration',
+                status: 'finish',
+              },
+              {
+                title: 'Checkout',
+                description: 'Complete payment',
+                status: 'process',
+              },
+            ]}
+          />
+        </div>
 
         <div className="flex md:flex-row flex-col gap-6 w-full h-full">
           <div className="md:w-1/2 w-full flex flex-col">
             <DomainCheckoutCard
-              domain={transaction.name}
-              antId={transaction.processId}
+              domain={transaction?.name}
+              antId={transaction?.processId}
+              targetId={transaction?.targetId?.toString()}
               orderSummary={{
                 'Lease Duration':
-                  transaction.type === TRANSACTION_TYPES.BUY
+                  transaction?.type === TRANSACTION_TYPES.BUY
                     ? 'Permabuy (never expires)'
-                    : `${transaction.years} ${
-                        transaction.years && transaction.years > 1
+                    : `${transaction?.years} ${
+                        transaction?.years && transaction?.years > 1
                           ? 'years'
                           : 'year'
                       }`,
@@ -231,7 +243,7 @@ function Checkout() {
           </div>
         </div>
         <div className={`flex justify-end items-end w-full pt-6`}>
-          <div className="flex gap-4">
+          <div className="flex gap-4 w-full justify-end">
             <button
               className="py-4 px-5 rounded border border-dark-grey text-grey w-[112px]"
               onClick={() => navigate(-1)}
@@ -239,10 +251,15 @@ function Checkout() {
               Back
             </button>
             <button
-              className="py-4 px-5 bg-primary rounded w-[112px]"
+              disabled={isInsufficientBalance || isLoadingCostDetail}
+              className="py-4 px-5 bg-primary rounded w-[112px] min-w-fit disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleNext}
             >
-              Pay now
+              {isLoadingCostDetail
+                ? 'Loading...'
+                : isInsufficientBalance
+                ? 'Insufficient balance'
+                : 'Pay now'}
             </button>
           </div>
         </div>
