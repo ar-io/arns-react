@@ -31,6 +31,18 @@ const sentry =
               matchRoutes,
             ),
           }),
+          Sentry.httpClientIntegration({
+            failedRequestStatusCodes: [
+              [400, 499],
+              [500, 599],
+            ],
+            failedRequestTargets: [
+              'localhost',
+              '127.0.0.1',
+              /\.ao-testnet\.xyz$/i,
+              'https://cu.ardrive.io',
+            ],
+          }),
         ],
         tracesSampleRate: 1.0,
         environment: ENVIRONMENT,
