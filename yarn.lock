@@ -1359,13 +1359,6 @@
   dependencies:
     regenerator-runtime "^0.14.0"
 
-"@babel/runtime@^7.23.8", "@babel/runtime@^7.24.5":
-  version "7.26.10"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.26.10.tgz#a07b4d8fa27af131a633d7b3524db803eb4764c2"
-  integrity sha512-2WJMeRQPHKSPemqk/awGrAiuFfzBmOIPXKizAsVhWH9YJqLZ0H+HS4c8loHGgW6utJ3E/ejXQUsiGaQy2NZ9Fw==
-  dependencies:
-    regenerator-runtime "^0.14.0"
-
 "@babel/template@^7.16.7", "@babel/template@^7.24.7", "@babel/template@^7.25.0", "@babel/template@^7.3.3":
   version "7.25.0"
   resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.25.0.tgz#e733dc3134b4fede528c15bc95e89cb98c52592a"
@@ -5426,10 +5419,10 @@
   resolved "https://registry.yarnpkg.com/@ungap/structured-clone/-/structured-clone-1.2.0.tgz#756641adb587851b5ccb3e095daf27ae581c8406"
   integrity sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==
 
-"@vela-ventures/ao-sync-sdk@^1.1.16":
-  version "1.1.16"
-  resolved "https://registry.yarnpkg.com/@vela-ventures/ao-sync-sdk/-/ao-sync-sdk-1.1.16.tgz#7a6315a77cce9c49aef267f7099f34b3ead93e2c"
-  integrity sha512-YMgM2wlNuqfJsc8FlLGt2Y3vvuzPGrqkVFWVPBh3A9gZq0dUGa9cUHZ/iJyF5zHSi/Wrvk74ThM4KMP1XpXDKw==
+"@vela-ventures/ao-sync-sdk@^1.1.22":
+  version "1.1.22"
+  resolved "https://registry.yarnpkg.com/@vela-ventures/ao-sync-sdk/-/ao-sync-sdk-1.1.22.tgz#857902f417750ba8502b5de8d1223f31aa7189e9"
+  integrity sha512-2p8cCRGGG8QPyfZTyRHT3xhss73TODACU/dE62NGxvyGiJeBEvfFHObFZh+G3ik3TLWw98OFrMoTyRp+vFZS9g==
   dependencies:
     "@fontsource/sora" "^5.2.5"
     arconnect "^1.0.4"
