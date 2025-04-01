@@ -6,7 +6,7 @@ import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import { ValidationError } from '@src/utils/errors';
 import emojiRegex from 'emoji-regex';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useIsFocused, useRegistrationStatus } from '../../../hooks';
@@ -68,7 +68,7 @@ function RegisterNameForm() {
     useState<boolean>(false);
   const [validatingNext, setValidatingNext] = useState<boolean>(false);
   const { data: antVersion } = useLatestANTVersion();
-  const antModuleId = antVersion?.moduleId ?? null;
+  const antModuleId = useMemo(() => antVersion?.moduleId ?? null, [antVersion]);
 
   useEffect(() => {
     const redirect = searchParams.get('redirect');

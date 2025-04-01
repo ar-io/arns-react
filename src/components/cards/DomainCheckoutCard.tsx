@@ -38,7 +38,7 @@ function DomainCheckoutCard({
 
   const countdownString = useCountdown(quoteEndTimestamp);
   return (
-    <div className="relative flex flex-col w-full h-full bg-gradient-to-r from-[#FEC35F] to-[#EEA5D2] rounded p-[1px] overflow-hidden transition-all duration-300">
+    <div className="relative flex flex-col w-full h-full rounded border border-dark-grey overflow-hidden transition-all duration-300">
       {/* domain detail card */}
       <ArNSLogo className="absolute w-[320px] h-fit top-[0px] right-[0px]" />
       <div className="flex flex-col size-full bg-gradient-to-b from-[#1C1C1F] to-[#0E0E0F] rounded-t text-light-grey p-6">

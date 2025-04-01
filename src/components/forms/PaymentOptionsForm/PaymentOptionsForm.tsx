@@ -1,4 +1,5 @@
 import { FundFrom, mARIOToken } from '@ar.io/sdk';
+import { Tooltip } from '@src/components/data-display';
 import { ArIOTokenIcon, TurboIcon } from '@src/components/icons';
 import { SelectDropdown } from '@src/components/inputs/Select';
 import {
@@ -80,10 +81,18 @@ function PaymentOptionsForm({
           >
             <Tabs.Trigger
               value="card"
-              className="flex gap-3 p-3 data-[state=active]:bg-foreground rounded border border-[#222224] data-[state=active]:border-grey text-white items-center flex-1 whitespace-nowrap transition-all duration-300"
+              disabled={true}
+              className="flex gap-3 p-3 data-[state=active]:bg-foreground rounded border border-[#222224] data-[state=active]:border-grey text-white items-center flex-1 whitespace-nowrap transition-all duration-300 disabled:opacity-50"
             >
-              <CreditCard className="size-5 text-grey" />
-              Credit Card
+              <Tooltip
+                message="Coming Soon!"
+                icon={
+                  <div className="flex gap-3 items-center">
+                    <CreditCard className="size-5 text-grey" />
+                    Credit Card
+                  </div>
+                }
+              />
             </Tabs.Trigger>
             <Tabs.Trigger
               value="crypto"
@@ -94,13 +103,21 @@ function PaymentOptionsForm({
             </Tabs.Trigger>
             <Tabs.Trigger
               value="credits"
-              className="flex gap-3 p-3 data-[state=active]:bg-foreground rounded border border-[#222224] data-[state=active]:border-grey text-white items-center flex-1 whitespace-nowrap transition-all duration-300"
+              disabled={true}
+              className="flex gap-3 p-3 data-[state=active]:bg-foreground rounded border border-[#222224] data-[state=active]:border-grey text-white items-center flex-1 whitespace-nowrap transition-all duration-300 disabled:opacity-50"
             >
-              <TurboIcon
-                className="size-5 text-grey"
-                stroke="var(--text-grey)"
-              />{' '}
-              Credits
+              <Tooltip
+                message="Coming Soon!"
+                icon={
+                  <div className="flex gap-3 items-center">
+                    <TurboIcon
+                      className="size-5 text-grey"
+                      stroke="var(--text-grey)"
+                    />{' '}
+                    Credits
+                  </div>
+                }
+              />
             </Tabs.Trigger>
           </Tabs.List>
           <Tabs.Content
