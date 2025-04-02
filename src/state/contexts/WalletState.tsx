@@ -212,6 +212,19 @@ export function WalletStateProvider({
         }
       } else if (walletType === WALLET_TYPES.BEACON) {
         const connector = new BeaconWalletConnector();
+        if (!connector._wallet.uid) {
+          localStorage.removeItem('walletType');
+          eventEmitter.emit('error', new BeaconError('Beacon disconnected'));
+          dispatchWalletState({
+            type: 'setWalletAddress',
+            payload: undefined,
+          });
+          dispatchWalletState({
+            type: 'setWallet',
+            payload: undefined,
+          });
+          return;
+        }
         const address = await connector?.getWalletAddress();
 
         dispatchWalletState({

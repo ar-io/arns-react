@@ -5419,10 +5419,10 @@
   resolved "https://registry.yarnpkg.com/@ungap/structured-clone/-/structured-clone-1.2.0.tgz#756641adb587851b5ccb3e095daf27ae581c8406"
   integrity sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==
 
-"@vela-ventures/ao-sync-sdk@^1.1.22":
-  version "1.1.22"
-  resolved "https://registry.yarnpkg.com/@vela-ventures/ao-sync-sdk/-/ao-sync-sdk-1.1.22.tgz#857902f417750ba8502b5de8d1223f31aa7189e9"
-  integrity sha512-2p8cCRGGG8QPyfZTyRHT3xhss73TODACU/dE62NGxvyGiJeBEvfFHObFZh+G3ik3TLWw98OFrMoTyRp+vFZS9g==
+"@vela-ventures/ao-sync-sdk@^1.1.23":
+  version "1.1.23"
+  resolved "https://registry.yarnpkg.com/@vela-ventures/ao-sync-sdk/-/ao-sync-sdk-1.1.23.tgz#be56bfacbb8cef444e98b40f2a98ba8d2c76bda0"
+  integrity sha512-Vr4cqXknulUj7CaQTAIp5k+YF/1HPHTVtom0Byae1c1T6QS8gXEAFw4Pftcge2+NhdPdhgeFQIOe6wDccaYrVw==
   dependencies:
     "@fontsource/sora" "^5.2.5"
     arconnect "^1.0.4"
