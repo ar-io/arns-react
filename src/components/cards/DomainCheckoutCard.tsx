@@ -81,7 +81,7 @@ function DomainCheckoutCard({
           </div>{' '}
           <ANTDetailsTip
             antId={antId}
-            targetId={domainInfo?.records?.['@'].transactionId ?? targetId}
+            targetId={domainInfo?.records?.['@']?.transactionId ?? targetId}
             owner={domainInfo?.owner ?? walletAddress?.toString()}
           />
         </div>
