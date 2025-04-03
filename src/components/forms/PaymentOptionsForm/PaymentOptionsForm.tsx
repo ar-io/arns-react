@@ -6,23 +6,15 @@ import {
   useArIOLiquidBalance,
   useArIOStakedAndVaultedBalance,
 } from '@src/hooks/useArIOBalance';
+import { useGlobalState } from '@src/state';
 import { formatARIOWithCommas } from '@src/utils';
 import { Circle, CircleCheck, CreditCard } from 'lucide-react';
 import { Tabs } from 'radix-ui';
 import { useMemo, useState } from 'react';
 
 export type PaymentMethod = 'card' | 'crypto' | 'credits';
-export type CryptoOptions = '$ARIO';
-
-const cryptoDropdownOptions: {
-  label: CryptoOptions;
-  value: CryptoOptions;
-}[] = [
-  {
-    label: '$ARIO',
-    value: '$ARIO',
-  },
-];
+export type ARIOCryptoOptions = '$ARIO' | '$dARIO' | '$tARIO';
+export type CryptoOptions = ARIOCryptoOptions;
 
 function PaymentOptionsForm({
   fundingSource = 'balance',
@@ -35,6 +27,11 @@ function PaymentOptionsForm({
   onFundingSourceChange: (fundingSource: FundFrom) => void;
   onPaymentMethodChange: (paymentMethod: PaymentMethod) => void;
 }) {
+  const [{ arioTicker }] = useGlobalState();
+  const formattedARIOTicker = `$${arioTicker}` as CryptoOptions;
+  const cryptoDropdownOptions = useMemo(() => {
+    return [{ label: formattedARIOTicker, value: formattedARIOTicker }];
+  }, [arioTicker]);
   const { data: liquidBalance } = useArIOLiquidBalance();
   const { data: stakedAndVaultedBalance } = useArIOStakedAndVaultedBalance();
 
@@ -55,14 +52,15 @@ function PaymentOptionsForm({
     return liquidArIOBalance + stakedAndVaultedArIOBalance;
   }, [liquidArIOBalance, stakedAndVaultedArIOBalance]);
 
-  const [selectedCrypto, setSelectedCrypto] = useState<CryptoOptions>('$ARIO');
+  const [selectedCrypto, setSelectedCrypto] =
+    useState<CryptoOptions>(formattedARIOTicker);
 
   const selectedCryptoBalance = useMemo(() => {
-    if (selectedCrypto === '$ARIO') {
+    if (selectedCrypto === formattedARIOTicker) {
       return allArIOBalance;
     }
     return 0;
-  }, [selectedCrypto, allArIOBalance]);
+  }, [selectedCrypto, allArIOBalance, formattedARIOTicker]);
 
   return (
     <>
@@ -154,7 +152,7 @@ function PaymentOptionsForm({
                 </span>
               </div>
             </div>
-            {selectedCrypto === '$ARIO' && (
+            {selectedCrypto === formattedARIOTicker && (
               <div className="flex flex-col gap-2 size-full items-start">
                 <span className="text-grey text-xs">
                   Select balance method:
