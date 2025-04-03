@@ -36,6 +36,13 @@ export class MetamaskError extends NotificationOnlyError {
   }
 }
 
+export class BeaconError extends NotificationOnlyError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'Beacon';
+  }
+}
+
 export class InsufficientFundsError extends NotificationOnlyError {
   constructor(message: string) {
     super(message);

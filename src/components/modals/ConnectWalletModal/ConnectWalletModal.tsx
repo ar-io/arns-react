@@ -1,5 +1,6 @@
 import { AOProcess, ARIO } from '@ar.io/sdk/web';
 import {
+  BeaconWalletConnector,
   EthWalletConnector,
   WanderWalletConnector,
 } from '@src/services/wallets';
@@ -16,6 +17,7 @@ import { AoAddress, ArNSWalletConnector } from '../../../types';
 import eventEmitter from '../../../utils/events';
 import {
   ArweaveAppIcon,
+  BeaconIcon,
   CloseIcon,
   MetamaskIcon,
   WanderIcon,
@@ -165,6 +167,16 @@ function ConnectWalletModal(): JSX.Element {
             alt=""
           />
           Arweave.app
+        </button>
+
+        <button
+          className="wallet-connect-button text-base"
+          onClick={() => {
+            connect(new BeaconWalletConnector());
+          }}
+        >
+          <BeaconIcon className="external-icon size-12 p-3" />
+          Beacon
         </button>
 
         <p className="section-header mb-4">Connect with an Ethereum wallet</p>
