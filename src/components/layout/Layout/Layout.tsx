@@ -1,5 +1,6 @@
 import DevTools from '@src/components/devtools/DevTools';
 import { useArNSState } from '@src/state';
+import HoneycombObservability from '@src/utils/honeycomb';
 import { Progress } from 'antd';
 import { Outlet, useLocation } from 'react-router-dom';
 
@@ -62,6 +63,7 @@ function Layout() {
       <div className="body">
         <Outlet />
         <Notifications />
+        <HoneycombObservability />
       </div>
       <div
         className="flex flex-row"
