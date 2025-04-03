@@ -156,7 +156,7 @@ function PaymentOptionsForm({
               className={{
                 trigger:
                   'flex w-full gap-2 p-3 rounded-md bg-transparent border border-[#222224] items-center pointer-events-none',
-                icon: 'text-grey size-5',
+                icon: 'text-transparent size-5',
               }}
               options={cryptoDropdownOptions}
             />
@@ -181,31 +181,31 @@ function PaymentOptionsForm({
                   className="flex flex-col w-full h-full"
                 >
                   <Tabs.List
-                    className="flex flex-col w-full gap-2 text-white text-xs"
+                    className="flex flex-col w-full gap-2 text-white text-sm"
                     defaultValue={'balance'}
                   >
                     <Tabs.Trigger
                       value="balance"
-                      className="flex w-full gap-2 p-2 rounded bg-foreground data-[state=inactive]:bg-transparent border border-dark-grey items-center"
+                      className="flex w-full gap-2 p-3 rounded bg-foreground data-[state=inactive]:bg-transparent border border-dark-grey items-center"
                       onClick={() => onFundingSourceChange('balance')}
                     >
                       {fundingSource === 'balance' ? (
-                        <CircleCheck className="size-4 text-background fill-white" />
+                        <CircleCheck className="size-5 text-background fill-white" />
                       ) : (
-                        <Circle className="size-4 text-grey" />
+                        <Circle className="size-5 text-grey" />
                       )}
                       <span className="font-bold">Liquid Balance</span> (
                       {formatARIOWithCommas(liquidArIOBalance)} ARIO)
                     </Tabs.Trigger>
                     <Tabs.Trigger
                       value="any"
-                      className="flex w-full gap-2 p-2 rounded bg-foreground data-[state=inactive]:bg-transparent border border-dark-grey items-center"
+                      className="flex w-full gap-2 p-3 rounded bg-foreground data-[state=inactive]:bg-transparent border border-dark-grey items-center"
                       onClick={() => onFundingSourceChange('any')}
                     >
                       {fundingSource === 'any' ? (
-                        <CircleCheck className="size-4 text-background fill-white" />
+                        <CircleCheck className="size-5 text-background fill-white" />
                       ) : (
-                        <Circle className="size-4 text-grey" />
+                        <Circle className="size-5 text-grey" />
                       )}
                       <span className="font-bold">
                         Liquid + Staked Balances
@@ -214,13 +214,13 @@ function PaymentOptionsForm({
                     </Tabs.Trigger>
                     <Tabs.Trigger
                       value="stakes"
-                      className="flex w-full gap-2 p-2 rounded bg-foreground data-[state=inactive]:bg-transparent border border-dark-grey items-center"
+                      className="flex w-full gap-2 p-3 rounded bg-foreground data-[state=inactive]:bg-transparent border border-dark-grey items-center"
                       onClick={() => onFundingSourceChange('stakes')}
                     >
                       {fundingSource === 'stakes' ? (
-                        <CircleCheck className="size-4 text-background fill-white" />
+                        <CircleCheck className="size-5 text-background fill-white" />
                       ) : (
-                        <Circle className="size-4 text-grey" />
+                        <Circle className="size-5 text-grey" />
                       )}{' '}
                       <span className="font-bold">Staked Balances</span> (
                       {formatARIOWithCommas(stakedAndVaultedArIOBalance)} ARIO)

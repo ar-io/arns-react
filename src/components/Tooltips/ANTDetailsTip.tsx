@@ -23,11 +23,15 @@ function ANTDetailsTip({
     <Tooltip
       tooltipOverrides={{
         arrow: false,
-        overlayClassName: 'flex w-fit border border-dark-grey rounded',
+        overlayClassName: 'flex w-fit',
         overlayStyle: {
           width: 'fit-content',
         },
-        overlayInnerStyle: { width: 'fit-content' },
+        overlayInnerStyle: {
+          width: 'fit-content',
+          border: '1px solid var(--text-faded)',
+          boxSizing: 'border-box',
+        },
       }}
       message={
         <div className="flex flex-col p-2">
