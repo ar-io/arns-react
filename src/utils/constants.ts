@@ -92,6 +92,8 @@ export const ARIO_PROCESS_ID =
   import.meta.env.VITE_ARIO_PROCESS_ID || arioDevnetProcessId;
 
 export const DEFAULT_ANT_LUA_ID = ANT_LUA_ID;
+
+export const DEFAULT_ANT_LOGO = 'Sie_26dvgyok0PZD_-iQAFOhOd5YxDTkczOLoqTTL_A';
 export const ARIO_AO_CU_URL =
   import.meta.env.VITE_ARIO_AO_CU_URL || 'https://cu.ardrive.io';
 
