@@ -12,6 +12,7 @@ import {
 import { Layout } from './components/layout';
 import { ANT_FLAG } from './components/layout/Breadcrumbs/Breadcrumbs';
 import PageLoader from './components/layout/progress/PageLoader/PageLoader';
+import Checkout from './components/pages/Register/Checkout';
 import ArNSSettings from './components/pages/Settings/ArNSSettings';
 import NetworkSettings from './components/pages/Settings/NetworkSettings';
 import SettingsOverview from './components/pages/Settings/SettingsOverview';
@@ -311,6 +312,18 @@ function App() {
                 }
               >
                 <Register />
+              </Suspense>
+            }
+          />
+          <Route
+            path="register/:name/checkout"
+            element={
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                <Checkout />
               </Suspense>
             }
           />

@@ -99,7 +99,11 @@ function Counter({
                 value
               )}
 
-              {valueName ? <>&nbsp;{valueName}</> : <></>}
+              {valueName ? (
+                <span className="whitespace-nowrap">&nbsp;{valueName}</span>
+              ) : (
+                <></>
+              )}
             </span>
             {detail ? (
               <span className="text grey center" style={{ fontSize: '14px' }}>
