@@ -40,7 +40,7 @@ function DomainCheckoutCard({
   return (
     <div className="relative flex flex-col w-full h-full rounded border border-dark-grey overflow-hidden transition-all duration-300">
       {/* domain detail card */}
-      <ArNSLogo className="absolute w-[320px] h-fit top-[0px] right-[0px]" />
+      <ArNSLogo className="absolute w-[20rem] h-fit top-0 right-0" />
       <div className="flex flex-col size-full bg-gradient-to-b from-[#1C1C1F] to-[#0E0E0F] rounded-t text-light-grey p-6">
         <div className="flex w-fit gap-2 items-center z-10">
           <AntLogoIcon
@@ -53,7 +53,7 @@ function DomainCheckoutCard({
           <div className="flex items-center w-fit ">
             {' '}
             <Link
-              className="text-[#7596B280] hover:text-[#7596B2]"
+              className="text-link-normal hover:text-link-hover"
               to={`https://${domain}.${NETWORK_DEFAULTS.ARNS.HOST}`}
               target="_blank"
               rel="noreferrer"
@@ -66,13 +66,13 @@ function DomainCheckoutCard({
                 overlayInnerStyle: {
                   whiteSpace: 'nowrap',
                   width: 'fit-content',
-                  padding: '10px',
+                  padding: '0.625rem',
                   border: '1px solid var(--text-faded)',
                 },
               }}
               message={domain}
               icon={
-                <span className="text-white max-w-[180px] truncate">
+                <span className="text-white max-w-[11.25rem] truncate">
                   {' '}
                   {domain}
                 </span>
