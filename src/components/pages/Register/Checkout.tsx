@@ -239,6 +239,7 @@ function Checkout() {
               onPaymentMethodChange={setPaymentMethod}
               fundingSource={fundingSource}
               onFundingSourceChange={setFundingSource}
+              isInsufficientBalance={isInsufficientBalance}
             />
           </div>
         </div>
