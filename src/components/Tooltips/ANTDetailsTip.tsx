@@ -22,6 +22,7 @@ function ANTDetailsTip({
   return (
     <Tooltip
       tooltipOverrides={{
+        arrow: false,
         overlayClassName: 'flex w-fit border border-dark-grey rounded',
         overlayStyle: {
           width: 'fit-content',

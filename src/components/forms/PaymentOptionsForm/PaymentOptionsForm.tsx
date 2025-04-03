@@ -84,6 +84,7 @@ function PaymentOptionsForm({
             >
               <Tooltip
                 tooltipOverrides={{
+                  arrow: false,
                   overlayInnerStyle: {
                     whiteSpace: 'nowrap',
                     width: 'fit-content',
@@ -114,6 +115,7 @@ function PaymentOptionsForm({
             >
               <Tooltip
                 tooltipOverrides={{
+                  arrow: false,
                   overlayInnerStyle: {
                     whiteSpace: 'nowrap',
                     width: 'fit-content',
