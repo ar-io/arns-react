@@ -47,6 +47,7 @@ function Checkout() {
   const transaction = transactionData as BuyRecordPayload;
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('crypto');
+  const [isValid, setIsValid] = useState<boolean>(false);
   const [fundingSource, setFundingSource] = useState<FundFrom | undefined>(
     'balance',
   );
@@ -241,6 +242,7 @@ function Checkout() {
               fundingSource={fundingSource}
               onFundingSourceChange={setFundingSource}
               isInsufficientBalance={isInsufficientBalance}
+              setIsValid={setIsValid}
             />
           </div>
         </div>

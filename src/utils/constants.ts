@@ -209,3 +209,25 @@ export const PERMANENT_DOMAIN_MESSAGE = 'Indefinite';
 
 export const METAMASK_URL = 'https://metamask.io/';
 export const ANT_CHANGELOG = antChangelog;
+
+export const PAYMENT_SERVICE_FQDN =
+  import.meta.env.VITE_NODE_ENV == 'production'
+    ? 'payment.ardrive.io'
+    : 'payment.ardrive.dev';
+
+// PUBLISHABLE KEYS
+export const devStripePublishableKey =
+  'pk_test_51JUAtwC8apPOWkDLh2FPZkQkiKZEkTo6wqgLCtQoClL6S4l2jlbbc5MgOdwOUdU9Tn93NNvqAGbu115lkJChMikG00XUfTmo2z';
+
+export const prodStripePublishableKey =
+  'pk_live_51JUAtwC8apPOWkDLMQqNF9sPpfneNSPnwX8YZ8y1FNDl6v94hZIwzgFSYl27bWE4Oos8CLquunUswKrKcaDhDO6m002Yj9AeKj';
+
+export const STRIPE_PUBLISHABLE_KEY =
+  import.meta.env.VITE_NODE_ENV == 'production'
+    ? prodStripePublishableKey
+    : devStripePublishableKey;
+
+export const turboCurrencyLabels = {
+  arweave: 'AR',
+  ethereum: 'ETH',
+};

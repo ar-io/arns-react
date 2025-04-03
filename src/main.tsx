@@ -1,3 +1,5 @@
+import { STRIPE_PROMISE } from '@src/services/turbo/paymentService';
+import { Elements } from '@stripe/react-stripe-js';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider } from 'antd';
 import React from 'react';
@@ -82,7 +84,9 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
                     }}
                   >
                     <ModalStateProvider reducer={modalReducer}>
-                      <App />
+                      <Elements stripe={STRIPE_PROMISE}>
+                        <App />
+                      </Elements>
                     </ModalStateProvider>
                   </ConfigProvider>
                 </RegistrationStateProvider>
