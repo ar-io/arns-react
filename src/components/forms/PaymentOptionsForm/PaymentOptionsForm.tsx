@@ -83,6 +83,14 @@ function PaymentOptionsForm({
               className="flex gap-3 p-3 data-[state=active]:bg-foreground rounded border border-[#222224] data-[state=active]:border-grey text-white items-center flex-1 whitespace-nowrap transition-all duration-300 disabled:opacity-50"
             >
               <Tooltip
+                tooltipOverrides={{
+                  overlayInnerStyle: {
+                    whiteSpace: 'nowrap',
+                    width: 'fit-content',
+                    padding: '0.625rem',
+                    border: '1px solid var(--text-faded)',
+                  },
+                }}
                 message="Coming Soon!"
                 icon={
                   <div className="flex gap-3 items-center">
@@ -105,6 +113,14 @@ function PaymentOptionsForm({
               className="flex gap-3 p-3 data-[state=active]:bg-foreground rounded border border-[#222224] data-[state=active]:border-grey text-white items-center flex-1 whitespace-nowrap transition-all duration-300 disabled:opacity-50"
             >
               <Tooltip
+                tooltipOverrides={{
+                  overlayInnerStyle: {
+                    whiteSpace: 'nowrap',
+                    width: 'fit-content',
+                    padding: '0.625rem',
+                    border: '1px solid var(--text-faded)',
+                  },
+                }}
                 message="Coming Soon!"
                 icon={
                   <div className="flex gap-3 items-center">

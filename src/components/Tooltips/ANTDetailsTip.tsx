@@ -27,8 +27,8 @@ function ANTDetailsTip({
         overlayInnerStyle: { width: 'fit-content' },
       }}
       message={
-        <div className="flex flex-col p-2">
-          <span className="flex gap-2 text-sm text-grey py-4 border-b-[1px] border-dark-grey whitespace-nowrap gap-2">
+        <div className="flex flex-col p-2 pt-0">
+          <span className="flex text-sm text-grey py-4 border-b-[1px] border-dark-grey whitespace-nowrap gap-2">
             Process ID:{' '}
             {isArweaveTransactionID(antId) ? (
               <ArweaveID
