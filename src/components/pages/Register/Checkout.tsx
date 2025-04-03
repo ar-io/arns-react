@@ -35,8 +35,9 @@ import { useNavigate } from 'react-router-dom';
 // on completion routes to transaction/complete
 function Checkout() {
   const navigate = useNavigate();
-  const [{ arioContract, arioProcessId, aoNetwork, aoClient }] =
+  const [{ arioContract, arioProcessId, aoNetwork, aoClient, arioTicker }] =
     useGlobalState();
+  const formattedARIOTicker = `$${arioTicker}`;
   const [, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
   const [
@@ -91,7 +92,7 @@ function Checkout() {
                   {formatARIOWithCommas(
                     new mARIOToken(discount).toARIO().valueOf(),
                   )}{' '}
-                  $ARIO
+                  {formattedARIOTicker}
                 </span>
               ),
             }
@@ -99,7 +100,7 @@ function Checkout() {
         'Total due:':
           arioCost > 0 ? (
             <span className="text-white text-bold text-lg">
-              {formatARIOWithCommas(arioCost)} $ARIO
+              {formatARIOWithCommas(arioCost)} {formattedARIOTicker}
             </span>
           ) : (
             <span className="text-grey text-bold text-lg animate-pulse">
