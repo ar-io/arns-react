@@ -126,32 +126,40 @@ function NetworkSettings() {
     try {
       const newConfig = {
         ...aoNetwork,
-        ...config,
-        GATEWAY_URL: gateway,
+        ...{ ARIO: { ...aoNetwork.ARIO, ...config } },
+        ...{ ANT: { ...aoNetwork.ANT, ...config } },
       };
       dispatchGlobalState({
         type: 'setAONetwork',
         payload: newConfig,
       });
 
-      const ao = connect({
+      const arioAo = connect({
         GATEWAY_URL: 'https://' + gateway,
-        CU_URL: newConfig.CU_URL,
-        MU_URL: newConfig.MU_URL,
+        CU_URL: newConfig.ARIO.CU_URL,
+        MU_URL: newConfig.ARIO.MU_URL,
       });
       dispatchGlobalState({
         type: 'setARIOAoClient',
-        payload: ao,
+        payload: arioAo,
       });
       dispatchArIOContract({
         contract: ARIO.init({
           process: new AOProcess({
             processId: arioProcessId,
-            ao,
+            ao: arioAo,
           }),
         }),
         arioProcessId,
         dispatch: dispatchGlobalState,
+      });
+      dispatchGlobalState({
+        type: 'setANTAoClient',
+        payload: connect({
+          GATEWAY_URL: 'https://' + gateway,
+          CU_URL: newConfig.ANT.CU_URL,
+          MU_URL: newConfig.ANT.MU_URL,
+        }),
       });
     } catch (error) {
       eventEmitter.emit('error', error);
