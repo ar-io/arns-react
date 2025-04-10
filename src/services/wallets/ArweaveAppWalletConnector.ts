@@ -1,3 +1,4 @@
+import { TokenType } from '@ardrive/turbo-sdk';
 import { ARWEAVE_APP_API } from '@src/utils/constants';
 import { ArweaveAppError } from '@src/utils/errors';
 import { ApiConfig } from 'arweave/node/lib/api';
@@ -9,6 +10,7 @@ import { executeWithTimeout } from '../../utils';
 import { ArweaveTransactionID } from '../arweave/ArweaveTransactionID';
 
 export class ArweaveAppWalletConnector implements ArNSWalletConnector {
+  tokenType: TokenType = 'arweave';
   private _wallet: ReactiveConnector & { namespaces: any };
   contractSigner?: Window['arweaveWallet'];
 
