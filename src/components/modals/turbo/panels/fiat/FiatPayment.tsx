@@ -132,6 +132,7 @@ function FiatPayment({
   const cardElementOptions: StripeCardElementOptions = {
     style: {
       base: {
+        fontSize: '16px',
         color: 'white',
         '::placeholder': {
           color: '#aab7c4',
@@ -213,7 +214,7 @@ function FiatPayment({
         <form className="mt-2 flex  flex-col gap-4">
           <FormEntry name="name" label="Name on Card *" errorText={nameError}>
             <input
-              className="size-full bg-transparent px-4 py-2 outline-none autofill:shadow-[inset_0_0_0px_1000px_rgb(255,255,0)"
+              className="size-full bg-transparent px-4 py-2 outline-none "
               type="text"
               name="name"
               value={name}
@@ -246,7 +247,7 @@ function FiatPayment({
               }}
               className={{
                 trigger:
-                  'bg-transparent text-white flex gap-2 items-center p-2 rounded outline-none justify-between h-fit w-full text-sm',
+                  'bg-transparent text-white flex gap-2 items-center p-2 rounded outline-none justify-between h-fit w-full ',
                 item: 'w-[24rem] flex items-center gap-3 cursor-pointer bg-background hover:bg-foreground p-2 text-grey fill-grey hover:fill-white  hover:text-white outline-none  transition-all',
                 content:
                   'flex bg-background z-[100] rounded overflow-hidden border py-2 w-[24rem] border-foreground absolute left-[-2.5rem]',
@@ -255,7 +256,9 @@ function FiatPayment({
                 icon: 'text-grey size-5',
               }}
               renderValue={(v) => (
-                <span className="text-white  w-full items-start flex">{v}</span>
+                <span className="text-white pl-2 w-full items-start flex">
+                  {v}
+                </span>
               )}
               options={
                 countries?.map(
