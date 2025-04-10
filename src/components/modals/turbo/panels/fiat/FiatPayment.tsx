@@ -230,7 +230,7 @@ function FiatPayment({
           <FormEntry name="name" label="Credit Card *" errorText={cardError}>
             <CardElement
               options={cardElementOptions}
-              className="w-full bg-transparent px-4 py-2 text-white outline-none whitespace-nowrap"
+              className="size-full bg-transparent px-4 py-2 outline-none whitespace-nowrap h-[2.188rem]"
               onChange={(e) => {
                 setCardError(e.error?.message);
               }}
@@ -410,7 +410,11 @@ function FiatPayment({
                 className="text-xs whitespace-nowrap size-4"
                 id="keepMeUpdatedCheckbox"
                 disabled={!email}
-                label="Keep me up to date on news and promotions."
+                label={
+                  <span className="text-sm whitespace-nowrap">
+                    Keep me up to date on news and promotions.
+                  </span>
+                }
                 checked={keepMeUpdated}
                 onCheckedChange={(checked) =>
                   setKeepMeUpdated(Boolean(checked.valueOf()))

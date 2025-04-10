@@ -177,12 +177,12 @@ function FiatConfirmation({
 
         <label
           htmlFor="tosCheckbox"
-          className="text-sm text-grey ml-2 flex items-center gap-1 justify-center"
+          className="text-sm  ml-2 flex items-center gap-1 justify-center whitespace-nowrap"
         >
           I agree to the{' '}
           <a
             href="https://ardrive.io/tos-and-privacy/"
-            className="text-link"
+            className="text-link whitespace-nowrap"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="ArDrive terms of service and privacy policy"

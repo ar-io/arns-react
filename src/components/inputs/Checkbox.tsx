@@ -5,7 +5,7 @@ import * as React from 'react';
 
 export interface CheckboxProps
   extends React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root> {
-  label?: string;
+  label?: React.ReactNode;
   className?: string;
 }
 

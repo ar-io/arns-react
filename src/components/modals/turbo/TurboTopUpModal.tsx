@@ -77,6 +77,30 @@ function TurboTopUpModal({ onClose }: { onClose: () => void }) {
     updatePaymentIntent();
   }, [walletAddress, topupValue, wallet]);
 
+  useEffect(() => {
+    // Prevent user from leaving the page when payment is in progress, requires confirmation
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (panelState === 'payment' || panelState === 'confirm') {
+        e.preventDefault();
+        handleClose();
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [panelState]);
+
+  function handleClose() {
+    if (panelState === 'payment' || panelState === 'confirm') {
+      if (window.confirm('Are you sure you want to close this payment?')) {
+        onClose();
+      }
+    } else {
+      onClose();
+    }
+  }
+
   return (
     <div className="modal-container">
       <div className="flex flex-col rounded bg-metallic-grey border border-dark-grey gap-2 w-[30rem] overflow-hidden">
@@ -109,7 +133,7 @@ function TurboTopUpModal({ onClose }: { onClose: () => void }) {
               }
             />
           </span>
-          <button onClick={onClose}>
+          <button onClick={handleClose}>
             <XIcon className="size-5" />
           </button>
         </div>
@@ -195,7 +219,7 @@ function TurboTopUpModal({ onClose }: { onClose: () => void }) {
             className={`flex flex-col rounded h-full data-[state=inactive]:size-0 data-[state=active]:size-full data-[state=inactive]:opacity-0 transition-all duration-300 ease-in-out `}
           >
             {currency === 'fiat' ? (
-              <FiatTopupComplete onFinish={() => onClose()} />
+              <FiatTopupComplete onFinish={() => handleClose()} />
             ) : (
               <CryptoTopupComplete />
             )}
