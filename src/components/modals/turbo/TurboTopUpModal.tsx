@@ -113,7 +113,7 @@ function TurboTopUpModal({ onClose }: { onClose: () => void }) {
                 },
               }}
               message={
-                <div className="text-sm text-light-grey flex flex-col gap-2">
+                <div className="text-sm text-light-grey flex flex-col gap-2 p-2">
                   Turbo Credits will be added to your wallet and can be used
                   right away. Credit purchases are non-refundable and
                   non-transferable.

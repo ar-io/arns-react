@@ -266,7 +266,7 @@ function NavMenuCard() {
                           {key === 'Turbo Credits' && (
                             <div className="relative w-[50px] h-[20px]">
                               <button
-                                className="absolute bottom-0 left-0 text-xs text-white hover:text-black bg-dark-grey hover:bg-white border-r border-b hover:border-none border-grey rounded-[3px] px-2 py-[2px] transition-all duration-200"
+                                className="absolute bottom-0 left-0 text-xs text-white hover:text-black bg-foreground hover:bg-white border border-dark-grey rounded px-2 py-[2px] transition-all duration-200"
                                 onClick={() => {
                                   setTurboTopUpModalOpen(true);
                                   setShowMenu(false);
