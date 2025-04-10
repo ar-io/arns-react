@@ -65,6 +65,7 @@ import ElephantThree from './elephant3.png';
 import { ReactComponent as EnvelopeIcon } from './envelope.svg';
 import { ReactComponent as MetamaskIcon } from './metamask_logo_flat.svg';
 import TurboJson from './turbo-logo.json';
+import { ReactComponent as TurboLogo } from './turbo_logo.svg';
 
 export {
   ArNSLogo,
@@ -132,6 +133,7 @@ export {
   TokenIcon,
   TurboIcon,
   TurboJson,
+  TurboLogo,
   UploadIcon,
   VerticalDotMenuIcon,
 };

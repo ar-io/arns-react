@@ -1,3 +1,4 @@
+import { TokenType } from '@ardrive/turbo-sdk';
 import { WalletNotInstalledError, WanderError } from '@src/utils/errors';
 import eventEmitter from '@src/utils/events';
 import { PermissionType } from 'arconnect';
@@ -18,6 +19,7 @@ export const WANDER_WALLET_PERMISSIONS: PermissionType[] = [
 ];
 
 export class WanderWalletConnector implements ArNSWalletConnector {
+  tokenType: TokenType = 'arweave';
   private _wallet: Window['arweaveWallet'];
   contractSigner: Window['arweaveWallet'];
   constructor() {
