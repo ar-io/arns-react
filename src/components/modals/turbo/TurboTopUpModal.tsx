@@ -82,7 +82,6 @@ function TurboTopUpModal({ onClose }: { onClose: () => void }) {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (panelState === 'payment' || panelState === 'confirm') {
         e.preventDefault();
-        handleClose();
       }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
