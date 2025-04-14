@@ -250,10 +250,9 @@ function FiatPayment({
                   'bg-transparent text-white flex gap-2 items-center p-2 rounded outline-none justify-between h-fit w-full ',
                 item: 'flex items-center w-full gap-3 cursor-pointer bg-background hover:bg-foreground p-2 text-grey fill-grey hover:fill-white  hover:text-white outline-none  transition-all',
                 content:
-                  'flex bg-background z-[100] rounded overflow-hidden border py-2 w-full border-foreground box-border',
+                  'bg-background z-[100] rounded  border py-2 w-full border-foreground box-border',
                 group: 'flex flex-col  bg-foreground text-sm w-full',
-                viewport:
-                  'flex justify-center items-center w-[428px] absolute left-[0.5rem]',
+                viewport: 'justify-center items-center w-[428px]',
                 icon: 'text-grey size-5',
               }}
               renderValue={(v) => (
