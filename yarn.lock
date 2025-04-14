@@ -93,6 +93,22 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
+"@ar.io/sdk@../ar-io-sdk":
+  version "3.10.0-alpha.1"
+  dependencies:
+    "@dha-team/arbundles" "^1.0.1"
+    "@permaweb/aoconnect" "^0.0.57"
+    arweave "1.15.5"
+    axios "1.8.4"
+    axios-retry "^4.3.0"
+    commander "^12.1.0"
+    eventemitter3 "^5.0.1"
+    plimit-lit "^3.0.1"
+    prompts "^2.4.2"
+    uuid "^11.1.0"
+    winston "^3.13.0"
+    zod "^3.23.8"
+
 "@ar.io/sdk@^1.2.2":
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-1.2.2.tgz#2d3a0fa1d19ad5bb0caf34dc4cd78e88def0eb5f"
@@ -107,23 +123,6 @@
     eventemitter3 "^5.0.1"
     plimit-lit "^3.0.1"
     warp-contracts "1.4.45"
-
-"@ar.io/sdk@^3.9.0-alpha.7":
-  version "3.9.0-alpha.7"
-  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-3.9.0-alpha.7.tgz#9b61498f3533d04bacd372ff7118ddbe24453795"
-  integrity sha512-uniJdpn3kQVOQz3kh5RGXiexRdu0D2VLKVvdMN1tpgyd5htPiRlgMFhW7fYkyaUewAEHUVia1LjrLI2/2i2epA==
-  dependencies:
-    "@dha-team/arbundles" "^1.0.1"
-    "@permaweb/aoconnect" "^0.0.57"
-    arweave "1.15.5"
-    axios "1.8.2"
-    axios-retry "^4.3.0"
-    commander "^12.1.0"
-    eventemitter3 "^5.0.1"
-    plimit-lit "^3.0.1"
-    prompts "^2.4.2"
-    winston "^3.13.0"
-    zod "^3.23.8"
 
 "@ardrive/turbo-sdk@^1.23.1":
   version "1.23.1"
@@ -7073,10 +7072,10 @@ axios@1.7.2:
     form-data "^4.0.0"
     proxy-from-env "^1.1.0"
 
-axios@1.8.2:
-  version "1.8.2"
-  resolved "https://registry.npmjs.org/axios/-/axios-1.8.2.tgz#fabe06e241dfe83071d4edfbcaa7b1c3a40f7979"
-  integrity sha512-ls4GYBm5aig9vWx8AWDSGLpnpDQRtWAfrjU+EuytuODrFBkqesN2RkOQCBzrA1RQNHw1SmRMSDDDSwzNAYQ6Rg==
+axios@1.8.4, axios@^1.6.0:
+  version "1.8.4"
+  resolved "https://registry.npmjs.org/axios/-/axios-1.8.4.tgz#78990bb4bc63d2cae072952d374835950a82f447"
+  integrity sha512-eBSYY4Y68NNlHbHBMdeDmKNtDgXWhQsJcGqzO3iLUM0GraQFSS9cVgPX5I9b3lbdFKyYoAEGAZF1DwhTaljNAw==
   dependencies:
     follow-redirects "^1.15.6"
     form-data "^4.0.0"
@@ -7094,15 +7093,6 @@ axios@^1.1.3, axios@^1.4.0, axios@^1.6.7:
   version "1.7.4"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.4.tgz#4c8ded1b43683c8dd362973c393f3ede24052aa2"
   integrity sha512-DukmaFRnY6AzAALSH4J2M3k6PkaC+MfaAGdEERRWcC9q3/TWQwLpHR8ZRLKTdQ3aBDL64EdluRDjJqKw+BPZEw==
-  dependencies:
-    follow-redirects "^1.15.6"
-    form-data "^4.0.0"
-    proxy-from-env "^1.1.0"
-
-axios@^1.6.0:
-  version "1.8.4"
-  resolved "https://registry.npmjs.org/axios/-/axios-1.8.4.tgz#78990bb4bc63d2cae072952d374835950a82f447"
-  integrity sha512-eBSYY4Y68NNlHbHBMdeDmKNtDgXWhQsJcGqzO3iLUM0GraQFSS9cVgPX5I9b3lbdFKyYoAEGAZF1DwhTaljNAw==
   dependencies:
     follow-redirects "^1.15.6"
     form-data "^4.0.0"
@@ -15995,6 +15985,11 @@ utility-types@^3.10.0:
   version "3.11.0"
   resolved "https://registry.npmjs.org/utility-types/-/utility-types-3.11.0.tgz#607c40edb4f258915e901ea7995607fdf319424c"
   integrity sha512-6Z7Ma2aVEWisaL6TvBCy7P8rm2LQoPv6dJ7ecIaIixHcwfbJ0x7mWdbcwlIM5IGQxPZSFYeqRCqlOOeKoJYMkw==
+
+uuid@^11.1.0:
+  version "11.1.0"
+  resolved "https://registry.npmjs.org/uuid/-/uuid-11.1.0.tgz#9549028be1753bb934fc96e2bca09bb4105ae912"
+  integrity sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==
 
 uuid@^8.3.2:
   version "8.3.2"
