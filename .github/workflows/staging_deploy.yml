@@ -27,7 +27,7 @@ jobs:
           yarn build
         env:
           # FOR BUILD
-          VITE_NODE_ENV: develop
+          VITE_NODE_ENV: production
           VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           VITE_SENTRY_RELEASE: ${{ github.sha }}
           VITE_SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
