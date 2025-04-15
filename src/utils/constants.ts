@@ -132,9 +132,9 @@ export const NETWORK_DEFAULTS = {
   },
   TURBO: {
     UPLOAD_URL: 'https://turbo.ardrive.io',
-    PAYMENT_URL: PAYMENT_SERVICE_FQDN,
+    PAYMENT_URL: `https://${PAYMENT_SERVICE_FQDN}`,
     GATEWAY_URL: 'https://arweave.net',
-    WALLETS_URL: `${PAYMENT_SERVICE_FQDN}/info`,
+    WALLETS_URL: `https://${PAYMENT_SERVICE_FQDN}/info`,
   },
 };
 
