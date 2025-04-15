@@ -75,6 +75,9 @@ function FiatConfirmation({
         console.error(result.error.message);
         setPaymentError(result.error.message);
       } else {
+        queryClient.resetQueries({
+          queryKey: ['turbo-credit-balance'],
+        });
         setPaymentIntentResult(result);
       }
       onSubmit();
