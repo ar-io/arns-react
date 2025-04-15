@@ -101,6 +101,11 @@ export const ARIO_AO_CU_URL =
 export const ANT_AO_CU_URL =
   import.meta.env.VITE_ANT_AO_CU_URL || 'https://cu.ardrive.io';
 
+export const PAYMENT_SERVICE_FQDN =
+  import.meta.env.VITE_NODE_ENV == 'production'
+    ? 'payment.ardrive.io'
+    : 'payment.ardrive.dev';
+
 export const NETWORK_DEFAULTS = {
   AO: {
     ARIO: {
@@ -127,9 +132,9 @@ export const NETWORK_DEFAULTS = {
   },
   TURBO: {
     UPLOAD_URL: 'https://turbo.ardrive.io',
-    PAYMENT_URL: 'https://payment.ardrive.io',
+    PAYMENT_URL: PAYMENT_SERVICE_FQDN,
     GATEWAY_URL: 'https://arweave.net',
-    WALLETS_URL: `https://payment.ardrive.io/info`,
+    WALLETS_URL: `${PAYMENT_SERVICE_FQDN}/info`,
   },
 };
 
@@ -215,11 +220,6 @@ export const ANT_CHANGELOG = antChangelog;
 export const KiB = 1024;
 export const MiB = 1024 * KiB;
 export const GiB = 1024 * MiB;
-
-export const PAYMENT_SERVICE_FQDN =
-  import.meta.env.VITE_NODE_ENV == 'production'
-    ? 'payment.ardrive.io'
-    : 'payment.ardrive.dev';
 
 // PUBLISHABLE KEYS
 export const devStripePublishableKey =
