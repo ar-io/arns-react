@@ -36,6 +36,7 @@ function DomainCheckoutCard({
   });
 
   const countdownString = useCountdown(quoteEndTimestamp);
+
   return (
     <div className="relative flex flex-col w-full h-full rounded border border-dark-grey overflow-hidden transition-all duration-300">
       {/* domain detail card */}

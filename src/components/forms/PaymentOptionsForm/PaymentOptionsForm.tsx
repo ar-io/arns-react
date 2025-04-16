@@ -6,11 +6,14 @@ import {
   useArIOLiquidBalance,
   useArIOStakedAndVaultedBalance,
 } from '@src/hooks/useArIOBalance';
+import { useTurboCreditBalance } from '@src/hooks/useTurboCreditBalance';
 import { useGlobalState } from '@src/state';
 import { formatARIOWithCommas } from '@src/utils';
+import Ar from 'arweave/node/ar';
 import { Circle, CircleCheck, CreditCard } from 'lucide-react';
 import { Tabs } from 'radix-ui';
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export type PaymentMethod = 'card' | 'crypto' | 'credits';
 export type ARIOCryptoOptions = '$ARIO' | '$dARIO' | '$tARIO';
@@ -21,11 +24,13 @@ function PaymentOptionsForm({
   paymentMethod = 'crypto',
   onFundingSourceChange,
   onPaymentMethodChange,
+  isInsufficientBalance,
 }: {
   fundingSource?: FundFrom;
   paymentMethod?: PaymentMethod;
   onFundingSourceChange: (fundingSource: FundFrom) => void;
   onPaymentMethodChange: (paymentMethod: PaymentMethod) => void;
+  isInsufficientBalance: boolean;
 }) {
   const [{ arioTicker }] = useGlobalState();
   const formattedARIOTicker = `$${arioTicker}` as CryptoOptions;
@@ -51,6 +56,15 @@ function PaymentOptionsForm({
   const allArIOBalance = useMemo(() => {
     return liquidArIOBalance + stakedAndVaultedArIOBalance;
   }, [liquidArIOBalance, stakedAndVaultedArIOBalance]);
+
+  const { data: turboCreditBalanceRes } = useTurboCreditBalance();
+  const turboCreditBalance = useMemo(() => {
+    if (!turboCreditBalanceRes) return '0';
+    const ar = new Ar();
+    return formatARIOWithCommas(
+      parseFloat(ar.winstonToAr(turboCreditBalanceRes.effectiveBalance)),
+    );
+  }, [turboCreditBalanceRes]);
 
   const [selectedCrypto, setSelectedCrypto] =
     useState<CryptoOptions>(formattedARIOTicker);
@@ -110,7 +124,6 @@ function PaymentOptionsForm({
             </Tabs.Trigger>
             <Tabs.Trigger
               value="credits"
-              disabled={true}
               className="flex gap-3 p-3 data-[state=active]:bg-foreground rounded border border-[#222224] data-[state=active]:border-grey text-white items-center flex-1 whitespace-nowrap transition-all duration-300 disabled:opacity-50"
             >
               <Tooltip
@@ -232,9 +245,35 @@ function PaymentOptionsForm({
           </Tabs.Content>
           <Tabs.Content
             value="credits"
-            className={`flex flex-col data-[state=active]:p-4 data-[state=active]:border border-dark-grey rounded h-full data-[state=inactive]:size-0 data-[state=inactive]:opacity-0 data-[state=active]:min-h-[405px]`}
+            className={`flex flex-col data-[state=active]:p-6 data-[state=active]:border border-dark-grey rounded h-full data-[state=inactive]:size-0 data-[state=inactive]:opacity-0 data-[state=active]:min-h-[405px]`}
           >
-            <span className="text-grey flex m-auto">Coming Soon!</span>
+            <div className="flex w-full flex-col gap-2 items-start">
+              <span className="text-grey text-sm">
+                Your Turbo Credit balance:
+              </span>
+              <span className="text-white text-2xl font-bold">
+                {turboCreditBalance} Credits
+              </span>
+            </div>{' '}
+            {isInsufficientBalance && (
+              <div className="flex size-full flex-col items-start justify-between">
+                {' '}
+                <div className="flex flex-col text-xs text-error items-start mt-6">
+                  <span>Insufficient Turbo Credits for purchase.</span>
+                  <span>
+                    Please top-up to complete your purchase in credits.
+                  </span>
+                </div>
+                <Link
+                  className="py-2 px-6 text-lg text-white rounded bg-dark-grey border border-transparent hover:border-grey"
+                  to={`https://turbo-topup.com`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Top-Up
+                </Link>
+              </div>
+            )}
           </Tabs.Content>
         </Tabs.Root>{' '}
       </div>

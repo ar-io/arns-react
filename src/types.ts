@@ -3,6 +3,7 @@ import {
   AoArNSNameData,
   AoGetCostDetailsParams,
   ContractSigner,
+  TurboArNSSigner,
 } from '@ar.io/sdk/web';
 import { TokenType } from '@ardrive/turbo-sdk';
 import { ApiConfig } from 'arweave/web/lib/api';
@@ -91,6 +92,7 @@ export interface ArNSWalletConnector {
     amount: number,
     toAddress: string,
   ): Promise<TransferTransactionResult>;
+  turboSigner?: TurboArNSSigner;
 }
 
 export enum WALLET_TYPES {

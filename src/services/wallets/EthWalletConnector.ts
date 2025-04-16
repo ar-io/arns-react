@@ -1,7 +1,12 @@
-import { AoSigner, ContractSigner } from '@ar.io/sdk/web';
+import {
+  AoSigner,
+  ContractSigner,
+  InjectedEthereumSigner,
+  TurboArNSSigner,
+} from '@ar.io/sdk/web';
 import { TokenType } from '@ardrive/turbo-sdk';
 import { MetamaskError } from '@src/utils/errors';
-import { InjectedEthereumSigner, createData } from 'arbundles';
+import { createData } from 'arbundles';
 import { ApiConfig } from 'arweave/node/lib/api';
 import { hashMessage, parseEther, recoverPublicKey, toBytes } from 'viem';
 import { mainnet } from 'viem/chains';
@@ -24,6 +29,7 @@ export type TransferTransactionResult = {
 export class EthWalletConnector implements ArNSWalletConnector {
   tokenType: TokenType = 'ethereum';
   contractSigner?: ContractSigner;
+  turboSigner: TurboArNSSigner;
   connector: Connector;
   config: Config;
 
@@ -52,6 +58,8 @@ export class EthWalletConnector implements ArNSWalletConnector {
       }),
     };
     const signer = new InjectedEthereumSigner(provider as any);
+
+    this.turboSigner = signer as any as TurboArNSSigner;
     signer.setPublicKey = async () => {
       const message = 'Sign this message to connect to ArNS.app';
       const ethAccount = getAccount(config);
@@ -75,7 +83,7 @@ export class EthWalletConnector implements ArNSWalletConnector {
       if (!signer.publicKey) {
         await signer.setPublicKey();
       }
-      const dataItem = createData(data as any, signer, {
+      const dataItem = createData(data as string, signer, {
         tags,
         target,
         anchor: Math.round(Date.now() / 1000)
@@ -85,7 +93,7 @@ export class EthWalletConnector implements ArNSWalletConnector {
 
       const res = await dataItem.sign(signer).then(async () => ({
         id: dataItem.id,
-        raw: dataItem.getRaw(),
+        raw: dataItem.getRaw() as any,
       }));
       return res;
     };

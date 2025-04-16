@@ -33,7 +33,7 @@ function useWanderEvents() {
           processId: arioProcessId,
           ao: aoClient,
         }),
-        signer: newWallet.contractSigner!,
+        signer: newWallet.turboSigner!,
       });
       dispatchNewGateway(e?.host, contract, dispatchGlobalState);
     };
