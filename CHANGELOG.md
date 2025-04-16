@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.4.0] - 2025-04-3
+
+### Changed
+
+- Added new checkout page for ArNS Name purchases.
+
 ## [1.3.0] - 2025-03-25
 
 ### Added

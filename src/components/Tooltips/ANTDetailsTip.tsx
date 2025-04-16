@@ -22,13 +22,20 @@ function ANTDetailsTip({
   return (
     <Tooltip
       tooltipOverrides={{
+        arrow: false,
         overlayClassName: 'flex w-fit',
-        overlayStyle: { width: 'fit-content' },
-        overlayInnerStyle: { width: 'fit-content' },
+        overlayStyle: {
+          width: 'fit-content',
+        },
+        overlayInnerStyle: {
+          width: 'fit-content',
+          border: '1px solid var(--text-faded)',
+          boxSizing: 'border-box',
+        },
       }}
       message={
-        <div className="flex flex-col p-2 pt-0">
-          <span className="flex text-sm text-grey py-4 border-b-[1px] border-dark-grey whitespace-nowrap gap-2">
+        <div className="flex flex-col p-2">
+          <span className="flex text-sm text-grey pb-4 pt-0 border-b-[1px] border-dark-grey whitespace-nowrap gap-2">
             Process ID:{' '}
             {isArweaveTransactionID(antId) ? (
               <ArweaveID
@@ -55,7 +62,7 @@ function ANTDetailsTip({
               'N/A'
             )}
           </span>
-          <span className="flex gap-2 text-sm text-grey py-4 border-b-[1px] border-dark-grey whitespace-nowrap">
+          <span className="flex gap-2 text-sm text-grey pt-4 pb-0 whitespace-nowrap">
             Owner:{' '}
             {isArweaveTransactionID(owner) ? (
               <ArweaveID

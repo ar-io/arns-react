@@ -290,16 +290,16 @@ function Checkout() {
           </div>
         </div>
         <div className={`flex justify-end items-end w-full pt-6`}>
-          <div className="flex gap-4 w-full justify-end">
+          <div className="flex gap-4 w-full justify-end text-[0.875rem]">
             <button
-              className="py-4 px-5 rounded border border-dark-grey text-grey w-[112px]"
+              className="p-[0.625rem] rounded border border-dark-grey text-grey w-[100px]"
               onClick={() => navigate(-1)}
             >
               Back
             </button>
             <button
               disabled={isInsufficientBalance || isLoadingCostDetail}
-              className="py-4 px-5 bg-primary rounded w-[112px] min-w-fit disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-[0.625rem] bg-primary rounded w-[100px] min-w-fit disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleNext}
             >
               {isLoadingCostDetail

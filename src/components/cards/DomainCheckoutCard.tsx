@@ -2,10 +2,9 @@ import { useCountdown } from '@src/hooks/useCountdown';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { useWalletState } from '@src/state';
 import { isArweaveTransactionID } from '@src/utils';
-import { DEFAULT_ANT_LOGO, NETWORK_DEFAULTS } from '@src/utils/constants';
+import { DEFAULT_ANT_LOGO } from '@src/utils/constants';
 import { RotateCw } from 'lucide-react';
 import { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
 
 import ANTDetailsTip from '../Tooltips/ANTDetailsTip';
 import { Tooltip } from '../data-display';
@@ -53,14 +52,7 @@ function DomainCheckoutCard({
           />
           <div className="flex items-center w-fit ">
             {' '}
-            <Link
-              className="text-link-normal hover:text-link-hover"
-              to={`https://${domain}.${NETWORK_DEFAULTS.ARNS.HOST}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              ar://
-            </Link>
+            <span className="text-link-normal">ar://</span>
             <Tooltip
               tooltipOverrides={{
                 overlayClassName: 'w-fit',
