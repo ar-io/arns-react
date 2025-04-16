@@ -93,22 +93,6 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@../ar-io-sdk":
-  version "3.10.0-alpha.2"
-  dependencies:
-    "@dha-team/arbundles" "^1.0.1"
-    "@permaweb/aoconnect" "^0.0.57"
-    arweave "1.15.5"
-    axios "1.8.4"
-    axios-retry "^4.3.0"
-    commander "^12.1.0"
-    eventemitter3 "^5.0.1"
-    plimit-lit "^3.0.1"
-    prompts "^2.4.2"
-    uuid "^11.1.0"
-    winston "^3.13.0"
-    zod "^3.23.8"
-
 "@ar.io/sdk@^1.2.2":
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-1.2.2.tgz#2d3a0fa1d19ad5bb0caf34dc4cd78e88def0eb5f"
@@ -123,6 +107,24 @@
     eventemitter3 "^5.0.1"
     plimit-lit "^3.0.1"
     warp-contracts "1.4.45"
+
+"@ar.io/sdk@^3.10.0-alpha.3":
+  version "3.10.0-alpha.3"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-3.10.0-alpha.3.tgz#e56fd89b9e2684dc400e77f425906148eaed75bc"
+  integrity sha512-4pIWoby+OhApxo1dEL7gVkqbDMWwv43i6jckNtNv6YHmGtgwoBckI+KeZm1eK6U3lFbJvscvxF6ymwxMVUQQsA==
+  dependencies:
+    "@dha-team/arbundles" "^1.0.1"
+    "@permaweb/aoconnect" "^0.0.57"
+    arweave "1.15.5"
+    axios "1.8.4"
+    axios-retry "^4.3.0"
+    commander "^12.1.0"
+    eventemitter3 "^5.0.1"
+    plimit-lit "^3.0.1"
+    prompts "^2.4.2"
+    uuid "^11.1.0"
+    winston "^3.13.0"
+    zod "^3.23.8"
 
 "@ardrive/turbo-sdk@^1.23.1":
   version "1.23.1"
