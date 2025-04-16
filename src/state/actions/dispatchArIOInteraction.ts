@@ -21,6 +21,7 @@ import {
 import { createAntStateForOwner, lowerCaseDomain, sleep } from '@src/utils';
 import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
+import { queryClient } from '@src/utils/network';
 import { Dispatch } from 'react';
 
 export default async function dispatchArIOInteraction({
@@ -213,6 +214,9 @@ export default async function dispatchArIOInteraction({
       payload: false,
     });
     clearTimeout(aoCongestedTimeout);
+    queryClient.invalidateQueries({
+      queryKey: ['turbo-credit-balance'],
+    });
   }
   if (!result) {
     throw new Error('Failed to dispatch ArIO interaction');
