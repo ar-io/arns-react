@@ -22,7 +22,7 @@ const Panel = Collapse.Panel;
 
 function ArNSRegistrySettings() {
   const [
-    { arweaveDataProvider, arioProcessId, aoClient, gateway },
+    { arweaveDataProvider, arioProcessId, aoClient, gateway, turboNetwork },
     dispatchGlobalState,
   ] = useGlobalState();
   const [{ wallet }] = useWalletState();
@@ -43,6 +43,7 @@ function ArNSRegistrySettings() {
       });
 
       const arIOContract = ARIO.init({
+        paymentUrl: turboNetwork.PAYMENT_URL,
         process: new AOProcess({
           processId: id.trim(),
           ao: aoClient,

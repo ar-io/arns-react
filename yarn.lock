@@ -108,10 +108,10 @@
     plimit-lit "^3.0.1"
     warp-contracts "1.4.45"
 
-"@ar.io/sdk@^3.10.0-alpha.3":
-  version "3.10.0-alpha.3"
-  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-3.10.0-alpha.3.tgz#e56fd89b9e2684dc400e77f425906148eaed75bc"
-  integrity sha512-4pIWoby+OhApxo1dEL7gVkqbDMWwv43i6jckNtNv6YHmGtgwoBckI+KeZm1eK6U3lFbJvscvxF6ymwxMVUQQsA==
+"@ar.io/sdk@^3.10.0-alpha.4":
+  version "3.10.0-alpha.4"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-3.10.0-alpha.4.tgz#9044d9a2fff94fbe6ca3acaad1ec7a7bf96c9f05"
+  integrity sha512-gAYrYhFjuc28UADmAoZkPpypqL2I2fgxJXLHim+4TNfAZm8rRVYTud3cgouSQliJtEDxE8xCmTz4qysdIsJuLQ==
   dependencies:
     "@dha-team/arbundles" "^1.0.1"
     "@permaweb/aoconnect" "^0.0.57"
