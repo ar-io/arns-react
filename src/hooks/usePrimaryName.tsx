@@ -3,9 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 
 export function usePrimaryName() {
   const [{ walletAddress }] = useWalletState();
-  const [{ arioContract }] = useGlobalState();
+  const [{ arioContract, arioProcessId }] = useGlobalState();
   return useQuery({
-    queryKey: ['primary-name', walletAddress?.toString(), arioContract],
+    queryKey: [
+      'primary-name',
+      walletAddress?.toString(),
+      arioProcessId.toString(),
+    ],
     queryFn: async () => {
       if (!walletAddress)
         throw new Error('Must be connected to retrieve primary name');

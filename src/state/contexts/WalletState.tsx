@@ -82,7 +82,7 @@ export function WalletStateProvider({
           processId: arioProcessId,
           ao: aoClient,
         }),
-        signer: wallet!.contractSigner!,
+        signer: wallet!.turboSigner!,
       }),
       arioProcessId,
       dispatch: dispatchGlobalState,

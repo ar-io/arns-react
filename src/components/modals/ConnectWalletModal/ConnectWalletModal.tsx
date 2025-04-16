@@ -90,7 +90,7 @@ function ConnectWalletModal(): JSX.Element {
           processId: arioProcessId,
           ao: aoClient,
         }),
-        signer: walletConnector.contractSigner!,
+        signer: walletConnector.turboSigner!,
       });
       if (arweaveGate?.host) {
         await dispatchNewGateway(
