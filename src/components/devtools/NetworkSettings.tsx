@@ -460,11 +460,49 @@ function NetworkSettings() {
                 }
               />
 
-              <span className="flex w-fit justify-center items-center bg-primary-thin rounded-t-md px-4 py-1 border-x-2 border-t-2 border-primary text-md text-primary font-semibold mt-2">
+              <span className="flex w-fit justify-center items-center bg-primary-thin rounded-t-md px-4 py-1 border-x-2 border-t-2 border-primary text-md text-primary font-semibold mt-2 gap-2">
                 Turbo Payment URL:{' '}
                 <span className="text-white pl-2">
                   {turboNetwork.PAYMENT_URL}
                 </span>
+                <button
+                  data-network={
+                    turboNetwork.PAYMENT_URL.includes('ardrive.dev')
+                      ? 'testnet'
+                      : 'mainnet'
+                  }
+                  className="bg-foreground text-white h-full flex w-fit p-1 rounded-sm text-xs hover:bg-primary-thin border border-primary-thin hover:border-primary data-[network=testnet]:bg-primary data-[network=testnet]:text-black data-[network=testnet]:border-primary-thin data-[network=testnet]:hover:bg-primary-thin data-[network=testnet]:hover:border-primary"
+                  onClick={() => {
+                    setNewTurboPaymentUrl('https://payment.ardrive.dev');
+                    setValidTurboPaymentUrl(true);
+                    updateTurboNetwork({
+                      PAYMENT_URL: 'https://payment.ardrive.dev',
+                      UPLOAD_URL: turboNetwork.UPLOAD_URL,
+                      GATEWAY_URL: turboNetwork.GATEWAY_URL,
+                    });
+                  }}
+                >
+                  Turbo Dev
+                </button>
+                <button
+                  data-network={
+                    turboNetwork.PAYMENT_URL.includes('ardrive.dev')
+                      ? 'testnet'
+                      : 'mainnet'
+                  }
+                  className="bg-foreground text-white h-full flex w-fit p-1 rounded-sm text-xs hover:bg-primary-thin border border-primary-thin hover:border-primary data-[network=mainnet]:bg-primary data-[network=mainnet]:text-black data-[network=mainnet]:border-primary-thin data-[network=mainnet]:hover:bg-primary-thin data-[network=mainnet]:hover:border-primary"
+                  onClick={() => {
+                    setNewTurboPaymentUrl(`https://payment.ardrive.io`);
+                    setValidTurboPaymentUrl(true);
+                    updateTurboNetwork({
+                      PAYMENT_URL: `https://payment.ardrive.io`,
+                      UPLOAD_URL: turboNetwork.UPLOAD_URL,
+                      GATEWAY_URL: turboNetwork.GATEWAY_URL,
+                    });
+                  }}
+                >
+                  Turbo Prod
+                </button>
               </span>
               <Input
                 className="bg-background justify-center items-center"
