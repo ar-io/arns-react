@@ -25,7 +25,7 @@ import './styles.css';
 
 function NetworkSettings() {
   const [
-    { gateway, aoNetwork, arioProcessId, arioContract },
+    { gateway, aoNetwork, arioProcessId, arioContract, turboNetwork },
     dispatchGlobalState,
   ] = useGlobalState();
   const [{ wallet }] = useWalletState();
@@ -145,6 +145,7 @@ function NetworkSettings() {
       });
       dispatchArIOContract({
         contract: ARIO.init({
+          paymentUrl: turboNetwork.PAYMENT_URL,
           process: new AOProcess({
             processId: arioProcessId,
             ao,

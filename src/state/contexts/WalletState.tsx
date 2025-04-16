@@ -61,7 +61,14 @@ export function WalletStateProvider({
   const [state, dispatchWalletState] = useReducer(reducer, initialState);
 
   const [
-    { arweaveDataProvider, blockHeight, arioTicker, arioProcessId, aoClient },
+    {
+      arweaveDataProvider,
+      blockHeight,
+      arioTicker,
+      arioProcessId,
+      aoClient,
+      turboNetwork,
+    },
     dispatchGlobalState,
   ] = useGlobalState();
 
@@ -78,6 +85,7 @@ export function WalletStateProvider({
 
     dispatchArIOContract({
       contract: ARIO.init({
+        paymentUrl: turboNetwork.PAYMENT_URL,
         process: new AOProcess({
           processId: arioProcessId,
           ao: aoClient,

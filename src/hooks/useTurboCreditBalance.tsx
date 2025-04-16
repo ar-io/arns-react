@@ -9,7 +9,7 @@ export function useTurboCreditBalance(address?: string) {
   const turboArNSClient = useTurboArNSClient();
 
   return useQuery({
-    queryKey: ['turbo-credit-balance', userAddress],
+    queryKey: ['turbo-credit-balance', userAddress, turboArNSClient],
     queryFn: async () => {
       if (!userAddress) throw new Error('No wallet address found');
       return await turboArNSClient?.turboUploader.getBalance(

@@ -22,7 +22,7 @@ const Panel = Collapse.Panel;
 
 function NetworkSettings() {
   const [
-    { gateway, aoNetwork, arioProcessId, arioContract },
+    { gateway, aoNetwork, arioProcessId, arioContract, turboNetwork },
     dispatchGlobalState,
   ] = useGlobalState();
   const [{ wallet }] = useWalletState();
@@ -47,6 +47,12 @@ function NetworkSettings() {
   const [validSuAddress, setValidSuAddress] = useState<boolean>(true);
   const [showGatewayModal, setShowGatewayModal] = useState<boolean>(false);
 
+  const [newTurboPaymentUrl, setNewTurboPaymentUrl] = useState<string>(
+    turboNetwork.PAYMENT_URL,
+  );
+  const [validTurboPaymentUrl, setValidTurboPaymentUrl] =
+    useState<boolean>(true);
+
   function reset() {
     // gateway
     setNewGateway(NETWORK_DEFAULTS.ARWEAVE.HOST);
@@ -64,6 +70,10 @@ function NetworkSettings() {
       MU_URL: NETWORK_DEFAULTS.AO.ARIO.MU_URL,
       SCHEDULER: NETWORK_DEFAULTS.AO.ARIO.SCHEDULER,
     });
+    // turbo network
+    setNewTurboPaymentUrl(NETWORK_DEFAULTS.TURBO.PAYMENT_URL);
+    setValidTurboPaymentUrl(true);
+    updateTurboNetwork(NETWORK_DEFAULTS.TURBO);
   }
 
   useEffect(() => {
@@ -128,6 +138,7 @@ function NetworkSettings() {
       });
       dispatchArIOContract({
         contract: ARIO.init({
+          paymentUrl: turboNetwork.PAYMENT_URL,
           process: new AOProcess({
             processId: arioProcessId,
             ao,
@@ -163,6 +174,22 @@ function NetworkSettings() {
     } catch (error) {
       eventEmitter.emit('error', error);
     }
+  }
+
+  function updateTurboNetwork(config: typeof NETWORK_DEFAULTS.TURBO) {
+    dispatchGlobalState({ type: 'setTurboNetwork', payload: config });
+    dispatchArIOContract({
+      contract: ARIO.init({
+        paymentUrl: config.PAYMENT_URL,
+        signer: wallet!.turboSigner!,
+        process: new AOProcess({
+          processId: arioProcessId,
+          ao: connect(aoNetwork.ARIO),
+        }),
+      }),
+      arioProcessId,
+      dispatch: dispatchGlobalState,
+    });
   }
 
   return (
@@ -425,6 +452,61 @@ function NetworkSettings() {
                         updateARIOAoNetwork({
                           SCHEDULER: NETWORK_DEFAULTS.AO.ARIO.SCHEDULER,
                         });
+                      }}
+                    >
+                      reset
+                    </button>
+                  </div>
+                }
+              />
+
+              <span className="flex w-fit justify-center items-center bg-primary-thin rounded-t-md px-4 py-1 border-x-2 border-t-2 border-primary text-md text-primary font-semibold mt-2">
+                Turbo Payment URL:{' '}
+                <span className="text-white pl-2">
+                  {turboNetwork.PAYMENT_URL}
+                </span>
+              </span>
+              <Input
+                className="bg-background justify-center items-center"
+                placeholder="Enter custom Turbo payment url"
+                value={newTurboPaymentUrl}
+                onChange={(e) => {
+                  setValidTurboPaymentUrl(isValidURL(e.target.value.trim()));
+                  setNewTurboPaymentUrl(e.target.value.trim());
+                }}
+                onClear={() => setNewTurboPaymentUrl('')}
+                onPressEnter={(e) =>
+                  updateTurboNetwork({
+                    PAYMENT_URL: e.currentTarget.value.trim(),
+                    UPLOAD_URL: turboNetwork.UPLOAD_URL,
+                    GATEWAY_URL: turboNetwork.GATEWAY_URL,
+                  })
+                }
+                variant="outlined"
+                status={validTurboPaymentUrl ? '' : 'error'}
+                addonAfter={
+                  <div className="flex flex-row" style={{ gap: '5px' }}>
+                    <button
+                      disabled={!validTurboPaymentUrl}
+                      className="bg-primary text-black h-full flex w-fit p-1 rounded-sm text-xs"
+                      onClick={() =>
+                        updateTurboNetwork({
+                          PAYMENT_URL: newTurboPaymentUrl.trim(),
+                          UPLOAD_URL: turboNetwork.UPLOAD_URL,
+                          GATEWAY_URL: turboNetwork.GATEWAY_URL,
+                        })
+                      }
+                    >
+                      Set Turbo Payment URL
+                    </button>
+                    <button
+                      className="bg-primary-thin text-white h-full flex w-fit p-1 rounded-sm text-xs"
+                      onClick={() => {
+                        setNewTurboPaymentUrl(
+                          NETWORK_DEFAULTS.TURBO.PAYMENT_URL,
+                        );
+                        setValidTurboPaymentUrl(true);
+                        updateTurboNetwork(NETWORK_DEFAULTS.TURBO);
                       }}
                     >
                       reset
