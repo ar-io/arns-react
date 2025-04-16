@@ -28,6 +28,7 @@ import type { GlobalAction } from '../reducers/GlobalReducer';
 
 export const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);
 export const defaultArIO = ARIO.init({
+  paymentUrl: NETWORK_DEFAULTS.TURBO.PAYMENT_URL,
   process: new AOProcess({
     processId: ARIO_PROCESS_ID,
     ao: connect({
@@ -40,6 +41,7 @@ export type GlobalState = {
   arioTicker: string;
   gateway: string;
   aoNetwork: typeof NETWORK_DEFAULTS.AO;
+  turboNetwork: typeof NETWORK_DEFAULTS.TURBO;
   aoClient: AoClient;
   antAoClient: AoClient;
   arioProcessId: string;
@@ -54,6 +56,7 @@ const initialState: GlobalState = {
   arioTicker: 'ARIO',
   gateway: ARWEAVE_HOST,
   aoNetwork: NETWORK_DEFAULTS.AO,
+  turboNetwork: NETWORK_DEFAULTS.TURBO,
   aoClient: connect(NETWORK_DEFAULTS.AO.ARIO),
   antAoClient: connect(NETWORK_DEFAULTS.AO.ANT),
   blockHeight: undefined,
