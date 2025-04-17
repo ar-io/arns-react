@@ -1,4 +1,4 @@
-import { TurboArNSClient } from '@src/services/arweave/TurboArNSClient';
+import { TurboArNSClient } from '@src/services/turbo/TurboArNSClient';
 import { useGlobalState, useWalletState } from '@src/state';
 import { useMemo } from 'react';
 

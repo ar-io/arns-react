@@ -2,7 +2,10 @@ import Countdown from '@src/components/data-display/Countdown';
 import { RefreshIcon, TurboLogo } from '@src/components/icons';
 import { Checkbox } from '@src/components/inputs/Checkbox';
 import { useEstimatedCreditsForUSD } from '@src/hooks/useEstimatedCreditsForUSD';
-import { wincToCredits } from '@src/services/turbo/paymentService';
+import { useTurboArNSClient } from '@src/hooks/useTurboArNSClient';
+import { buildTurboCreditBalanceQuery } from '@src/hooks/useTurboCreditBalance';
+import { useGlobalState, useWalletState } from '@src/state';
+import { sleep } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
 import { useStripe } from '@stripe/react-stripe-js';
@@ -31,7 +34,9 @@ function FiatConfirmation({
   onSubmit: () => void;
 }) {
   const stripe = useStripe();
-
+  const turbo = useTurboArNSClient();
+  const [{ turboNetwork }] = useGlobalState();
+  const [{ walletAddress }] = useWalletState();
   const {
     data: estimatedCredits,
     dataUpdatedAt: creditsEstimateUpdatedAt,
@@ -63,6 +68,14 @@ function FiatConfirmation({
     setSendingPayment(true);
 
     try {
+      const updateCreditBalanceQuery = buildTurboCreditBalanceQuery({
+        userAddress: walletAddress?.toString(),
+        turboArNSClient: turbo,
+        turboNetwork,
+      });
+      const prevBalance = await queryClient.fetchQuery(
+        updateCreditBalanceQuery,
+      );
       const result = await stripe.confirmCardPayment(
         paymentIntent.client_secret,
         {
@@ -75,9 +88,21 @@ function FiatConfirmation({
         console.error(result.error.message);
         setPaymentError(result.error.message);
       } else {
-        queryClient.resetQueries({
-          queryKey: ['turbo-credit-balance'],
-        });
+        let retries = 0;
+        while (retries <= 10) {
+          queryClient.invalidateQueries({
+            queryKey: ['turbo-credit-balance'],
+          });
+          const newBalance = await queryClient.fetchQuery(
+            updateCreditBalanceQuery,
+          );
+          if (newBalance.effectiveBalance !== prevBalance.effectiveBalance) {
+            break;
+          }
+          await sleep(1000 * retries ** 2);
+          retries++;
+        }
+
         setPaymentIntentResult(result);
       }
       onSubmit();
@@ -104,7 +129,9 @@ function FiatConfirmation({
           <>
             <div className="flex w-full flex-col items-center py-2">
               <div className="text-3xl font-bold">
-                {wincToCredits(Number(estimatedCredits?.winc) || 0).toFixed(4)}
+                {turbo
+                  ?.wincToCredits(Number(estimatedCredits?.winc) || 0)
+                  .toFixed(4)}
               </div>
               <div className="text-sm text-grey">Credits</div>
             </div>

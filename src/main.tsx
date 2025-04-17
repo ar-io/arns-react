@@ -9,7 +9,7 @@ import { metaMask } from 'wagmi/connectors';
 
 import App from './App';
 import './index.css';
-import { STRIPE_PROMISE } from './services/turbo/paymentService';
+import { STRIPE_PROMISE } from './services/turbo/TurboArNSClient';
 import {
   ArNSStateProvider,
   GlobalStateProvider,

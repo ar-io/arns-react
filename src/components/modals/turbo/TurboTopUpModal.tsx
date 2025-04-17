@@ -1,7 +1,7 @@
 import { USD } from '@ardrive/turbo-sdk/web';
 import { Tooltip } from '@src/components/data-display';
 import { TurboLogo } from '@src/components/icons';
-import { getPaymentIntent } from '@src/services/turbo/paymentService';
+import { useTurboArNSClient } from '@src/hooks/useTurboArNSClient';
 import { useWalletState } from '@src/state';
 import { LINK_HOW_ARE_CONVERSIONS_DETERMINED } from '@src/utils/constants';
 import { PaymentIntent, PaymentIntentResult } from '@stripe/stripe-js';
@@ -33,6 +33,7 @@ type Currency = 'fiat' | 'crypto';
 
 function TurboTopUpModal({ onClose }: { onClose: () => void }) {
   const [{ wallet, walletAddress }] = useWalletState();
+  const turbo = useTurboArNSClient();
   const [currency, setCurrency] = useState<Currency>('fiat');
 
   const [panelState, setPanelState] = useState<PanelStates>('configure');
@@ -57,14 +58,15 @@ function TurboTopUpModal({ onClose }: { onClose: () => void }) {
           return;
         }
         try {
-          const paymentIntent = await getPaymentIntent(
-            walletAddress.toString(),
-            USD(topupValue).amount,
-            wallet.tokenType,
-          );
-          if (paymentIntent.paymentSession) {
+          const paymentIntent = await turbo?.getTopupPaymentIntent({
+            address: walletAddress.toString(),
+            amount: USD(topupValue).amount,
+            token: wallet.tokenType,
+          });
+          if (paymentIntent?.paymentSession) {
             setPaymentIntent(paymentIntent.paymentSession);
             setPaymentAmount(USD(topupValue).amount);
+            setPaymentIntentError(undefined);
           }
         } catch (e: unknown) {
           setPaymentIntentError((e as Error).message);

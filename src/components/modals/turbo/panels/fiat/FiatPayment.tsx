@@ -5,11 +5,8 @@ import { Checkbox } from '@src/components/inputs/Checkbox';
 import { SelectDropdown } from '@src/components/inputs/Select';
 import useCountries from '@src/hooks/useCountries';
 import { useEstimatedCreditsForUSD } from '@src/hooks/useEstimatedCreditsForUSD';
-import {
-  getPaymentIntent,
-  getWincForFiat,
-  wincToCredits,
-} from '@src/services/turbo/paymentService';
+import { useTurboArNSClient } from '@src/hooks/useTurboArNSClient';
+import { TurboArNSClient } from '@src/services/turbo/TurboArNSClient';
 import { useWalletState } from '@src/state';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
@@ -49,12 +46,13 @@ const isValidPromoCode = async (
   paymentAmount: number,
   promoCode: string,
   destinationAddress: string,
+  turbo: TurboArNSClient,
 ) => {
   try {
-    const response = await getWincForFiat({
+    const response = await turbo.turboUploader.getWincForFiat({
       amount: USD(paymentAmount / 100),
-      promoCode,
-      destinationAddress,
+      promoCodes: [promoCode],
+      nativeAddress: destinationAddress,
     });
     return response.adjustments.length > 0;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -82,6 +80,7 @@ function FiatPayment({
 }) {
   const [{ wallet, walletAddress }] = useWalletState();
   const { data: countries } = useCountries();
+  const turbo = useTurboArNSClient();
 
   const stripe = useStripe();
   const elements = useElements();
@@ -166,7 +165,9 @@ function FiatPayment({
           {estimatedCredits ? (
             <div className="flex flex-col">
               <div className="text-xl font-bold whitespace-nowrap">
-                {wincToCredits(Number(estimatedCredits?.winc ?? 0)).toFixed(4)}{' '}
+                {turbo
+                  ?.wincToCredits(Number(estimatedCredits?.winc ?? 0))
+                  .toFixed(4)}{' '}
                 Credits
               </div>
               <div className="text-sm whitespace-nowrap">
@@ -285,14 +286,15 @@ function FiatPayment({
                     e.preventDefault();
                     e.stopPropagation();
 
-                    if (walletAddress && wallet && paymentAmount) {
+                    if (walletAddress && wallet && paymentAmount && turbo) {
                       try {
                         // reset payment intent to one without promo code
-                        const newPaymentIntent = await getPaymentIntent(
-                          walletAddress.toString(),
-                          paymentAmount,
-                          wallet.tokenType,
-                        );
+                        const newPaymentIntent =
+                          await turbo.getTopupPaymentIntent({
+                            address: walletAddress.toString(),
+                            amount: paymentAmount,
+                            token: wallet.tokenType,
+                          });
                         setPaymentIntent(newPaymentIntent.paymentSession);
                         setPromoCode(undefined);
                         setLocalPromoCode(undefined);
@@ -346,21 +348,25 @@ function FiatPayment({
                       localPromoCode.length > 0
                     ) {
                       if (
+                        turbo &&
                         (await isValidPromoCode(
                           paymentAmount,
                           localPromoCode,
                           walletAddress.toString(),
+                          turbo,
                         )) &&
                         wallet &&
-                        wallet.tokenType
+                        wallet.tokenType &&
+                        turbo
                       ) {
                         try {
-                          const newPaymentIntent = await getPaymentIntent(
-                            walletAddress.toString(),
-                            paymentAmount,
-                            wallet.tokenType,
-                            localPromoCode,
-                          );
+                          const newPaymentIntent =
+                            await turbo.getTopupPaymentIntent({
+                              address: walletAddress.toString(),
+                              amount: paymentAmount,
+                              token: wallet.tokenType,
+                              promoCode: localPromoCode,
+                            });
                           setPaymentIntent(newPaymentIntent.paymentSession);
                           setPromoCode(localPromoCode);
                         } catch (e: unknown) {

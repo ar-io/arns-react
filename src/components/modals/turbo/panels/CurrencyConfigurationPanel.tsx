@@ -3,11 +3,6 @@ import { SelectDropdown } from '@src/components/inputs/Select';
 import { useTurboArNSClient } from '@src/hooks/useTurboArNSClient';
 import { useTurboCreditBalance } from '@src/hooks/useTurboCreditBalance';
 import useUploadCostGib from '@src/hooks/useUploadCostGib';
-import {
-  getAmountByTokenType,
-  wincToCredits,
-} from '@src/services/turbo/paymentService';
-import { getWincForToken } from '@src/services/turbo/paymentService';
 import { useWalletState } from '@src/state';
 import { formatARIOWithCommas } from '@src/utils/common/common';
 import { currencyLabels } from '@src/utils/constants';
@@ -96,9 +91,9 @@ function CurrencyConfigurationPanel({
         const gibs = +winc.winc / wincPerGiB;
 
         setValueString(
-          `$${fiatCost.toFixed(2)} = ${wincToCredits(+winc.winc).toFixed(
-            4,
-          )} credits \u{02248} ${gibs.toFixed(2)} GiB`,
+          `$${fiatCost.toFixed(2)} = ${turbo
+            .wincToCredits(+winc.winc)
+            .toFixed(4)} credits \u{02248} ${gibs.toFixed(2)} GiB`,
         );
       } catch (e: unknown) {
         console.error(e);
@@ -129,18 +124,18 @@ function CurrencyConfigurationPanel({
         return;
       }
 
-      const cryptoAmount = getAmountByTokenType(tokenCost, tokenType);
+      const cryptoAmount = turbo.getAmountByTokenType(tokenCost, tokenType);
       try {
-        const winc = await getWincForToken(
+        const winc = await turbo.getWincForToken(
           cryptoAmount ? +cryptoAmount : 0,
           tokenType,
         );
         const gibs = +winc.winc / wincPerGiB;
 
         setValueString(
-          `${tokenCost} ${tokenLabel} = ${wincToCredits(+winc.winc).toFixed(
-            4,
-          )} credits \u{02248} ${gibs.toFixed(2)} GiB`,
+          `${tokenCost} ${tokenLabel} = ${turbo
+            .wincToCredits(+winc.winc)
+            .toFixed(4)} credits \u{02248} ${gibs.toFixed(2)} GiB`,
         );
       } catch (e: unknown) {
         console.error(e);
