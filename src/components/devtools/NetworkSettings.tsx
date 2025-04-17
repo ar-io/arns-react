@@ -479,6 +479,7 @@ function NetworkSettings() {
                       PAYMENT_URL: 'https://payment.ardrive.dev',
                       UPLOAD_URL: turboNetwork.UPLOAD_URL,
                       GATEWAY_URL: turboNetwork.GATEWAY_URL,
+                      WALLETS_URL: turboNetwork.WALLETS_URL,
                     });
                   }}
                 >
@@ -498,6 +499,7 @@ function NetworkSettings() {
                       PAYMENT_URL: `https://payment.ardrive.io`,
                       UPLOAD_URL: turboNetwork.UPLOAD_URL,
                       GATEWAY_URL: turboNetwork.GATEWAY_URL,
+                      WALLETS_URL: turboNetwork.WALLETS_URL,
                     });
                   }}
                 >
@@ -518,6 +520,7 @@ function NetworkSettings() {
                     PAYMENT_URL: e.currentTarget.value.trim(),
                     UPLOAD_URL: turboNetwork.UPLOAD_URL,
                     GATEWAY_URL: turboNetwork.GATEWAY_URL,
+                    WALLETS_URL: turboNetwork.WALLETS_URL,
                   })
                 }
                 variant="outlined"
@@ -532,6 +535,7 @@ function NetworkSettings() {
                           PAYMENT_URL: newTurboPaymentUrl.trim(),
                           UPLOAD_URL: turboNetwork.UPLOAD_URL,
                           GATEWAY_URL: turboNetwork.GATEWAY_URL,
+                          WALLETS_URL: turboNetwork.WALLETS_URL,
                         })
                       }
                     >
