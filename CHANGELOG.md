@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.5.0] - 2025-05-17
+
+### Added
+
+- Added Turbo credits payment method to checkout page
+
 ## [1.4.0] - 2025-04-3
 
 ### Changed
