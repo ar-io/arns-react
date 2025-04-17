@@ -2,6 +2,7 @@ import { FundFrom, mARIOToken } from '@ar.io/sdk';
 import { Tooltip } from '@src/components/data-display';
 import { ArIOTokenIcon, TurboIcon } from '@src/components/icons';
 import { SelectDropdown } from '@src/components/inputs/Select';
+import TurboTopUpModal from '@src/components/modals/turbo/TurboTopUpModal';
 import {
   useArIOLiquidBalance,
   useArIOStakedAndVaultedBalance,
@@ -13,7 +14,6 @@ import Ar from 'arweave/node/ar';
 import { Circle, CircleCheck, CreditCard } from 'lucide-react';
 import { Tabs } from 'radix-ui';
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 
 export type PaymentMethod = 'card' | 'crypto' | 'credits';
 export type ARIOCryptoOptions = '$ARIO' | '$dARIO' | '$tARIO';
@@ -75,6 +75,8 @@ function PaymentOptionsForm({
     }
     return 0;
   }, [selectedCrypto, allArIOBalance, formattedARIOTicker]);
+
+  const [showTopupModal, setShowTopupModal] = useState(false);
 
   return (
     <>
@@ -250,19 +252,20 @@ function PaymentOptionsForm({
                     Please top-up to complete your purchase in credits.
                   </span>
                 </div>
-                <Link
+                <button
                   className="py-2 px-6 text-lg text-white rounded bg-dark-grey border border-transparent hover:border-grey"
-                  to={`https://turbo-topup.com`}
-                  target="_blank"
-                  rel="noreferrer"
+                  onClick={() => setShowTopupModal(true)}
                 >
                   Top-Up
-                </Link>
+                </button>
               </div>
             )}
           </Tabs.Content>
         </Tabs.Root>{' '}
       </div>
+      {showTopupModal && (
+        <TurboTopUpModal onClose={() => setShowTopupModal(false)} />
+      )}
     </>
   );
 }

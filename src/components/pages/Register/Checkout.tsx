@@ -14,6 +14,7 @@ import {
   COST_DETAIL_STALE_TIME,
   useCostDetails,
 } from '@src/hooks/useCostDetails';
+import { useTurboArNSClient } from '@src/hooks/useTurboArNSClient';
 import { useTurboCreditBalance } from '@src/hooks/useTurboCreditBalance';
 import { dispatchArNSUpdate, useArNSState } from '@src/state';
 import dispatchArIOInteraction from '@src/state/actions/dispatchArIOInteraction';
@@ -34,14 +35,11 @@ import { useNavigate } from 'react-router-dom';
 
 // page on route transaction/review
 // on completion routes to transaction/complete
-
-export const wincToCredits = (winc: number) => {
-  return winc / 1_000_000_000_000;
-};
 function Checkout() {
   const navigate = useNavigate();
   const [{ arioContract, arioProcessId, aoNetwork, aoClient, arioTicker }] =
     useGlobalState();
+  const turbo = useTurboArNSClient();
   const formattedARIOTicker = `$${arioTicker}`;
   const [, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
@@ -141,7 +139,9 @@ function Checkout() {
         'Total due:':
           costDetail?.wincQty && Number(costDetail?.wincQty) > 0 ? (
             <span className="text-white text-bold text-lg">
-              {formatARIOWithCommas(wincToCredits(Number(costDetail?.wincQty)))}{' '}
+              {formatARIOWithCommas(
+                turbo?.wincToCredits(Number(costDetail?.wincQty ?? 0)) ?? 0,
+              )}{' '}
               Credits
             </span>
           ) : (

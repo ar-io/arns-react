@@ -44,9 +44,7 @@ export function buildAllGraphQLTransactionsQuery(
   return queryOptions<TransactionEdge['node'][]>({
     queryKey: ['arweave-graphql', ids, graphqlUrl],
     queryFn: async () => {
-      if (ids.length === 0) {
-        return [];
-      }
+      if (ids.length === 0) return [];
       const results: TransactionEdge['node'][] = [];
       let cursor = undefined;
       let hasNextPage = true;

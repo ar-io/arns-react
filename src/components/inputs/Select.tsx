@@ -1,6 +1,7 @@
 import * as Select from '@radix-ui/react-select';
 import classnames from 'classnames';
 import { ChevronDownIcon } from 'lucide-react';
+import { ScrollArea } from 'radix-ui';
 import React, { ReactNode } from 'react';
 
 const SelectItem = React.forwardRef<
@@ -95,7 +96,7 @@ export const SelectDropdown = ({
           {triggerIcon}
         </Select.Icon>
       </Select.Trigger>
-      <Select.Portal container={document.getElementById('root')}>
+      <Select.Portal>
         <Select.Content
           side={side}
           position={position}
@@ -104,23 +105,27 @@ export const SelectDropdown = ({
             'overflow-hidden rounded-md bg-white shadow-[0px_10px_38px_-10px_rgba(22,_23,_24,_0.35),0px_10px_20px_-15px_rgba(22,_23,_24,_0.2)]'
           }
         >
-          <Select.Viewport className={className.viewport ?? ''}>
-            <Select.Group className={className?.group}>
-              {options.map((option) => (
-                <SelectItem
-                  key={option.value}
-                  value={option.value}
-                  className={classnames(
-                    className.item ??
-                      'relative flex h-[25px] select-none items-center rounded-[3px] pl-[25px] pr-[35px] text-[13px] leading-none text-violet11 data-[disabled]:pointer-events-none data-[highlighted]:bg-violet9 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 data-[highlighted]:outline-none',
-                    option.className,
-                  )}
-                >
-                  {option.label}
-                </SelectItem>
-              ))}
-            </Select.Group>
-          </Select.Viewport>
+          <ScrollArea.Root className="size-full" type="auto">
+            <Select.Viewport className={className.viewport ?? ''} asChild>
+              <ScrollArea.Viewport className="size-full">
+                <Select.Group className={className?.group}>
+                  {options.map((option) => (
+                    <SelectItem
+                      key={option.value}
+                      value={option.value}
+                      className={classnames(
+                        className.item ??
+                          'relative flex h-[25px] select-none items-center rounded-[3px] pl-[25px] pr-[35px] text-[13px] leading-none text-violet11 data-[disabled]:pointer-events-none data-[highlighted]:bg-violet9 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 data-[highlighted]:outline-none',
+                        option.className,
+                      )}
+                    >
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </Select.Group>
+              </ScrollArea.Viewport>
+            </Select.Viewport>
+          </ScrollArea.Root>
         </Select.Content>
       </Select.Portal>
     </Select.Root>

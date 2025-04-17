@@ -1,7 +1,7 @@
 {
   "name": "arns-vite-react",
   "private": true,
-  "version": "1.5.0",
+  "version": "1.6.0",
   "homepage": ".",
   "scripts": {
     "build": "yarn clean && tsc --build tsconfig.json && NODE_OPTIONS=--max-old-space-size=32768 vite build",
@@ -32,6 +32,8 @@
     "@radix-ui/react-select": "^2.1.4",
     "@radix-ui/react-switch": "^1.1.2",
     "@sentry/react": "^7.45.0",
+    "@stripe/react-stripe-js": "^3.6.0",
+    "@stripe/stripe-js": "^7.0.0",
     "@tanstack/react-query": "^5.51.21",
     "@tanstack/react-query-devtools": "^5.66.9",
     "@tanstack/react-query-persist-client": "^5.45.1",
@@ -59,6 +61,7 @@
     "react-markdown": "6",
     "react-router-dom": "^6.4.2",
     "recharts": "^2.15.0",
+    "validator": "^13.15.0",
     "viem": "2.x",
     "wagmi": "^2.12.2"
   },
@@ -97,6 +100,7 @@
     "@types/react-test-renderer": "^18.0.0",
     "@types/rimraf": "^3.0.2",
     "@types/uuid": "^9.0.0",
+    "@types/validator": "^13.12.3",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@typescript-eslint/parser": "^6.19.0",
     "@vitejs/plugin-react": "^4.0.0",
