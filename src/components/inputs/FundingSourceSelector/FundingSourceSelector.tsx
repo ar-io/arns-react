@@ -1,4 +1,4 @@
-import { CostDetailsResult, mARIOToken } from '@ar.io/sdk';
+import { CostDetailsResult, FundFrom, mARIOToken } from '@ar.io/sdk';
 import { Tooltip } from '@src/components/data-display';
 import { CircleXFilled } from '@src/components/icons';
 import { useCostDetails } from '@src/hooks/useCostDetails';
@@ -68,7 +68,7 @@ export function FundingSourceSelector({
     fundFrom: 'any',
   });
 
-  const [fundFrom, setFundFrom] = useState<(typeof fundingSources)[number]>(
+  const [fundFrom, setFundFrom] = useState<FundFrom>(
     details.fundFrom || 'balance',
   );
 

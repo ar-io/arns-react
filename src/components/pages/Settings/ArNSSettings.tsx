@@ -22,8 +22,10 @@ import { useEffect, useState } from 'react';
 import './styles.css';
 
 function ArNSSettings() {
-  const [{ arioProcessId, aoClient, gateway }, dispatchGlobalState] =
-    useGlobalState();
+  const [
+    { arioProcessId, aoClient, gateway, turboNetwork },
+    dispatchGlobalState,
+  ] = useGlobalState();
   const [{ wallet }] = useWalletState();
   const [registryAddress, setRegistryAddress] = useState<string>(
     arioProcessId?.toString(),
@@ -42,11 +44,12 @@ function ArNSSettings() {
       });
 
       const arIOContract = ARIO.init({
+        paymentUrl: turboNetwork.PAYMENT_URL,
         process: new AOProcess({
           processId: id.trim(),
           ao: aoClient,
         }),
-        ...(wallet?.contractSigner ? { signer: wallet.contractSigner } : {}),
+        ...(wallet?.turboSigner ? { signer: wallet.turboSigner } : {}),
       });
       dispatchGlobalState({
         type: 'setArIOContract',

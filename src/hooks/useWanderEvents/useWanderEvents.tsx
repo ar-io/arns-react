@@ -8,7 +8,8 @@ import { useGlobalState } from '../../state/contexts/GlobalState';
 import { useWalletState } from '../../state/contexts/WalletState';
 
 function useWanderEvents() {
-  const [{ arioProcessId, aoClient }, dispatchGlobalState] = useGlobalState();
+  const [{ arioProcessId, aoClient, turboNetwork }, dispatchGlobalState] =
+    useGlobalState();
   const [{ wallet }, dispatchWalletState] = useWalletState();
   const [eventEmitter, setEventEmitter] = useState<any>();
 
@@ -29,11 +30,12 @@ function useWanderEvents() {
     }) => {
       const newWallet = wallet ?? new WanderWalletConnector();
       const contract = ARIO.init({
+        paymentUrl: turboNetwork.PAYMENT_URL,
         process: new AOProcess({
           processId: arioProcessId,
           ao: aoClient,
         }),
-        signer: newWallet.contractSigner!,
+        signer: newWallet.turboSigner!,
       });
       dispatchNewGateway(e?.host, contract, dispatchGlobalState);
     };

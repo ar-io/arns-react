@@ -1,3 +1,4 @@
+import { TurboArNSSigner } from '@ar.io/sdk';
 import { WalletNotInstalledError, WanderError } from '@src/utils/errors';
 import eventEmitter from '@src/utils/events';
 import { PermissionType } from 'arconnect';
@@ -20,9 +21,11 @@ export const WANDER_WALLET_PERMISSIONS: PermissionType[] = [
 export class WanderWalletConnector implements ArNSWalletConnector {
   private _wallet: Window['arweaveWallet'];
   contractSigner: Window['arweaveWallet'];
+  turboSigner: TurboArNSSigner;
   constructor() {
     this._wallet = window?.arweaveWallet;
     this.contractSigner = window?.arweaveWallet;
+    this.turboSigner = window?.arweaveWallet;
   }
 
   // The API has been shown to be unreliable, so we call each function with a timeout

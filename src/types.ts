@@ -3,6 +3,7 @@ import {
   AoArNSNameData,
   AoGetCostDetailsParams,
   ContractSigner,
+  TurboArNSSigner,
 } from '@ar.io/sdk/web';
 import { ApiConfig } from 'arweave/web/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
@@ -84,6 +85,7 @@ export interface ArNSWalletConnector {
   getWalletAddress(): Promise<AoAddress>;
   getGatewayConfig(): Promise<ApiConfig>;
   contractSigner?: ContractSigner;
+  turboSigner?: TurboArNSSigner;
 }
 
 export enum WALLET_TYPES {
