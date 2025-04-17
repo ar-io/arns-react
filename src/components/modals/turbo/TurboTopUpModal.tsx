@@ -54,11 +54,11 @@ function TurboTopUpModal({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     async function updatePaymentIntent() {
       if (currency === 'fiat') {
-        if (!walletAddress || !wallet?.tokenType || !topupValue) {
+        if (!walletAddress || !wallet?.tokenType || !topupValue || !turbo) {
           return;
         }
         try {
-          const paymentIntent = await turbo?.getTopupPaymentIntent({
+          const paymentIntent = await turbo.getTopupPaymentIntent({
             address: walletAddress.toString(),
             amount: USD(topupValue).amount,
             token: wallet.tokenType,
