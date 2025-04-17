@@ -238,7 +238,11 @@ function FiatPayment({
               }}
             ></input>
           </FormEntry>
-          <FormEntry name="name" label="Credit Card *" errorText={cardError}>
+          <FormEntry
+            name="creditCard"
+            label="Credit Card *"
+            errorText={cardError}
+          >
             <CardElement
               options={cardElementOptions}
               className="size-full bg-transparent px-4 py-2 outline-none whitespace-nowrap h-[2.188rem]"
@@ -247,7 +251,7 @@ function FiatPayment({
               }}
             />
           </FormEntry>
-          <FormEntry name="name" label="Country *" errorText={countryError}>
+          <FormEntry name="country" label="Country *" errorText={countryError}>
             <SelectDropdown
               position="item-aligned"
               value={country}
@@ -328,7 +332,7 @@ function FiatPayment({
             </div>
           ) : (
             <FormEntry
-              name="name"
+              name="promoCode"
               label="Promo Code"
               errorText={promoCodeError}
             >

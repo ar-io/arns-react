@@ -37,14 +37,11 @@ function FiatConfirmation({
   const turbo = useTurboArNSClient();
   const [{ turboNetwork }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
-  const {
-    data: estimatedCredits,
-    dataUpdatedAt: creditsEstimateUpdatedAt,
-    isLoading: isCreditsEstimateLoading,
-  } = useEstimatedCreditsForUSD({
-    paymentAmount,
-    promoCode,
-  });
+  const { data: estimatedCredits, dataUpdatedAt: creditsEstimateUpdatedAt } =
+    useEstimatedCreditsForUSD({
+      paymentAmount,
+      promoCode,
+    });
 
   const [countdownEndTimestamp, setCountdownEndTimestamp] = useState<number>(
     Date.now() + 5 * 60 * 1000,
@@ -171,21 +168,13 @@ function FiatConfirmation({
       </div>
 
       <div className="flex w-full  items-center bg-foreground px-6 py-2.5 border-y border-dark-grey text-center text-sm  text-grey fill-grey">
-        {isCreditsEstimateLoading ? (
-          <div className="grow text-left">
-            Quote Updates in{' '}
-            <span>
-              <Countdown endTimestamp={countdownEndTimestamp} />
-            </span>
-          </div>
-        ) : (
-          <div className="grow text-left">
-            Quote Updates in{' '}
-            <span>
-              <Countdown endTimestamp={countdownEndTimestamp} />
-            </span>
-          </div>
-        )}
+        <div className="grow text-left">
+          Quote Updates in{' '}
+          <span>
+            <Countdown endTimestamp={countdownEndTimestamp} />
+          </span>
+        </div>
+
         <button
           className="flex items-center justify-center gap-1 text-right hover:text-white hover:fill-white"
           onClick={() => {
