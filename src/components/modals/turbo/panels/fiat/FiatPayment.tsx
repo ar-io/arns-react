@@ -31,12 +31,19 @@ const FormEntry: FC<{
 }> = ({ name, label, children, errorText }) => {
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-sm text-grey whitespace-nowrap" htmlFor={name}>
+      <label
+        className="flex text-sm text-grey whitespace-nowrap"
+        htmlFor={name}
+      >
         {label}
       </label>
-      <div className="w-full rounded border border-dark-grey">{children}</div>
+      <div className="flex w-full rounded border border-dark-grey">
+        {children}
+      </div>
       {errorText && (
-        <div className="text-xs text-error whitespace-nowrap">{errorText}</div>
+        <div className="flex text-xs text-error whitespace-nowrap">
+          {errorText}
+        </div>
       )}
     </div>
   );
@@ -157,28 +164,30 @@ function FiatPayment({
   return (
     <div className="flex flex-col">
       <div>
-        <div className="font-bold px-6 whitespace-nowrap">Payment Details</div>
+        <div className="flex font-bold px-6 whitespace-nowrap">
+          Payment Details
+        </div>
       </div>
 
       <div className="flex w-full flex-col px-6 pt-4">
         <div className="grid grid-cols-2">
           {estimatedCredits ? (
             <div className="flex flex-col">
-              <div className="text-xl font-bold whitespace-nowrap">
+              <div className="flex text-xl font-bold whitespace-nowrap">
                 {turbo
                   ?.wincToCredits(Number(estimatedCredits?.winc ?? 0))
                   .toFixed(4)}{' '}
                 Credits
               </div>
-              <div className="text-sm whitespace-nowrap">
+              <div className="flex text-sm whitespace-nowrap gap-1">
                 ${actualPaymentAmount}{' '}
                 {discountAmount && (
-                  <span className="text-grey">{discountAmount}</span>
+                  <span className="flex  text-grey">{discountAmount}</span>
                 )}
               </div>
             </div>
           ) : (
-            <div className="text-sm font-bold text-error whitespace-nowrap">
+            <div className="flex text-sm font-bold text-error whitespace-nowrap">
               {valueStringError}
             </div>
           )}
@@ -215,7 +224,7 @@ function FiatPayment({
         <form className="mt-2 flex  flex-col gap-4">
           <FormEntry name="name" label="Name on Card *" errorText={nameError}>
             <input
-              className="size-full bg-transparent px-4 py-2 outline-none "
+              className="size-full flex  bg-transparent px-4 py-2 outline-none "
               type="text"
               name="name"
               value={name}
@@ -274,7 +283,7 @@ function FiatPayment({
           </FormEntry>
           {promoCode ? (
             <div className="flex flex-col gap-1">
-              <span className="text-sm text-grey whitespace-nowrap">
+              <span className="flex text-sm text-grey whitespace-nowrap">
                 Promo Code{' '}
                 <span className="text-success font-bold">{promoCode}</span>
               </span>
@@ -323,9 +332,9 @@ function FiatPayment({
               label="Promo Code"
               errorText={promoCodeError}
             >
-              <div className="relative">
+              <div className="relative flex w-full">
                 <input
-                  className="peer size-full bg-transparent px-4 py-2 outline-none"
+                  className="peer flex size-full bg-transparent px-4 py-2 outline-none"
                   type="text"
                   name="promoCode"
                   value={localPromoCode || ''}

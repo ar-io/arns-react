@@ -330,7 +330,7 @@ function CurrencyConfigurationPanel({
               </button>
             ))}
           </div>
-          <div className="mt-5 text-sm text-grey whitespace-nowrap">
+          <div className="flex mt-5 text-sm text-grey whitespace-nowrap">
             Custom Amount {currency == 'fiat' && `(min $5 - max $10,000)`}
           </div>
           <div>
@@ -355,7 +355,7 @@ function CurrencyConfigurationPanel({
             ></input>
 
             <div
-              className={`pointer-events-none relative bottom-[2.125rem] pl-4 ${
+              className={`flex pointer-events-none relative bottom-[2.125rem] pl-4 ${
                 currency !== 'fiat' && 'text-transparent'
               }`}
             >
@@ -364,7 +364,7 @@ function CurrencyConfigurationPanel({
           </div>
 
           <div
-            className={`pointer-events-none relative bottom-[1.125rem] text-sm whitespace-nowrap ${
+            className={`flex pointer-events-none relative bottom-[1.125rem] text-sm whitespace-nowrap ${
               customValueError ? 'text-error' : 'text-transparent'
             }`}
           >
@@ -373,7 +373,7 @@ function CurrencyConfigurationPanel({
           </div>
 
           <div
-            className={`font-semibold whitespace-nowrap ${
+            className={`flex font-semibold whitespace-nowrap ${
               valueString === valueStringError ? 'text-error' : 'text-white'
             }`}
           >
@@ -382,7 +382,7 @@ function CurrencyConfigurationPanel({
         </div>
       </div>{' '}
       {paymentIntentError && (
-        <div className="w-full text-right text-sm text-error">
+        <div className="flex w-full text-right justify-center text-sm text-error">
           {paymentIntentError}
         </div>
       )}

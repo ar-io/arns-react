@@ -103,7 +103,7 @@ function TurboTopUpModal({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="modal-container">
+    <div className="modal-container relative">
       <div className="flex flex-col rounded bg-metallic-grey border border-dark-grey gap-2 w-[30rem] overflow-hidden">
         <div className="flex w-full p-6 py-4 text-white border-b border-dark-grey justify-between">
           <span className="flex gap-2 text-lg">
