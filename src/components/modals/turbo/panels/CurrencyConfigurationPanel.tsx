@@ -13,6 +13,9 @@ import { isNumeric } from 'validator';
 
 import { PanelStates } from '../TurboTopUpModal';
 
+const MAX_FIAT_TOPUP = 2000;
+const MIN_FIAT_TOPUP = 5;
+
 const valueStringDefault = '$0 = 0 credits \u{02248} 0 GB';
 const valueStringError = `Error: Unable to fetch credit estimate`;
 
@@ -255,8 +258,9 @@ function CurrencyConfigurationPanel({
 
   const isValidCustomAmount = (val: string) => {
     if (currency == 'fiat') {
-      return (val.length > 0 && Number(val) < 5) || Number(val) > 10000
-        ? 'Please enter an amount between $5 and $10,000'
+      return (val.length > 0 && Number(val) < MIN_FIAT_TOPUP) ||
+        Number(val) > MAX_FIAT_TOPUP
+        ? `Please enter an amount between $${MIN_FIAT_TOPUP} and $${MAX_FIAT_TOPUP}`
         : undefined;
     }
     return Number(val) <= 0
@@ -331,7 +335,7 @@ function CurrencyConfigurationPanel({
             ))}
           </div>
           <div className="flex mt-5 text-sm text-grey whitespace-nowrap">
-            Custom Amount {currency == 'fiat' && `(min $5 - max $10,000)`}
+            Custom Amount {currency == 'fiat' && `(min $5 - max $2,000)`}
           </div>
           <div>
             <input
@@ -344,12 +348,17 @@ function CurrencyConfigurationPanel({
                 const val = e.target.value;
 
                 if (isValidCustomFormat(val)) {
-                  setCustomValue(
-                    currency == 'fiat' ? Number(val).toString() : val,
-                  );
+                  const numVal = Number(val);
+                  const clampedVal =
+                    currency == 'fiat'
+                      ? Math.min(numVal, MAX_FIAT_TOPUP)
+                      : numVal;
+                  setCustomValue(clampedVal.toString());
                   setButtonSelected(undefined);
 
-                  setCustomValueError(isValidCustomAmount(val));
+                  setCustomValueError(
+                    isValidCustomAmount(clampedVal.toString()),
+                  );
                 }
               }}
             ></input>
