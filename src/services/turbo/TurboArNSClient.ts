@@ -7,11 +7,7 @@ import {
 } from '@ardrive/turbo-sdk';
 import { isArweaveTransactionID, isEthAddress } from '@src/utils';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
-import { STRIPE_PUBLISHABLE_KEY } from '@src/utils/constants';
 import { PaymentIntent } from '@stripe/stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
-
-export const STRIPE_PROMISE = loadStripe(STRIPE_PUBLISHABLE_KEY);
 
 export interface TurboArNSClientConfig {
   uploadUrl?: string;

@@ -1,6 +1,8 @@
 import { Logger } from '@ar.io/sdk/web';
 import * as Sentry from '@sentry/react';
-import React, { Suspense } from 'react';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import React, { Suspense, useMemo } from 'react';
 import {
   Navigate,
   Route,
@@ -18,6 +20,7 @@ import NetworkSettings from './components/pages/Settings/NetworkSettings';
 import SettingsOverview from './components/pages/Settings/SettingsOverview';
 import useWanderEvents from './hooks/useWanderEvents/useWanderEvents';
 import './index.css';
+import { useGlobalState } from './state';
 
 // set the log level of ar-io-sdk
 Logger.default.setLogLevel('none');
@@ -68,6 +71,12 @@ const sentryCreateBrowserRouter =
 
 function App() {
   useWanderEvents();
+  const [{ turboNetwork }] = useGlobalState();
+
+  const stripePromise = useMemo(
+    () => loadStripe(turboNetwork.STRIPE_PUBLISHABLE_KEY),
+    [turboNetwork.STRIPE_PUBLISHABLE_KEY],
+  );
 
   const router = sentryCreateBrowserRouter(
     createRoutesFromElements(
@@ -387,7 +396,9 @@ function App() {
 
   return (
     <>
-      <RouterProvider router={router} />
+      <Elements stripe={stripePromise}>
+        <RouterProvider router={router} />
+      </Elements>
     </>
   );
 }
