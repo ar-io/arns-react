@@ -73,10 +73,9 @@ function App() {
   useWanderEvents();
   const [{ turboNetwork }] = useGlobalState();
 
-  const stripePromise = useMemo(
-    () => loadStripe(turboNetwork.STRIPE_PUBLISHABLE_KEY),
-    [turboNetwork.STRIPE_PUBLISHABLE_KEY],
-  );
+  const stripePromise = useMemo(() => {
+    return loadStripe(turboNetwork.STRIPE_PUBLISHABLE_KEY);
+  }, [turboNetwork.STRIPE_PUBLISHABLE_KEY]);
 
   const router = sentryCreateBrowserRouter(
     createRoutesFromElements(
@@ -396,7 +395,10 @@ function App() {
 
   return (
     <>
-      <Elements stripe={stripePromise}>
+      <Elements
+        key={turboNetwork.STRIPE_PUBLISHABLE_KEY}
+        stripe={stripePromise}
+      >
         <RouterProvider router={router} />
       </Elements>
     </>
