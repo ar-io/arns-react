@@ -25,6 +25,7 @@ import {
 } from '@src/utils';
 import {
   ARNS_TX_ID_ENTRY_REGEX,
+  DEFAULT_ANT_LOGO,
   DEFAULT_ANT_LUA_ID,
 } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
@@ -105,14 +106,14 @@ export function ReassignNameModal({
         controllers: domainData.controllers,
         records: domainData.records,
         owner: walletAddress.toString(),
-        ticker: domainData.info.Ticker,
-        name: domainData.info.Name,
-        description: domainData.info.Description,
-        keywords: domainData.info.Keywords,
-        balances: domainData.state.Balances,
-        logo: domainData.logo ?? '',
+        ticker: domainData.ticker,
+        name: domainData.name,
+        // We default to values to allow for upgrades to domains that didn't support description or keywords
+        description: domainData.state.Description ?? '',
+        keywords: domainData.state.Keywords ?? [],
+        balances: domainData.state.Balances ?? {},
+        logo: domainData.logo ?? DEFAULT_ANT_LOGO,
       };
-
       const result = await dispatchANTInteraction({
         signer: wallet.contractSigner,
         payload: {
