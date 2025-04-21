@@ -162,16 +162,17 @@ export const YEAR_IN_MILLISECONDS = 31536000000;
 export const AVERAGE_BLOCK_TIME_MS = 120_000; // 2 mins
 
 export const FEATURED_DOMAINS: { [x: string]: { imageUrl: string } } = {
-  ao: { imageUrl: AO_IMAGE },
+  arlink: { imageUrl: ARLINK_IMAGE },
+
+  metalinks: { imageUrl: METALINKS_IMAGE },
   ardrive: { imageUrl: ARDRIVE_IMAGE },
   arwiki: { imageUrl: ARWIKI_IMAGE },
-
   permaswap: { imageUrl: PERMASWAP_IMAGE },
   'ar-fees': { imageUrl: AR_FEES_IMAGE },
   // alex: { imageUrl: ALEX_IMAGE },
   // cookbook: { imageUrl: COOKBOOK_IMAGE },
-  arlink: { imageUrl: ARLINK_IMAGE },
-  metalinks: { imageUrl: METALINKS_IMAGE },
+  ao: { imageUrl: AO_IMAGE },
+
   sam: { imageUrl: SAM_IMAGE },
   mfers: { imageUrl: MFERS_IMAGE },
 };
