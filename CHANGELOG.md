@@ -13,7 +13,7 @@ and this project adheres to
 ### Fixed
 
 - Name purchase workflow now provides default logo.
-- Wallet switch event for wander updated
+- Wallet switch event for Wander updated
 - Featured domains reordered.
 
 ## [1.6.0] - 2025-04-17
