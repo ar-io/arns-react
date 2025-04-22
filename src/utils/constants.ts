@@ -106,6 +106,18 @@ export const PAYMENT_SERVICE_FQDN =
     ? 'payment.ardrive.io'
     : 'payment.ardrive.dev';
 
+// PUBLISHABLE KEYS
+export const devStripePublishableKey =
+  'pk_test_51JUAtwC8apPOWkDLh2FPZkQkiKZEkTo6wqgLCtQoClL6S4l2jlbbc5MgOdwOUdU9Tn93NNvqAGbu115lkJChMikG00XUfTmo2z';
+
+export const prodStripePublishableKey =
+  'pk_live_51JUAtwC8apPOWkDLMQqNF9sPpfneNSPnwX8YZ8y1FNDl6v94hZIwzgFSYl27bWE4Oos8CLquunUswKrKcaDhDO6m002Yj9AeKj';
+
+export const STRIPE_PUBLISHABLE_KEY =
+  import.meta.env.VITE_NODE_ENV == 'production'
+    ? prodStripePublishableKey
+    : devStripePublishableKey;
+
 export const NETWORK_DEFAULTS = {
   AO: {
     ARIO: {
@@ -135,6 +147,7 @@ export const NETWORK_DEFAULTS = {
     PAYMENT_URL: `https://${PAYMENT_SERVICE_FQDN}`,
     GATEWAY_URL: 'https://arweave.net',
     WALLETS_URL: `https://${PAYMENT_SERVICE_FQDN}/info`,
+    STRIPE_PUBLISHABLE_KEY,
   },
 };
 
@@ -149,16 +162,17 @@ export const YEAR_IN_MILLISECONDS = 31536000000;
 export const AVERAGE_BLOCK_TIME_MS = 120_000; // 2 mins
 
 export const FEATURED_DOMAINS: { [x: string]: { imageUrl: string } } = {
-  ao: { imageUrl: AO_IMAGE },
+  arlink: { imageUrl: ARLINK_IMAGE },
+
+  metalinks: { imageUrl: METALINKS_IMAGE },
   ardrive: { imageUrl: ARDRIVE_IMAGE },
   arwiki: { imageUrl: ARWIKI_IMAGE },
-
   permaswap: { imageUrl: PERMASWAP_IMAGE },
   'ar-fees': { imageUrl: AR_FEES_IMAGE },
   // alex: { imageUrl: ALEX_IMAGE },
   // cookbook: { imageUrl: COOKBOOK_IMAGE },
-  arlink: { imageUrl: ARLINK_IMAGE },
-  metalinks: { imageUrl: METALINKS_IMAGE },
+  ao: { imageUrl: AO_IMAGE },
+
   sam: { imageUrl: SAM_IMAGE },
   mfers: { imageUrl: MFERS_IMAGE },
 };
@@ -220,18 +234,6 @@ export const ANT_CHANGELOG = antChangelog;
 export const KiB = 1024;
 export const MiB = 1024 * KiB;
 export const GiB = 1024 * MiB;
-
-// PUBLISHABLE KEYS
-export const devStripePublishableKey =
-  'pk_test_51JUAtwC8apPOWkDLh2FPZkQkiKZEkTo6wqgLCtQoClL6S4l2jlbbc5MgOdwOUdU9Tn93NNvqAGbu115lkJChMikG00XUfTmo2z';
-
-export const prodStripePublishableKey =
-  'pk_live_51JUAtwC8apPOWkDLMQqNF9sPpfneNSPnwX8YZ8y1FNDl6v94hZIwzgFSYl27bWE4Oos8CLquunUswKrKcaDhDO6m002Yj9AeKj';
-
-export const STRIPE_PUBLISHABLE_KEY =
-  import.meta.env.VITE_NODE_ENV == 'production'
-    ? prodStripePublishableKey
-    : devStripePublishableKey;
 
 export const currencyLabels: Partial<Record<TokenType, string>> = {
   arweave: 'AR',

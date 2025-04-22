@@ -1,4 +1,3 @@
-import { Elements } from '@stripe/react-stripe-js';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider } from 'antd';
 import React from 'react';
@@ -9,7 +8,6 @@ import { metaMask } from 'wagmi/connectors';
 
 import App from './App';
 import './index.css';
-import { STRIPE_PROMISE } from './services/turbo/TurboArNSClient';
 import {
   ArNSStateProvider,
   GlobalStateProvider,
@@ -84,9 +82,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
                     }}
                   >
                     <ModalStateProvider reducer={modalReducer}>
-                      <Elements stripe={STRIPE_PROMISE}>
-                        <App />
-                      </Elements>
+                      <App />
                     </ModalStateProvider>
                   </ConfigProvider>
                 </RegistrationStateProvider>

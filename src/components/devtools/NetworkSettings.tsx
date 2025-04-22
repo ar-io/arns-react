@@ -8,7 +8,11 @@ import {
 } from '@src/state';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { isArweaveTransactionID, isValidGateway, isValidURL } from '@src/utils';
-import { NETWORK_DEFAULTS } from '@src/utils/constants';
+import {
+  NETWORK_DEFAULTS,
+  devStripePublishableKey,
+  prodStripePublishableKey,
+} from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Collapse, Input, Space } from 'antd';
 import { List } from 'lucide-react';
@@ -480,6 +484,7 @@ function NetworkSettings() {
                       UPLOAD_URL: turboNetwork.UPLOAD_URL,
                       GATEWAY_URL: turboNetwork.GATEWAY_URL,
                       WALLETS_URL: turboNetwork.WALLETS_URL,
+                      STRIPE_PUBLISHABLE_KEY: devStripePublishableKey,
                     });
                   }}
                 >
@@ -500,6 +505,7 @@ function NetworkSettings() {
                       UPLOAD_URL: turboNetwork.UPLOAD_URL,
                       GATEWAY_URL: turboNetwork.GATEWAY_URL,
                       WALLETS_URL: turboNetwork.WALLETS_URL,
+                      STRIPE_PUBLISHABLE_KEY: prodStripePublishableKey,
                     });
                   }}
                 >
@@ -521,6 +527,7 @@ function NetworkSettings() {
                     UPLOAD_URL: turboNetwork.UPLOAD_URL,
                     GATEWAY_URL: turboNetwork.GATEWAY_URL,
                     WALLETS_URL: turboNetwork.WALLETS_URL,
+                    STRIPE_PUBLISHABLE_KEY: turboNetwork.STRIPE_PUBLISHABLE_KEY,
                   })
                 }
                 variant="outlined"
@@ -536,6 +543,8 @@ function NetworkSettings() {
                           UPLOAD_URL: turboNetwork.UPLOAD_URL,
                           GATEWAY_URL: turboNetwork.GATEWAY_URL,
                           WALLETS_URL: turboNetwork.WALLETS_URL,
+                          STRIPE_PUBLISHABLE_KEY:
+                            turboNetwork.STRIPE_PUBLISHABLE_KEY,
                         })
                       }
                     >

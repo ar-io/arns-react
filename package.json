@@ -1,7 +1,7 @@
 {
   "name": "arns-vite-react",
   "private": true,
-  "version": "1.6.0",
+  "version": "1.6.1",
   "homepage": ".",
   "scripts": {
     "build": "yarn clean && tsc --build tsconfig.json && NODE_OPTIONS=--max-old-space-size=32768 vite build",
@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "5.4.0",
-    "@ar.io/sdk": "^3.10.0-alpha.4",
+    "@ar.io/sdk": "^3.10.0-alpha.5",
     "@ardrive/turbo-sdk": "^1.23.1",
     "@permaweb/aoconnect": "^0.0.59",
     "@radix-ui/react-radio-group": "^1.2.1",
