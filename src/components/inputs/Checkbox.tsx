@@ -5,7 +5,7 @@ import * as React from 'react';
 
 export interface CheckboxProps
   extends React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root> {
-  label?: string;
+  label?: React.ReactNode;
   className?: string;
 }
 
@@ -32,7 +32,7 @@ const Checkbox = React.forwardRef<
       {label && (
         <label
           htmlFor={props.id}
-          className="peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          className="peer-disabled:cursor-not-allowed peer-disabled:opacity-70 whitespace-nowrap"
         >
           {label}
         </label>

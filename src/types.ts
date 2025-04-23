@@ -3,12 +3,15 @@ import {
   AoArNSNameData,
   AoGetCostDetailsParams,
   ContractSigner,
+  TurboArNSSigner,
 } from '@ar.io/sdk/web';
+import { TokenType } from '@ardrive/turbo-sdk';
 import { ApiConfig } from 'arweave/web/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 
 import { AntDetailKey } from './components/cards/ANTCard/ANTCard';
 import { ArweaveTransactionID } from './services/arweave/ArweaveTransactionID';
+import { TransferTransactionResult } from './services/wallets/EthWalletConnector';
 import { MAX_TTL_SECONDS, MIN_TTL_SECONDS } from './utils/constants';
 
 export type ARNSDomains = Record<string, AoArNSNameData>;
@@ -79,11 +82,17 @@ export type INTERACTION_PRICE_PARAMS =
     };
 
 export interface ArNSWalletConnector {
+  tokenType: TokenType;
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   getWalletAddress(): Promise<AoAddress>;
   getGatewayConfig(): Promise<ApiConfig>;
   contractSigner?: ContractSigner;
+  submitNativeTransaction?(
+    amount: number,
+    toAddress: string,
+  ): Promise<TransferTransactionResult>;
+  turboSigner?: TurboArNSSigner;
 }
 
 export enum WALLET_TYPES {

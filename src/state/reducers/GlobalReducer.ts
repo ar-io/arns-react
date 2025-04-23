@@ -17,6 +17,10 @@ export type GlobalAction =
       payload: typeof NETWORK_DEFAULTS.AO;
     }
   | {
+      type: 'setTurboNetwork';
+      payload: typeof NETWORK_DEFAULTS.TURBO;
+    }
+  | {
       type: 'setARIOAoClient';
       payload: AoClient;
     }
@@ -57,6 +61,14 @@ export const reducer = (
         ...state,
         aoNetwork: {
           ...state.aoNetwork,
+          ...action.payload,
+        },
+      };
+    case 'setTurboNetwork':
+      return {
+        ...state,
+        turboNetwork: {
+          ...state.turboNetwork,
           ...action.payload,
         },
       };

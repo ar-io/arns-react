@@ -25,7 +25,8 @@ import './styles.css';
 
 function ConnectWalletModal(): JSX.Element {
   const modalRef = useRef<HTMLDivElement>(null);
-  const [{ arioProcessId, aoClient }, dispatchGlobalState] = useGlobalState();
+  const [{ arioProcessId, aoClient, turboNetwork }, dispatchGlobalState] =
+    useGlobalState();
   const [
     { wallet, walletAddress, walletStateInitialized },
     dispatchWalletState,
@@ -86,11 +87,12 @@ function ConnectWalletModal(): JSX.Element {
       await walletConnector.connect();
       const arweaveGate = await walletConnector.getGatewayConfig();
       const contract = ARIO.init({
+        paymentUrl: turboNetwork.PAYMENT_URL,
         process: new AOProcess({
           processId: arioProcessId,
           ao: aoClient,
         }),
-        signer: walletConnector.contractSigner!,
+        signer: walletConnector.turboSigner!,
       });
       if (arweaveGate?.host) {
         await dispatchNewGateway(

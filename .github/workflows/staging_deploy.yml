@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           cache: 'yarn'
@@ -27,7 +27,7 @@ jobs:
           yarn build
         env:
           # FOR BUILD
-          VITE_NODE_ENV: develop
+          VITE_NODE_ENV: production
           VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           VITE_SENTRY_RELEASE: ${{ github.sha }}
           VITE_SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
@@ -53,3 +53,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: dist
+          force_orphan: true

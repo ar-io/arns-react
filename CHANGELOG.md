@@ -8,6 +8,32 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.6.1] - 2025-04-21
+
+### Fixed
+
+- Name purchase workflow now provides default logo.
+- Wallet switch event for Wander updated
+- Featured domains reordered.
+
+## [1.6.0] - 2025-04-17
+
+### Added
+
+- Fiat Turbo Credits topup workflow
+
+## [1.5.0] - 2025-04-17
+
+### Added
+
+- Added Turbo credits payment method to checkout page
+
+## [1.4.0] - 2025-04-3
+
+### Changed
+
+- Added new checkout page for ArNS Name purchases.
+
 ## [1.3.0] - 2025-03-25
 
 ### Added

@@ -121,6 +121,9 @@ function DomainSearch({
 
   // add listeners to trigger focus and click out callbacks
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
     function handleClickOutside(e: MouseEvent) {
       if (
         containerRef.current &&
@@ -129,14 +132,16 @@ function DomainSearch({
         onClickOutside(e);
       }
     }
+
     function handleFocus() {
       onFocus();
     }
+    // we listen to the document for click events, and container for focus events because the container is a child of the document and will cause issues on modal workflows with the details being overlaid on the modal
     document.addEventListener('click', handleClickOutside);
-    document.addEventListener('focus', handleFocus, true);
+    container.addEventListener('focus', handleFocus, true);
     return () => {
       document.removeEventListener('click', handleClickOutside);
-      document.removeEventListener('focus', handleFocus, true);
+      container.removeEventListener('focus', handleFocus, true);
     };
   }, []);
 

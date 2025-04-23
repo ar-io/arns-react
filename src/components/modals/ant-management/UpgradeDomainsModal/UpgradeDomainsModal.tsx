@@ -23,6 +23,7 @@ import {
   lowerCaseDomain,
   sleep,
 } from '@src/utils';
+import { DEFAULT_ANT_LOGO } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
 import { Checkbox } from 'antd';
@@ -106,16 +107,20 @@ function UpgradeDomainsModal({
                   wallet,
                 }),
               );
+              if (!domainData.state) {
+                throw new Error('No state found for domain');
+              }
               const previousState: SpawnANTState = {
                 controllers: domainData.controllers,
                 records: domainData.records,
                 owner: walletAddress.toString(),
                 ticker: domainData.ticker,
                 name: domainData.name,
-                description: domainData.state?.Description ?? '',
-                keywords: domainData.state?.Keywords ?? [],
-                balances: domainData.state?.Balances ?? {},
-                logo: domainData.logo ?? '',
+                // We default to values to allow for upgrades to domains that didn't support description or keywords
+                description: domainData.state.Description ?? '',
+                keywords: domainData.state.Keywords ?? [],
+                balances: domainData.state.Balances ?? {},
+                logo: domainData.logo ?? DEFAULT_ANT_LOGO,
               };
 
               await dispatchANTInteraction({

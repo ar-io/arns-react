@@ -14,6 +14,8 @@ import {
   COST_DETAIL_STALE_TIME,
   useCostDetails,
 } from '@src/hooks/useCostDetails';
+import { useTurboArNSClient } from '@src/hooks/useTurboArNSClient';
+import { useTurboCreditBalance } from '@src/hooks/useTurboCreditBalance';
 import { dispatchArNSUpdate, useArNSState } from '@src/state';
 import dispatchArIOInteraction from '@src/state/actions/dispatchArIOInteraction';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
@@ -37,9 +39,11 @@ function Checkout() {
   const navigate = useNavigate();
   const [{ arioContract, arioProcessId, aoNetwork, aoClient, arioTicker }] =
     useGlobalState();
+  const turbo = useTurboArNSClient();
   const formattedARIOTicker = `$${arioTicker}`;
   const [, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
+  const { data: creditsBalance } = useTurboCreditBalance();
   const [
     { workflowName, interactionType, transactionData, interactionResult },
     dispatchTransactionState,
@@ -52,14 +56,27 @@ function Checkout() {
     'balance',
   );
 
-  const costDetailsParams = {
-    ...((transactionData ?? {}) as any),
-    intent:
-      ArNSInteractionTypeToIntentMap[workflowName as ARNS_INTERACTION_TYPES],
-    fromAddress: walletAddress?.toString(),
-    fundFrom: fundingSource,
-    quantity: (transactionData as any)?.qty,
-  };
+  const costDetailsParams = useMemo(() => {
+    return {
+      ...((transactionData ?? {}) as any),
+      intent:
+        ArNSInteractionTypeToIntentMap[workflowName as ARNS_INTERACTION_TYPES],
+      fromAddress: walletAddress?.toString(),
+      fundFrom:
+        paymentMethod === 'crypto'
+          ? fundingSource
+          : paymentMethod === 'credits'
+          ? 'turbo'
+          : undefined,
+      quantity: (transactionData as any)?.qty,
+    };
+  }, [
+    transactionData,
+    workflowName,
+    walletAddress,
+    fundingSource,
+    paymentMethod,
+  ]);
   const {
     data: costDetail,
     dataUpdatedAt: costDetailUpdatedAt,
@@ -71,8 +88,16 @@ function Checkout() {
     if (paymentMethod === 'crypto') {
       return costDetail?.fundingPlan?.shortfall ? true : false;
     }
+    if (paymentMethod === 'credits') {
+      if (!costDetail?.wincQty || !creditsBalance?.effectiveBalance) {
+        return false;
+      }
+      return (
+        Number(costDetail.wincQty) > Number(creditsBalance.effectiveBalance)
+      );
+    }
     return true;
-  }, [costDetail, paymentMethod]);
+  }, [costDetail, paymentMethod, creditsBalance]);
 
   const fees = useMemo(() => {
     if (paymentMethod === 'crypto') {
@@ -110,6 +135,23 @@ function Checkout() {
           ),
       };
     }
+    if (paymentMethod === 'credits') {
+      return {
+        'Total due:':
+          costDetail?.wincQty && Number(costDetail?.wincQty) > 0 ? (
+            <span className="text-white text-bold text-lg">
+              {formatARIOWithCommas(
+                turbo?.wincToCredits(Number(costDetail?.wincQty ?? 0)) ?? 0,
+              )}{' '}
+              Credits
+            </span>
+          ) : (
+            <span className="text-grey text-bold text-lg animate-pulse">
+              Loading...
+            </span>
+          ),
+      };
+    }
     return {
       '': 'Invalid payment method selected',
     };
@@ -119,8 +161,11 @@ function Checkout() {
     if (paymentMethod === 'crypto') {
       return costDetailUpdatedAt + COST_DETAIL_STALE_TIME;
     }
+    if (paymentMethod === 'credits') {
+      return costDetailUpdatedAt + COST_DETAIL_STALE_TIME;
+    }
     return -1;
-  }, [costDetailUpdatedAt, paymentMethod]);
+  }, [costDetailUpdatedAt, paymentMethod, costDetail]);
 
   useEffect(() => {
     if (!transactionData && !workflowName) {
@@ -172,7 +217,7 @@ function Checkout() {
         signer: wallet?.contractSigner,
         ao: aoClient,
         scheduler: aoNetwork.ARIO.SCHEDULER,
-        fundFrom: fundingSource,
+        fundFrom: paymentMethod === 'credits' ? 'turbo' : fundingSource,
       });
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -247,16 +292,16 @@ function Checkout() {
           </div>
         </div>
         <div className={`flex justify-end items-end w-full pt-6`}>
-          <div className="flex gap-4 w-full justify-end">
+          <div className="flex gap-4 w-full justify-end text-[0.875rem]">
             <button
-              className="py-4 px-5 rounded border border-dark-grey text-grey w-[112px]"
+              className="p-[0.625rem] rounded border border-dark-grey text-grey w-[100px]"
               onClick={() => navigate(-1)}
             >
               Back
             </button>
             <button
               disabled={isInsufficientBalance || isLoadingCostDetail}
-              className="py-4 px-5 bg-primary rounded w-[112px] min-w-fit disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-[0.625rem] bg-primary rounded w-[100px] min-w-fit disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleNext}
             >
               {isLoadingCostDetail
