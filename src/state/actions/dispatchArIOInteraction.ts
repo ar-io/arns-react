@@ -12,6 +12,7 @@ import {
   createAoSigner,
   spawnANT,
 } from '@ar.io/sdk/web';
+import { TurboArNSClient } from '@src/services/turbo/TurboArNSClient';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import {
   ARNS_INTERACTION_TYPES,
@@ -36,6 +37,7 @@ export default async function dispatchArIOInteraction({
   antAo,
   scheduler = DEFAULT_SCHEDULER_ID,
   fundFrom,
+  turboArNSClient,
 }: {
   payload: Record<string, any>;
   workflowName: ARNS_INTERACTION_TYPES;
@@ -47,7 +49,8 @@ export default async function dispatchArIOInteraction({
   ao?: AoClient;
   antAo?: AoClient;
   scheduler?: string;
-  fundFrom?: FundFrom;
+  fundFrom?: FundFrom | 'fiat';
+  turboArNSClient?: TurboArNSClient;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult | undefined = undefined;
   const aoCongestedTimeout = setTimeout(
@@ -59,13 +62,18 @@ export default async function dispatchArIOInteraction({
   try {
     if (!arioContract) throw new Error('ArIO provider is not defined');
     if (!signer) throw new Error('signer is not defined');
+    if (fundFrom === 'fiat' && !turboArNSClient) {
+      throw new Error('Turbo ArNS Client is not defined');
+    }
+    // TODO: should be able to remove this once we have a fiat payment flow for all workflows
+    const originalFundFrom = fundFrom as FundFrom;
     dispatch({
       type: 'setSigning',
       payload: true,
     });
     switch (workflowName) {
       case ARNS_INTERACTION_TYPES.BUY_RECORD: {
-        const { name, type, years } = payload;
+        const { name, type, years, paymentMethodId, email } = payload;
         let antProcessId: string = payload.processId;
 
         if (antProcessId === 'atomic') {
@@ -107,18 +115,32 @@ export default async function dispatchArIOInteraction({
             throw new Error('Failed to register ANT, please try again later.');
           }
         }
+        if (fundFrom === 'fiat') {
+          await turboArNSClient?.executeArNSIntent({
+            address: owner.toString(),
+            name: lowerCaseDomain(name),
+            type,
+            years,
+            processId: antProcessId,
+            paymentMethodId,
+            email,
+            intent: 'Buy-Record',
+          });
+          payload.processId = antProcessId;
+          result = { id: antProcessId };
+        } else {
+          const buyRecordResult = await arioContract.buyRecord({
+            name: lowerCaseDomain(name),
+            type,
+            years,
+            processId: antProcessId,
+            fundFrom,
+          });
 
-        const buyRecordResult = await arioContract.buyRecord({
-          name: lowerCaseDomain(name),
-          type,
-          years,
-          processId: antProcessId,
-          fundFrom,
-        });
+          payload.processId = antProcessId;
 
-        payload.processId = antProcessId;
-
-        result = buyRecordResult;
+          result = buyRecordResult;
+        }
         break;
       }
       case ARNS_INTERACTION_TYPES.EXTEND_LEASE:
@@ -126,7 +148,7 @@ export default async function dispatchArIOInteraction({
           {
             name: lowerCaseDomain(payload.name),
             years: payload.years,
-            fundFrom,
+            fundFrom: originalFundFrom,
           },
           WRITE_OPTIONS,
         );
@@ -136,7 +158,7 @@ export default async function dispatchArIOInteraction({
           {
             name: lowerCaseDomain(payload.name),
             increaseCount: payload.qty,
-            fundFrom,
+            fundFrom: originalFundFrom,
           },
           WRITE_OPTIONS,
         );
@@ -162,7 +184,7 @@ export default async function dispatchArIOInteraction({
           await arioContract
             .requestPrimaryName({
               name: payload.name,
-              fundFrom,
+              fundFrom: originalFundFrom,
             })
             .catch((e) => {
               throw new Error('Unable to request Primary name: ' + e.message);
@@ -199,7 +221,7 @@ export default async function dispatchArIOInteraction({
         });
         result = await arioContract.upgradeRecord({
           name: payload.name,
-          fundFrom,
+          fundFrom: originalFundFrom,
         });
         break;
       }

@@ -6,7 +6,10 @@ import { SelectDropdown } from '@src/components/inputs/Select';
 import useCountries from '@src/hooks/useCountries';
 import { useEstimatedCreditsForUSD } from '@src/hooks/useEstimatedCreditsForUSD';
 import { useTurboArNSClient } from '@src/hooks/useTurboArNSClient';
-import { TurboArNSClient } from '@src/services/turbo/TurboArNSClient';
+import {
+  PaymentInformation,
+  TurboArNSClient,
+} from '@src/services/turbo/TurboArNSClient';
 import { useWalletState } from '@src/state';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
@@ -17,11 +20,6 @@ import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
 import { isEmail } from 'validator';
 
 import { valueStringError } from '../../TurboTopUpModal';
-
-export type PaymentInformation = {
-  paymentMethodId: string;
-  email?: string;
-};
 
 const FormEntry: FC<{
   name: string;
@@ -160,6 +158,16 @@ function FiatPayment({
   const discountAmount = adjustment
     ? `(${100 - adjustment.operatorMagnitude * 100}% discount applied)`
     : undefined;
+
+  // if (cardElementIsMounted) {
+  //   return (
+  //     <div className="flex size-full min-h-[300px] justify-center items-center">
+  //       <div className="flex text-white whitespace-nowrap">
+  //         Please close other payment forms before proceeding.
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="flex flex-col">

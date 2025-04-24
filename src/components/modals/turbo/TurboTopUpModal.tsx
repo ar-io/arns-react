@@ -2,12 +2,18 @@ import { USD } from '@ardrive/turbo-sdk/web';
 import { Tooltip } from '@src/components/data-display';
 import { TurboLogo } from '@src/components/icons';
 import { useTurboArNSClient } from '@src/hooks/useTurboArNSClient';
-import { useWalletState } from '@src/state';
+import { PaymentInformation } from '@src/services/turbo/TurboArNSClient';
+import { useGlobalState, useWalletState } from '@src/state';
 import { LINK_HOW_ARE_CONVERSIONS_DETERMINED } from '@src/utils/constants';
-import { PaymentIntent, PaymentIntentResult } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
+import {
+  PaymentIntent,
+  PaymentIntentResult,
+  loadStripe,
+} from '@stripe/stripe-js';
 import { ExternalLinkIcon, XIcon } from 'lucide-react';
 import { Tabs } from 'radix-ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import CurrencyConfigurationPanel from './panels/CurrencyConfigurationPanel';
 import CryptoConfirmation from './panels/crypto/CryptoConfirmation';
@@ -15,7 +21,7 @@ import CryptoManualTopup from './panels/crypto/CryptoManualTopup';
 import CryptoTopupComplete from './panels/crypto/CryptoTopupComplete';
 import ResumeCryptoTopup from './panels/crypto/ResumeCryptoTopup';
 import FiatConfirmation from './panels/fiat/FiatConfirmation';
-import FiatPayment, { PaymentInformation } from './panels/fiat/FiatPayment';
+import FiatPayment from './panels/fiat/FiatPayment';
 import FiatTopupComplete from './panels/fiat/FiatTopupComplete';
 
 export const errorSubmittingTransactionToTurbo =
@@ -31,7 +37,7 @@ export type PanelStates =
   | 'resume-eth-topup';
 type Currency = 'fiat' | 'crypto';
 
-function TurboTopUpModal({ onClose }: { onClose: () => void }) {
+function BaseTurboTopUpModal({ onClose }: { onClose: () => void }) {
   const [{ wallet, walletAddress }] = useWalletState();
   const turbo = useTurboArNSClient();
   const [currency, setCurrency] = useState<Currency>('fiat');
@@ -229,6 +235,20 @@ function TurboTopUpModal({ onClose }: { onClose: () => void }) {
       </div>
       <TurboLogo className="absolute bottom-10 right-10 opacity-70" />
     </div>
+  );
+}
+
+function TurboTopUpModal({ onClose }: { onClose: () => void }) {
+  const [{ turboNetwork }] = useGlobalState();
+  const stripePromise = useMemo(() => {
+    return loadStripe(turboNetwork.STRIPE_PUBLISHABLE_KEY);
+  }, [turboNetwork.STRIPE_PUBLISHABLE_KEY]);
+  // we wrap the modal in an Elements component to ensure that the CardElement is mounted seperately from the global elements context
+  // if two card elements are mounted at the same time, the second one will CRASH the app
+  return (
+    <Elements stripe={stripePromise}>
+      <BaseTurboTopUpModal onClose={onClose} />
+    </Elements>
   );
 }
 

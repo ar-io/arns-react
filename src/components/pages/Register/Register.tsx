@@ -67,8 +67,13 @@ function RegisterNameForm() {
   const [hasValidationErrors, setHasValidationErrors] =
     useState<boolean>(false);
   const [validatingNext, setValidatingNext] = useState<boolean>(false);
-  const { data: antVersion } = useLatestANTVersion();
-  const antModuleId = useMemo(() => antVersion?.moduleId ?? null, [antVersion]);
+  const {
+    data: antVersion,
+    isRefetching: isRefetchingAntVersion,
+    isLoading: isLoadingAntVersion,
+    refetch: refetchAntVersion,
+  } = useLatestANTVersion();
+  const antModuleId = useMemo(() => antVersion?.moduleId, [antVersion]);
 
   useEffect(() => {
     const redirect = searchParams.get('redirect');
@@ -130,7 +135,10 @@ function RegisterNameForm() {
       }
 
       if (!antModuleId) {
-        throw new Error('No ANT Module available, try again later');
+        await refetchAntVersion();
+        if (!antModuleId) {
+          throw new Error('No ANT Module available, try again later');
+        }
       }
 
       setValidatingNext(true);
@@ -195,7 +203,11 @@ function RegisterNameForm() {
     <div className="page center">
       <PageLoader
         message={'Loading Domain info, please wait.'}
-        loading={isValidatingRegistration}
+        loading={
+          isValidatingRegistration ||
+          isRefetchingAntVersion ||
+          isLoadingAntVersion
+        }
       />
       <div
         className="flex flex-column flex-center"
