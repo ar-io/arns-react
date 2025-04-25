@@ -46,6 +46,6 @@ export function useArNSIntentPrice({
       });
     },
     enabled: !!turbo && !!userAddress,
-    staleTime: 1000 * 30,
+    staleTime: 1000 * 60 * 5,
   });
 }
