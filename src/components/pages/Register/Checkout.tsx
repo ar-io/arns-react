@@ -357,7 +357,10 @@ function Checkout() {
             </button>
             <button
               disabled={
-                isInsufficientBalance || isLoadingCostDetail || !isValid
+                isInsufficientBalance ||
+                isLoadingCostDetail ||
+                !isValid ||
+                (!paymentInformation && paymentMethod === 'card')
               }
               className="p-[0.625rem] bg-primary rounded w-[100px] min-w-fit disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleNext}
