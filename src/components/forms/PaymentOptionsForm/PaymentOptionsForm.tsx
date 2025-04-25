@@ -116,7 +116,8 @@ function CardPanel({
       emailError ||
       promoCodeError ||
       !cardComplete ||
-      !termsAccepted
+      !termsAccepted ||
+      !name
     ) {
       setIsValid(false);
       return;
@@ -130,6 +131,7 @@ function CardPanel({
     cardComplete,
     termsAccepted,
     keepMeUpdated,
+    name,
   ]);
 
   const cardElementOptions: StripeCardElementOptions = {
