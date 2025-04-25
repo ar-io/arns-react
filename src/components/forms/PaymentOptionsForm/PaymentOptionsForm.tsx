@@ -1,5 +1,4 @@
 import { FundFrom, mARIOToken } from '@ar.io/sdk';
-import { USD } from '@ardrive/turbo-sdk';
 import { ArIOTokenIcon, TurboIcon } from '@src/components/icons';
 import { Checkbox } from '@src/components/inputs/Checkbox';
 import { SelectDropdown } from '@src/components/inputs/Select';
@@ -43,26 +42,20 @@ const FormEntry: FC<{
       <div className="flex w-full rounded border border-dark-grey">
         {children}
       </div>
-      {errorText && (
-        <div className="flex text-xs text-error whitespace-nowrap">
-          {errorText}
-        </div>
-      )}
+      {errorText && <div className="flex text-xs text-error">{errorText}</div>}
     </div>
   );
 };
 
 function CardPanel({
   setIsValid,
-  paymentAmount,
   onPaymentInformationChange,
   promoCode,
   setPromoCode,
 }: {
   promoCode?: string;
-  setPromoCode: (promoCode?: string) => void;
+  setPromoCode: (promoCode?: string) => Promise<void>;
   setIsValid: (valid: boolean) => void;
-  paymentAmount: number;
   onPaymentInformationChange: (paymentInformation: PaymentInformation) => void;
 }) {
   const [{ walletAddress }] = useWalletState();
@@ -145,25 +138,6 @@ function CardPanel({
       },
     },
     hidePostalCode: true,
-  };
-
-  const isValidPromoCode = async (
-    paymentAmount: number,
-    promoCode: string,
-    destinationAddress: string,
-  ) => {
-    try {
-      if (!turbo) return false;
-      const response = await turbo.turboUploader.getWincForFiat({
-        amount: USD(paymentAmount / 100),
-        promoCodes: [promoCode],
-        nativeAddress: destinationAddress,
-      });
-      return response.adjustments.length > 0;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e: unknown) {
-      return false;
-    }
   };
 
   return (
@@ -265,25 +239,15 @@ function CardPanel({
                       localPromoCode.length > 0 &&
                       turbo
                     ) {
-                      if (
-                        await isValidPromoCode(
-                          paymentAmount,
-                          localPromoCode,
-                          walletAddress.toString(),
-                        )
-                      ) {
-                        try {
-                          setPromoCode(localPromoCode);
-                        } catch (e: unknown) {
-                          console.error(e);
-                          setPromoCodeError(
-                            'Error applying promo code, please try again.',
-                          );
-                        }
-                      } else {
-                        setPromoCode(undefined);
-                        setPromoCodeError('Promo code is invalid or expired.');
+                      try {
+                        await setPromoCode(localPromoCode);
+                      } catch (e: any) {
+                        console.error(e);
+                        setPromoCodeError(e.message + ' Invalid promo code.');
                       }
+                    } else {
+                      setPromoCode(undefined);
+                      setPromoCodeError('Promo code is invalid or expired.');
                     }
                   }}
                 >
@@ -354,7 +318,7 @@ function PaymentOptionsForm({
   setPromoCode,
 }: {
   promoCode?: string;
-  setPromoCode: (promoCode?: string) => void;
+  setPromoCode: (promoCode?: string) => Promise<void>;
   fundingSource?: FundFrom;
   paymentMethod?: PaymentMethod;
   onFundingSourceChange: (fundingSource: FundFrom) => void;
@@ -460,7 +424,6 @@ function PaymentOptionsForm({
           >
             <CardPanel
               setIsValid={setIsValid}
-              paymentAmount={0}
               onPaymentInformationChange={onPaymentInformationChange}
               promoCode={promoCode}
               setPromoCode={setPromoCode}

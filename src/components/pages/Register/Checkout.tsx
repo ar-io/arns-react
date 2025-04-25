@@ -343,7 +343,21 @@ function Checkout() {
               setIsValid={setIsValid}
               onPaymentInformationChange={setPaymentInformation}
               promoCode={promoCode}
-              setPromoCode={setPromoCode}
+              setPromoCode={async (promoCode) => {
+                const priceRes = await turbo?.getPriceForArNSIntent({
+                  address: walletAddress?.toString() ?? '',
+                  intent: costDetailsParams.intent,
+                  name: transaction?.name,
+                  type: transaction?.type,
+                  years: transaction?.years,
+                  promoCode,
+                });
+                if (priceRes?.fiatEstimate.adjustments.length === 0) {
+                  throw new Error('Invalid promo code');
+                } else {
+                  setPromoCode(promoCode);
+                }
+              }}
             />
           </div>
         </div>
