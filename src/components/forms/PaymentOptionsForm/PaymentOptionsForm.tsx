@@ -23,7 +23,7 @@ import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
 import { isEmail } from 'validator';
 
 export type PaymentMethod = 'card' | 'crypto' | 'credits';
-export type ARIOCryptoOptions = '$ARIO' | '$dARIO' | '$tARIO';
+export type ARIOCryptoOptions = 'ARIO' | 'dARIO' | 'tARIO';
 export type CryptoOptions = ARIOCryptoOptions;
 
 const FormEntry: FC<{
@@ -364,7 +364,7 @@ function PaymentOptionsForm({
   setIsValid: (valid: boolean) => void;
 }) {
   const [{ arioTicker }] = useGlobalState();
-  const formattedARIOTicker = `$${arioTicker}` as CryptoOptions;
+  const formattedARIOTicker = `${arioTicker}` as CryptoOptions;
   const cryptoDropdownOptions = useMemo(() => {
     return [{ label: formattedARIOTicker, value: formattedARIOTicker }];
   }, [arioTicker]);
