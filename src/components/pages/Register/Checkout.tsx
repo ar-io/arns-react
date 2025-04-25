@@ -42,7 +42,6 @@ function Checkout() {
   const [{ arioContract, arioProcessId, aoNetwork, aoClient, arioTicker }] =
     useGlobalState();
   const turbo = useTurboArNSClient();
-  const formattedARIOTicker = `$${arioTicker}`;
   const [, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
   const { data: creditsBalance } = useTurboCreditBalance();
@@ -119,7 +118,7 @@ function Checkout() {
         intentPrice?.fiatEstimate?.adjustments?.reduce((acc, curr) => {
           acc[curr.name] = (
             <span className="text-error text-bold text-lg">
-              {formatARIOWithCommas(Number(curr.adjustmentAmount) / 100)} $USD
+              ${formatARIOWithCommas(Number(curr.adjustmentAmount) / 100)} USD
             </span>
           );
           return acc;
@@ -128,10 +127,11 @@ function Checkout() {
         ...discounts,
         'Total due:': (
           <span className="text-white text-bold text-lg">
+            $
             {formatARIOWithCommas(
               (intentPrice?.fiatEstimate.paymentAmount ?? 0) / 100,
             )}{' '}
-            $USD
+            USD
           </span>
         ),
       };
@@ -154,7 +154,7 @@ function Checkout() {
                   {formatARIOWithCommas(
                     new mARIOToken(discount).toARIO().valueOf(),
                   )}{' '}
-                  {formattedARIOTicker}
+                  {arioTicker}
                 </span>
               ),
             }
@@ -162,7 +162,7 @@ function Checkout() {
         'Total due:':
           arioCost > 0 ? (
             <span className="text-white text-bold text-lg">
-              {formatARIOWithCommas(arioCost)} {formattedARIOTicker}
+              {formatARIOWithCommas(arioCost)} {arioTicker}
             </span>
           ) : (
             <span className="text-grey text-bold text-lg animate-pulse">
