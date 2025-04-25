@@ -85,15 +85,18 @@ function Checkout() {
     dataUpdatedAt: costDetailUpdatedAt,
     isLoading: isLoadingCostDetail,
   } = useCostDetails(costDetailsParams);
-  const { data: intentPrice, dataUpdatedAt: intentPriceUpdatedAt } =
-    useArNSIntentPrice({
-      intent: costDetailsParams.intent,
-      name: transaction?.name,
-      type: costDetailsParams.type,
-      years: costDetailsParams.years,
-      increaseQty: costDetailsParams.quantity,
-      promoCode,
-    });
+  const {
+    data: intentPrice,
+    dataUpdatedAt: intentPriceUpdatedAt,
+    isLoading: isLoadingIntentPrice,
+  } = useArNSIntentPrice({
+    intent: costDetailsParams.intent,
+    name: transaction?.name,
+    type: costDetailsParams.type,
+    years: costDetailsParams.years,
+    increaseQty: costDetailsParams.quantity,
+    promoCode,
+  });
   const isMobile = useIsMobile();
 
   const isInsufficientBalance = useMemo(() => {
@@ -373,6 +376,7 @@ function Checkout() {
               disabled={
                 isInsufficientBalance ||
                 isLoadingCostDetail ||
+                isLoadingIntentPrice ||
                 !isValid ||
                 (!paymentInformation && paymentMethod === 'card')
               }
