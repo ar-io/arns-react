@@ -240,9 +240,7 @@ export class TurboArNSClient {
         .filter(([, value]) => value !== undefined)
         .map(([key, value]) => [key, value!.toString()]),
     );
-    const url = `${
-      this.paymentUrl
-    }/v1/arns/price/${intent.toLowerCase()}/${lowerCaseDomain(
+    const url = `${this.paymentUrl}/v1/arns/price/${intent}/${lowerCaseDomain(
       name,
     )}?${new URLSearchParams(queryStringValues).toString()}`;
 
