@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.7.0] - 2025-04-28
+
+### Added
+
+- Credit card payment support on checkout page
+
 ## [1.6.2] - 2025-04-28
 
 ### Fixed
