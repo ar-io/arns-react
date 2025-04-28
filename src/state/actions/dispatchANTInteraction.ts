@@ -7,6 +7,7 @@ import {
   AoMessageResult,
   ContractSigner,
   createAoSigner,
+  evolveANT,
   spawnANT,
 } from '@ar.io/sdk/web';
 import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
@@ -248,7 +249,24 @@ export default async function dispatchANTInteraction({
             throw new Error(`State migration unsuccessful: ${e.message}`);
           });
         // reassign name to new ant
+
+        const info = await antProcess.getInfo();
+        if (!info?.Handlers?.includes('reassignName')) {
+          await stepCallback('Migrating ANT to support Reassign-Name...');
+          await evolveANT({
+            processId,
+            signer: createAoSigner(signer),
+            ao,
+            luaCodeTxId: payload.luaCodeTxId,
+          });
+          const evolvedInfo = await antProcess.getInfo();
+
+          if (!evolvedInfo.Handlers?.includes('reassignName')) {
+            throw new Error('Failed to evolve ANT');
+          }
+        }
         await stepCallback('Reassigning ArNS Name...');
+
         const reassignRes = await antProcess.reassignName({
           name: payload.name,
           arioProcessId: payload.arioProcessId,
