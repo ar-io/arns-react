@@ -159,16 +159,6 @@ function FiatPayment({
     ? `(${100 - adjustment.operatorMagnitude * 100}% discount applied)`
     : undefined;
 
-  // if (cardElementIsMounted) {
-  //   return (
-  //     <div className="flex size-full min-h-[300px] justify-center items-center">
-  //       <div className="flex text-white whitespace-nowrap">
-  //         Please close other payment forms before proceeding.
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
   return (
     <div className="flex flex-col">
       <div>
