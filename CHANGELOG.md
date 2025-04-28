@@ -8,6 +8,13 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.6.2] - 2025-04-28
+
+### Fixed
+
+- Upgrade Domain handles missing Reassign-Name handlers
+- ANT's with missing handlers will be flagged to update
+
 ## [1.6.1] - 2025-04-21
 
 ### Fixed

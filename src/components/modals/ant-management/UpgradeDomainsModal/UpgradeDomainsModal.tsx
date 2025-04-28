@@ -129,6 +129,7 @@ function UpgradeDomainsModal({
                   state: previousState,
                   name: lowerCaseDomain(domain),
                   antModuleId,
+                  luaCodeTxId: luaSourceId,
                 },
                 workflowName: ANT_INTERACTION_TYPES.UPGRADE_ANT,
                 processId: domainData.processId,
