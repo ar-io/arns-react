@@ -128,7 +128,6 @@ export default async function dispatchArIOInteraction({
           });
           payload.processId = antProcessId;
           result = { id: antProcessId };
-          await sleep(5000);
         } else {
           const buyRecordResult = await arioContract.buyRecord({
             name: lowerCaseDomain(name),

@@ -13,6 +13,7 @@ import {
   isArweaveTransactionID,
   isEthAddress,
   lowerCaseDomain,
+  sleep,
 } from '@src/utils';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import { PaymentIntent, PaymentIntentResult, Stripe } from '@stripe/stripe-js';
@@ -78,6 +79,26 @@ export type TurboArNSIntentPriceResponse = {
     fees: Array<any>;
   };
 };
+
+export type TurboArNSIntentStatusResponse<
+  GenericIntentParams extends TurboArNSInteractionParams | unknown,
+> = {
+  status: 'pending' | 'success' | 'failed';
+  intent: TurboArNSIntent;
+  nonce: string;
+  createdData: string;
+  paymentAmount: number;
+  currencyType: CurrencyMap['type'];
+  paymentProvider: 'stripe';
+  quoteCreationDate: string;
+  quoteExpirationDate: string;
+  quotedPaymentAmount: number;
+  usdArRate: string;
+  useArioRate: string;
+  wincQty: string;
+  mARIOQty: number;
+  owner: string;
+} & GenericIntentParams;
 
 export type TurboArNSIntentPriceParams = {
   address: string;
@@ -255,6 +276,16 @@ export class TurboArNSClient {
     return res.json();
   }
 
+  public async getIntentStatus(
+    nonce: string,
+  ): Promise<TurboArNSIntentStatusResponse<TurboArNSInteractionParams>> {
+    const url = `${this.paymentUrl}/v1/arns/purchase/${nonce}`;
+    const res = await fetch(url, {
+      method: 'GET',
+    });
+    return res.json();
+  }
+
   public async executeArNSIntent({
     paymentMethodId,
     email,
@@ -280,6 +311,31 @@ export class TurboArNSClient {
     );
     if (result.error) {
       throw new Error(result.error.message);
+    }
+
+    const maxTries = 10;
+    let tries = 0;
+    let isComplete = false;
+    while (!isComplete && tries <= maxTries) {
+      const res = await this.getIntentStatus(intent.purchaseQuote.nonce);
+      switch (res.status) {
+        case 'success':
+          isComplete = true;
+          break;
+        case 'failed':
+          throw new Error('Turbo ArNS Interaction failed on payment service.');
+        case 'pending':
+          await sleep(1000 * tries);
+          if (tries >= maxTries) {
+            throw new Error(
+              'Turbo ArNS Interaction exceeded max tries on payment service.',
+            );
+          }
+          tries++;
+          break;
+        default:
+          throw new Error('Unknown status from payment service.');
+      }
     }
     return {
       paymentResult: result,
