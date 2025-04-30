@@ -116,7 +116,10 @@ export default async function dispatchArIOInteraction({
           }
         }
         if (fundFrom === 'fiat') {
-          await turboArNSClient?.executeArNSIntent({
+          if (!turboArNSClient) {
+            throw new Error('Turbo ArNS Client is not defined');
+          }
+          const buyRecordResult = await turboArNSClient.executeArNSIntent({
             address: owner.toString(),
             name: lowerCaseDomain(name),
             type,
@@ -127,7 +130,7 @@ export default async function dispatchArIOInteraction({
             intent: 'Buy-Record',
           });
           payload.processId = antProcessId;
-          result = { id: antProcessId };
+          result = buyRecordResult;
         } else {
           const buyRecordResult = await arioContract.buyRecord({
             name: lowerCaseDomain(name),

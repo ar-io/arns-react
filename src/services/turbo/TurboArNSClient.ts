@@ -1,4 +1,11 @@
-import { AoClient, ContractSigner, Intent } from '@ar.io/sdk/web';
+import {
+  ARIO_MAINNET_PROCESS_ID,
+  ARIO_TESTNET_PROCESS_ID,
+  AoClient,
+  AoMessageResult,
+  ContractSigner,
+  Intent,
+} from '@ar.io/sdk/web';
 import {
   ARToTokenAmount,
   CurrencyMap,
@@ -15,8 +22,8 @@ import {
   lowerCaseDomain,
   sleep,
 } from '@src/utils';
-import { NETWORK_DEFAULTS } from '@src/utils/constants';
-import { PaymentIntent, PaymentIntentResult, Stripe } from '@stripe/stripe-js';
+import { NETWORK_DEFAULTS, devPaymentServiceFqdn } from '@src/utils/constants';
+import { PaymentIntent, Stripe } from '@stripe/stripe-js';
 
 export type PaymentInformation = {
   paymentMethodId: string;
@@ -98,6 +105,7 @@ export type TurboArNSIntentStatusResponse<
   wincQty: string;
   mARIOQty: number;
   owner: string;
+  messageId?: string;
 } & GenericIntentParams;
 
 export type TurboArNSIntentPriceParams = {
@@ -122,6 +130,7 @@ export class TurboArNSClient {
   public readonly stripe;
 
   public readonly ao;
+  public readonly arioProcessId: string;
   constructor({
     uploadUrl = NETWORK_DEFAULTS.TURBO.UPLOAD_URL,
     paymentUrl = NETWORK_DEFAULTS.TURBO.PAYMENT_URL,
@@ -154,6 +163,10 @@ export class TurboArNSClient {
         ? 'ethereum'
         : undefined,
     });
+    this.arioProcessId =
+      this.paymentUrl === devPaymentServiceFqdn
+        ? ARIO_TESTNET_PROCESS_ID
+        : ARIO_MAINNET_PROCESS_ID;
   }
 
   // TODO: add to turbo-sdk
@@ -294,10 +307,7 @@ export class TurboArNSClient {
     processId?: string;
     paymentMethodId: string;
     email?: string;
-  }): Promise<{
-    paymentIntent: PaymentIntent;
-    paymentResult: PaymentIntentResult;
-  }> {
+  }): Promise<AoMessageResult> {
     const intent = await this.getArNSPaymentIntent(intentParams);
     if (!intent.paymentSession.client_secret) {
       throw new Error('No client secret found on payment intent');
@@ -316,11 +326,15 @@ export class TurboArNSClient {
     const maxTries = 10;
     let tries = 0;
     let isComplete = false;
+    let messageId: string | undefined;
     while (!isComplete && tries <= maxTries) {
       const res = await this.getIntentStatus(intent.purchaseQuote.nonce);
       switch (res.status) {
         case 'success':
           isComplete = true;
+
+          messageId = res.messageId;
+
           break;
         case 'failed':
           throw new Error('Turbo ArNS Interaction failed on payment service.');
@@ -337,9 +351,15 @@ export class TurboArNSClient {
           throw new Error('Unknown status from payment service.');
       }
     }
+    if (!messageId) {
+      throw new Error('No message ID found on payment service.');
+    }
     return {
-      paymentResult: result,
-      paymentIntent: intent.paymentSession,
+      id: messageId,
+      result: (await this.ao.result({
+        process: this.arioProcessId,
+        message: messageId,
+      })) as any,
     };
   }
 
