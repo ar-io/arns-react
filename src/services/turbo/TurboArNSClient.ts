@@ -339,12 +339,13 @@ export class TurboArNSClient {
         case 'failed':
           throw new Error('Turbo ArNS Interaction failed on payment service.');
         case 'pending':
-          await sleep(1000 * tries);
           if (tries >= maxTries) {
             throw new Error(
               'Turbo ArNS Interaction exceeded max tries on payment service.',
             );
           }
+          await sleep(1000 * tries);
+
           tries++;
           break;
         default:
