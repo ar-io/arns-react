@@ -65,7 +65,7 @@
       class="sm:w-full absolute md:w-fit md:relative h-full"
     >
       <img
-        src="https://arweave.net/qv7mnLYqphBIrjmdKB0Gm3XdsweABy17DyjCsHN3Q64"
+        src="https://arweave.net/ZI86dr0HFjgwJnGMg57WI9WwGLyHgmPDpO-wx9BMYbQ"
         alt="rocket"
         class="sm:w-full md:w-fit h-full"
       />
@@ -110,7 +110,7 @@
           >
             <a
               id="domain-name"
-              href="https://arns.<GATEWAY_HOST>/#/manage/names/<ARNS_NAME>"
+              href="https://arns.<GATEWAY_HOST>/#/register/<ARNS_NAME>"
               target="_blank"
               >arns</a
             >
@@ -120,7 +120,7 @@
         <h2
           class="text-textPrimary text-4xl md:text-5xl font-bold w-fit text-center md:text-start mx-auto md:m-0"
         >
-          Future home of something rather bullish.
+          Make this domain space yours.
         </h2>
         <p
           class="text-textSubtle text-center md:text-start w-fit mx-auto md:m-0"
@@ -163,9 +163,14 @@
     <script src="https://unpkg.com/@popperjs/core@2"></script>
     <script src="https://unpkg.com/tippy.js@6"></script>
     <script>
+      tippy('#domain-name', {
+        content: 'Manage name',
+        arrow: false,
+      });
       tippy('#wayfinder-link', {
         interactive: true,
         allowHTML: true,
+        arrow: false,
         content: () => {
           const fullDomain = window.location.host;
           const [arnsDomain, ...gatewayPieces] = fullDomain.split('.');
