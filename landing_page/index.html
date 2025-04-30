@@ -37,8 +37,10 @@
         const gatewayHost = gatewayPieces.join('.');
         const allLinks = document.querySelectorAll('a');
         allLinks.forEach((link) => {
-          link.href = link.href.replace('<GATEWAY_HOST>', gatewayHost);
-          link.href = link.href.replace('<ARNS_NAME>', arnsDomain);
+          link.href = link.href
+            .replace('<GATEWAY_HOST>', gatewayHost)
+            .replace('<ARNS_NAME>', arnsDomain);
+
           link.target = '_blank';
         });
       }
