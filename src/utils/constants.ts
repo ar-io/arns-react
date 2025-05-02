@@ -101,10 +101,13 @@ export const ARIO_AO_CU_URL =
 export const ANT_AO_CU_URL =
   import.meta.env.VITE_ANT_AO_CU_URL || 'https://cu.ardrive.io';
 
+export const devPaymentServiceFqdn = 'payment.ardrive.dev';
+export const prodPaymentServiceFqdn = 'payment.ardrive.io';
+
 export const PAYMENT_SERVICE_FQDN =
   import.meta.env.VITE_NODE_ENV == 'production'
-    ? 'payment.ardrive.io'
-    : 'payment.ardrive.dev';
+    ? prodPaymentServiceFqdn
+    : devPaymentServiceFqdn;
 
 // PUBLISHABLE KEYS
 export const devStripePublishableKey =

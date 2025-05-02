@@ -33,16 +33,9 @@ import './styles.css';
 function NavMenuCard() {
   // TODO: all the balance queries here should be refactored to use balance hooks, or a central balance hook
   const queryClient = useQueryClient();
-  const [
-    {
-      // arweaveDataProvider,
-      arioContract,
-      arioTicker,
-      arioProcessId,
-      aoNetwork,
-      // gateway,
-    },
-  ] = useGlobalState();
+  const [{ arioContract, arioTicker, arioProcessId, aoNetwork }] =
+    useGlobalState();
+
   const [{ wallet, walletAddress }, dispatchWalletState] = useWalletState();
   const { data: primaryNameData } = usePrimaryName();
   const { data: domainDomain } = useDomainInfo({

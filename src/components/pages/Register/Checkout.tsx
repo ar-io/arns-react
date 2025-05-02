@@ -10,12 +10,14 @@ import PaymentOptionsForm, {
 } from '@src/components/forms/PaymentOptionsForm/PaymentOptionsForm';
 import { StepProgressBar } from '@src/components/layout/progress';
 import { useIsMobile } from '@src/hooks';
+import { useArNSIntentPrice } from '@src/hooks/useArNSIntentPrice';
 import {
   COST_DETAIL_STALE_TIME,
   useCostDetails,
 } from '@src/hooks/useCostDetails';
 import { useTurboArNSClient } from '@src/hooks/useTurboArNSClient';
 import { useTurboCreditBalance } from '@src/hooks/useTurboCreditBalance';
+import { PaymentInformation } from '@src/services/turbo/TurboArNSClient';
 import { dispatchArNSUpdate, useArNSState } from '@src/state';
 import dispatchArIOInteraction from '@src/state/actions/dispatchArIOInteraction';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
@@ -40,7 +42,6 @@ function Checkout() {
   const [{ arioContract, arioProcessId, aoNetwork, aoClient, arioTicker }] =
     useGlobalState();
   const turbo = useTurboArNSClient();
-  const formattedARIOTicker = `$${arioTicker}`;
   const [, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
   const { data: creditsBalance } = useTurboCreditBalance();
@@ -51,10 +52,13 @@ function Checkout() {
   const transaction = transactionData as BuyRecordPayload;
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('crypto');
+  const [paymentInformation, setPaymentInformation] =
+    useState<PaymentInformation>();
+  const [isValid, setIsValid] = useState<boolean>(false);
   const [fundingSource, setFundingSource] = useState<FundFrom | undefined>(
     'balance',
   );
-
+  const [promoCode, setPromoCode] = useState<string>();
   const costDetailsParams = useMemo(() => {
     return {
       ...((transactionData ?? {}) as any),
@@ -81,9 +85,22 @@ function Checkout() {
     dataUpdatedAt: costDetailUpdatedAt,
     isLoading: isLoadingCostDetail,
   } = useCostDetails(costDetailsParams);
+  const {
+    data: intentPrice,
+    dataUpdatedAt: intentPriceUpdatedAt,
+    isLoading: isLoadingIntentPrice,
+  } = useArNSIntentPrice({
+    intent: costDetailsParams.intent,
+    name: transaction?.name,
+    type: costDetailsParams.type,
+    years: costDetailsParams.years,
+    increaseQty: costDetailsParams.quantity,
+    promoCode,
+  });
   const isMobile = useIsMobile();
 
   const isInsufficientBalance = useMemo(() => {
+    if (paymentMethod === 'card') return false;
     if (paymentMethod === 'crypto') {
       return costDetail?.fundingPlan?.shortfall ? true : false;
     }
@@ -99,6 +116,29 @@ function Checkout() {
   }, [costDetail, paymentMethod, creditsBalance]);
 
   const fees = useMemo(() => {
+    if (paymentMethod === 'card') {
+      const discounts =
+        intentPrice?.fiatEstimate?.adjustments?.reduce((acc, curr) => {
+          acc[curr.name] = (
+            <span className="text-error text-bold text-lg">
+              ${formatARIOWithCommas(Number(curr.adjustmentAmount) / 100)} USD
+            </span>
+          );
+          return acc;
+        }, {}) ?? {};
+      return {
+        ...discounts,
+        'Total due:': (
+          <span className="text-white text-bold text-lg">
+            $
+            {formatARIOWithCommas(
+              (intentPrice?.fiatEstimate.paymentAmount ?? 0) / 100,
+            )}{' '}
+            USD
+          </span>
+        ),
+      };
+    }
     if (paymentMethod === 'crypto') {
       const discount = costDetail?.discounts.reduce((acc, curr) => {
         return acc + curr.discountTotal;
@@ -117,7 +157,7 @@ function Checkout() {
                   {formatARIOWithCommas(
                     new mARIOToken(discount).toARIO().valueOf(),
                   )}{' '}
-                  {formattedARIOTicker}
+                  {arioTicker}
                 </span>
               ),
             }
@@ -125,7 +165,7 @@ function Checkout() {
         'Total due:':
           arioCost > 0 ? (
             <span className="text-white text-bold text-lg">
-              {formatARIOWithCommas(arioCost)} {formattedARIOTicker}
+              {formatARIOWithCommas(arioCost)} {arioTicker}
             </span>
           ) : (
             <span className="text-grey text-bold text-lg animate-pulse">
@@ -154,9 +194,12 @@ function Checkout() {
     return {
       '': 'Invalid payment method selected',
     };
-  }, [costDetail, paymentMethod]);
+  }, [costDetail, paymentMethod, intentPrice, promoCode]);
 
   const quoteEndTimestamp = useMemo(() => {
+    if (paymentMethod === 'card') {
+      return intentPriceUpdatedAt + COST_DETAIL_STALE_TIME;
+    }
     if (paymentMethod === 'crypto') {
       return costDetailUpdatedAt + COST_DETAIL_STALE_TIME;
     }
@@ -164,7 +207,7 @@ function Checkout() {
       return costDetailUpdatedAt + COST_DETAIL_STALE_TIME;
     }
     return -1;
-  }, [costDetailUpdatedAt, paymentMethod, costDetail]);
+  }, [costDetailUpdatedAt, paymentMethod, costDetail, intentPriceUpdatedAt]);
 
   useEffect(() => {
     if (!transactionData && !workflowName) {
@@ -205,18 +248,32 @@ function Checkout() {
       if (!walletAddress) {
         throw new Error('Wallet address is missing');
       }
+
+      if (!turbo) {
+        throw new Error('Turbo ArNS Client is not connected');
+      }
       // TODO: check that it's connected
       await dispatchArIOInteraction({
         arioContract: arioContract as AoARIOWrite,
         workflowName: workflowName as ARNS_INTERACTION_TYPES,
-        payload: transactionData,
+        payload: {
+          ...transactionData,
+          paymentMethodId: paymentInformation?.paymentMethodId,
+          email: paymentInformation?.email,
+        },
         owner: walletAddress,
         processId: arioProcessId,
         dispatch: dispatchTransactionState,
         signer: wallet?.contractSigner,
         ao: aoClient,
         scheduler: aoNetwork.ARIO.SCHEDULER,
-        fundFrom: paymentMethod === 'credits' ? 'turbo' : fundingSource,
+        fundFrom:
+          paymentMethod === 'card'
+            ? 'fiat'
+            : paymentMethod === 'credits'
+            ? 'turbo'
+            : fundingSource,
+        turboArNSClient: turbo,
       });
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -286,6 +343,24 @@ function Checkout() {
               fundingSource={fundingSource}
               onFundingSourceChange={setFundingSource}
               isInsufficientBalance={isInsufficientBalance}
+              setIsValid={setIsValid}
+              onPaymentInformationChange={setPaymentInformation}
+              promoCode={promoCode}
+              setPromoCode={async (promoCode) => {
+                const priceRes = await turbo?.getPriceForArNSIntent({
+                  address: walletAddress?.toString() ?? '',
+                  intent: costDetailsParams.intent,
+                  name: transaction?.name,
+                  type: transaction?.type,
+                  years: transaction?.years,
+                  promoCode,
+                });
+                if (priceRes?.fiatEstimate.adjustments.length === 0) {
+                  throw new Error('Invalid promo code');
+                } else {
+                  setPromoCode(promoCode);
+                }
+              }}
             />
           </div>
         </div>
@@ -298,7 +373,13 @@ function Checkout() {
               Back
             </button>
             <button
-              disabled={isInsufficientBalance || isLoadingCostDetail}
+              disabled={
+                isInsufficientBalance ||
+                isLoadingCostDetail ||
+                isLoadingIntentPrice ||
+                !isValid ||
+                (!paymentInformation && paymentMethod === 'card')
+              }
               className="p-[0.625rem] bg-primary rounded w-[100px] min-w-fit disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleNext}
             >

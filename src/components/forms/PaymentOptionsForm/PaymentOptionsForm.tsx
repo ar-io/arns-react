@@ -1,39 +1,334 @@
 import { FundFrom, mARIOToken } from '@ar.io/sdk';
-import { Tooltip } from '@src/components/data-display';
 import { ArIOTokenIcon, TurboIcon } from '@src/components/icons';
+import { Checkbox } from '@src/components/inputs/Checkbox';
 import { SelectDropdown } from '@src/components/inputs/Select';
 import TurboTopUpModal from '@src/components/modals/turbo/TurboTopUpModal';
 import {
   useArIOLiquidBalance,
   useArIOStakedAndVaultedBalance,
 } from '@src/hooks/useArIOBalance';
+import { useTurboArNSClient } from '@src/hooks/useTurboArNSClient';
 import { useTurboCreditBalance } from '@src/hooks/useTurboCreditBalance';
-import { useGlobalState } from '@src/state';
+import { PaymentInformation } from '@src/services/turbo/TurboArNSClient';
+import { useGlobalState, useWalletState } from '@src/state';
 import { formatARIOWithCommas } from '@src/utils';
+import eventEmitter from '@src/utils/events';
+import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
+import { StripeCardElementOptions } from '@stripe/stripe-js';
 import Ar from 'arweave/node/ar';
-import { Circle, CircleCheck, CreditCard } from 'lucide-react';
+import { Circle, CircleCheck, CircleXIcon, CreditCard } from 'lucide-react';
 import { Tabs } from 'radix-ui';
-import { useMemo, useState } from 'react';
+import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
+import { isEmail } from 'validator';
 
 export type PaymentMethod = 'card' | 'crypto' | 'credits';
-export type ARIOCryptoOptions = '$ARIO' | '$dARIO' | '$tARIO';
+export type ARIOCryptoOptions = 'ARIO' | 'dARIO' | 'tARIO';
 export type CryptoOptions = ARIOCryptoOptions;
+
+const FormEntry: FC<{
+  name: string;
+  label: string;
+  children: ReactNode;
+  errorText?: string;
+}> = ({ name, label, children, errorText }) => {
+  return (
+    <div className="flex flex-col gap-1">
+      <label
+        className="flex text-sm text-grey whitespace-nowrap"
+        htmlFor={name}
+      >
+        {label}
+      </label>
+      <div className="flex w-full rounded border border-dark-grey">
+        {children}
+      </div>
+      {errorText && <div className="flex text-xs text-error">{errorText}</div>}
+    </div>
+  );
+};
+
+function CardPanel({
+  setIsValid,
+  onPaymentInformationChange,
+  promoCode,
+  setPromoCode,
+}: {
+  promoCode?: string;
+  setPromoCode: (promoCode?: string) => Promise<void>;
+  setIsValid: (valid: boolean) => void;
+  onPaymentInformationChange: (paymentInformation: PaymentInformation) => void;
+}) {
+  const [{ walletAddress }] = useWalletState();
+  const turbo = useTurboArNSClient();
+  const stripe = useStripe();
+  const elements = useElements();
+
+  const [name, setName] = useState<string>();
+  const [email, setEmail] = useState<string>();
+  const [localPromoCode, setLocalPromoCode] = useState<string>();
+  const [cardComplete, setCardComplete] = useState<boolean>(false);
+
+  const [keepMeUpdated, setKeepMeUpdated] = useState<boolean>(false);
+  const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
+
+  const [nameError, setNameError] = useState<string>();
+  const [cardError, setCardError] = useState<string>();
+  const [emailError, setEmailError] = useState<string>();
+  const [promoCodeError, setPromoCodeError] = useState<string>();
+
+  async function updatePaymentInformation() {
+    const cardElement = elements?.getElement(CardElement);
+    if (!cardElement || !stripe || !name || !cardComplete) return;
+
+    const { paymentMethod, error } = await stripe.createPaymentMethod({
+      type: 'card',
+      card: cardElement,
+      billing_details: {
+        name,
+        email: keepMeUpdated ? email : undefined,
+      },
+    });
+    if (error) {
+      eventEmitter.emit('error', error);
+    } else if (paymentMethod) {
+      onPaymentInformationChange({
+        paymentMethodId: paymentMethod.id,
+        email,
+      });
+    }
+  }
+
+  useEffect(() => {
+    updatePaymentInformation();
+  }, [name, email, keepMeUpdated, termsAccepted, promoCode, cardComplete]);
+
+  useEffect(() => {
+    if (
+      nameError ||
+      cardError ||
+      emailError ||
+      promoCodeError ||
+      !cardComplete ||
+      !termsAccepted ||
+      !name
+    ) {
+      setIsValid(false);
+      return;
+    }
+    setIsValid(true);
+  }, [
+    nameError,
+    cardError,
+    emailError,
+    promoCodeError,
+    cardComplete,
+    termsAccepted,
+    keepMeUpdated,
+    name,
+  ]);
+
+  const cardElementOptions: StripeCardElementOptions = {
+    style: {
+      base: {
+        fontSize: '16px',
+        color: 'white',
+        '::placeholder': {
+          color: '#7d7d85',
+        },
+      },
+    },
+    hidePostalCode: true,
+  };
+
+  return (
+    <div className="flex size-full flex-col items-start text-left text-white">
+      <div className="flex w-full flex-col text-grey">
+        <form className="flex  flex-col gap-3">
+          <FormEntry name="name" label="Name on Card *" errorText={nameError}>
+            <input
+              className="size-full flex  bg-transparent px-4 py-2 outline-none text-white"
+              type="text"
+              name="name"
+              value={name}
+              onChange={(e) => {
+                const v = e.target.value ?? '';
+                const cleaned = v.replace(/[^a-zA-Z\s]/g, '');
+                setName(cleaned);
+                setNameError(
+                  cleaned.length == 0 ? 'Name is required' : undefined,
+                );
+              }}
+            ></input>
+          </FormEntry>
+          <FormEntry
+            name="creditCard"
+            label="Credit Card *"
+            errorText={cardError}
+          >
+            <CardElement
+              options={cardElementOptions}
+              className="size-full bg-transparent px-4 p-2 outline-none whitespace-nowrap h-[2.188rem]"
+              onChange={({ error, complete }) => {
+                setCardError(error?.message);
+                setCardComplete(complete);
+              }}
+            />
+          </FormEntry>
+
+          {promoCode ? (
+            <div className="flex flex-col gap-1">
+              <span className="flex text-sm text-grey whitespace-nowrap gap-2">
+                Promo Code{' '}
+                <span className="text-success font-bold">{promoCode}</span>
+              </span>
+              <div className="flex max-w-fit items-center gap-2 text-sm text-grey whitespace-nowrap">
+                Promo code successfully applied.
+                <button
+                  className="text-white"
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if (walletAddress && turbo) {
+                      try {
+                        setPromoCode(undefined);
+                        setPromoCodeError(undefined);
+                      } catch (e: unknown) {
+                        console.error(e);
+                        setPromoCodeError(
+                          'Error removing promo code, please try again.',
+                        );
+                      }
+                    }
+                  }}
+                >
+                  <CircleXIcon className="size-4 text-success" />
+                </button>
+              </div>
+              {promoCodeError && (
+                <div className="text-xs text-error">{promoCodeError}</div>
+              )}
+            </div>
+          ) : (
+            <FormEntry
+              name="promoCode"
+              label="Promo Code"
+              errorText={promoCodeError}
+            >
+              <div className="relative flex w-full">
+                <input
+                  className="peer flex size-full bg-transparent px-4 py-2 outline-none text-white"
+                  type="text"
+                  name="promoCode"
+                  value={localPromoCode || ''}
+                  onChange={(e) => {
+                    const v = e.target.value ?? '';
+                    const cleaned = v.replace(/[^a-zA-Z0-9\s]/g, '');
+                    setLocalPromoCode(cleaned);
+                    setPromoCodeError(undefined);
+                  }}
+                ></input>
+                <button
+                  className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 text-xs text-white opacity-0 transition-opacity focus:opacity-100 peer-focus:opacity-100"
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (
+                      walletAddress &&
+                      localPromoCode &&
+                      localPromoCode.length > 0 &&
+                      turbo
+                    ) {
+                      try {
+                        await setPromoCode(localPromoCode);
+                      } catch (e: any) {
+                        console.error(e);
+                        setPromoCodeError(e.message + ' Invalid promo code.');
+                      }
+                    } else {
+                      setPromoCode(undefined);
+                      setPromoCodeError('Promo code is invalid or expired.');
+                    }
+                  }}
+                >
+                  Apply
+                </button>
+              </div>
+            </FormEntry>
+          )}
+          <div className="flex size-full flex-col gap-8">
+            <FormEntry
+              name="email"
+              label="Enter email for a receipt"
+              errorText={emailError}
+            >
+              <input
+                type="text"
+                className="flex size-full bg-transparent px-4 py-2 outline-none text-white"
+                name="email"
+                value={email}
+                onChange={(e) => {
+                  const newEmail = e.target.value;
+                  setEmail(newEmail);
+                  setEmailError(
+                    newEmail.length == 0 || isEmail(e.target.value)
+                      ? undefined
+                      : 'Please enter a valid email address.',
+                  );
+                }}
+              ></input>
+            </FormEntry>
+            <div className="flex text-xs flex-col items-start gap-3">
+              <Checkbox
+                className="text-xs"
+                id="keepMeUpdatedCheckbox"
+                disabled={!email}
+                label="Keep me up to date on news and promotions."
+                checked={keepMeUpdated}
+                onCheckedChange={(checked) =>
+                  setKeepMeUpdated(Boolean(checked.valueOf()))
+                }
+              />
+              <Checkbox
+                className="text-xs"
+                id="acceptTermsCheckbox"
+                label="I agree to the terms of service and the privacy policy."
+                checked={termsAccepted}
+                onCheckedChange={(checked) =>
+                  setTermsAccepted(Boolean(checked.valueOf()))
+                }
+              />
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
 
 function PaymentOptionsForm({
   fundingSource = 'balance',
   paymentMethod = 'crypto',
   onFundingSourceChange,
   onPaymentMethodChange,
+  onPaymentInformationChange,
   isInsufficientBalance,
+  setIsValid,
+  promoCode,
+  setPromoCode,
 }: {
+  promoCode?: string;
+  setPromoCode: (promoCode?: string) => Promise<void>;
   fundingSource?: FundFrom;
   paymentMethod?: PaymentMethod;
   onFundingSourceChange: (fundingSource: FundFrom) => void;
   onPaymentMethodChange: (paymentMethod: PaymentMethod) => void;
+  onPaymentInformationChange: (paymentInformation: PaymentInformation) => void;
   isInsufficientBalance: boolean;
+  setIsValid: (valid: boolean) => void;
 }) {
   const [{ arioTicker }] = useGlobalState();
-  const formattedARIOTicker = `$${arioTicker}` as CryptoOptions;
+  const formattedARIOTicker = `${arioTicker}` as CryptoOptions;
   const cryptoDropdownOptions = useMemo(() => {
     return [{ label: formattedARIOTicker, value: formattedARIOTicker }];
   }, [arioTicker]);
@@ -93,29 +388,15 @@ function PaymentOptionsForm({
             defaultValue={'crypto'}
             className="flex w-full justify-center items-center gap-2 mb-6"
           >
+            {/* TODO: add tooltip and disable trigger if purchase amount is greated or equal to 2000 USD */}
             <Tabs.Trigger
               value="card"
-              disabled={true}
               className="flex gap-3 p-3 data-[state=active]:bg-foreground rounded border border-[#222224] data-[state=active]:border-grey text-white items-center flex-1 whitespace-nowrap transition-all duration-300 disabled:opacity-50"
             >
-              <Tooltip
-                tooltipOverrides={{
-                  arrow: false,
-                  overlayInnerStyle: {
-                    whiteSpace: 'nowrap',
-                    width: 'fit-content',
-                    padding: '0.625rem',
-                    border: '1px solid var(--text-faded)',
-                  },
-                }}
-                message="Coming Soon!"
-                icon={
-                  <div className="flex gap-3 items-center">
-                    <CreditCard className="size-5 text-grey" />
-                    Credit Card
-                  </div>
-                }
-              />
+              <div className="flex gap-3 items-center">
+                <CreditCard className="size-5 text-grey" />
+                Credit Card
+              </div>
             </Tabs.Trigger>
             <Tabs.Trigger
               value="crypto"
@@ -139,9 +420,14 @@ function PaymentOptionsForm({
           </Tabs.List>
           <Tabs.Content
             value="card"
-            className={`flex flex-col data-[state=active]:p-4 data-[state=active]:border border-dark-grey rounded h-full data-[state=inactive]:size-0 data-[state=inactive]:opacity-0 data-[state=active]:min-h-[405px]`}
+            className={`flex flex-col data-[state=active]:p-6 data-[state=active]:border border-dark-grey rounded h-full data-[state=inactive]:size-0 data-[state=inactive]:opacity-0 data-[state=active]:min-h-[405px]`}
           >
-            <span className="text-grey flex m-auto">Coming Soon!</span>
+            <CardPanel
+              setIsValid={setIsValid}
+              onPaymentInformationChange={onPaymentInformationChange}
+              promoCode={promoCode}
+              setPromoCode={setPromoCode}
+            />
           </Tabs.Content>
           <Tabs.Content
             value="crypto"
