@@ -9,6 +9,7 @@ import {
   ContractSigner,
   DEFAULT_SCHEDULER_ID,
   FundFrom,
+  MessageResult,
   createAoSigner,
   spawnANT,
 } from '@ar.io/sdk/web';
@@ -52,7 +53,7 @@ export default async function dispatchArIOInteraction({
   fundFrom?: FundFrom | 'fiat';
   turboArNSClient?: TurboArNSClient;
 }): Promise<ContractInteraction> {
-  let result: AoMessageResult | undefined = undefined;
+  let result: AoMessageResult<MessageResult | unknown> | undefined = undefined;
   const aoCongestedTimeout = setTimeout(
     () => {
       eventEmitter.emit('network:ao:congested', true);
