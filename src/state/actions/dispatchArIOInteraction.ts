@@ -9,6 +9,7 @@ import {
   ContractSigner,
   DEFAULT_SCHEDULER_ID,
   FundFrom,
+  MessageResult,
   createAoSigner,
   spawnANT,
 } from '@ar.io/sdk/web';
@@ -52,7 +53,7 @@ export default async function dispatchArIOInteraction({
   fundFrom?: FundFrom | 'fiat';
   turboArNSClient?: TurboArNSClient;
 }): Promise<ContractInteraction> {
-  let result: AoMessageResult | undefined = undefined;
+  let result: AoMessageResult<MessageResult | unknown> | undefined = undefined;
   const aoCongestedTimeout = setTimeout(
     () => {
       eventEmitter.emit('network:ao:congested', true);
@@ -116,7 +117,10 @@ export default async function dispatchArIOInteraction({
           }
         }
         if (fundFrom === 'fiat') {
-          await turboArNSClient?.executeArNSIntent({
+          if (!turboArNSClient) {
+            throw new Error('Turbo ArNS Client is not defined');
+          }
+          const buyRecordResult = await turboArNSClient.executeArNSIntent({
             address: owner.toString(),
             name: lowerCaseDomain(name),
             type,
@@ -127,8 +131,7 @@ export default async function dispatchArIOInteraction({
             intent: 'Buy-Record',
           });
           payload.processId = antProcessId;
-          result = { id: antProcessId };
-          await sleep(5000);
+          result = buyRecordResult;
         } else {
           const buyRecordResult = await arioContract.buyRecord({
             name: lowerCaseDomain(name),
