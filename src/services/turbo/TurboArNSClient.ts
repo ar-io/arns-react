@@ -5,6 +5,7 @@ import {
   AoMessageResult,
   ContractSigner,
   Intent,
+  MessageResult,
 } from '@ar.io/sdk/web';
 import {
   ARToTokenAmount,
@@ -307,7 +308,7 @@ export class TurboArNSClient {
     processId?: string;
     paymentMethodId: string;
     email?: string;
-  }): Promise<AoMessageResult> {
+  }): Promise<AoMessageResult<MessageResult>> {
     const intent = await this.getArNSPaymentIntent(intentParams);
     if (!intent.paymentSession.client_secret) {
       throw new Error('No client secret found on payment intent');
@@ -355,12 +356,13 @@ export class TurboArNSClient {
     if (!messageId) {
       throw new Error('No message ID found on payment service.');
     }
+    const messageResult = await this.ao.result({
+      process: this.arioProcessId,
+      message: messageId,
+    });
     return {
       id: messageId,
-      result: (await this.ao.result({
-        process: this.arioProcessId,
-        message: messageId,
-      })) as any,
+      result: messageResult,
     };
   }
 
