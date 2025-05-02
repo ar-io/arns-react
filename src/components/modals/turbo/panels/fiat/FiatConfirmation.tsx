@@ -4,6 +4,7 @@ import { Checkbox } from '@src/components/inputs/Checkbox';
 import { useEstimatedCreditsForUSD } from '@src/hooks/useEstimatedCreditsForUSD';
 import { useTurboArNSClient } from '@src/hooks/useTurboArNSClient';
 import { buildTurboCreditBalanceQuery } from '@src/hooks/useTurboCreditBalance';
+import { PaymentInformation } from '@src/services/turbo/TurboArNSClient';
 import { useGlobalState, useWalletState } from '@src/state';
 import { sleep } from '@src/utils';
 import eventEmitter from '@src/utils/events';
@@ -13,7 +14,6 @@ import { PaymentIntent, PaymentIntentResult } from '@stripe/stripe-js';
 import { useEffect, useState } from 'react';
 
 import { valueStringError } from '../../TurboTopUpModal';
-import { PaymentInformation } from './FiatPayment';
 
 function FiatConfirmation({
   paymentAmount,
