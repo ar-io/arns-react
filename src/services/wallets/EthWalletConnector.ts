@@ -5,8 +5,8 @@ import {
   TurboArNSSigner,
 } from '@ar.io/sdk/web';
 import { TokenType } from '@ardrive/turbo-sdk';
+import { createData } from '@dha-team/arbundles';
 import { MetamaskError } from '@src/utils/errors';
-import { createData } from 'arbundles';
 import { ApiConfig } from 'arweave/node/lib/api';
 import { hashMessage, parseEther, recoverPublicKey, toBytes } from 'viem';
 import { mainnet } from 'viem/chains';
