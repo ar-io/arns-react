@@ -373,6 +373,12 @@ function PaymentOptionsForm({
 
   const [showTopupModal, setShowTopupModal] = useState(false);
 
+  useEffect(() => {
+    if (paymentMethod === 'credits' || paymentMethod === 'crypto') {
+      setIsValid(!isInsufficientBalance);
+    }
+  }, [paymentMethod, isInsufficientBalance]);
+
   return (
     <>
       <div className="flex flex-col gap-6 w-full">
@@ -423,7 +429,7 @@ function PaymentOptionsForm({
             className={`flex flex-col data-[state=active]:p-6 data-[state=active]:border border-dark-grey rounded h-full data-[state=inactive]:size-0 data-[state=inactive]:opacity-0 data-[state=active]:min-h-[405px]`}
           >
             <CardPanel
-              setIsValid={setIsValid}
+              setIsValid={paymentMethod === 'card' ? setIsValid : () => null}
               onPaymentInformationChange={onPaymentInformationChange}
               promoCode={promoCode}
               setPromoCode={setPromoCode}
