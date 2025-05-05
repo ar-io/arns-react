@@ -50,7 +50,7 @@ export class WanderWalletConnector implements ArNSWalletConnector {
 
   async connect(): Promise<void> {
     if (!window.arweaveWallet) {
-      window.open('https://wander.io');
+      window.open('https://wander.app/download');
 
       return;
     }
