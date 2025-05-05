@@ -12,7 +12,7 @@ const SENTRY_DSN_PUBLIC_KEY = import.meta.env.VITE_SENTRY_DSN_PUBLIC_KEY;
 const SENTRY_DSN_PROJECT_URI = import.meta.env.VITE_SENTRY_DSN_PROJECT_URI;
 const SENTRY_DSN_PROJECT_ID = import.meta.env.VITE_SENTRY_DSN_PROJECT_ID;
 const ENVIRONMENT = import.meta.env.VITE_ENVIRONMENT ?? 'develop';
-const IS_PERMAWEB_VERSION = import.meta.env.ARNS_NAME !== undefined;
+const IS_PERMAWEB_VERSION = import.meta.env.VITE_ARNS_NAME !== undefined;
 
 const sentry =
   SENTRY_DSN_PUBLIC_KEY &&
