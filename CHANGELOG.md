@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.7.2] - 2025-05-05
+
+### Fixed
+
+- Fix TTL rendering on domain management page
+
 ## [1.7.1] - 2025-05-05
 
 ### Fixed
