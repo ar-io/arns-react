@@ -20,7 +20,7 @@ export default defineConfig({
     react(),
     nodePolyfills(),
     // if we are building for permaweb deploy we dont want sentry
-    ...(process.env.VITE_NODE_ENV && !process.env.DEPLOY_ANT_PROCESS_ID
+    ...(process.env.VITE_NODE_ENV && !process.env.VITE_ARNS_NAME
       ? [
           sentryVitePlugin({
             org: process.env.VITE_SENTRY_ORG,
