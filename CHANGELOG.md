@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.7.1] - 2025-05-05
+
+### Fixed
+
+- Fix Wander download url
+
 ## [1.7.0] - 2025-04-28
 
 ### Added
