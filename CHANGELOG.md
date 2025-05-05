@@ -14,6 +14,10 @@ and this project adheres to
 
 - Fix TTL rendering on domain management page
 
+### Changed
+
+- Updated default landing page transaction ID
+
 ## [1.7.1] - 2025-05-05
 
 ### Fixed
