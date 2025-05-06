@@ -110,7 +110,7 @@ export type TurboArNSIntentStatusResponse<
 } & GenericIntentParams;
 
 export type TurboArNSIntentPriceParams = {
-  address: string;
+  address?: string;
   name: string;
   intent: TurboArNSIntent;
   increaseQty?: number;
@@ -214,7 +214,7 @@ export class TurboArNSClient {
     promoCode,
     currency = 'usd',
   }: {
-    address: string;
+    address?: string;
     name: string;
     intent: TurboArNSIntent;
     increaseQty?: number;
