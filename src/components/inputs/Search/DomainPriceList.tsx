@@ -24,9 +24,7 @@ function DomainPiceList({ domain }: { domain: string }) {
     <>
       {priceList && priceList.lease > 0 ? (
         <span className="text-white align-center">
-          Lease from{' '}
-          {formatARIO(new mARIOToken(priceList.lease).toARIO().valueOf())}{' '}
-          {arioTicker} for one year, or permabuy for{' '}
+          Starting at ${(priceList.turboFiatLease / 100).toFixed(2)} USD, or{' '}
           {formatARIO(new mARIOToken(priceList.buy).toARIO().valueOf())}{' '}
           {arioTicker}
         </span>

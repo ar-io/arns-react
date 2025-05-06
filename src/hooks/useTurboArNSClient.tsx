@@ -9,10 +9,10 @@ export function useTurboArNSClient() {
   const [{ wallet, walletAddress }] = useWalletState();
   const stripe = useStripe();
   return useMemo(() => {
-    if (!wallet?.contractSigner || !walletAddress || !stripe) return null;
+    if (!stripe) return null;
     return new TurboArNSClient({
       signer: wallet?.contractSigner,
-      walletAddress: walletAddress.toString(),
+      walletAddress: walletAddress?.toString(),
       paymentUrl: turboNetwork.PAYMENT_URL,
       stripe,
       ao: connect(aoNetwork.ARIO),
