@@ -71,7 +71,7 @@ function HomeSearch() {
     let validDomain = true;
     Object.entries(validations).forEach(([name, isValid]) => {
       switch (name) {
-        case 'No special characters or underscores':
+        case 'No special characters':
           if (!isValid && validDomain) {
             validDomain = false;
             const specialChars =
