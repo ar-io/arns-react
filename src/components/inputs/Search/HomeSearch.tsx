@@ -20,7 +20,7 @@ import DomainPiceList from './DomainPriceList';
 const recentlyReturnedTooltipMessage = `Recently expired leases or returned permanent names are initially priced with a premium starting at a 50x multiplier. This premium decreases linearly over 14 days, eventually returning to the base registration price.`;
 
 const maxCharValidation = 'Max. 51 characters';
-const noSpecialCharsValidation = 'No special characters or underscores';
+const noSpecialCharsValidation = 'No special characters';
 const dashesValidation = 'Dashes cannot be leading or trailing';
 const wwwValidation = 'Cannot be www';
 const defaultValidations = {
@@ -342,7 +342,7 @@ function HomeSearch() {
           </DomainSearch>
           {/* validation notes */}
           <div
-            className="flex flex-row w-full mt-2 justify-center items-center max-w-[775px]"
+            className="flex flex-row w-full mt-2 justify-center items-center max-w-[775px] min-w-full"
             style={{ rowGap: '4px' }}
           >
             {domainQuery.length ? (
@@ -350,8 +350,8 @@ function HomeSearch() {
                 <span
                   key={index}
                   className={
-                    `flex flex-row justify-center items-center whitespace-nowrap text-sm  ` +
-                    (isValid ? 'text-white' : 'animate-pulse text-grey')
+                    `flex flex-row justify-center items-center whitespace-nowrap text-sm ` +
+                    (isValid ? 'text-grey' : 'animate-pulse text-grey')
                   }
                   style={{ gap: '5px' }}
                 >
