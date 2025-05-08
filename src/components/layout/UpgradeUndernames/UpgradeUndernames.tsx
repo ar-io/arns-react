@@ -17,7 +17,6 @@ import {
   formatARIOWithCommas,
   lowerCaseDomain,
 } from '../../../utils';
-import { MAX_UNDERNAME_COUNT } from '../../../utils/constants';
 import Counter from '../../inputs/Counter/Counter';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import Loader from '../Loader/Loader';
@@ -109,7 +108,7 @@ function UpgradeUndernames() {
             </span>
           </div>
           <Counter
-            maxValue={MAX_UNDERNAME_COUNT - arnsRecord.undernameLimit}
+            maxValue={Number.MAX_SAFE_INTEGER - 1 - arnsRecord.undernameLimit}
             minValue={0}
             value={newUndernameCount}
             setValue={setNewUndernameCount}
