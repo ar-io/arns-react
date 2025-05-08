@@ -211,7 +211,7 @@ function RegisterNameForm() {
       payload: ARNS_INTERACTION_TYPES.BUY_RECORD,
     });
     // navigate to the transaction page, which will load the updated state of the transaction context
-    navigate(`/register/${domain}/checkout`, {
+    navigate(`/checkout`, {
       state: `/register/${domain}`,
     });
   }

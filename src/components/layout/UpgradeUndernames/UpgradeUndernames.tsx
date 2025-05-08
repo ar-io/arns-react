@@ -173,7 +173,7 @@ function UpgradeUndernames() {
                     payload: ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES,
                   });
                   // navigate to the transaction page, which will load the updated state of the transaction context
-                  navigate('/transaction/review', {
+                  navigate(`/checkout`, {
                     state: `/manage/names/${lowerCaseDomain(
                       name,
                     )}/upgrade-undernames`,
