@@ -38,8 +38,8 @@ export interface TurboArNSClientConfig {
   paymentUrl?: string;
   gatewayUrl?: string;
   walletsUrl?: string;
-  signer: ContractSigner;
-  walletAddress: string;
+  signer?: ContractSigner;
+  walletAddress?: string;
   stripe: Stripe;
   ao: AoClient;
 }
@@ -110,7 +110,7 @@ export type TurboArNSIntentStatusResponse<
 } & GenericIntentParams;
 
 export type TurboArNSIntentPriceParams = {
-  address: string;
+  address?: string;
   name: string;
   intent: TurboArNSIntent;
   increaseQty?: number;
@@ -160,7 +160,7 @@ export class TurboArNSClient {
       gatewayUrl: this.gatewayUrl,
       token: isArweaveTransactionID(this.walletAddress)
         ? 'arweave'
-        : isEthAddress(this.walletAddress)
+        : isEthAddress(this.walletAddress ?? '')
         ? 'ethereum'
         : undefined,
     });
@@ -214,7 +214,7 @@ export class TurboArNSClient {
     promoCode,
     currency = 'usd',
   }: {
-    address: string;
+    address?: string;
     name: string;
     intent: TurboArNSIntent;
     increaseQty?: number;

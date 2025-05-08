@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.8.0] - 2025-05-08
+
+### Changed
+
+- Now displays USD and ARIO prices on search and register page.
+
 ## [1.7.2] - 2025-05-05
 
 ### Fixed

@@ -3,6 +3,7 @@ import { ANT, AOProcess, mARIOToken } from '@ar.io/sdk/web';
 import Tooltip from '@src/components/Tooltips/Tooltip';
 import { Accordion } from '@src/components/data-display';
 import { useLatestANTVersion } from '@src/hooks/useANTVersions';
+import { useArNSIntentPrice } from '@src/hooks/useArNSIntentPrice';
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import { ValidationError } from '@src/utils/errors';
 import emojiRegex from 'emoji-regex';
@@ -23,6 +24,8 @@ import {
 } from '../../../types';
 import {
   encodeDomainToASCII,
+  formatARIO,
+  formatARIOWithCommas,
   formatDate,
   isArweaveTransactionID,
 } from '../../../utils';
@@ -36,12 +39,13 @@ import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButton
 import NameTokenSelector from '../../inputs/text/NameTokenSelector/NameTokenSelector';
 import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import Loader from '../../layout/Loader/Loader';
-import TransactionCost from '../../layout/TransactionCost/TransactionCost';
 import { StepProgressBar } from '../../layout/progress';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function RegisterNameForm() {
+  const [{ arweaveDataProvider, arioTicker, arioProcessId, antAoClient }] =
+    useGlobalState();
   const [
     { domain, leaseDuration, registrationType, antID, targetId },
     dispatchRegisterState,
@@ -52,8 +56,21 @@ function RegisterNameForm() {
     type: registrationType,
     years: leaseDuration,
   });
-  const [{ arweaveDataProvider, arioTicker, arioProcessId, antAoClient }] =
-    useGlobalState();
+  const { data: fiatPrice } = useArNSIntentPrice({
+    intent: 'Buy-Name',
+    name: domain,
+    type: registrationType,
+    years: leaseDuration,
+  });
+  const formatedPriceString = useMemo(() => {
+    if (!fiatPrice || !costDetails) return 'Calculating prices...';
+    return `Cost: $${formatARIOWithCommas(
+      fiatPrice.fiatEstimate.paymentAmount / 100,
+    )} USD ( ${formatARIO(
+      new mARIOToken(costDetails.tokenCost).toARIO().valueOf(),
+    )} ${arioTicker} )`;
+  }, [fiatPrice, costDetails]);
+
   const [{ walletAddress, balances }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const { name } = useParams();
@@ -485,19 +502,9 @@ function RegisterNameForm() {
               </div>
             </Accordion>
 
-            <TransactionCost
-              ioRequired={true}
-              fee={{
-                [arioTicker]: costDetails?.tokenCost
-                  ? new mARIOToken(costDetails.tokenCost).toARIO().valueOf()
-                  : undefined,
-              }}
-              feeWrapperStyle={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100%',
-              }}
-            />
+            <div className="text-white flex w-full items-center justify-end pb-4 border-b border-dark-grey whitespace-nowrap">
+              {formatedPriceString}
+            </div>
             <div style={{ marginTop: '0px' }}>
               <WorkflowButtons
                 nextText="Next"
