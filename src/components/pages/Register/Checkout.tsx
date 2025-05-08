@@ -225,6 +225,21 @@ function Checkout() {
             </div>
           ),
         };
+      case ARNS_INTERACTION_TYPES.EXTEND_LEASE:
+        return {
+          'Lease Duration': (
+            <span className="text-white">
+              {transaction?.years}{' '}
+              {transaction?.years && transaction?.years > 1 ? 'years' : 'year'}
+            </span>
+          ),
+        };
+      case ARNS_INTERACTION_TYPES.UPGRADE_NAME:
+        return {
+          'Lease Duration': (
+            <span className="text-success font-sans-bold">Permanent</span>
+          ),
+        };
       default:
         return {};
     }
