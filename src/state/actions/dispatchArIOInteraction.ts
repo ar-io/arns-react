@@ -283,6 +283,7 @@ export default async function dispatchArIOInteraction({
     clearTimeout(aoCongestedTimeout);
     queryClient.invalidateQueries({
       predicate: ({ queryKey }) =>
+        queryKey.includes('io-balance') ||
         queryKey.includes('ario-liquid-balance') ||
         queryKey.includes('ario-delegated-stake') ||
         queryKey.includes('turbo-credit-balance') ||
