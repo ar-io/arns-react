@@ -324,7 +324,7 @@ function App() {
             }
           />
           <Route
-            path="register/:name/checkout"
+            path="/checkout"
             element={
               <Suspense
                 fallback={
