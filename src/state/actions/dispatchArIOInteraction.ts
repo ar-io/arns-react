@@ -177,6 +177,7 @@ export default async function dispatchArIOInteraction({
             throw new Error('Turbo ArNS Client is not defined');
           }
           result = await turboArNSClient.executeArNSIntent({
+            address: owner.toString(),
             name: lowerCaseDomain(payload.name),
             increaseQty: payload.qty,
             intent: 'Increase-Undername-Limit',
