@@ -148,24 +148,51 @@ export default async function dispatchArIOInteraction({
         break;
       }
       case ARNS_INTERACTION_TYPES.EXTEND_LEASE:
-        result = await arioContract.extendLease(
-          {
+        if (fundFrom === 'fiat') {
+          if (!turboArNSClient) {
+            throw new Error('Turbo ArNS Client is not defined');
+          }
+          result = await turboArNSClient.executeArNSIntent({
+            address: owner.toString(),
             name: lowerCaseDomain(payload.name),
             years: payload.years,
-            fundFrom: originalFundFrom,
-          },
-          WRITE_OPTIONS,
-        );
+            intent: 'Extend-Lease',
+            paymentMethodId: payload.paymentMethodId,
+            email: payload.email,
+          });
+        } else {
+          result = await arioContract.extendLease(
+            {
+              name: lowerCaseDomain(payload.name),
+              years: payload.years,
+              fundFrom: originalFundFrom,
+            },
+            WRITE_OPTIONS,
+          );
+        }
         break;
       case ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES:
-        result = await arioContract.increaseUndernameLimit(
-          {
+        if (fundFrom === 'fiat') {
+          if (!turboArNSClient) {
+            throw new Error('Turbo ArNS Client is not defined');
+          }
+          result = await turboArNSClient.executeArNSIntent({
             name: lowerCaseDomain(payload.name),
-            increaseCount: payload.qty,
-            fundFrom: originalFundFrom,
-          },
-          WRITE_OPTIONS,
-        );
+            increaseQty: payload.qty,
+            intent: 'Increase-Undername-Limit',
+            paymentMethodId: payload.paymentMethodId,
+            email: payload.email,
+          });
+        } else {
+          result = await arioContract.increaseUndernameLimit(
+            {
+              name: lowerCaseDomain(payload.name),
+              increaseCount: payload.qty,
+              fundFrom: originalFundFrom,
+            },
+            WRITE_OPTIONS,
+          );
+        }
         break;
       case ARNS_INTERACTION_TYPES.PRIMARY_NAME_REQUEST: {
         dispatch({
@@ -223,10 +250,22 @@ export default async function dispatchArIOInteraction({
           type: 'setSigningMessage',
           payload: 'Upgrading Name to Permabuy',
         });
-        result = await arioContract.upgradeRecord({
-          name: payload.name,
-          fundFrom: originalFundFrom,
-        });
+        if (fundFrom === 'fiat') {
+          if (!turboArNSClient) {
+            throw new Error('Turbo ArNS Client is not defined');
+          }
+          result = await turboArNSClient.executeArNSIntent({
+            name: lowerCaseDomain(payload.name),
+            intent: 'Upgrade-Name',
+            paymentMethodId: payload.paymentMethodId,
+            email: payload.email,
+          });
+        } else {
+          result = await arioContract.upgradeRecord({
+            name: payload.name,
+            fundFrom: originalFundFrom,
+          });
+        }
         break;
       }
       default:
