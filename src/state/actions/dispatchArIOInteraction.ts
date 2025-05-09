@@ -282,7 +282,11 @@ export default async function dispatchArIOInteraction({
     });
     clearTimeout(aoCongestedTimeout);
     queryClient.invalidateQueries({
-      queryKey: ['turbo-credit-balance'],
+      predicate: ({ queryKey }) =>
+        queryKey.includes('ario-liquid-balance') ||
+        queryKey.includes('ario-delegated-stake') ||
+        queryKey.includes('turbo-credit-balance') ||
+        queryKey.includes(lowerCaseDomain(payload.name)),
     });
   }
   if (!result) {
