@@ -308,6 +308,7 @@ export class TurboArNSClient {
     processId?: string;
     paymentMethodId: string;
     email?: string;
+    address: string;
   }): Promise<AoMessageResult<MessageResult>> {
     const intent = await this.getArNSPaymentIntent(intentParams);
     if (!intent.paymentSession.client_secret) {

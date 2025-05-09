@@ -196,6 +196,55 @@ function Checkout() {
     };
   }, [costDetail, paymentMethod, intentPrice, promoCode]);
 
+  const orderSummary = useMemo(() => {
+    switch (workflowName) {
+      case ARNS_INTERACTION_TYPES.BUY_RECORD:
+        return {
+          'Lease Duration':
+            transaction?.type === TRANSACTION_TYPES.BUY
+              ? 'Permabuy (never expires)'
+              : `${transaction?.years} ${
+                  transaction?.years && transaction?.years > 1
+                    ? 'years'
+                    : 'year'
+                }`,
+          Undernames: '10 included',
+        };
+      case ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES:
+        return {
+          Undernames: (
+            <div className="flex items-center gap-2">
+              {' '}
+              <span className="text-white bg-white/10 p-1 px-3 rounded font-bold">
+                {(transactionData as any)?.oldQty}
+              </span>{' '}
+              +{' '}
+              <span className="text-success bg-success-thin p-1 px-3 rounded font-bold">
+                {transaction?.qty}
+              </span>
+            </div>
+          ),
+        };
+      case ARNS_INTERACTION_TYPES.EXTEND_LEASE:
+        return {
+          'Lease Duration': (
+            <span className="text-white">
+              {transaction?.years}{' '}
+              {transaction?.years && transaction?.years > 1 ? 'years' : 'year'}
+            </span>
+          ),
+        };
+      case ARNS_INTERACTION_TYPES.UPGRADE_NAME:
+        return {
+          'Lease Duration': (
+            <span className="text-success font-sans-bold">Permanent</span>
+          ),
+        };
+      default:
+        return {};
+    }
+  }, [workflowName, transaction]);
+
   const quoteEndTimestamp = useMemo(() => {
     if (paymentMethod === 'card') {
       return intentPriceUpdatedAt + COST_DETAIL_STALE_TIME;
@@ -296,22 +345,30 @@ function Checkout() {
         style={isMobile ? {} : { gap: '0px', maxWidth: '900px', width: '100%' }}
       >
         <div className="flex flex-row border-b border-dark-grey pb-6 w-full mb-10">
-          <StepProgressBar
-            stage={3}
-            stages={[
-              { title: 'Choose', description: 'Pick a name', status: 'finish' },
-              {
-                title: 'Configure',
-                description: 'Choose purchase duration',
-                status: 'finish',
-              },
-              {
-                title: 'Checkout',
-                description: 'Complete payment',
-                status: 'process',
-              },
-            ]}
-          />
+          {workflowName === ARNS_INTERACTION_TYPES.BUY_RECORD ? (
+            <StepProgressBar
+              stage={3}
+              stages={[
+                {
+                  title: 'Choose',
+                  description: 'Pick a name',
+                  status: 'finish',
+                },
+                {
+                  title: 'Configure',
+                  description: 'Choose purchase duration',
+                  status: 'finish',
+                },
+                {
+                  title: 'Checkout',
+                  description: 'Complete payment',
+                  status: 'process',
+                },
+              ]}
+            />
+          ) : (
+            <span className="text-white text-bold text-2xl">Review</span>
+          )}
         </div>
 
         <div className="flex md:flex-row flex-col gap-6 w-full h-full">
@@ -320,17 +377,7 @@ function Checkout() {
               domain={transaction?.name}
               antId={transaction?.processId}
               targetId={transaction?.targetId?.toString()}
-              orderSummary={{
-                'Lease Duration':
-                  transaction?.type === TRANSACTION_TYPES.BUY
-                    ? 'Permabuy (never expires)'
-                    : `${transaction?.years} ${
-                        transaction?.years && transaction?.years > 1
-                          ? 'years'
-                          : 'year'
-                      }`,
-                Undernames: '10 included',
-              }}
+              orderSummary={orderSummary}
               fees={fees}
               quoteEndTimestamp={quoteEndTimestamp}
               refresh={handleRefresh}

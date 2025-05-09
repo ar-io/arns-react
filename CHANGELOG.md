@@ -8,6 +8,13 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.9.0] - 2025-05-09
+
+### Added
+
+- Increase Undername Support, Extend Lease, and Upgrade Domain workflows now
+  support card and credits payments.
+
 ## [1.8.0] - 2025-05-08
 
 ### Changed

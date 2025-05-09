@@ -1,9 +1,8 @@
 import { mARIOToken } from '@ar.io/sdk/web';
-import WarningCard from '@src/components/cards/WarningCard/WarningCard';
-import { getTransactionDescription } from '@src/components/pages/Transaction/transaction-descriptions';
+import { useArNSIntentPrice } from '@src/hooks/useArNSIntentPrice';
+import { useCostDetails } from '@src/hooks/useCostDetails';
 import useDomainInfo from '@src/hooks/useDomainInfo';
-import { useIncreaseUndernameCost } from '@src/hooks/useIncreaseUndernameCost';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useIsMobile } from '../../../hooks';
@@ -13,13 +12,14 @@ import {
   ARNS_INTERACTION_TYPES,
   IncreaseUndernamesPayload,
 } from '../../../types';
-import { lowerCaseDomain } from '../../../utils';
-import { MAX_UNDERNAME_COUNT } from '../../../utils/constants';
-import { InfoIcon } from '../../icons';
+import {
+  formatARIO,
+  formatARIOWithCommas,
+  lowerCaseDomain,
+} from '../../../utils';
 import Counter from '../../inputs/Counter/Counter';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import Loader from '../Loader/Loader';
-import TransactionCost from '../TransactionCost/TransactionCost';
 
 function UpgradeUndernames() {
   const isMobile = useIsMobile();
@@ -31,10 +31,35 @@ function UpgradeUndernames() {
   const [newUndernameCount, setNewUndernameCount] = useState<number>(0);
   const { data: domainData } = useDomainInfo({ domain: name });
 
-  const { data: fee } = useIncreaseUndernameCost({
-    name: lowerCaseDomain(name ?? ''),
+  const { data: costDetails, isLoading: loadingCostDetails } = useCostDetails({
+    intent: 'Increase-Undername-Limit',
     quantity: newUndernameCount,
+    name: name as string,
   });
+  const { data: fiatFee, isLoading: loadingFiatFee } = useArNSIntentPrice({
+    intent: 'Increase-Undername-Limit',
+    name: name as string,
+    increaseQty: newUndernameCount,
+  });
+  const arioFee = costDetails?.tokenCost
+    ? new mARIOToken(costDetails.tokenCost).toARIO().valueOf()
+    : undefined;
+
+  const feeString = useMemo(() => {
+    if (newUndernameCount === 0) {
+      return `$0 USD ( 0 ${arioTicker} )`;
+    }
+    if (loadingCostDetails || loadingFiatFee) {
+      return `Calculating price...`;
+    }
+    if (arioFee && fiatFee) {
+      return `$${formatARIOWithCommas(
+        fiatFee.fiatEstimate.paymentAmount / 100,
+      )} USD ( ${formatARIO(arioFee)} ${arioTicker} )`;
+    }
+    return `Unable to calculate price`;
+  }, [arioFee, fiatFee, loadingCostDetails, loadingFiatFee, newUndernameCount]);
+
   const {
     arnsRecord,
     antProcess: antContract,
@@ -83,7 +108,7 @@ function UpgradeUndernames() {
             </span>
           </div>
           <Counter
-            maxValue={MAX_UNDERNAME_COUNT - arnsRecord.undernameLimit}
+            maxValue={Number.MAX_SAFE_INTEGER - 1 - arnsRecord.undernameLimit}
             minValue={0}
             value={newUndernameCount}
             setValue={setNewUndernameCount}
@@ -106,47 +131,15 @@ function UpgradeUndernames() {
             editable={true}
           />
         </div>
-        <TransactionCost
-          feeWrapperStyle={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100%',
-          }}
-          ioRequired={true}
-          fee={{
-            [arioTicker]:
-              newUndernameCount === 0
-                ? 0
-                : fee
-                ? new mARIOToken(fee).toARIO().valueOf()
-                : undefined,
-            ar: 0,
-          }}
-          info={
-            <div>
-              <WarningCard
-                wrapperStyle={{
-                  padding: '10px',
-                  fontSize: '14px',
-                  alignItems: 'center',
-                }}
-                customIcon={<InfoIcon width={'20px'} fill={'var(--accent)'} />}
-                text={
-                  getTransactionDescription({
-                    workflowName: ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES,
-                    arioTicker,
-                  }) || ''
-                }
-              />
-            </div>
-          }
-        />
+        <span className="flex text-white border-b border-dark-grey items-end pb-4 w-full justify-end">
+          {feeString}
+        </span>
         <WorkflowButtons
           backText="Cancel"
           nextText="Confirm"
           onBack={() => navigate(`/manage/names/${lowerCaseDomain(name)}`)}
           onNext={
-            !fee || fee < 0
+            !arioFee || arioFee < 0
               ? undefined
               : () => {
                   const increaseUndernamePayload: IncreaseUndernamesPayload = {
@@ -161,7 +154,7 @@ function UpgradeUndernames() {
                       assetId: arioProcessId,
                       functionName: 'increaseundernameLimit',
                       ...increaseUndernamePayload,
-                      interactionPrice: new mARIOToken(fee).toARIO().valueOf(),
+                      interactionPrice: arioFee,
                     },
                   });
                   dispatchTransactionState({
@@ -173,7 +166,7 @@ function UpgradeUndernames() {
                     payload: ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES,
                   });
                   // navigate to the transaction page, which will load the updated state of the transaction context
-                  navigate('/transaction/review', {
+                  navigate(`/checkout`, {
                     state: `/manage/names/${lowerCaseDomain(
                       name,
                     )}/upgrade-undernames`,
