@@ -1,3 +1,4 @@
+import { SpawnANTState } from '@ar.io/sdk';
 import { StepProps } from 'antd';
 import { Address, checksumAddress } from 'viem';
 
@@ -26,6 +27,7 @@ import {
 } from '../../types';
 import {
   ARNS_TX_ID_REGEX,
+  DEFAULT_ANT_LOGO,
   DEFAULT_MAX_UNDERNAMES,
   LANDING_PAGE_TXID,
   MAX_TTL_SECONDS,
@@ -745,7 +747,9 @@ export function mioToIo(mio: number): number {
   return mio / 1_000_000;
 }
 
-export function createDefaultAntState(state: any) {
+export function createDefaultAntState(
+  state: Partial<SpawnANTState>,
+): SpawnANTState {
   return {
     ticker: 'aos',
     name: 'ANT',
@@ -760,6 +764,7 @@ export function createDefaultAntState(state: any) {
         ttlSeconds: 900,
       },
     },
+    logo: DEFAULT_ANT_LOGO,
     ...state,
   };
 }

@@ -1,4 +1,5 @@
 import { AntLogoIcon } from '@src/components/data-display/AntLogoIcon';
+import TurboTopUpModal from '@src/components/modals/turbo/TurboTopUpModal';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { useTurboCreditBalance } from '@src/hooks/useTurboCreditBalance';
@@ -32,16 +33,9 @@ import './styles.css';
 function NavMenuCard() {
   // TODO: all the balance queries here should be refactored to use balance hooks, or a central balance hook
   const queryClient = useQueryClient();
-  const [
-    {
-      // arweaveDataProvider,
-      arioContract,
-      arioTicker,
-      arioProcessId,
-      aoNetwork,
-      // gateway,
-    },
-  ] = useGlobalState();
+  const [{ arioContract, arioTicker, arioProcessId, aoNetwork }] =
+    useGlobalState();
+
   const [{ wallet, walletAddress }, dispatchWalletState] = useWalletState();
   const { data: primaryNameData } = usePrimaryName();
   const { data: domainDomain } = useDomainInfo({
@@ -68,6 +62,8 @@ function NavMenuCard() {
     [arioTicker]: undefined,
   });
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const [turboTopUpModalOpen, setTurboTopUpModalOpen] = useState(false);
 
   useEffect(() => {
     if (walletAddress) {
@@ -260,6 +256,19 @@ function NavMenuCard() {
                               wrapperStyle={{ margin: '0px' }}
                             />
                           )}
+                          {key === 'Turbo Credits' && (
+                            <div className="relative w-[50px] h-[20px]">
+                              <button
+                                className="absolute bottom-0 left-0 text-xs text-white hover:text-black bg-foreground hover:bg-white border border-dark-grey rounded px-2 py-[2px] transition-all duration-200"
+                                onClick={() => {
+                                  setTurboTopUpModalOpen(true);
+                                  setShowMenu(false);
+                                }}
+                              >
+                                Add
+                              </button>
+                            </div>
+                          )}
                         </span>
                       );
                     })}
@@ -451,6 +460,9 @@ function NavMenuCard() {
           </span>
         </MenuButton>
       </Tooltip>
+      {turboTopUpModalOpen && (
+        <TurboTopUpModal onClose={() => setTurboTopUpModalOpen(false)} />
+      )}
     </>
   );
 }

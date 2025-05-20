@@ -68,14 +68,7 @@ export function buildDomainInfoQuery({
 }): Parameters<typeof useQuery<DomainInfo>>[0] {
   return {
     // we are verbose here to enable predictable keys. Passing in the entire params as a single object can have unpredictable side effects
-    queryKey: [
-      'domainInfo',
-      domain,
-      antId,
-      arioContract,
-      arioProcessId,
-      aoNetwork,
-    ],
+    queryKey: ['domainInfo', domain, antId, arioProcessId, aoNetwork],
     queryFn: async () => {
       const errors: Error[] = [];
       const antAo = connect(aoNetwork.ANT);

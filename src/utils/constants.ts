@@ -3,6 +3,7 @@ import {
   DEFAULT_SCHEDULER_ID,
   arioDevnetProcessId,
 } from '@ar.io/sdk/web';
+import { TokenType } from '@ardrive/turbo-sdk';
 import Arweave from 'arweave';
 import { ArweaveWebWallet } from 'arweave-wallet-connector';
 
@@ -92,11 +93,33 @@ export const ARIO_PROCESS_ID =
   import.meta.env.VITE_ARIO_PROCESS_ID || arioDevnetProcessId;
 
 export const DEFAULT_ANT_LUA_ID = ANT_LUA_ID;
+
+export const DEFAULT_ANT_LOGO = 'Sie_26dvgyok0PZD_-iQAFOhOd5YxDTkczOLoqTTL_A';
 export const ARIO_AO_CU_URL =
   import.meta.env.VITE_ARIO_AO_CU_URL || 'https://cu.ardrive.io';
 
 export const ANT_AO_CU_URL =
   import.meta.env.VITE_ANT_AO_CU_URL || 'https://cu.ardrive.io';
+
+export const devPaymentServiceFqdn = 'payment.ardrive.dev';
+export const prodPaymentServiceFqdn = 'payment.ardrive.io';
+
+export const PAYMENT_SERVICE_FQDN =
+  import.meta.env.VITE_NODE_ENV == 'production'
+    ? prodPaymentServiceFqdn
+    : devPaymentServiceFqdn;
+
+// PUBLISHABLE KEYS
+export const devStripePublishableKey =
+  'pk_test_51JUAtwC8apPOWkDLh2FPZkQkiKZEkTo6wqgLCtQoClL6S4l2jlbbc5MgOdwOUdU9Tn93NNvqAGbu115lkJChMikG00XUfTmo2z';
+
+export const prodStripePublishableKey =
+  'pk_live_51JUAtwC8apPOWkDLMQqNF9sPpfneNSPnwX8YZ8y1FNDl6v94hZIwzgFSYl27bWE4Oos8CLquunUswKrKcaDhDO6m002Yj9AeKj';
+
+export const STRIPE_PUBLISHABLE_KEY =
+  import.meta.env.VITE_NODE_ENV == 'production'
+    ? prodStripePublishableKey
+    : devStripePublishableKey;
 
 export const NETWORK_DEFAULTS = {
   AO: {
@@ -124,8 +147,10 @@ export const NETWORK_DEFAULTS = {
   },
   TURBO: {
     UPLOAD_URL: 'https://turbo.ardrive.io',
-    PAYMENT_URL: 'https://payment.ardrive.io',
+    PAYMENT_URL: `https://${PAYMENT_SERVICE_FQDN}`,
     GATEWAY_URL: 'https://arweave.net',
+    WALLETS_URL: `https://${PAYMENT_SERVICE_FQDN}/info`,
+    STRIPE_PUBLISHABLE_KEY,
   },
 };
 
@@ -140,16 +165,17 @@ export const YEAR_IN_MILLISECONDS = 31536000000;
 export const AVERAGE_BLOCK_TIME_MS = 120_000; // 2 mins
 
 export const FEATURED_DOMAINS: { [x: string]: { imageUrl: string } } = {
-  ao: { imageUrl: AO_IMAGE },
+  arlink: { imageUrl: ARLINK_IMAGE },
+
+  metalinks: { imageUrl: METALINKS_IMAGE },
   ardrive: { imageUrl: ARDRIVE_IMAGE },
   arwiki: { imageUrl: ARWIKI_IMAGE },
-
   permaswap: { imageUrl: PERMASWAP_IMAGE },
   'ar-fees': { imageUrl: AR_FEES_IMAGE },
   // alex: { imageUrl: ALEX_IMAGE },
   // cookbook: { imageUrl: COOKBOOK_IMAGE },
-  arlink: { imageUrl: ARLINK_IMAGE },
-  metalinks: { imageUrl: METALINKS_IMAGE },
+  ao: { imageUrl: AO_IMAGE },
+
   sam: { imageUrl: SAM_IMAGE },
   mfers: { imageUrl: MFERS_IMAGE },
 };
@@ -192,7 +218,7 @@ export const transactionByOwnerQuery = (address: ArweaveTransactionID) => {
 };
 
 export const LANDING_PAGE_TXID = new ArweaveTransactionID(
-  '-k7t8xMoB8hW482609Z9F4bTFMC3MnuW8bTvTyT8pFI',
+  'oork_YifB3-JQQZg8EgMPQJytua_QCHKNmMqt5kmnCo',
 );
 
 export const RESERVED_BREADCRUMB_TITLES = new Set([
@@ -207,3 +233,19 @@ export const PERMANENT_DOMAIN_MESSAGE = 'Indefinite';
 
 export const METAMASK_URL = 'https://metamask.io/';
 export const ANT_CHANGELOG = antChangelog;
+
+export const KiB = 1024;
+export const MiB = 1024 * KiB;
+export const GiB = 1024 * MiB;
+
+export const currencyLabels: Partial<Record<TokenType, string>> = {
+  arweave: 'AR',
+  ethereum: 'ETH',
+  solana: 'SOL',
+  kyve: 'KYVE',
+  matic: 'MATIC',
+  pol: 'POL',
+};
+
+export const LINK_HOW_ARE_CONVERSIONS_DETERMINED =
+  'https://help.ardrive.io/hc/en-us/articles/17043397992731';

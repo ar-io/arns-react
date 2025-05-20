@@ -3,6 +3,8 @@ import { ReactComponent as AccountIcon } from './Account.svg';
 import { ReactComponent as AlertCircle } from './AlertCircle.svg';
 import { ReactComponent as AlertOctagonIcon } from './AlertOctagon.svg';
 import { ReactComponent as AlertTriangleIcon } from './AlertTriangle.svg';
+import { ReactComponent as ArIOTokenIcon } from './ArIOTokenIcon.svg';
+import { ReactComponent as ArNSLogo } from './ArNSLogo.svg';
 import { ReactComponent as ArrowLeft } from './ArrowLeft.svg';
 import { ReactComponent as ArrowRightIcon } from './ArrowRight.svg';
 import { ReactComponent as ArrowUpRight } from './ArrowUpRight.svg';
@@ -54,6 +56,7 @@ import { ReactComponent as SettingsIcon } from './Settings.svg';
 import { ReactComponent as TargetIcon } from './Target.svg';
 import { ReactComponent as TokenIcon } from './TokenIcon.svg';
 import { ReactComponent as TrashIcon } from './Trash.svg';
+import { ReactComponent as TurboIcon } from './TurboIcon.svg';
 import { ReactComponent as UploadIcon } from './Upload.svg';
 import { ReactComponent as WanderIcon } from './WanderIcon.svg';
 import { ReactComponent as BellIcon } from './bell-simple.svg';
@@ -62,11 +65,15 @@ import ElephantTwo from './elephant2.png';
 import ElephantThree from './elephant3.png';
 import { ReactComponent as EnvelopeIcon } from './envelope.svg';
 import { ReactComponent as MetamaskIcon } from './metamask_logo_flat.svg';
+import TurboJson from './turbo-logo.json';
+import { ReactComponent as TurboLogo } from './turbo_logo.svg';
 
 export {
+  ArNSLogo,
   AccountIcon,
   AlertOctagonIcon,
   AlertTriangleIcon,
+  ArIOTokenIcon,
   WanderIcon,
   ArrowRightIcon,
   ARNSDefault,
@@ -125,6 +132,9 @@ export {
   TargetIcon,
   TrashIcon,
   TokenIcon,
+  TurboIcon,
+  TurboJson,
+  TurboLogo,
   UploadIcon,
   VerticalDotMenuIcon,
   BeaconIcon,

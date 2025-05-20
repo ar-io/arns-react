@@ -1,3 +1,5 @@
+import { TurboArNSSigner } from '@ar.io/sdk/web';
+import { TokenType } from '@ardrive/turbo-sdk';
 import { ARWEAVE_APP_API } from '@src/utils/constants';
 import { ArweaveAppError } from '@src/utils/errors';
 import { ApiConfig } from 'arweave/node/lib/api';
@@ -9,12 +11,32 @@ import { executeWithTimeout } from '../../utils';
 import { ArweaveTransactionID } from '../arweave/ArweaveTransactionID';
 
 export class ArweaveAppWalletConnector implements ArNSWalletConnector {
+  tokenType: TokenType = 'arweave';
   private _wallet: ReactiveConnector & { namespaces: any };
   contractSigner?: Window['arweaveWallet'];
+  turboSigner: TurboArNSSigner;
 
   constructor() {
-    this._wallet = ARWEAVE_APP_API as any;
+    const handler = {
+      get: (target: any, prop: string) => {
+        if (prop === 'signMessage') {
+          return async (data: ArrayBuffer) => {
+            return await ARWEAVE_APP_API.signMessage(Buffer.from(data), {
+              hashAlgorithm: 'SHA-256',
+            });
+          };
+        }
+        return target[prop];
+      },
+    };
+
+    this._wallet = new Proxy(ARWEAVE_APP_API as any, handler);
     this.contractSigner = this._wallet as any;
+    Object.assign(this._wallet, {
+      getActivePublicKey: ARWEAVE_APP_API.getPublicKey,
+    });
+
+    this.turboSigner = this._wallet as any;
   }
 
   // The API has been shown to be unreliable, so we call each function with a timeout

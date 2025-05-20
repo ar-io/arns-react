@@ -8,6 +8,74 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.9.0] - 2025-05-09
+
+### Added
+
+- Increase Undername Support, Extend Lease, and Upgrade Domain workflows now
+  support card and credits payments.
+
+## [1.8.0] - 2025-05-08
+
+### Changed
+
+- Now displays USD and ARIO prices on search and register page.
+
+## [1.7.2] - 2025-05-05
+
+### Fixed
+
+- Fix TTL rendering on domain management page
+
+### Changed
+
+- Updated default landing page transaction ID
+
+## [1.7.1] - 2025-05-05
+
+### Fixed
+
+- Fix Wander download url
+
+## [1.7.0] - 2025-04-28
+
+### Added
+
+- Credit card payment support on checkout page
+
+## [1.6.2] - 2025-04-28
+
+### Fixed
+
+- Upgrade Domain handles missing Reassign-Name handlers
+- ANT's with missing handlers will be flagged to update
+
+## [1.6.1] - 2025-04-21
+
+### Fixed
+
+- Name purchase workflow now provides default logo.
+- Wallet switch event for Wander updated
+- Featured domains reordered.
+
+## [1.6.0] - 2025-04-17
+
+### Added
+
+- Fiat Turbo Credits topup workflow
+
+## [1.5.0] - 2025-04-17
+
+### Added
+
+- Added Turbo credits payment method to checkout page
+
+## [1.4.0] - 2025-04-3
+
+### Changed
+
+- Added new checkout page for ArNS Name purchases.
+
 ## [1.3.0] - 2025-03-25
 
 ### Added

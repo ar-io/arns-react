@@ -1,15 +1,35 @@
-import { AoSigner, ContractSigner } from '@ar.io/sdk/web';
+import {
+  AoSigner,
+  ContractSigner,
+  InjectedEthereumSigner,
+  TurboArNSSigner,
+} from '@ar.io/sdk/web';
+import { TokenType } from '@ardrive/turbo-sdk';
+import { createData } from '@dha-team/arbundles';
 import { MetamaskError } from '@src/utils/errors';
-import { InjectedEthereumSigner, createData } from 'arbundles';
 import { ApiConfig } from 'arweave/node/lib/api';
-import { hashMessage, recoverPublicKey, toBytes } from 'viem';
+import { hashMessage, parseEther, recoverPublicKey, toBytes } from 'viem';
+import { mainnet } from 'viem/chains';
 import { Config, Connector } from 'wagmi';
-import { connect, disconnect, getAccount, signMessage } from 'wagmi/actions';
+import {
+  connect,
+  disconnect,
+  getAccount,
+  sendTransaction,
+  signMessage,
+} from 'wagmi/actions';
 
 import { AoAddress, ArNSWalletConnector, WALLET_TYPES } from '../../types';
 
+export type TransferTransactionResult = {
+  txid: string;
+  explorerURL: string;
+};
+
 export class EthWalletConnector implements ArNSWalletConnector {
+  tokenType: TokenType = 'ethereum';
   contractSigner?: ContractSigner;
+  turboSigner: TurboArNSSigner;
   connector: Connector;
   config: Config;
 
@@ -38,6 +58,8 @@ export class EthWalletConnector implements ArNSWalletConnector {
       }),
     };
     const signer = new InjectedEthereumSigner(provider as any);
+
+    this.turboSigner = signer as any as TurboArNSSigner;
     signer.setPublicKey = async () => {
       const message = 'Sign this message to connect to ArNS.app';
       const ethAccount = getAccount(config);
@@ -55,11 +77,13 @@ export class EthWalletConnector implements ArNSWalletConnector {
       signer.publicKey = Buffer.from(toBytes(recoveredKey));
     };
 
+    // eslint-disable-next-line
+    // @ts-ignore
     const aoSigner: AoSigner = async ({ data, tags, target }) => {
       if (!signer.publicKey) {
         await signer.setPublicKey();
       }
-      const dataItem = createData(data, signer, {
+      const dataItem = createData(data as string, signer, {
         tags,
         target,
         anchor: Math.round(Date.now() / 1000)
@@ -69,7 +93,7 @@ export class EthWalletConnector implements ArNSWalletConnector {
 
       const res = await dataItem.sign(signer).then(async () => ({
         id: dataItem.id,
-        raw: dataItem.getRaw(),
+        raw: dataItem.getRaw() as any,
       }));
       return res;
     };
@@ -81,6 +105,10 @@ export class EthWalletConnector implements ArNSWalletConnector {
   async connect(): Promise<void> {
     try {
       localStorage.setItem('walletType', WALLET_TYPES.ETHEREUM);
+      const isConnected = await this.connector.isAuthorized();
+      if (isConnected) {
+        return;
+      }
 
       await connect(this.config, { connector: this.connector });
     } catch (error) {
@@ -108,5 +136,36 @@ export class EthWalletConnector implements ArNSWalletConnector {
       port: 443,
       protocol: 'https',
     };
+  }
+
+  async submitNativeTransaction(
+    amount: number,
+    toAddress: string,
+  ): Promise<TransferTransactionResult> {
+    if (!toAddress.startsWith('0x')) {
+      throw new Error('Invalid address');
+    }
+
+    // switch user to ETH mainnet if not already on it
+    if (this.connector.chainId !== mainnet.id) {
+      await this.connector?.switchChain?.({ chainId: mainnet.id });
+    }
+
+    try {
+      const res = await sendTransaction(this.config, {
+        account: (await this.getWalletAddress()) as `0x${string}`,
+        to: toAddress as `0x${string}`,
+        value: parseEther(amount.toString()),
+        chainId: mainnet.id, // require that transaction is on ETH mainnet
+      });
+
+      return {
+        txid: res,
+        explorerURL: `https://etherscan.io/tx/${res}`,
+      };
+    } catch (error) {
+      console.error('Transaction failed', error);
+      throw error;
+    }
   }
 }

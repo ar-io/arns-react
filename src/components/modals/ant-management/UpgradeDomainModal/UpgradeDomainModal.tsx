@@ -17,6 +17,7 @@ import {
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { ANT_INTERACTION_TYPES } from '@src/types';
 import { formatForMaxCharCount, lowerCaseDomain, sleep } from '@src/utils';
+import { DEFAULT_ANT_LOGO } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { useQueryClient } from '@tanstack/react-query';
 import { Checkbox } from 'antd';
@@ -76,16 +77,20 @@ function UpgradeDomainModal({
           wallet,
         }),
       );
+      if (!domainData.state) {
+        throw new Error('No state found for domain');
+      }
       const previousState: SpawnANTState = {
         controllers: domainData.controllers,
         records: domainData.records,
         owner: walletAddress.toString(),
         ticker: domainData.ticker,
         name: domainData.name,
-        description: domainData.state?.Description ?? '',
-        keywords: domainData.state?.Keywords ?? [],
-        balances: domainData.state?.Balances ?? {},
-        logo: domainData.logo ?? '',
+        // We default to values to allow for upgrades to domains that didn't support description or keywords
+        description: domainData.state.Description ?? '',
+        keywords: domainData.state.Keywords ?? [],
+        balances: domainData.state.Balances ?? {},
+        logo: domainData.logo ?? DEFAULT_ANT_LOGO,
       };
 
       await dispatchANTInteraction({
@@ -94,6 +99,7 @@ function UpgradeDomainModal({
           state: previousState,
           name: lowerCaseDomain(domain),
           antModuleId,
+          luaCodeTxId: luaSourceId,
         },
         workflowName: ANT_INTERACTION_TYPES.UPGRADE_ANT,
         processId: domainData.processId,

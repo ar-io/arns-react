@@ -3,10 +3,11 @@ import {
   isLeasedArNSRecord,
   mARIOToken,
 } from '@ar.io/sdk/web';
+import { useArNSIntentPrice } from '@src/hooks/useArNSIntentPrice';
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import Lottie from 'lottie-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
@@ -19,6 +20,8 @@ import {
   TRANSACTION_TYPES,
 } from '../../../types';
 import {
+  formatARIO,
+  formatARIOWithCommas,
   formatDate,
   getLeaseDurationFromEndTimestamp,
   lowerCaseDomain,
@@ -33,7 +36,6 @@ import arioLoading from '../../icons/ario-spinner.json';
 import Counter from '../../inputs/Counter/Counter';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import DialogModal from '../../modals/DialogModal/DialogModal';
-import TransactionCost from '../TransactionCost/TransactionCost';
 
 function ExtendLease() {
   // TODO: remove use of source contract
@@ -73,13 +75,34 @@ function ExtendLease() {
           fundFrom: 'any',
         },
   );
+  const { data: fiatFee, isLoading: loadingFiatFee } = useArNSIntentPrice(
+    registrationType === 'permabuy'
+      ? {
+          intent: 'Upgrade-Name',
+          name: name as string,
+        }
+      : {
+          intent: 'Extend-Lease',
+          years: newLeaseDuration,
+          type: registrationType?.toString() as any,
+          name: name as string,
+        },
+  );
   const arioFee = costDetails?.tokenCost
     ? new mARIOToken(costDetails.tokenCost).toARIO().valueOf()
     : undefined;
 
-  const hasInsufficientFunds = costDetails?.fundingPlan
-    ? costDetails.fundingPlan.shortfall > 0
-    : true;
+  const feeString = useMemo(() => {
+    if (loadingCostDetails || loadingFiatFee) {
+      return `Calculating price...`;
+    }
+    if (arioFee && fiatFee) {
+      return `$${formatARIOWithCommas(
+        fiatFee.fiatEstimate.paymentAmount / 100,
+      )} USD ( ${formatARIO(arioFee)} ${arioTicker} )`;
+    }
+    return `Unable to calculate price`;
+  }, [arioFee, fiatFee, loadingCostDetails, loadingFiatFee]);
 
   useEffect(() => {
     if (!name) {
@@ -307,25 +330,9 @@ function ExtendLease() {
           )}
         </div>
         {/* TODO: [PE-4563] implement contract read api for extend record */}
-        <TransactionCost
-          feeWrapperStyle={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100%',
-          }}
-          fee={
-            loadingCostDetails
-              ? { [arioTicker]: undefined }
-              : {
-                  [arioTicker]:
-                    maxIncrease < 1 &&
-                    registrationType === TRANSACTION_TYPES.LEASE
-                      ? 0
-                      : arioFee,
-                }
-          }
-          ioRequired={true}
-        />
+        <span className="flex text-white border-b border-dark-grey items-end pb-4 w-full justify-end">
+          {feeString}
+        </span>
         <WorkflowButtons
           backText="Cancel"
           nextText="Continue"
@@ -343,7 +350,7 @@ function ExtendLease() {
             navigate(`/manage/names/${lowerCaseDomain(name!)}`);
           }}
           onNext={
-            !arioFee || arioFee <= 0 || hasInsufficientFunds
+            !arioFee || arioFee <= 0
               ? undefined
               : () => {
                   if (
@@ -402,39 +409,10 @@ function ExtendLease() {
                     });
                   }
 
-                  navigate('/transaction/review', {
+                  navigate('/checkout', {
                     state: `/manage/names/${lowerCaseDomain(name!)}/extend`,
                   });
                 }
-          }
-          detail={
-            hasInsufficientFunds ? (
-              <div
-                className="flex flex-row center"
-                style={{
-                  width: 'fit-content',
-                  height: 'fit-content',
-                  borderRadius: 'var(--corner-radius)',
-                  border: 'solid 1px var(--error-red)',
-                  background: '#1D1314',
-                  padding: '8px',
-                  boxSizing: 'border-box',
-                  color: 'var(--error-red)',
-                  gap: '10px',
-                  whiteSpace: 'nowrap',
-                  fontSize: '13px',
-                }}
-              >
-                <InfoIcon
-                  width={'24px'}
-                  height={'24px'}
-                  fill="var(--error-red)"
-                />
-                <span className="center">Insufficient funds.</span>
-              </div>
-            ) : (
-              <></>
-            )
           }
         />{' '}
       </div>

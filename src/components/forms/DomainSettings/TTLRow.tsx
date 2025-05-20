@@ -70,7 +70,7 @@ export default function TTLRow({
               }
               disabled={!editing}
               placeholder={editing ? `Enter a new TTL` : ttlSeconds.toString()}
-              value={newTTL}
+              value={editing ? newTTL : ttlSeconds}
               setValue={(e) => setNewTTL(parseInt(e.toString()))}
               validationPredicates={{
                 [VALIDATION_INPUT_TYPES.VALID_TTL]: {

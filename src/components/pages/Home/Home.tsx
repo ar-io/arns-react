@@ -31,7 +31,7 @@ function Home() {
         style={{
           width: '100%',
           maxWidth: '900px',
-          gap: 0,
+          gap: '2rem',
           minWidth: isMobile ? '100%' : '750px',
         }}
       >
