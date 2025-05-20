@@ -1,3 +1,4 @@
+import { TokenType } from '@ardrive/turbo-sdk';
 import { BeaconError } from '@src/utils/errors';
 import eventEmitter from '@src/utils/events';
 import WalletClient from '@vela-ventures/ao-sync-sdk';
@@ -17,6 +18,7 @@ export const BEACON_WALLET_PERMISSIONS: PermissionType[] = [
 ];
 
 export class BeaconWalletConnector implements ArNSWalletConnector {
+  tokenType: TokenType = 'arweave';
   public _wallet: WalletClient;
   contractSigner: Window['arweaveWallet'];
   constructor() {
