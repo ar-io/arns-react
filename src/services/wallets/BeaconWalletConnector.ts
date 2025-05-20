@@ -1,3 +1,4 @@
+import { TurboArNSSigner } from '@ar.io/sdk';
 import { TokenType } from '@ardrive/turbo-sdk';
 import { BeaconError } from '@src/utils/errors';
 import eventEmitter from '@src/utils/events';
@@ -21,12 +22,14 @@ export class BeaconWalletConnector implements ArNSWalletConnector {
   tokenType: TokenType = 'arweave';
   public _wallet: WalletClient;
   contractSigner: Window['arweaveWallet'];
+  turboSigner: TurboArNSSigner;
+
   constructor() {
     this._wallet = new WalletClient();
     this._wallet.reconnect();
-    this.contractSigner = window?.arweaveWallet;
+    this.contractSigner = this._wallet as any;
+    this.turboSigner = this._wallet as any;
   }
-
   async connect(): Promise<void> {
     localStorage.setItem('walletType', WALLET_TYPES.BEACON);
 
