@@ -1,7 +1,7 @@
 {
   "name": "arns-vite-react",
   "private": true,
-  "version": "1.9.0",
+  "version": "1.10.0",
   "homepage": ".",
   "scripts": {
     "build": "yarn clean && tsc --build tsconfig.json && NODE_OPTIONS=--max-old-space-size=32768 vite build",
@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "5.4.0",
-    "@ar.io/sdk": "^3.11.0-alpha.7",
+    "@ar.io/sdk": "3.11.0",
     "@ardrive/turbo-sdk": "^1.23.1",
     "@permaweb/aoconnect": "^0.0.59",
     "@radix-ui/react-checkbox": "^1.1.4",
@@ -39,6 +39,7 @@
     "@tanstack/react-query-devtools": "^5.66.9",
     "@tanstack/react-query-persist-client": "^5.45.1",
     "@tanstack/react-table": "^8.20.5",
+    "@vela-ventures/ao-sync-sdk": "^1.1.25",
     "antd": "^5.20.6",
     "arconnect": "^1.0.3",
     "arweave": "^1.15.1",

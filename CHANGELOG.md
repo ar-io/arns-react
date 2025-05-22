@@ -8,6 +8,16 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.10.0] - 2025-05-22
+
+### Added
+
+- Added support for Beacon wallet integration
+
+### Fixed
+
+- Improved wallet compatibility and connection handling
+
 ## [1.9.0] - 2025-05-09
 
 ### Added

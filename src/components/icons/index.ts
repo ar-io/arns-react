@@ -9,6 +9,7 @@ import { ReactComponent as ArrowLeft } from './ArrowLeft.svg';
 import { ReactComponent as ArrowRightIcon } from './ArrowRight.svg';
 import { ReactComponent as ArrowUpRight } from './ArrowUpRight.svg';
 import ArweaveAppIcon from './ArweaveAppIcon.png';
+import { ReactComponent as BeaconIcon } from './BeaconIcon.svg';
 import { ReactComponent as BookmarkIcon } from './Bookmark.svg';
 import { ReactComponent as BorderOuterIcon } from './BorderOuter.svg';
 import { ReactComponent as BrandLogo } from './BrandLogo.svg';
@@ -136,4 +137,5 @@ export {
   TurboLogo,
   UploadIcon,
   VerticalDotMenuIcon,
+  BeaconIcon,
 };
