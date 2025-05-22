@@ -88,6 +88,8 @@ export interface ArNSWalletConnector {
   getWalletAddress(): Promise<AoAddress>;
   getGatewayConfig(): Promise<ApiConfig>;
   contractSigner?: ContractSigner;
+  on?: (event: string, listener: (data: any) => void) => Promise<void>;
+  off?: (event: string, listener: (data: any) => void) => Promise<void>;
   submitNativeTransaction?(
     amount: number,
     toAddress: string,
@@ -99,6 +101,7 @@ export enum WALLET_TYPES {
   WANDER = 'Wander',
   ARWEAVE_APP = 'ArweaveApp',
   ETHEREUM = 'Ethereum',
+  BEACON = 'Beacon',
 }
 
 export interface KVCache {
