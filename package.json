@@ -1,7 +1,7 @@
 {
   "name": "arns-vite-react",
   "private": true,
-  "version": "1.10.0",
+  "version": "1.10.1",
   "homepage": ".",
   "scripts": {
     "build": "yarn clean && tsc --build tsconfig.json && NODE_OPTIONS=--max-old-space-size=32768 vite build",

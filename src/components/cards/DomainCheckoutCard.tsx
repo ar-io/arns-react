@@ -1,7 +1,7 @@
 import { useCountdown } from '@src/hooks/useCountdown';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { useWalletState } from '@src/state';
-import { isArweaveTransactionID } from '@src/utils';
+import { decodeDomainToASCII, isArweaveTransactionID } from '@src/utils';
 import { DEFAULT_ANT_LOGO } from '@src/utils/constants';
 import { RotateCw } from 'lucide-react';
 import { ReactNode } from 'react';
@@ -63,11 +63,11 @@ function DomainCheckoutCard({
                   border: '1px solid var(--text-faded)',
                 },
               }}
-              message={domain}
+              message={decodeDomainToASCII(domain)}
               icon={
                 <span className="text-white max-w-[11.25rem] truncate">
                   {' '}
-                  {domain}
+                  {decodeDomainToASCII(domain)}
                 </span>
               }
             />
