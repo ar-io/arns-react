@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.10.1] - 2025-06-10
+
+### Fixed
+
+- Fixed rendering of domain to show non-punycode domain.
+
 ## [1.10.0] - 2025-05-22
 
 ### Added
