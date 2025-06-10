@@ -23,6 +23,7 @@ import {
   VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
+  decodeDomainToASCII,
   encodeDomainToASCII,
   formatARIO,
   formatARIOWithCommas,
@@ -267,7 +268,8 @@ function RegisterNameForm() {
           style={{ fontWeight: '500px', fontSize: '23px', gap: '15px' }}
         >
           <span style={{ color: 'var(--success-green)' }}>
-            {domain} <span className={'white'}>is available!</span>
+            {decodeDomainToASCII(domain)}{' '}
+            <span className={'white'}>is available!</span>
           </span>{' '}
           <CheckCircleFilled
             style={{ fontSize: '20px', color: 'var(--success-green)' }}
