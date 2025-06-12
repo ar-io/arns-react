@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [19] - (2025-5-19)
+
+### Added
+
+- Adds patch messages on state changes. These messages will be used by HyperBeam
+  nodes to provide cacheable and verified state for ANTs.
+
 ## [18] - [PMuRmTA2YQFK6kBx2ym2xq3XfRGAZZYnvqUV4siElVc] - (2025-3-25)
 
 ### Fixed
