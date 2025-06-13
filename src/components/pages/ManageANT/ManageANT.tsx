@@ -62,7 +62,7 @@ function ManageANT() {
         ) : (
           <></>
         )}
-        <div className="flex-row flex-space-between">
+        <div className="flex flex-row justify-between">
           <h2 className="flex white center" style={{ gap: '15px' }}>
             <CodeSandboxIcon
               width={'24px'}
@@ -72,7 +72,7 @@ function ManageANT() {
             {data?.name ?? id}
           </h2>
         </div>
-        <div className="flex-row">
+        <div className="flex flex-row">
           <DomainSettings
             antId={id}
             rowFilter={[

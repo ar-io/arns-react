@@ -1,4 +1,4 @@
-import { Tooltip as AntdTooltip, TooltipProps } from 'antd';
+import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import { ReactNode } from 'react';
 
 import { InfoIcon } from '../icons';
@@ -12,23 +12,24 @@ function Tooltip({
   ),
   tooltipOverrides,
 }: {
-  message: JSX.Element | string;
+  message: ReactNode;
   icon?: ReactNode;
-  tooltipOverrides?: Partial<TooltipProps>;
+  tooltipOverrides?: any;
 }) {
   return (
-    <>
-      <AntdTooltip
-        title={message}
-        color="var(--box-color)"
-        className="pointer"
-        overlayInnerStyle={{ padding: '15px' }}
-        {...tooltipOverrides}
-        destroyTooltipOnHide={true}
-      >
+    <TooltipPrimitive.Root {...tooltipOverrides}>
+      <TooltipPrimitive.Trigger asChild className="cursor-pointer">
         {icon}
-      </AntdTooltip>
-    </>
+      </TooltipPrimitive.Trigger>
+      <TooltipPrimitive.Content
+        sideOffset={5}
+        className="z-50 rounded px-4 py-2 bg-[var(--box-color)]"
+        {...tooltipOverrides}
+      >
+        {message}
+        <TooltipPrimitive.Arrow className="fill-[var(--box-color)]" />
+      </TooltipPrimitive.Content>
+    </TooltipPrimitive.Root>
   );
 }
 

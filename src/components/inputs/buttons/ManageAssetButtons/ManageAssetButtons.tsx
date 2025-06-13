@@ -1,10 +1,9 @@
-import { Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { ManageTable } from '../../../../types';
+import { Tooltip } from '../../../data-display';
 import { SettingsIcon } from '../../../icons';
-import './styles.css';
 
 function ManageAssetButtons({
   id,
@@ -19,19 +18,10 @@ function ManageAssetButtons({
 
   return (
     <>
-      <div
-        className="flex-row"
-        style={{ gap: '0.5em', justifyContent: 'flex-end' }}
-      >
-        <Tooltip
-          title="Manage"
-          placement={'top'}
-          autoAdjustOverflow={true}
-          color="var(--text-faded)"
-          className="manage-asset-button-tooltip"
-        >
+      <div className="flex flex-row justify-end gap-2">
+        <Tooltip message="Manage">
           <button
-            className="outline-button manage-button"
+            className="outline-button"
             onClick={() => navigate(`/manage/${assetType}/${id.toString()}`)}
             disabled={disabled}
             style={{

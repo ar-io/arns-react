@@ -284,7 +284,7 @@ function ANTCard({
       </div>
 
       <div
-        className={`flex flex-space-between`}
+        className="flex justify-between"
         style={{ display: 'flex', width: '100%', boxSizing: 'border-box' }}
       >
         {compact ? (

@@ -29,7 +29,7 @@ function TransactionSuccessCard({
         fill={'var(--success-green)'}
       />
       <div
-        className="flex-column"
+        className="flex flex-col"
         style={{
           width: '100%',
           justifyContent: 'flex-start',
