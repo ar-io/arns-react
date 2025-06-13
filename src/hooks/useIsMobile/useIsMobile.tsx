@@ -11,7 +11,9 @@ export function useIsMobile(): boolean {
     return () => {
       window.removeEventListener('resize', updateIsMobile);
     };
-  }, [isMobile]);
+    // The dependency array is intentionally empty so the listener is only
+    // attached once on mount and cleaned up on unmount.
+  }, []);
 
   function updateIsMobile(): void {
     setIsMobile(window.innerWidth < 600);
