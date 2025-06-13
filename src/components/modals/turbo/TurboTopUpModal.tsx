@@ -243,7 +243,7 @@ function TurboTopUpModal({ onClose }: { onClose: () => void }) {
   const stripePromise = useMemo(() => {
     return loadStripe(turboNetwork.STRIPE_PUBLISHABLE_KEY);
   }, [turboNetwork.STRIPE_PUBLISHABLE_KEY]);
-  // we wrap the modal in an Elements component to ensure that the CardElement is mounted seperately from the global elements context
+  // we wrap the modal in an Elements component to ensure that the CardElement is mounted separately from the global elements context
   // if two card elements are mounted at the same time, the second one will CRASH the app
   return (
     <Elements stripe={stripePromise}>
