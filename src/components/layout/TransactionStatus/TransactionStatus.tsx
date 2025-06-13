@@ -63,12 +63,12 @@ function TransactionStatus({
 
   return (
     <span
-      className="text white bold"
-      style={{ alignItems: 'center', ...wrapperStyle }}
+      className="flex items-center text-white font-bold"
+      style={{ ...wrapperStyle }}
     >
       <Tooltip
         title={
-          <span className=" flex center">
+          <span className="flex items-center justify-center">
             {getTooltipText(confirmations, errorMessage)}
           </span>
         }

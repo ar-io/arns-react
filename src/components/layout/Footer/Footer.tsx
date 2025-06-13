@@ -1,6 +1,5 @@
-import { QuestionCircleOutlined } from '@ant-design/icons';
 import MarkdownModal from '@src/components/modals/MarkdownModal';
-import { Tooltip } from 'antd';
+import { HelpCircle } from 'lucide-react';
 import { useState } from 'react';
 import { FaGithub } from 'react-icons/fa';
 import { FaDiscord } from 'react-icons/fa';
@@ -9,8 +8,8 @@ import { Link } from 'react-router-dom';
 import changeLog from '../../../../CHANGELOG.md?raw';
 import { ARIO_DISCORD_LINK } from '../../../utils/constants';
 import { APP_VERSION } from '../../../utils/constants';
+import { Tooltip } from '../../data-display';
 import { BrandLogo } from '../../icons';
-import './styles.css';
 
 const FORMATTED_CHANGELOG = changeLog
   .substring(changeLog.indexOf('## [Unreleased]') + 16)
@@ -21,14 +20,8 @@ function Footer() {
   const [showChangeLogModal, setShowChangeLogModal] = useState(false);
 
   return (
-    <div
-      className={'flex-row app-footer'}
-      style={{
-        borderTop: '1px solid var(--text-faded)',
-        boxSizing: 'border-box',
-      }}
-    >
-      <div className={'flex-row flex-left'} style={{ width: 'fit-content' }}>
+    <div className="flex flex-row items-center justify-between border-t border-dark-grey box-border px-[100px] py-[15px] max-sm:px-[15px]">
+      <div className="flex flex-row items-center gap-2 w-fit">
         <BrandLogo width={'30px'} height={'30px'} fill={'var(--text-grey)'} />
         <Link
           className="grey text hover:text-white"
@@ -40,23 +33,10 @@ function Footer() {
         </Link>
       </div>
 
-      <div
-        className="flex-space-between"
-        style={{
-          width: '100%',
-        }}
-      ></div>
+      <div className="flex-1" />
 
-      <div
-        className="flex-row flex-right w-fit"
-        style={{ width: 'fit-content' }}
-      >
-        <Tooltip
-          title="Show Changelog"
-          placement={'top'}
-          autoAdjustOverflow={true}
-          color="var(--text-faded)"
-        >
+      <div className="flex flex-row justify-end items-center gap-2 w-fit">
+        <Tooltip message="Show Changelog">
           <button
             className="flex flex-row flex-right text grey center hover:text-white"
             style={{ whiteSpace: 'nowrap' }}
@@ -65,12 +45,7 @@ function Footer() {
             v{APP_VERSION}-{import.meta.env.VITE_GITHUB_HASH?.slice(0, 6)}
           </button>
         </Tooltip>
-        <Tooltip
-          title="Github"
-          placement={'top'}
-          autoAdjustOverflow={true}
-          color="var(--text-faded)"
-        >
+        <Tooltip message="Github">
           <button
             className="button grey text center hover pointer"
             onClick={() => window.open('https://github.com/ar-io/', '_blank')}
@@ -78,12 +53,7 @@ function Footer() {
             <FaGithub className="size-4 stroke-grey fill-grey hover:stroke-white hover:fill-white" />
           </button>
         </Tooltip>
-        <Tooltip
-          title="Discord"
-          placement={'top'}
-          autoAdjustOverflow={true}
-          color="var(--text-faded)"
-        >
+        <Tooltip message="Discord">
           <button
             className="button grey text center hover pointer"
             onClick={() => window.open(ARIO_DISCORD_LINK, '_blank')}
@@ -91,17 +61,12 @@ function Footer() {
             <FaDiscord className="size-4 stroke-grey fill-grey hover:stroke-white hover:fill-white" />
           </button>
         </Tooltip>
-        <Tooltip
-          title="Documentation"
-          placement={'top'}
-          autoAdjustOverflow={true}
-          color="var(--text-faded)"
-        >
+        <Tooltip message="Documentation">
           <button
-            className="button grey text center hover pointer hover:text-white"
+            className="button grey text-center hover:text-white cursor-pointer"
             onClick={() => window.open('https://docs.ar.io/arns', '_blank')}
           >
-            <QuestionCircleOutlined className="text-base" />
+            <HelpCircle className="text-base" />
           </button>
         </Tooltip>
       </div>

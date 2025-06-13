@@ -139,7 +139,7 @@ export default function ControllersRow({
               width={'18px'}
               height={'18px'}
               fill="var(--text-grey)"
-              className="pointer"
+              className="cursor-pointer"
             />
           </Tooltip>,
         ]}

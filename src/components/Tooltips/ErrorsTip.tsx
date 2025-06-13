@@ -1,6 +1,7 @@
-import { Tooltip as AntdTooltip, TooltipProps } from 'antd';
 import { XCircleIcon } from 'lucide-react';
 import { ReactNode } from 'react';
+
+import Tooltip from './Tooltip';
 
 function ErrorsTip({
   errors,
@@ -9,13 +10,13 @@ function ErrorsTip({
 }: {
   errors: Error[];
   icon?: ReactNode;
-  tooltipOverrides?: Partial<TooltipProps>;
+  tooltipOverrides?: Parameters<typeof Tooltip>[0]['tooltipOverrides'];
 }) {
   const uniqueErrors = new Set(errors);
   return (
     <>
-      <AntdTooltip
-        title={
+      <Tooltip
+        message={
           <div className="flex fit-content flex-col gap-2">
             {[...uniqueErrors].map((e, i) => (
               <div
@@ -28,14 +29,9 @@ function ErrorsTip({
             ))}
           </div>
         }
-        color="var(--box-color)"
-        className="pointer"
-        overlayInnerStyle={{ padding: '15px', width: 'fit-content' }}
         {...tooltipOverrides}
-        destroyTooltipOnHide={true}
-      >
-        {icon}
-      </AntdTooltip>
+        icon={icon}
+      />
     </>
   );
 }

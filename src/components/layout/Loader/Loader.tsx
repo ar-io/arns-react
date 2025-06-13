@@ -1,5 +1,4 @@
-import { LoadingOutlined } from '@ant-design/icons';
-import { Spin } from 'antd';
+import { Loader2 } from 'lucide-react';
 
 export default function Loader({
   size = 80,
@@ -13,14 +12,15 @@ export default function Loader({
   wrapperStyle?: any;
 }) {
   return (
-    <Spin
-      tip={message}
-      style={{ fontSize: '18px', color: color }}
-      indicator={
-        <LoadingOutlined
-          style={{ fontSize: size, margin: '15px', ...wrapperStyle }}
-        />
-      }
-    />
+    <div
+      className="flex flex-col items-center justify-center"
+      style={{ color }}
+    >
+      <Loader2
+        className="animate-spin"
+        style={{ fontSize: size, margin: '15px', ...wrapperStyle }}
+      />
+      {message ? <span className="mt-2 text-sm">{message}</span> : null}
+    </div>
   );
 }
