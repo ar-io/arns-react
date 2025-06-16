@@ -1,4 +1,4 @@
-import { AoANTHandler, isLeasedArNSRecord } from '@ar.io/sdk/web';
+import { isLeasedArNSRecord } from '@ar.io/sdk/web';
 import { Tooltip } from '@src/components/data-display';
 import LeaseDuration from '@src/components/data-display/LeaseDuration';
 import ArweaveID, {
@@ -23,6 +23,7 @@ import {
 } from '@src/utils';
 import {
   DEFAULT_MAX_UNDERNAMES,
+  MIN_ANT_VERSION,
   SECONDS_IN_GRACE_PERIOD,
 } from '@src/utils/constants';
 import { useQueryClient } from '@tanstack/react-query';
@@ -98,9 +99,6 @@ function DomainSettings({
     ? data?.controllers?.includes(walletAddress.toString() ?? '')
     : false;
   const isAuthorized = (isOwner || isController) ?? false;
-  const antHandlers = (data?.info?.Handlers ??
-    data?.info?.HandlerNames ??
-    []) as AoANTHandler[];
 
   useEffect(() => {
     if (!domain && !antId) {
@@ -181,7 +179,7 @@ function DomainSettings({
                       message={
                         primaryNameData?.name === lowerCaseDomain(domain ?? '')
                           ? 'Cannot return ArNS name while set as primary name. Remove name as primary name to enable return name workflow.'
-                          : !antHandlers.includes('releaseName')
+                          : data.version < MIN_ANT_VERSION
                           ? 'Update Domain to access Release Name workflow'
                           : 'Returns the name to the ArNS protocol'
                       }
@@ -190,9 +188,7 @@ function DomainSettings({
                           disabled={
                             primaryNameData?.name ===
                               lowerCaseDomain(domain ?? '') ||
-                            (!antHandlers.includes('releaseName') &&
-                              primaryNameData?.name !==
-                                lowerCaseDomain(domain ?? ''))
+                            data.version < MIN_ANT_VERSION
                           }
                           onClick={() => setShowReturnNameModal(true)}
                           className={`text-xs rounded-[4px] py-[.375rem] px-[.625rem]  border border-error bg-error-thin text-error whitespace-nowrap`}
@@ -274,8 +270,8 @@ function DomainSettings({
                       ants: {
                         [data.processId]: {
                           state: data.state,
-                          handlers: antHandlers,
-                          processMeta: data.processMeta,
+                          version: data.version,
+                          processMeta: data.processMeta ?? null,
                         },
                       },
                       userAddress: walletAddress.toString(),
@@ -325,7 +321,7 @@ function DomainSettings({
               action={
                 <Tooltip
                   message={
-                    !antHandlers.includes('reassignName')
+                    data?.version && data.version < MIN_ANT_VERSION
                       ? 'Update Domain to access Reassign Name workflow'
                       : data?.isInGracePeriod
                       ? 'Lease must be extended before ANT can be Reassigned'
@@ -334,7 +330,7 @@ function DomainSettings({
                   icon={
                     <button
                       disabled={
-                        !antHandlers.includes('reassignName') ||
+                        (data?.version && data.version < MIN_ANT_VERSION) ||
                         data?.isInGracePeriod
                       }
                       onClick={() => setShowReassignNameModal(true)}
@@ -356,7 +352,7 @@ function DomainSettings({
                 dispatchANTInteraction({
                   payload: {
                     transactionId: targetId,
-                    ttlSeconds: data?.apexRecord.ttlSeconds,
+                    ttlSeconds: data?.apexRecord?.ttlSeconds,
                   },
                   workflowName: ANT_INTERACTION_TYPES.SET_TARGET_ID,
                   signer: wallet!.contractSigner!,
@@ -427,11 +423,7 @@ function DomainSettings({
                 dispatchANTInteraction({
                   payload: {
                     target,
-                    ...((
-                      data?.info?.Handlers ??
-                      data?.info?.HandlerNames ??
-                      []
-                    ).includes('removePrimaryNames')
+                    ...(data?.version && data.version < MIN_ANT_VERSION
                       ? { arnsDomain: domain, arioProcessId }
                       : {}),
                   },
@@ -503,7 +495,7 @@ function DomainSettings({
           [DomainSettingsRowTypes.DESCRIPTION]: (
             <DescriptionRow
               key={DomainSettingsRowTypes.DESCRIPTION}
-              description={data?.info?.Description}
+              description={data?.state?.Description}
               editable={isAuthorized}
               confirm={(description: string) =>
                 dispatchANTInteraction({
@@ -524,7 +516,7 @@ function DomainSettings({
           [DomainSettingsRowTypes.KEYWORDS]: (
             <KeywordsRow
               key={DomainSettingsRowTypes.KEYWORDS}
-              keywords={data?.info?.Keywords ?? []}
+              keywords={data?.state?.Keywords ?? []}
               editable={isAuthorized}
               confirm={(keywords: string[]) =>
                 dispatchANTInteraction({
