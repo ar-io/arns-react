@@ -1,4 +1,4 @@
-import { AoANTHandler, AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk';
+import { AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk';
 import ErrorsTip from '@src/components/Tooltips/ErrorsTip';
 import {
   ChevronRightIcon,
@@ -35,6 +35,7 @@ import {
   lowerCaseDomain,
 } from '@src/utils';
 import {
+  MIN_ANT_VERSION,
   NETWORK_DEFAULTS,
   PERMANENT_DOMAIN_MESSAGE,
 } from '@src/utils/constants';
@@ -64,7 +65,7 @@ type TableData = {
     supported: number;
   };
   expiryDate: string;
-  handlers: AoANTHandler[] | null;
+  version: number;
   antErrors: Error[];
   status: string | number | Error[];
   action: ReactNode;
@@ -154,7 +155,7 @@ const DomainsTable = ({
                 ants: {
                   [record.processId]: {
                     state: ant.state,
-                    handlers: ant.handlers,
+                    version: ant.version,
                     processMeta: ant.processMeta,
                   },
                 },
@@ -192,7 +193,7 @@ const DomainsTable = ({
           // metadata used for search and other purposes
           antRecords: ant?.state?.Records,
           domainRecord: record,
-          handlers: ant?.handlers ?? [],
+          version: ant?.version ?? 0,
           antErrors: ant?.errors ?? [],
         };
         newTableData.push(data);
@@ -258,7 +259,6 @@ const DomainsTable = ({
             }
           : 'alphanumeric',
       cell: ({ row }) => {
-        const antHandlers = row.original.handlers;
         const processId = row.original.processId;
         const rowValue = row.getValue(key) as any;
 
@@ -499,8 +499,7 @@ const DomainsTable = ({
                   {row.getValue('role') === 'owner' ? (
                     <Tooltip
                       message={
-                        !antHandlers?.includes('approvePrimaryName') ||
-                        !antHandlers?.includes('removePrimaryNames')
+                        row.original.version < MIN_ANT_VERSION
                           ? 'Update ANT to access Primary Names workflow'
                           : primaryNameData?.name === row.getValue('name')
                           ? 'Remove Primary Name'
@@ -508,10 +507,7 @@ const DomainsTable = ({
                       }
                       icon={
                         <button
-                          disabled={
-                            !antHandlers?.includes('approvePrimaryName') ||
-                            !antHandlers?.includes('removePrimaryNames')
-                          }
+                          disabled={row.original.version < MIN_ANT_VERSION}
                           onClick={() => {
                             const targetName = row.getValue('name') as string;
                             if (primaryNameData?.name === targetName) {
@@ -646,7 +642,7 @@ const DomainsTable = ({
               }
               arnsDomain={row.getValue('name')}
               antId={row.getValue('processId')}
-              handlers={row.original.handlers}
+              version={row.original.version}
               state={
                 domainData.ants?.[row.getValue('processId') as string]?.state
               }

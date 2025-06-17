@@ -1,4 +1,3 @@
-import { AoANTHandler } from '@ar.io/sdk';
 import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
 import { AoAddress } from '@src/types';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
@@ -32,7 +31,7 @@ export async function dispatchANTUpdate({
       payload: {
         [processId]: {
           state: null,
-          handlers: null,
+          version: 0,
           errors: [],
           processMeta: null,
         },
@@ -65,11 +64,9 @@ export async function dispatchANTUpdate({
       payload: {
         [processId]: {
           state: domainInfo.state ?? null,
-          handlers: (domainInfo.info?.Handlers ?? null) as
-            | AoANTHandler[]
-            | null,
+          version: domainInfo.version,
           errors: domainInfo.errors ?? [],
-          processMeta: domainInfo.processMeta,
+          processMeta: domainInfo.processMeta ?? null,
         },
       },
     });

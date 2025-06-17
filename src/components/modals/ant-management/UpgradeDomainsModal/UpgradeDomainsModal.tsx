@@ -111,11 +111,11 @@ function UpgradeDomainsModal({
                 throw new Error('No state found for domain');
               }
               const previousState: SpawnANTState = {
-                controllers: domainData.controllers,
-                records: domainData.records,
+                controllers: domainData.state.Controllers,
+                records: domainData.state.Records,
                 owner: walletAddress.toString(),
-                ticker: domainData.ticker,
-                name: domainData.name,
+                ticker: domainData.state.Ticker,
+                name: domainData.state.Name,
                 // We default to values to allow for upgrades to domains that didn't support description or keywords
                 description: domainData.state.Description ?? '',
                 keywords: domainData.state.Keywords ?? [],

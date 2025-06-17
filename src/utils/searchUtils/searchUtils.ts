@@ -1,4 +1,3 @@
-import { AntHandlerNames } from '@ar.io/sdk';
 import { ANTProcessData } from '@src/state';
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
@@ -151,8 +150,7 @@ export function getAntsRequiringUpdate({
       if (
         ant.processMeta.tags.find(
           (t) => t.name === 'Module' && t.value !== currentModuleId,
-        ) ||
-        !AntHandlerNames.every((h) => ant.handlers?.includes(h))
+        )
       )
         return id;
     })

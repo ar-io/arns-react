@@ -95,19 +95,18 @@ export function ReassignNameModal({
       }
       if (!walletAddress)
         throw new Error('Must connect to Reassign the domain');
-      if (!domainData?.info || !domainData?.state)
-        throw new Error('Unable to get domain data');
+      if (!domainData?.state) throw new Error('Unable to get domain data');
 
       if (!antModuleId) {
         throw new Error('No ANT Module available, try again later');
       }
 
       const previousState: SpawnANTState = {
-        controllers: domainData.controllers,
-        records: domainData.records,
+        controllers: domainData.state.Controllers,
+        records: domainData.state.Records,
         owner: walletAddress.toString(),
-        ticker: domainData.ticker,
-        name: domainData.name,
+        ticker: domainData.state.Ticker,
+        name: domainData.state.Name,
         // We default to values to allow for upgrades to domains that didn't support description or keywords
         description: domainData.state.Description ?? '',
         keywords: domainData.state.Keywords ?? [],
@@ -268,7 +267,9 @@ export function ReassignNameModal({
                         />
                       ) : (
                         <span className=" text-white">
-                          {newAntInfo && isValidAoAddress(newAntInfo?.owner) ? (
+                          {newAntInfo &&
+                          newAntInfo.owner &&
+                          isValidAoAddress(newAntInfo.owner) ? (
                             <ArweaveID
                               id={new ArweaveTransactionID(newAntInfo.owner)}
                               type={ArweaveIdTypes.ADDRESS}
@@ -319,7 +320,7 @@ export function ReassignNameModal({
                                   shouldLink={isArweaveTransactionID(c)}
                                   type={ArweaveIdTypes.ADDRESS}
                                   characterCount={
-                                    domainData.controllers.length > 1
+                                    (domainData?.controllers?.length ?? 0) > 1
                                       ? 8
                                       : undefined
                                   }
@@ -346,7 +347,7 @@ export function ReassignNameModal({
                     <div className="flex flex-col  gap-1">
                       <span className="text-grey">Target ID</span>
                       <span className="text-white">
-                        {domainData?.apexRecord.transactionId ? (
+                        {domainData?.apexRecord?.transactionId ? (
                           <ArweaveID
                             id={
                               new ArweaveTransactionID(
