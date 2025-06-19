@@ -152,7 +152,7 @@ export function buildDomainInfoQuery({
       );
 
       const moduleId =
-        processMeta?.tags.find((tag) => tag.name === 'Module-Id')?.value ?? '';
+        processMeta?.tags.find((tag) => tag.name === 'Module')?.value ?? '';
 
       const version = Object.keys(antVersions ?? {}).find(
         (versionNumber) => antVersions[versionNumber].moduleId === moduleId,
