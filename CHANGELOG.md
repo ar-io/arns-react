@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.11.0] - 2025-06-20
+
+### Changed
+
+- Implements SDK calls for using HyperBEAM ANT state cache.
+
 ## [1.10.2] - 2025-06-18
 
 ### Changed
