@@ -314,7 +314,7 @@ export default async function dispatchANTInteraction({
         const domainInfo = await queryClient
           .fetchQuery(
             buildDomainInfoQuery({
-              antId: processId,
+              antId: newAntId,
               aoNetwork: NETWORK_DEFAULTS.AO,
             }),
           )

@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [21] - [mzFmF0rEoA5JyOX6G7Fwc97L6dQfwMUFuQmZNQFg6yc] - (2025-6-17)
+
+### Changed
+
+- Updated Boot handler to send a self initialization message for hyperbeam
+  compatibility
+
 ## [20] - [-bocfupFweTvpNQ5rnoBHqCRbG0GDt5l_Jkr7FpJZ9g] - (2025-6-12)
 
 ### Changed
