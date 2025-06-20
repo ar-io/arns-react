@@ -132,11 +132,12 @@ function Undernames() {
             <UndernamesTable
               undernames={data?.records ?? {}}
               arnsDomain={name}
-              info={data?.info}
               antId={data?.arnsRecord?.processId}
               ownershipStatus={ownershipStatus}
               isLoading={isLoadingDomainInfo}
               filter={search}
+              state={data?.state ?? null}
+              version={data?.version ?? 0}
               refresh={() => {
                 if (isLoadingDomainInfo) return;
                 refetch();

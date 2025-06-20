@@ -3,7 +3,6 @@ import {
   ANT_REGISTRY_ID,
   AOProcess,
   ARIO,
-  AoANTHandler,
   AoARIORead,
   AoArNSNameData,
   fetchAllArNSRecords,
@@ -122,7 +121,7 @@ export async function dispatchArNSUpdate({
         (acc: Record<string, ANTProcessData>, id: string) => {
           acc[id] = {
             state: null,
-            handlers: null,
+            version: 0,
             processMeta: antMetas?.[id] ?? null,
           };
           return acc;
@@ -156,9 +155,7 @@ export async function dispatchArNSUpdate({
             payload: {
               [id]: {
                 state: domainInfo.state ?? null,
-                handlers: (domainInfo.info?.Handlers ??
-                  domainInfo.info?.HandlerNames ??
-                  null) as AoANTHandler[] | null,
+                version: domainInfo.version,
                 processMeta: antMetas[id] ?? null,
                 errors: domainInfo.errors ?? [],
               },

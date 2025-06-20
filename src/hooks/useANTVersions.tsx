@@ -1,13 +1,15 @@
 import { ANTVersions, ANT_REGISTRY_ID, AOProcess } from '@ar.io/sdk';
 import { connect } from '@permaweb/aoconnect';
 import { useGlobalState } from '@src/state';
-import { useQuery } from '@tanstack/react-query';
+import { NETWORK_DEFAULTS } from '@src/utils/constants';
+import { queryOptions, useQuery } from '@tanstack/react-query';
 
-// fetches and returns the latest ANT versions
-export function useANTVersions() {
-  const [{ aoNetwork }] = useGlobalState();
-
-  return useQuery({
+export function buildANTVersionsQuery({
+  aoNetwork,
+}: {
+  aoNetwork: typeof NETWORK_DEFAULTS.AO;
+}) {
+  return queryOptions({
     queryKey: ['ant-versions', aoNetwork],
     queryFn: async () => {
       const versionRegistry = ANTVersions.init({
@@ -20,6 +22,13 @@ export function useANTVersions() {
     },
     staleTime: 1000 * 60 * 5,
   });
+}
+
+// fetches and returns the latest ANT versions
+export function useANTVersions() {
+  const [{ aoNetwork }] = useGlobalState();
+
+  return useQuery(buildANTVersionsQuery({ aoNetwork }));
 }
 
 export function useLatestANTVersion() {

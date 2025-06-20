@@ -2,7 +2,6 @@ import {
   ANT,
   AOProcess,
   ARIO,
-  AoANTHandler,
   AoClient,
   AoMessageResult,
   ContractSigner,
@@ -15,7 +14,7 @@ import { buildGraphQLQuery } from '@src/hooks/useGraphQL';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import { lowerCaseDomain, sleep } from '@src/utils';
-import { NETWORK_DEFAULTS } from '@src/utils/constants';
+import { MIN_ANT_VERSION, NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
 import { Dispatch } from 'react';
@@ -249,9 +248,14 @@ export default async function dispatchANTInteraction({
             throw new Error(`State migration unsuccessful: ${e.message}`);
           });
         // reassign name to new ant
+        const preEvolveInfo = await queryClient.fetchQuery(
+          buildDomainInfoQuery({
+            antId: processId,
+            aoNetwork: NETWORK_DEFAULTS.AO,
+          }),
+        );
 
-        const info = await antProcess.getInfo();
-        if (!info?.Handlers?.includes('reassignName')) {
+        if (preEvolveInfo.version < MIN_ANT_VERSION) {
           await stepCallback('Migrating ANT to support Reassign-Name...');
           await evolveANT({
             processId,
@@ -310,7 +314,7 @@ export default async function dispatchANTInteraction({
         const domainInfo = await queryClient
           .fetchQuery(
             buildDomainInfoQuery({
-              antId: processId,
+              antId: newAntId,
               aoNetwork: NETWORK_DEFAULTS.AO,
             }),
           )
@@ -338,9 +342,7 @@ export default async function dispatchANTInteraction({
           payload: {
             [newAntId]: {
               state: newAntState,
-              handlers: (domainInfo.info?.Handlers ?? null) as
-                | AoANTHandler[]
-                | null,
+              version: domainInfo.version,
               processMeta: (processMeta as any) ?? null,
             },
           },

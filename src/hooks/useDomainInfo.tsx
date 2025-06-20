@@ -1,7 +1,6 @@
 import {
   ANT,
   AOProcess,
-  AoANTInfo,
   AoANTRead,
   AoANTRecord,
   AoANTState,
@@ -25,30 +24,31 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { TransactionEdge } from 'arweave-graphql';
 
+import { buildANTVersionsQuery } from './useANTVersions';
 import { buildGraphQLQuery } from './useGraphQL';
 
 export type DomainInfo = {
-  info: AoANTInfo | null;
   arnsRecord?: AoArNSNameData;
   associatedNames: string[];
   processId: string;
   antProcess: AoANTWrite | AoANTRead;
-  name: string;
-  ticker: string;
-  owner: string;
-  controllers: string[];
+  name?: string;
+  ticker?: string;
+  owner?: string;
+  controllers?: string[];
   logo: string;
   undernameCount?: number;
   sourceCodeTxId?: string;
-  apexRecord: {
+  apexRecord?: {
     transactionId: string;
     ttlSeconds: number;
   };
-  records: Record<string, AoANTRecord>;
+  records?: Record<string, AoANTRecord>;
   state: AoANTState | null;
   isInGracePeriod?: boolean;
-  processMeta: TransactionEdge['node'] | null;
+  processMeta?: TransactionEdge['node'] | null;
   errors: Error[];
+  version: number;
 };
 
 export function buildDomainInfoQuery({
@@ -119,22 +119,6 @@ export function buildDomainInfoQuery({
           return null;
         });
 
-      const info = await queryClient.fetchQuery({
-        queryKey: ['ant-info', processId],
-        queryFn: async () => {
-          try {
-            return await antProcess.getInfo();
-          } catch (error: any) {
-            captureException(error);
-            errors.push(
-              new Error(error?.message ?? 'Unknown Error fetching ANT Info'),
-            );
-            return null;
-          }
-        },
-        staleTime: Infinity,
-      });
-
       const processMeta = await queryClient
         .fetchQuery(
           buildGraphQLQuery(aoNetwork.ANT.GRAPHQL_URL, { ids: [processId] }),
@@ -163,8 +147,18 @@ export function buildDomainInfoQuery({
         (k) => k !== '@',
       ).length;
 
-      return {
-        info,
+      const antVersions = await queryClient.fetchQuery(
+        buildANTVersionsQuery({ aoNetwork }),
+      );
+
+      const moduleId =
+        processMeta?.tags.find((tag) => tag.name === 'Module')?.value ?? '';
+
+      const version = Object.keys(antVersions ?? {}).find(
+        (versionNumber) => antVersions[versionNumber].moduleId === moduleId,
+      );
+
+      const results: DomainInfo = {
         arnsRecord: record,
         associatedNames,
         processId,
@@ -181,8 +175,13 @@ export function buildDomainInfoQuery({
         errors,
         // TODO: staletime for this hook can be configured around the endTimestamp on the record
         isInGracePeriod: record ? isInGracePeriod(record) : false,
-        processMeta,
-      } as DomainInfo;
+        processMeta: processMeta
+          ? (processMeta as TransactionEdge['node'])
+          : null,
+        version: version ? parseInt(version) : 0,
+      };
+
+      return results;
     },
     refetchOnWindowFocus: false,
     staleTime: Infinity,

@@ -439,7 +439,7 @@ function NavMenuCard() {
               <>
                 <AntLogoIcon
                   className="rounded-full max-h-[1.875rem] border border-dark-grey"
-                  id={domainDomain?.info?.Logo}
+                  id={domainDomain?.state?.Logo}
                   icon={
                     <div className="flex items-center justify-center rounded-full fill-white p-[5px]">
                       <BrandLogo width={'20px'} height={'20px'} />

@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.10.2] - 2025-06-18
+
+### Changed
+
+- Changed feature flags to use a min ANT version of 16 for workflows.
+
 ## [1.10.1] - 2025-06-10
 
 ### Fixed

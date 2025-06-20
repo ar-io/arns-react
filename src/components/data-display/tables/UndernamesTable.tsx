@@ -1,4 +1,4 @@
-import { AoANTInfo, AoANTRecord } from '@ar.io/sdk/web';
+import { AoANTRecord, AoANTState } from '@ar.io/sdk/web';
 import { ExternalLinkIcon, PencilIcon, TrashIcon } from '@src/components/icons';
 import ArweaveID, {
   ArweaveIdTypes,
@@ -29,7 +29,7 @@ import {
   encodePrimaryName,
   formatForMaxCharCount,
 } from '@src/utils';
-import { NETWORK_DEFAULTS } from '@src/utils/constants';
+import { MIN_ANT_VERSION, NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import Lottie from 'lottie-react';
@@ -80,15 +80,17 @@ function filterTableData(filter: string, data: TableData[]): TableData[] {
 const UndernamesTable = ({
   undernames,
   arnsDomain,
-  info,
   antId,
   ownershipStatus,
   filter,
   refresh,
   isLoading,
+  version,
+  state,
 }: {
+  state: AoANTState | null;
+  version: number;
   undernames: Record<string, AoANTRecord>;
-  info?: AoANTInfo | null;
   isLoading?: boolean;
   arnsDomain?: string;
   antId?: string;
@@ -100,7 +102,7 @@ const UndernamesTable = ({
   const [{ arioProcessId, antAoClient }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const isOwner = walletAddress
-    ? info?.Owner === walletAddress.toString()
+    ? state?.Owner === walletAddress.toString()
     : false;
   const [, dispatchTransactionState] = useTransactionState();
   const [, dispatchArNSState] = useArNSState();
@@ -185,7 +187,6 @@ const UndernamesTable = ({
       Object.entries(undernames)
         .filter(([u]) => u !== '@')
         .map(([undername, record]: any) => {
-          const antHandlers = info?.Handlers ?? info?.HandlerNames ?? [];
           const data = {
             undername,
             targetId: record.transactionId,
@@ -200,8 +201,7 @@ const UndernamesTable = ({
                     message={
                       !arnsDomain
                         ? 'Loading...'
-                        : !antHandlers?.includes('approvePrimaryName') ||
-                          !antHandlers?.includes('removePrimaryNames')
+                        : version < MIN_ANT_VERSION
                         ? 'Update ANT to access Primary Names workflow'
                         : primaryNameData?.name ===
                           encodePrimaryName(undername + '_' + arnsDomain)
@@ -210,10 +210,7 @@ const UndernamesTable = ({
                     }
                     icon={
                       <button
-                        disabled={
-                          !antHandlers?.includes('approvePrimaryName') ||
-                          !antHandlers?.includes('removePrimaryNames')
-                        }
+                        disabled={version < MIN_ANT_VERSION}
                         onClick={() => {
                           if (!arnsDomain || !antId) return;
                           const targetName = encodePrimaryName(

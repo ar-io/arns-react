@@ -1,4 +1,4 @@
-import { AoANTHandler, AoANTState, AoArNSNameData } from '@ar.io/sdk';
+import { AoANTState, AoArNSNameData } from '@ar.io/sdk';
 import { Tooltip } from '@src/components/data-display';
 import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import { ANTProcessData, useArNSState, useWalletState } from '@src/state';
@@ -100,10 +100,7 @@ export function createNamesExceedingUndernameLimitNotification({
   ants,
 }: {
   domains: Record<string, AoArNSNameData>;
-  ants: Record<
-    string,
-    { state: AoANTState | null; handlers: AoANTHandler[] | null }
-  >;
+  ants: Record<string, { state: AoANTState | null; version: number }>;
 }): Notification | undefined {
   const domainsRequiringUndernameSupportUpgrade = Object.values(domains).reduce(
     (acc: number, record: AoArNSNameData) => {

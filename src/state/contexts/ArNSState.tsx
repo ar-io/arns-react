@@ -1,9 +1,4 @@
-import {
-  AoANTHandler,
-  AoANTState,
-  AoArNSNameData,
-  ArNSEventEmitter,
-} from '@ar.io/sdk/web';
+import { AoANTState, AoArNSNameData, ArNSEventEmitter } from '@ar.io/sdk/web';
 import { connect } from '@permaweb/aoconnect';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import { TransactionEdge } from 'arweave-graphql';
@@ -22,7 +17,7 @@ import { useWalletState } from './WalletState';
 
 export type ANTProcessData = {
   state: AoANTState | null;
-  handlers: AoANTHandler[] | null;
+  version: number;
   processMeta: TransactionEdge['node'] | null;
   errors?: Error[];
 };

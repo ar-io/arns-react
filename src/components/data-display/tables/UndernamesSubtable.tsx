@@ -1,4 +1,4 @@
-import { AoANTHandler, AoANTRecord, AoANTState } from '@ar.io/sdk';
+import { AoANTRecord, AoANTState } from '@ar.io/sdk';
 import { ExternalLinkIcon, PencilIcon } from '@src/components/icons';
 import ArweaveID, {
   ArweaveIdTypes,
@@ -23,7 +23,7 @@ import {
   encodePrimaryName,
   formatForMaxCharCount,
 } from '@src/utils';
-import { NETWORK_DEFAULTS } from '@src/utils/constants';
+import { MIN_ANT_VERSION, NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { Star } from 'lucide-react';
@@ -47,12 +47,12 @@ const UndernamesSubtable = ({
   undernames,
   arnsDomain,
   antId,
-  handlers,
+  version,
   state,
 }: {
   undernames: Record<string, AoANTRecord>;
   arnsDomain: string;
-  handlers?: AoANTHandler[] | null;
+  version: number;
   antId: string;
   state?: AoANTState | null;
 }) => {
@@ -92,8 +92,7 @@ const UndernamesSubtable = ({
                     message={
                       !arnsDomain
                         ? 'Loading...'
-                        : !handlers?.includes('approvePrimaryName') ||
-                          !handlers?.includes('removePrimaryNames')
+                        : version < MIN_ANT_VERSION
                         ? 'Update ANT to access Primary Names workflow'
                         : primaryNameData?.name ===
                           encodePrimaryName(undername + '_' + arnsDomain)
@@ -102,10 +101,7 @@ const UndernamesSubtable = ({
                     }
                     icon={
                       <button
-                        disabled={
-                          !handlers?.includes('approvePrimaryName') ||
-                          !handlers?.includes('removePrimaryNames')
-                        }
+                        disabled={version < MIN_ANT_VERSION}
                         onClick={() => {
                           if (!arnsDomain || !antId) return;
                           const targetName = encodePrimaryName(
