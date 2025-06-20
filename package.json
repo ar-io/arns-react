@@ -1,7 +1,7 @@
 {
   "name": "arns-vite-react",
   "private": true,
-  "version": "1.10.1",
+  "version": "1.10.2",
   "homepage": ".",
   "scripts": {
     "build": "yarn clean && tsc --build tsconfig.json && NODE_OPTIONS=--max-old-space-size=32768 vite build",
@@ -163,5 +163,8 @@
     "extends": [
       "plugin:storybook/recommended"
     ]
+  },
+  "resolutions": {
+    "@permaweb/aoconnect": "0.0.59"
   }
 }
