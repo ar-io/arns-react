@@ -1,8 +1,8 @@
-import { InfoCircleOutlined } from '@ant-design/icons';
 import { AoArNSNameData } from '@ar.io/sdk/web';
 import { useANT } from '@src/hooks/useANT/useANT';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { decodeDomainToASCII, isArweaveTransactionID } from '@src/utils';
+import { Info } from 'lucide-react';
 import { ReactNode } from 'react';
 
 import { Tooltip } from '../data-display';
@@ -13,9 +13,7 @@ import ArweaveID, { ArweaveIdTypes } from '../layout/ArweaveID/ArweaveID';
 function DomainDetailsTip({
   domain,
   domainRecord,
-  icon = (
-    <InfoCircleOutlined className="fill-grey" width={'14px'} height={'14px'} />
-  ),
+  icon = <Info className="w-[14px] h-[14px] text-grey" />,
 }: {
   domain: string;
   domainRecord?: AoArNSNameData;
@@ -26,11 +24,6 @@ function DomainDetailsTip({
   );
   return (
     <Tooltip
-      tooltipOverrides={{
-        overlayClassName: 'flex w-fit',
-        overlayStyle: { width: 'fit-content' },
-        overlayInnerStyle: { width: 'fit-content' },
-      }}
       message={
         antState && domainRecord && !loadingAntState ? (
           <div className="flex flex-col p-2">

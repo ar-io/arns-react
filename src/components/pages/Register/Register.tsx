@@ -285,7 +285,7 @@ function RegisterNameForm() {
             }}
           >
             <div
-              className="flex flex-row flex-space-between"
+              className="flex flex-row justify-between"
               style={{ gap: '25px' }}
             >
               <button
