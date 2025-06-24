@@ -12,7 +12,7 @@ and this project adheres to
 
 ### Changed
 
-- Implements SDK calls for using HyperBEAM ANT state cache.
+- Upgrades ar-io-sdk to fetch ANT state from HyperBEAM nodes, when available.
 
 ## [1.10.2] - 2025-06-18
 
