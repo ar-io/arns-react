@@ -38,12 +38,11 @@ export function useGraphQL(...params: GraphQLQueryParams) {
 }
 
 export function buildAllGraphQLTransactionsQuery(
-  walletAddress: string,
   ids: string[],
   graphqlUrl: string,
 ) {
   return queryOptions<TransactionEdge['node'][]>({
-    queryKey: ['arweave-graphql', walletAddress, graphqlUrl],
+    queryKey: ['arweave-graphql', ids, graphqlUrl],
     queryFn: async () => {
       if (ids.length === 0) return [];
       const results: TransactionEdge['node'][] = [];
@@ -78,17 +77,10 @@ export function buildAllGraphQLTransactionsQuery(
   });
 }
 
-export function useAllGraphQLTransactions(
-  walletAddress: string,
-  ids: string[],
-) {
+export function useAllGraphQLTransactions(ids: string[]) {
   const [{ aoNetwork }] = useGlobalState();
 
   return useQuery<TransactionEdge['node'][]>(
-    buildAllGraphQLTransactionsQuery(
-      walletAddress,
-      ids,
-      aoNetwork.ANT.GRAPHQL_URL,
-    ),
+    buildAllGraphQLTransactionsQuery(ids, aoNetwork.ANT.GRAPHQL_URL),
   );
 }

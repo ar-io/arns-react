@@ -5,6 +5,7 @@ import {
   ARIO,
   AoARIORead,
   AoArNSNameData,
+  fetchAllArNSRecords,
 } from '@ar.io/sdk/web';
 import { connect } from '@permaweb/aoconnect';
 import { captureException } from '@sentry/react';
@@ -58,39 +59,27 @@ export async function dispatchArNSUpdate({
         ao: connect(aoNetworkSettings.ANT),
       }),
     });
-    const userAnts = await antRegistry.accessControlList({
-      address: walletAddress.toString(),
-    });
+    // TODO: we should paginate or send a filter by process ID on the network process for the records we want
+    const [arnsRecords, allUserAnts] = await Promise.all([
+      fetchAllArNSRecords({ contract: arioContract, pageSize: 1000 }),
+      antRegistry.accessControlList({ address: walletAddress.toString() }),
+    ]);
 
-    const flatAntIds = new Set([...userAnts.Controlled, ...userAnts.Owned]);
-    // batch these to avoid tag limits on dry runs
-    const antIdsBatches = Array.from(flatAntIds).reduce((acc, id, index) => {
-      const batchIndex = Math.floor(index / 50);
-      if (!acc[batchIndex]) {
-        acc[batchIndex] = [];
-      }
-      acc[batchIndex].push(id);
-      return acc;
-    }, [] as string[][]);
+    const flatAntIds = new Set([
+      ...allUserAnts.Controlled,
+      ...allUserAnts.Owned,
+    ]);
 
-    const arnsRecords = await Promise.all(
-      antIdsBatches.map((batch) => {
-        return arioContract
-          .getArNSRecords({
-            filters: {
-              processId: batch,
-            },
-          })
-          .then((res) => res.items);
-      }),
+    const userDomains = Object.entries(arnsRecords).reduce(
+      (acc: Record<string, AoArNSNameData>, recordData) => {
+        const [name, record] = recordData;
+        if (flatAntIds.has(record.processId)) {
+          acc[name] = record;
+        }
+        return acc;
+      },
+      {},
     );
-
-    const userDomains = arnsRecords.flat().reduce((acc, record) => {
-      if (flatAntIds.has(record.processId)) {
-        acc[record.name] = record;
-      }
-      return acc;
-    }, {} as Record<string, AoArNSNameData>);
 
     // ONLY QUERY FOR ANTS THAT WE ARE INTERESTED IN, EG REGISTERED ANTS
     const registeredUserAnts = Array.from(
@@ -101,7 +90,6 @@ export async function dispatchArNSUpdate({
     const antMetas = (await queryClient
       .fetchQuery<TransactionEdge['node'][] | null>(
         buildAllGraphQLTransactionsQuery(
-          walletAddress.toString(),
           registeredUserAnts,
           aoNetworkSettings.ANT.GRAPHQL_URL,
         ) as any,
