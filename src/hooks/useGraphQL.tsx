@@ -15,7 +15,7 @@ export function buildGraphQLQuery(
   ...params: GraphQLQueryParams
 ) {
   return queryOptions<GetTransactionsQuery | null>({
-    queryKey: ['arweave-graphql', JSON.stringify(params), graphqlUrl],
+    queryKey: ['arweave-graphql', params, graphqlUrl],
     queryFn: async () => {
       try {
         const gql = arweaveGraphql(graphqlUrl);
