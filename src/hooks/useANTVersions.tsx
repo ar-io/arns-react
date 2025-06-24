@@ -20,7 +20,7 @@ export function buildANTVersionsQuery({
       });
       return versionRegistry.getANTVersions();
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: Infinity, // these rarely change
   });
 }
 
@@ -45,6 +45,6 @@ export function useLatestANTVersion() {
       });
       return versionRegistry.getLatestANTVersion();
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: Infinity, // these rarely change
   });
 }
