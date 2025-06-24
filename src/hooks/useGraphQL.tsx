@@ -15,7 +15,7 @@ export function buildGraphQLQuery(
   ...params: GraphQLQueryParams
 ) {
   return queryOptions<GetTransactionsQuery | null>({
-    queryKey: ['arweave-graphql', params, graphqlUrl],
+    queryKey: ['arweave-graphql', JSON.stringify(params), graphqlUrl],
     queryFn: async () => {
       try {
         const gql = arweaveGraphql(graphqlUrl);
@@ -38,11 +38,12 @@ export function useGraphQL(...params: GraphQLQueryParams) {
 }
 
 export function buildAllGraphQLTransactionsQuery(
+  walletAddress: string,
   ids: string[],
   graphqlUrl: string,
 ) {
   return queryOptions<TransactionEdge['node'][]>({
-    queryKey: ['arweave-graphql', ids, graphqlUrl],
+    queryKey: ['arweave-graphql', walletAddress, graphqlUrl],
     queryFn: async () => {
       if (ids.length === 0) return [];
       const results: TransactionEdge['node'][] = [];
@@ -55,7 +56,7 @@ export function buildAllGraphQLTransactionsQuery(
             buildGraphQLQuery(graphqlUrl, {
               ids,
               after: cursor,
-              first: 100,
+              first: 1000,
             }),
           );
         if (!res) {
@@ -77,10 +78,17 @@ export function buildAllGraphQLTransactionsQuery(
   });
 }
 
-export function useAllGraphQLTransactions(ids: string[]) {
+export function useAllGraphQLTransactions(
+  walletAddress: string,
+  ids: string[],
+) {
   const [{ aoNetwork }] = useGlobalState();
 
   return useQuery<TransactionEdge['node'][]>(
-    buildAllGraphQLTransactionsQuery(ids, aoNetwork.ANT.GRAPHQL_URL),
+    buildAllGraphQLTransactionsQuery(
+      walletAddress,
+      ids,
+      aoNetwork.ANT.GRAPHQL_URL,
+    ),
   );
 }
