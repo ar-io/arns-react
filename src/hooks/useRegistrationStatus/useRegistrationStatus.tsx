@@ -2,6 +2,8 @@ import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID
 import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
+import { useArNSRecord } from '../useArNSRecord';
+import { useArNSReserved } from '../useArNSReserved';
 
 const defaultReserved = {
   isReserved: false,
@@ -9,7 +11,11 @@ const defaultReserved = {
 };
 
 export function useRegistrationStatus(domain: string) {
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ arioProcessId }] = useGlobalState();
+  const { data: record, isLoading: recordLoading } = useArNSRecord(domain);
+  const { data: reserved, isLoading: reservedLoading } =
+    useArNSReserved(domain);
+
   const [isAvailable, setIsAvailable] = useState<boolean>(false);
   const [isReserved, setIsReserved] = useState<{
     isReserved: boolean;
@@ -19,56 +25,27 @@ export function useRegistrationStatus(domain: string) {
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    if (loading) {
-      return;
-    }
     if (!domain.length) {
       reset();
+      return;
     }
-    updateRegistrationStatus(domain);
-  }, [domain]);
+    setLoading(recordLoading || reservedLoading);
+    if (!recordLoading && !reservedLoading) {
+      setIsAvailable(!record && !reserved);
+      setIsReserved({
+        isReserved: !!reserved,
+        reservedFor: reserved?.target
+          ? new ArweaveTransactionID(reserved.target)
+          : undefined,
+      });
+      setValidated(true);
+    }
+  }, [domain, record, reserved, recordLoading, reservedLoading, arioProcessId]);
 
   function reset() {
     setIsAvailable(false);
     setIsReserved(defaultReserved);
     setValidated(false);
-  }
-
-  async function updateRegistrationStatus(domain: string) {
-    try {
-      reset();
-      setLoading(true);
-      setValidated(false);
-
-      if (!domain.length) {
-        return reset();
-      }
-      const availablePromise = arweaveDataProvider.isDomainAvailable({
-        domain,
-      });
-      const reservedPromise = arweaveDataProvider.isDomainReserved({
-        domain,
-      });
-
-      const [isAvailable, isReserved] = await Promise.all([
-        availablePromise,
-        reservedPromise,
-      ]);
-
-      setIsAvailable(isAvailable);
-      setIsReserved({
-        ...isReserved,
-        reservedFor: isReserved.reservedFor
-          ? new ArweaveTransactionID(isReserved.reservedFor)
-          : undefined,
-      });
-      setValidated(true);
-    } catch (error) {
-      console.error(error);
-      reset();
-    } finally {
-      setLoading(false);
-    }
   }
   return {
     isAvailable,

@@ -5,12 +5,14 @@ import {
   ARIO_MAINNET_PROCESS_ID,
   ARIO_TESTNET_PROCESS_ID,
 } from '@ar.io/sdk/web';
-import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
-import { SimpleArweaveDataProvider } from '@src/services/arweave/SimpleArweaveDataProvider';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { VALIDATION_INPUT_TYPES } from '@src/types';
-import { isArweaveTransactionID } from '@src/utils';
+import {
+  isArweaveTransactionID,
+  validateArweaveAddress,
+  validateArweaveId,
+} from '@src/utils';
 import { Collapse, Space } from 'antd';
 import Arweave from 'arweave';
 import { useEffect, useState } from 'react';
@@ -22,7 +24,7 @@ const Panel = Collapse.Panel;
 
 function ArNSRegistrySettings() {
   const [
-    { arweaveDataProvider, arioProcessId, aoClient, gateway, turboNetwork },
+    { arioProcessId, aoClient, gateway, turboNetwork },
     dispatchGlobalState,
   ] = useGlobalState();
   const [{ wallet }] = useWalletState();
@@ -35,7 +37,7 @@ function ArNSRegistrySettings() {
     setRegistryAddress(arioProcessId?.toString());
   }, [arioProcessId]);
 
-  function confirmSetting(id: string) {
+  async function confirmSetting(id: string) {
     if (isArweaveTransactionID(id)) {
       dispatchGlobalState({
         type: 'setIoProcessId',
@@ -59,16 +61,11 @@ function ArNSRegistrySettings() {
         host: gateway,
         protocol: 'https',
       });
-      const arweaveDataProvider = new SimpleArweaveDataProvider(arweave);
-
-      const provider = new ArweaveCompositeDataProvider({
-        contract: arIOContract,
-        arweave: arweaveDataProvider,
-      });
-
+      const blockHeight = (await arweave.blocks.getCurrent()).height;
+      dispatchGlobalState({ type: 'setBlockHeight', payload: blockHeight });
       dispatchGlobalState({
         type: 'setGateway',
-        payload: { gateway, provider },
+        payload: { gateway },
       });
     }
   }
@@ -165,12 +162,10 @@ function ArNSRegistrySettings() {
                 }
                 validationPredicates={{
                   [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                    fn: (id: string) =>
-                      arweaveDataProvider.validateArweaveId(id),
+                    fn: (id: string) => validateArweaveId(id),
                   },
                   [VALIDATION_INPUT_TYPES.ARWEAVE_ADDRESS]: {
-                    fn: (id: string) =>
-                      arweaveDataProvider.validateArweaveAddress(id),
+                    fn: (id: string) => validateArweaveAddress(id),
                     required: false,
                   },
                 }}

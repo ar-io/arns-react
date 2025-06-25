@@ -8,8 +8,6 @@ import {
   fetchAllArNSRecords,
   mARIOToken,
 } from '@ar.io/sdk/web';
-import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
-import { AoAddress } from '@src/types';
 import { QueryClient } from '@tanstack/react-query';
 import {
   PersistedClient,
@@ -93,27 +91,6 @@ export function buildIOBalanceQuery({
           return new mARIOToken(balance).toARIO().valueOf();
         })
         .catch(() => 0);
-    },
-    staleTime: 1000 * 60 * 60, // one hour
-  };
-}
-export function buildARBalanceQuery({
-  provider,
-  address,
-  meta,
-}: {
-  provider: ArweaveCompositeDataProvider;
-  address: AoAddress;
-  meta?: string[];
-}): {
-  queryKey: ['ar-balance', string] | string[];
-  queryFn: () => Promise<number>;
-  staleTime: number;
-} {
-  return {
-    queryKey: ['ar-balance', address.toString(), ...(meta || [])],
-    queryFn: async () => {
-      return await provider.getArBalance(address).catch(() => 0);
     },
     staleTime: 1000 * 60 * 60, // one hour
   };

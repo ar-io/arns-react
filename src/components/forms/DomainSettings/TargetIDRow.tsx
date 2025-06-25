@@ -4,12 +4,12 @@ import ArweaveID, {
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '@src/state/contexts/GlobalState';
 import {
   ANT_INTERACTION_TYPES,
   ContractInteraction,
   VALIDATION_INPUT_TYPES,
 } from '@src/types';
+import { validateArweaveId } from '@src/utils';
 import { isArweaveTransactionID } from '@src/utils';
 import { ARNS_TX_ID_ENTRY_REGEX } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
@@ -29,7 +29,6 @@ export default function TargetIDRow({
 }) {
   const [editing, setEditing] = useState<boolean>(false);
   const [newTargetId, setNewTargetId] = useState<string>(targetId ?? '');
-  const [{ arweaveDataProvider }] = useGlobalState();
   const [showModal, setShowModal] = useState<boolean>(false);
 
   useEffect(() => {
@@ -86,8 +85,7 @@ export default function TargetIDRow({
                 setValue={(e) => setNewTargetId(e)}
                 validationPredicates={{
                   [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                    fn: (id: string) =>
-                      arweaveDataProvider.validateArweaveId(id),
+                    fn: (id: string) => validateArweaveId(id),
                   },
                 }}
                 maxCharLength={(str) => str.length <= 43}

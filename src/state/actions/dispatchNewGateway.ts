@@ -2,8 +2,6 @@ import { AoARIORead, AoARIOWrite } from '@ar.io/sdk/web';
 import Arweave from 'arweave';
 import { Dispatch } from 'react';
 
-import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
-import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import eventEmitter from '../../utils/events';
 import { GlobalAction } from '../reducers';
 
@@ -18,12 +16,7 @@ export async function dispatchNewGateway(
       protocol: 'https',
     });
 
-    const arweaveDataProvider = new SimpleArweaveDataProvider(arweave);
-    const provider = new ArweaveCompositeDataProvider({
-      arweave: arweaveDataProvider,
-      contract: contract,
-    });
-    const blockHeight = await provider.getCurrentBlockHeight();
+    const blockHeight = (await arweave.blocks.getCurrent()).height;
     dispatch({
       type: 'setBlockHeight',
       payload: blockHeight,
@@ -32,7 +25,6 @@ export async function dispatchNewGateway(
       type: 'setGateway',
       payload: {
         gateway,
-        provider,
       },
     });
   } catch (error) {

@@ -8,9 +8,7 @@ import {
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
-import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { SimpleArweaveDataProvider } from '@src/services/arweave/SimpleArweaveDataProvider';
 import { useGlobalState, useWalletState } from '@src/state';
 import { isArweaveTransactionID } from '@src/utils';
 import { ARIO_PROCESS_ID } from '@src/utils/constants';
@@ -36,7 +34,7 @@ function ArNSSettings() {
     setRegistryAddress(arioProcessId?.toString());
   }, [arioProcessId]);
 
-  function confirmSetting(id: string) {
+  async function confirmSetting(id: string) {
     if (isArweaveTransactionID(id)) {
       dispatchGlobalState({
         type: 'setIoProcessId',
@@ -60,16 +58,11 @@ function ArNSSettings() {
         host: gateway,
         protocol: 'https',
       });
-      const arweaveDataProvider = new SimpleArweaveDataProvider(arweave);
-
-      const provider = new ArweaveCompositeDataProvider({
-        contract: arIOContract,
-        arweave: arweaveDataProvider,
-      });
-
+      const blockHeight = (await arweave.blocks.getCurrent()).height;
+      dispatchGlobalState({ type: 'setBlockHeight', payload: blockHeight });
       dispatchGlobalState({
         type: 'setGateway',
-        payload: { gateway, provider },
+        payload: { gateway },
       });
     }
   }

@@ -1,4 +1,5 @@
 import { ANT, AOProcess, AoANTRecord } from '@ar.io/sdk/web';
+import { validateArweaveId } from '@src/utils';
 import { clamp } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 
@@ -32,7 +33,7 @@ function EditUndernameModal({
   closeModal: () => void;
   payloadCallback: (payload: SetRecordPayload) => void;
 }) {
-  const [{ arweaveDataProvider, antAoClient }] = useGlobalState();
+  const [{ antAoClient }] = useGlobalState();
   const isMobile = useIsMobile();
   const targetIdRef = useRef<HTMLInputElement>(null);
   const ttlRef = useRef<HTMLInputElement>(null);
@@ -125,8 +126,7 @@ function EditUndernameModal({
                   customPattern={ARNS_TX_ID_ENTRY_REGEX}
                   validationPredicates={{
                     [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                      fn: (id: string) =>
-                        arweaveDataProvider.validateArweaveId(id),
+                      fn: (id: string) => validateArweaveId(id),
                     },
                   }}
                 />
