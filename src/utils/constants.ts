@@ -42,7 +42,9 @@ export const ARWEAVE_APP_API = new ArweaveWebWallet(
 export const ARWEAVE_HOST = import.meta.env.VITE_ARWEAVE_HOST ?? 'arweave.net';
 export const ARWEAVE_GRAPHQL_URL =
   import.meta.env.VITE_ARWEAVE_GRAPHQL_URL ?? 'https://arweave.net/graphql';
-
+export const HYPERBEAM_URL =
+  import.meta.env.VITE_HYPERBEAM_URL ??
+  'https://hyperbeam.ario.permaweb.services';
 export const DEFAULT_ARWEAVE = new Arweave({
   host: ARWEAVE_HOST,
   protocol: 'https',
@@ -130,13 +132,14 @@ export const NETWORK_DEFAULTS = {
       CU_URL: ARIO_AO_CU_URL, // ao public cu: https://cu.ao-testnet.xyz
       MU_URL: 'https://mu.ao-testnet.xyz',
       SCHEDULER: DEFAULT_SCHEDULER_ID,
+      HYPERBEAM_URL: HYPERBEAM_URL,
     },
-
     ANT: {
       CU_URL: ANT_AO_CU_URL,
       MU_URL: 'https://mu.ao-testnet.xyz',
       SCHEDULER: DEFAULT_SCHEDULER_ID,
       GRAPHQL_URL: ARWEAVE_GRAPHQL_URL,
+      HYPERBEAM_URL: HYPERBEAM_URL,
     },
   },
   ARWEAVE: {

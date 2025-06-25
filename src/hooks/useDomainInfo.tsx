@@ -72,6 +72,7 @@ export function buildDomainInfoQuery({
     queryFn: async () => {
       const errors: Error[] = [];
       const antAo = connect(aoNetwork.ANT);
+      const hyperbeamUrl = aoNetwork.ANT.HYPERBEAM_URL;
 
       const arnsRecords =
         domain && arioContract && arioProcessId
@@ -100,6 +101,7 @@ export function buildDomainInfoQuery({
       }
 
       const antProcess = ANT.init({
+        hyperbeamUrl,
         process: new AOProcess({
           processId,
           ao: antAo,
