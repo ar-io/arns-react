@@ -169,10 +169,10 @@ function NameTokenSelector({
       }[] = await Promise.all(
         processIds.map(async (processId) => {
           const contract = ANT.init({
+            hyperbeamUrl,
             process: new AOProcess({
               processId: processId.toString(),
               ao: antAoClient,
-              hyperbeamUrl: hyperbeamUrl,
             }),
           });
           const names = Object.keys(associatedRecords).reduce(
