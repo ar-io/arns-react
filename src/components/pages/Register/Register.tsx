@@ -134,7 +134,6 @@ function RegisterNameForm() {
 
     const contract = ANT.init({
       hyperbeamUrl,
-
       process: new AOProcess({
         processId: id.toString(),
         ao: antAoClient,

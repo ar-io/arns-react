@@ -100,6 +100,9 @@ export function buildDomainInfoQuery({
         throw new Error('No processId found');
       }
 
+      console.log('processId', processId);
+      console.log('hyperbeamUrl', hyperbeamUrl);
+
       const antProcess = ANT.init({
         hyperbeamUrl,
         process: new AOProcess({
@@ -110,7 +113,7 @@ export function buildDomainInfoQuery({
       });
 
       const state = await queryClient
-        .fetchQuery(buildAntStateQuery({ processId, ao: antAo }))
+        .fetchQuery(buildAntStateQuery({ processId, ao: antAo, hyperbeamUrl }))
         .catch((e) => {
           captureException(e);
           errors.push(

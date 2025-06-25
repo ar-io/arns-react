@@ -62,9 +62,9 @@ export default async function dispatchANTInteraction({
     1000 * 10,
   );
   const antProcess = ANT.init({
+    hyperbeamUrl,
     process: new AOProcess({ processId, ao }),
     signer,
-    // we're not using hyperbeam here as we're writing to the contract
   });
 
   try {
