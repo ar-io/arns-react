@@ -15,18 +15,14 @@ import React, {
   useReducer,
 } from 'react';
 
-import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
-import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import {
   ARIO_AO_CU_URL,
   ARIO_PROCESS_ID,
   ARWEAVE_HOST,
-  DEFAULT_ARWEAVE,
   NETWORK_DEFAULTS,
 } from '../../utils/constants';
 import type { GlobalAction } from '../reducers/GlobalReducer';
 
-export const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);
 export const defaultArIO = ARIO.init({
   paymentUrl: NETWORK_DEFAULTS.TURBO.PAYMENT_URL,
   process: new AOProcess({
@@ -47,7 +43,6 @@ export type GlobalState = {
   arioProcessId: string;
   blockHeight?: number;
   lastBlockUpdateTimestamp?: number;
-  arweaveDataProvider: ArweaveCompositeDataProvider;
   arioContract: AoARIORead | AoARIOWrite;
 };
 
@@ -61,10 +56,6 @@ const initialState: GlobalState = {
   antAoClient: connect(NETWORK_DEFAULTS.AO.ANT),
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,
-  arweaveDataProvider: new ArweaveCompositeDataProvider({
-    arweave: defaultArweave,
-    contract: defaultArIO,
-  }),
   arioContract: defaultArIO,
 };
 
@@ -78,21 +69,14 @@ export const useGlobalState = (): [GlobalState, Dispatch<GlobalAction>] =>
 type StateProviderProps = {
   reducer: React.Reducer<GlobalState, GlobalAction>;
   children: React.ReactNode;
-  arweaveDataProvider?: ArweaveCompositeDataProvider;
 };
 
 /** Create provider to wrap app in */
 export function GlobalStateProvider({
   reducer,
   children,
-  arweaveDataProvider,
 }: StateProviderProps): JSX.Element {
-  const [state, dispatchGlobalState] = useReducer(
-    reducer,
-    arweaveDataProvider
-      ? { ...initialState, arweaveDataProvider }
-      : initialState,
-  );
+  const [state, dispatchGlobalState] = useReducer(reducer, initialState);
 
   useEffect(() => {
     async function updateTicker() {
