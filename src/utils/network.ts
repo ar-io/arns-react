@@ -18,6 +18,7 @@ import {
 import { del, get, set } from 'idb-keyval';
 
 import { isArweaveTransactionID } from '.';
+import { NETWORK_DEFAULTS } from './constants';
 
 /**
  * Creates an Indexed DB persister
@@ -48,9 +49,11 @@ export const queryClient = new QueryClient({
 export function buildAntStateQuery({
   processId,
   ao,
+  aoNetwork,
 }: {
   processId: string;
   ao: AoClient;
+  aoNetwork: typeof NETWORK_DEFAULTS.AO;
 }): {
   queryKey: ['ant', string] | string[];
   queryFn: () => Promise<AoANTState | null>;
@@ -62,7 +65,12 @@ export function buildAntStateQuery({
       if (!processId || !isArweaveTransactionID(processId))
         throw new Error('Must provide a valid process id');
 
-      const ant = ANT.init({ process: new AOProcess({ processId, ao }) });
+      const ant = ANT.init({
+        hyperbeamUrl: aoNetwork.HYPERBEAM.ENABLED
+          ? aoNetwork.HYPERBEAM.URL
+          : undefined,
+        process: new AOProcess({ processId, ao }),
+      });
       return await ant.getState();
     },
     staleTime: Infinity,

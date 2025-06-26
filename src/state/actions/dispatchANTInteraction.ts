@@ -27,6 +27,7 @@ export default async function dispatchANTInteraction({
   processId,
   signer,
   owner,
+  aoNetwork,
   dispatchTransactionState,
   dispatchArNSState,
   ao,
@@ -38,6 +39,7 @@ export default async function dispatchANTInteraction({
   signer: ContractSigner;
   owner: string;
   processId: string;
+  aoNetwork: typeof NETWORK_DEFAULTS.AO;
   dispatchTransactionState: Dispatch<TransactionAction>;
   dispatchArNSState: Dispatch<ArNSAction>;
   ao: AoClient;
@@ -60,6 +62,9 @@ export default async function dispatchANTInteraction({
     1000 * 10,
   );
   const antProcess = ANT.init({
+    hyperbeamUrl: aoNetwork.HYPERBEAM.ENABLED
+      ? aoNetwork.HYPERBEAM.URL
+      : undefined,
     process: new AOProcess({ processId, ao }),
     signer,
   });
@@ -234,6 +239,9 @@ export default async function dispatchANTInteraction({
         await stepCallback('Validating state migration...');
         // validate new ANT is a valid ANT
         const newAnt = ANT.init({
+          hyperbeamUrl: aoNetwork.HYPERBEAM.ENABLED
+            ? aoNetwork.HYPERBEAM.URL
+            : undefined,
           process: new AOProcess({
             processId: newAntId,
             ao,

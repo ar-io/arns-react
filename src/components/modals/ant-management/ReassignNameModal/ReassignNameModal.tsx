@@ -136,6 +136,7 @@ export function ReassignNameModal({
         dispatchArNSState,
         owner: walletAddress.toString(),
         ao: aoClient,
+        aoNetwork,
       });
       eventEmitter.emit('success', {
         message: (

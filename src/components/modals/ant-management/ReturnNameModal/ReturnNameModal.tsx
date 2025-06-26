@@ -60,6 +60,7 @@ export function ReturnNameModal({
         dispatchArNSState,
         owner: walletAddress.toString(),
         ao: antAoClient,
+        aoNetwork,
       });
       eventEmitter.emit('success', {
         message: (

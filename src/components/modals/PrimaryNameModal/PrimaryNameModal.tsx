@@ -182,6 +182,7 @@ function PrimaryNameModal({
             processId: arioProcessId,
             fundFrom: fundingSource,
             dispatch: dispatchTransactionState,
+            aoNetwork,
           });
 
           break;
@@ -199,6 +200,7 @@ function PrimaryNameModal({
             dispatchTransactionState,
             dispatchArNSState,
             ao: aoClient,
+            aoNetwork,
           });
           queryClient.resetQueries({
             queryKey: ['primary-name'],

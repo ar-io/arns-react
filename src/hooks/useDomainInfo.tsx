@@ -100,6 +100,9 @@ export function buildDomainInfoQuery({
       }
 
       const antProcess = ANT.init({
+        hyperbeamUrl: aoNetwork.HYPERBEAM.ENABLED
+          ? aoNetwork.HYPERBEAM.URL
+          : undefined,
         process: new AOProcess({
           processId,
           ao: antAo,
@@ -108,7 +111,7 @@ export function buildDomainInfoQuery({
       });
 
       const state = await queryClient
-        .fetchQuery(buildAntStateQuery({ processId, ao: antAo }))
+        .fetchQuery(buildAntStateQuery({ processId, ao: antAo, aoNetwork }))
         .catch((e) => {
           captureException(e);
           errors.push(
