@@ -20,6 +20,7 @@ export type ANTProcessData = {
   version: number;
   processMeta: TransactionEdge['node'] | null;
   errors?: Error[];
+  isLatestVersion?: boolean;
 };
 
 export type ArNSState = {

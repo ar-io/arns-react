@@ -1,29 +1,53 @@
 import { Tooltip } from '@src/components/data-display';
-import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import {
-  dispatchArNSUpdate,
-  useArNSState,
-  useGlobalState,
-  useModalState,
-  useWalletState,
-} from '@src/state';
+  useAntsForWallet,
+  useAntsRequireUpdate,
+} from '@src/hooks/useANTsForWallet';
+import { useDomainsForWallet } from '@src/hooks/useDomainsForWallet';
+import { useModalState, useWalletState } from '@src/state';
 import eventEmitter from '@src/utils/events';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { doAntsRequireUpdate } from '../../../utils';
 import DomainsTable from '../../data-display/tables/DomainsTable';
 import { RefreshIcon, SearchIcon } from '../../icons';
 import './styles.css';
 
 function Manage() {
-  const [{ arioProcessId, aoNetwork }] = useGlobalState();
-  const [{ loading: loadingArnsState, domains, ants }, dispatchArNSState] =
-    useArNSState();
-  const { data: antVersion } = useLatestANTVersion();
-  const antModuleId = antVersion?.moduleId ?? null;
   const [{ walletAddress }] = useWalletState();
   const [, dispatchModalState] = useModalState();
   const [search, setSearch] = useState<string>('');
+  const {
+    data: antData = {},
+    isLoading: isLoadingAnts,
+    isRefetching: isRefetchingAnts,
+    refetch: refetchAnts,
+  } = useAntsForWallet();
+  const {
+    domains = {},
+    isLoading: isLoadingDomains,
+    isRefetching: isRefetchingDomains,
+    refetch: refetchDomains,
+  } = useDomainsForWallet();
+  const { ants: antsRequireUpdate, isLoading: isLoadingAntsRequireUpdate } =
+    useAntsRequireUpdate();
+  const [isLoading, setIsLoading] = useState(isLoadingDomains || isLoadingAnts);
+
+  useEffect(() => {
+    console.log('isLoadingDomains', isLoadingDomains);
+    console.log('isLoadingAnts', isLoadingAnts);
+    console.log('isRefetchingDomains', isRefetchingDomains);
+    console.log('isRefetchingAnts', isRefetchingAnts);
+    console.log('isLoadingAntsRequireUpdate', isLoadingAntsRequireUpdate);
+    setIsLoading(
+      isLoadingDomains || isLoadingAnts || isLoadingAntsRequireUpdate,
+    );
+  }, [
+    isLoadingDomains,
+    isLoadingAnts,
+    isRefetchingDomains,
+    isRefetchingAnts,
+    isLoadingAntsRequireUpdate,
+  ]);
 
   return (
     <div className="overflow-auto px-[100px] pb-[30px] pt-[10px]">
@@ -67,15 +91,11 @@ function Manage() {
                   />
                 </div>
 
-                {!loadingArnsState &&
+                {!isLoading &&
                   walletAddress &&
-                  doAntsRequireUpdate({
-                    ants,
-                    userAddress: walletAddress.toString(),
-                    currentModuleId: antModuleId,
-                  }) && (
+                  antsRequireUpdate.length > 0 && (
                     <Tooltip
-                      message={'Your Domains require an update'}
+                      message={`${antsRequireUpdate.length} domains are eligible for an update`}
                       icon={
                         <button
                           onClick={() =>
@@ -93,19 +113,17 @@ function Manage() {
                   )}
                 <button
                   className={'button center pointer'}
-                  onClick={() =>
-                    walletAddress
-                      ? dispatchArNSUpdate({
-                          dispatch: dispatchArNSState,
-                          walletAddress: walletAddress,
-                          arioProcessId,
-                          aoNetworkSettings: aoNetwork,
-                        })
-                      : eventEmitter.emit('error', {
-                          name: 'Manage Assets',
-                          message: 'Connect wallet before refreshing',
-                        })
-                  }
+                  onClick={() => {
+                    if (walletAddress) {
+                      refetchAnts();
+                      refetchDomains();
+                    } else {
+                      eventEmitter.emit('error', {
+                        name: 'Manage Assets',
+                        message: 'Connect wallet before refreshing',
+                      });
+                    }
+                  }}
                 >
                   <RefreshIcon
                     height={16}
@@ -118,8 +136,8 @@ function Manage() {
           </div>
 
           <DomainsTable
-            domainData={{ names: domains, ants }}
-            loading={loadingArnsState}
+            domainData={{ names: domains, ants: antData }}
+            loading={true}
             filter={search}
           />
         </div>

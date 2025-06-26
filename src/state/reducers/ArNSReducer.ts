@@ -113,10 +113,6 @@ export const arnsReducer = (
       return initialArNSState;
     }
     case 'refresh': {
-      state.arnsEmitter.fetchProcessesOwnedByWallet({
-        address: action.payload.toString(),
-      });
-
       return {
         ...state,
         loading: true,
