@@ -18,7 +18,6 @@ import React, {
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import {
-  ARIO_AO_CU_URL,
   ARIO_PROCESS_ID,
   ARWEAVE_HOST,
   DEFAULT_ARWEAVE,
@@ -26,13 +25,69 @@ import {
 } from '../../utils/constants';
 import type { GlobalAction } from '../reducers/GlobalReducer';
 
+const SETTINGS_STORAGE_KEY = 'arNS_settings';
+
+// Function to load settings from localStorage
+function loadSettingsFromStorage(): {
+  gateway: string;
+  aoNetwork: typeof NETWORK_DEFAULTS.AO;
+  turboNetwork: typeof NETWORK_DEFAULTS.TURBO;
+  arioProcessId: string;
+} | null {
+  try {
+    // Try to get the last used wallet address from localStorage
+    const walletType = localStorage.getItem('walletType');
+
+    // Try multiple storage keys to find saved settings
+    const possibleKeys = [
+      walletType ? `${SETTINGS_STORAGE_KEY}_${walletType}` : null,
+      `${SETTINGS_STORAGE_KEY}_default`,
+      `${SETTINGS_STORAGE_KEY}_last`,
+    ].filter(Boolean);
+
+    for (const storageKey of possibleKeys) {
+      const savedSettings = localStorage.getItem(storageKey!);
+
+      if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        console.log(
+          'Loading settings from localStorage:',
+          storageKey,
+          settings,
+        );
+
+        return {
+          gateway: settings.network?.gateway || ARWEAVE_HOST,
+          aoNetwork: settings.network?.aoNetwork || NETWORK_DEFAULTS.AO,
+          turboNetwork:
+            settings.network?.turboNetwork || NETWORK_DEFAULTS.TURBO,
+          arioProcessId: settings.arns?.arioProcessId || ARIO_PROCESS_ID,
+        };
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load settings from localStorage:', error);
+  }
+
+  return null;
+}
+
 export const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);
+
+// Load saved settings or use defaults
+const savedSettings = loadSettingsFromStorage();
+const initialGateway = savedSettings?.gateway || ARWEAVE_HOST;
+const initialAoNetwork = savedSettings?.aoNetwork || NETWORK_DEFAULTS.AO;
+const initialTurboNetwork =
+  savedSettings?.turboNetwork || NETWORK_DEFAULTS.TURBO;
+const initialArioProcessId = savedSettings?.arioProcessId || ARIO_PROCESS_ID;
+
 export const defaultArIO = ARIO.init({
-  paymentUrl: NETWORK_DEFAULTS.TURBO.PAYMENT_URL,
+  paymentUrl: initialTurboNetwork.PAYMENT_URL,
   process: new AOProcess({
-    processId: ARIO_PROCESS_ID,
+    processId: initialArioProcessId,
     ao: connect({
-      CU_URL: ARIO_AO_CU_URL,
+      CU_URL: initialAoNetwork.ARIO.CU_URL,
     }),
   }),
 });
@@ -52,13 +107,13 @@ export type GlobalState = {
 };
 
 const initialState: GlobalState = {
-  arioProcessId: ARIO_PROCESS_ID,
+  arioProcessId: initialArioProcessId,
   arioTicker: 'ARIO',
-  gateway: ARWEAVE_HOST,
-  aoNetwork: NETWORK_DEFAULTS.AO,
-  turboNetwork: NETWORK_DEFAULTS.TURBO,
-  aoClient: connect(NETWORK_DEFAULTS.AO.ARIO),
-  antAoClient: connect(NETWORK_DEFAULTS.AO.ANT),
+  gateway: initialGateway,
+  aoNetwork: initialAoNetwork,
+  turboNetwork: initialTurboNetwork,
+  aoClient: connect(initialAoNetwork.ARIO),
+  antAoClient: connect(initialAoNetwork.ANT),
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,
   arweaveDataProvider: new ArweaveCompositeDataProvider({
