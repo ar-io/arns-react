@@ -100,9 +100,6 @@ export function buildDomainInfoQuery({
         throw new Error('No processId found');
       }
 
-      console.log('processId', processId);
-      console.log('hyperbeamUrl', hyperbeamUrl);
-
       const antProcess = ANT.init({
         hyperbeamUrl,
         process: new AOProcess({
