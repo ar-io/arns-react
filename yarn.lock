@@ -111,10 +111,10 @@
     winston "^3.13.0"
     zod "^3.23.8"
 
-"@ar.io/sdk@^3.14.0-alpha.8":
-  version "3.14.0-alpha.8"
-  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-3.14.0-alpha.8.tgz#ac07dafd1a7e3b0674473a724b5906b009f3f34d"
-  integrity sha512-a3j6uQR2Q4LDP8FBF7T2b0MB3CngHBFpgV1o4/3K7yRJZJrH51ty6gTW6XpqOwLzVAxpTfoXLgUe3UHd/Cq4Wg==
+"@ar.io/sdk@^3.14.1-alpha.1":
+  version "3.14.1-alpha.1"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-3.14.1-alpha.1.tgz#bd782eda426a3076a0218ed714425d5cfb40d94a"
+  integrity sha512-Fc6prGVeC4kuWV5UoSGUMCAKvOqEvl1coJ5uqRtvLxHOQBezG0ZGjAcSGz6tKaW3vfzthrzxkaTt9NvJEceW/A==
   dependencies:
     "@dha-team/arbundles" "^1.0.1"
     "@permaweb/aoconnect" "0.0.68"
