@@ -42,9 +42,7 @@ export const ARWEAVE_APP_API = new ArweaveWebWallet(
 export const ARWEAVE_HOST = import.meta.env.VITE_ARWEAVE_HOST ?? 'arweave.net';
 export const ARWEAVE_GRAPHQL_URL =
   import.meta.env.VITE_ARWEAVE_GRAPHQL_URL ?? 'https://arweave.net/graphql';
-export const HYPERBEAM_URL =
-  import.meta.env.VITE_HYPERBEAM_URL ??
-  'https://hyperbeam.ario.permaweb.services';
+export const HYPERBEAM_URL = import.meta.env.VITE_HYPERBEAM_URL;
 export const DEFAULT_ARWEAVE = new Arweave({
   host: ARWEAVE_HOST,
   protocol: 'https',
