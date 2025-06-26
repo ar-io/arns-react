@@ -30,6 +30,7 @@ export default async function dispatchANTInteraction({
   dispatchTransactionState,
   dispatchArNSState,
   ao,
+  hyperbeamUrl,
   // this can allow for waiting on promise resolution for UI input on individual steps
   stepCallback,
 }: {
@@ -41,6 +42,7 @@ export default async function dispatchANTInteraction({
   dispatchTransactionState: Dispatch<TransactionAction>;
   dispatchArNSState: Dispatch<ArNSAction>;
   ao: AoClient;
+  hyperbeamUrl?: string;
   stepCallback?: (step?: Record<string, string> | string) => Promise<void>;
 }): Promise<ContractInteraction> {
   stepCallback ??= async (step) => {
@@ -60,6 +62,7 @@ export default async function dispatchANTInteraction({
     1000 * 10,
   );
   const antProcess = ANT.init({
+    hyperbeamUrl,
     process: new AOProcess({ processId, ao }),
     signer,
   });
@@ -234,6 +237,7 @@ export default async function dispatchANTInteraction({
         await stepCallback('Validating state migration...');
         // validate new ANT is a valid ANT
         const newAnt = ANT.init({
+          hyperbeamUrl,
           process: new AOProcess({
             processId: newAntId,
             ao,

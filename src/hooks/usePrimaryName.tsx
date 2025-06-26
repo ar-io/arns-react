@@ -17,18 +17,14 @@ export function usePrimaryName() {
         .getPrimaryName({
           address: walletAddress?.toString(),
         })
-        .catch((e) => {
-          console.error(e);
+        .catch(() => {
+          // no name returned, return null
           return null;
         });
 
       return primaryNameData;
     },
-    staleTime: 5 * 60 * 60 * 1000, // 6 minutes
+    staleTime: 1 * 60 * 60 * 1000, // 1 hour
     enabled: walletAddress !== undefined && arioContract !== undefined,
-    retry: (_, error) => {
-      const validErrors = ['Primary name data not found'];
-      return validErrors.find((e) => error.message.includes(e)) !== undefined;
-    },
   });
 }

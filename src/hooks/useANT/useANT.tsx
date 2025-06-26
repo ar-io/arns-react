@@ -5,11 +5,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
 export function useANT(id?: string) {
-  const [{ antAoClient }] = useGlobalState();
+  const [{ antAoClient, hyperbeamUrl }] = useGlobalState();
   const result = useQuery(
     buildAntStateQuery({
       processId: id!,
       ao: antAoClient,
+      hyperbeamUrl,
     }),
   );
   const [data, setData] = useState<{
