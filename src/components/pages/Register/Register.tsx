@@ -46,7 +46,13 @@ import './styles.css';
 
 function RegisterNameForm() {
   const [
-    { arweaveDataProvider, arioTicker, arioProcessId, antAoClient, aoNetwork },
+    {
+      arweaveDataProvider,
+      arioTicker,
+      arioProcessId,
+      antAoClient,
+      hyperbeamUrl,
+    },
   ] = useGlobalState();
   const [
     { domain, leaseDuration, registrationType, antID, targetId },
@@ -127,9 +133,7 @@ function RegisterNameForm() {
     });
 
     const contract = ANT.init({
-      hyperbeamUrl: aoNetwork.HYPERBEAM.ENABLED
-        ? aoNetwork.HYPERBEAM.URL
-        : undefined,
+      hyperbeamUrl,
       process: new AOProcess({
         processId: id.toString(),
         ao: antAoClient,

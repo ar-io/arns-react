@@ -78,7 +78,7 @@ function DomainSettings({
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const [{ arioProcessId, antAoClient, aoNetwork }] = useGlobalState();
+  const [{ arioProcessId, antAoClient, hyperbeamUrl }] = useGlobalState();
   const [{ interactionResult }, dispatchTransactionState] =
     useTransactionState();
   const [, dispatchArNSState] = useArNSState();
@@ -298,7 +298,7 @@ function DomainSettings({
                   dispatchTransactionState,
                   dispatchArNSState,
                   ao: antAoClient,
-                  aoNetwork,
+                  hyperbeamUrl,
                 })
               }
             />
@@ -362,7 +362,7 @@ function DomainSettings({
                   dispatchTransactionState,
                   dispatchArNSState,
                   ao: antAoClient,
-                  aoNetwork,
+                  hyperbeamUrl,
                 })
               }
             />
@@ -382,7 +382,7 @@ function DomainSettings({
                   dispatchTransactionState,
                   dispatchArNSState,
                   ao: antAoClient,
-                  aoNetwork,
+                  hyperbeamUrl,
                 })
               }
             />
@@ -411,7 +411,7 @@ function DomainSettings({
                   dispatchTransactionState,
                   dispatchArNSState,
                   ao: antAoClient,
-                  aoNetwork,
+                  hyperbeamUrl,
                 })
               }
             />
@@ -438,7 +438,7 @@ function DomainSettings({
                   dispatchTransactionState,
                   dispatchArNSState,
                   ao: antAoClient,
-                  aoNetwork,
+                  hyperbeamUrl,
                 })
               }
             />
@@ -461,7 +461,7 @@ function DomainSettings({
                   dispatchTransactionState,
                   dispatchArNSState,
                   ao: antAoClient,
-                  aoNetwork,
+                  hyperbeamUrl,
                 })
               }
             />
@@ -494,7 +494,7 @@ function DomainSettings({
                   dispatchTransactionState,
                   dispatchArNSState,
                   ao: antAoClient,
-                  aoNetwork,
+                  hyperbeamUrl,
                 })
               }
             />
@@ -516,7 +516,7 @@ function DomainSettings({
                   dispatchTransactionState,
                   dispatchArNSState,
                   ao: antAoClient,
-                  aoNetwork,
+                  hyperbeamUrl,
                 })
               }
             />
@@ -538,7 +538,7 @@ function DomainSettings({
                   dispatchTransactionState,
                   dispatchArNSState,
                   ao: antAoClient,
-                  aoNetwork,
+                  hyperbeamUrl,
                 })
               }
             />

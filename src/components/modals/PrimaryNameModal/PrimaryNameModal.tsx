@@ -75,7 +75,7 @@ function PrimaryNameModal({
   setVisible: (visible: boolean) => void;
 }) {
   const queryClient = useQueryClient();
-  const [{ arioProcessId, arioContract, aoClient, aoNetwork }] =
+  const [{ arioProcessId, arioContract, aoClient, aoNetwork, hyperbeamUrl }] =
     useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const { data: primaryNameData, isLoading: isLoadingPrimaryNameData } =
@@ -200,7 +200,7 @@ function PrimaryNameModal({
             dispatchTransactionState,
             dispatchArNSState,
             ao: aoClient,
-            aoNetwork,
+            hyperbeamUrl,
           });
           queryClient.resetQueries({
             queryKey: ['primary-name'],

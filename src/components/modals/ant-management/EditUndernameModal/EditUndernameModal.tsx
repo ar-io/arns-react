@@ -32,7 +32,7 @@ function EditUndernameModal({
   closeModal: () => void;
   payloadCallback: (payload: SetRecordPayload) => void;
 }) {
-  const [{ arweaveDataProvider, antAoClient, aoNetwork }] = useGlobalState();
+  const [{ arweaveDataProvider, antAoClient, hyperbeamUrl }] = useGlobalState();
   const isMobile = useIsMobile();
   const targetIdRef = useRef<HTMLInputElement>(null);
   const ttlRef = useRef<HTMLInputElement>(null);
@@ -50,9 +50,7 @@ function EditUndernameModal({
   async function load(id: ArweaveTransactionID) {
     try {
       const contract = ANT.init({
-        hyperbeamUrl: aoNetwork.HYPERBEAM.ENABLED
-          ? aoNetwork.HYPERBEAM.URL
-          : undefined,
+        hyperbeamUrl,
         process: new AOProcess({
           processId: id.toString(),
           ao: antAoClient,

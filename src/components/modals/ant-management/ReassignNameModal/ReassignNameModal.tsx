@@ -55,7 +55,8 @@ export function ReassignNameModal({
   name: string;
 }) {
   const queryClient = useQueryClient();
-  const [{ arioProcessId, aoClient, aoNetwork }] = useGlobalState();
+  const [{ arioProcessId, aoClient, aoNetwork, hyperbeamUrl }] =
+    useGlobalState();
   const [, dispatchArNSState] = useArNSState();
   const { data: antVersion } = useLatestANTVersion();
   const antModuleId = antVersion?.moduleId ?? null;
@@ -136,7 +137,7 @@ export function ReassignNameModal({
         dispatchArNSState,
         owner: walletAddress.toString(),
         ao: aoClient,
-        aoNetwork,
+        hyperbeamUrl,
       });
       eventEmitter.emit('success', {
         message: (

@@ -99,7 +99,7 @@ const UndernamesTable = ({
   refresh?: () => void;
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [{ arioProcessId, antAoClient, aoNetwork }] = useGlobalState();
+  const [{ arioProcessId, antAoClient, hyperbeamUrl }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const isOwner = walletAddress
     ? state?.Owner === walletAddress.toString()
@@ -153,7 +153,7 @@ const UndernamesTable = ({
         dispatchTransactionState,
         dispatchArNSState,
         ao: antAoClient,
-        aoNetwork,
+        hyperbeamUrl,
       });
       eventEmitter.emit('success', {
         name: 'Manage Undernames',
