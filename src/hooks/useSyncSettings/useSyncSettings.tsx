@@ -10,16 +10,14 @@ interface NetworkSettings {
       CU_URL: string;
       MU_URL: string;
       SCHEDULER: string;
+      HYPERBEAM_URL?: string;
     };
     ANT: {
       CU_URL: string;
       MU_URL: string;
       SCHEDULER: string;
       GRAPHQL_URL: string;
-    };
-    HYPERBEAM: {
-      URL: string;
-      ENABLED: boolean;
+      HYPERBEAM_URL?: string;
     };
   };
   turboNetwork: {

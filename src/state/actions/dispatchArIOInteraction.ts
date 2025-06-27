@@ -37,6 +37,7 @@ export default async function dispatchArIOInteraction({
   ao,
   antAo,
   aoNetwork,
+  hyperbeamUrl,
   scheduler = DEFAULT_SCHEDULER_ID,
   fundFrom,
   turboArNSClient,
@@ -51,6 +52,7 @@ export default async function dispatchArIOInteraction({
   ao?: AoClient;
   antAo?: AoClient;
   aoNetwork: typeof NETWORK_DEFAULTS.AO;
+  hyperbeamUrl?: string;
   scheduler?: string;
   fundFrom?: FundFrom | 'fiat';
   turboArNSClient?: TurboArNSClient;
@@ -228,9 +230,7 @@ export default async function dispatchArIOInteraction({
         await sleep(2000);
 
         const antProcess = ANT.init({
-          hyperbeamUrl: aoNetwork.HYPERBEAM.ENABLED
-            ? aoNetwork.HYPERBEAM.URL
-            : undefined,
+          hyperbeamUrl: hyperbeamUrl,
           signer,
           // we're not using hyperbeam here as we're writing to the contract
           process: new AOProcess({

@@ -18,7 +18,6 @@ import { Collapse, Input, Space } from 'antd';
 import { List } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import Switch from '../inputs/Switch';
 import ArweaveID, { ArweaveIdTypes } from '../layout/ArweaveID/ArweaveID';
 import SelectGatewayModal from './SelectGatewayModal/SelectGatewayModal';
 import './styles.css';
@@ -27,7 +26,14 @@ const Panel = Collapse.Panel;
 
 function NetworkSettings() {
   const [
-    { gateway, aoNetwork, arioProcessId, arioContract, turboNetwork },
+    {
+      gateway,
+      aoNetwork,
+      arioProcessId,
+      arioContract,
+      turboNetwork,
+      hyperbeamUrl,
+    },
     dispatchGlobalState,
   ] = useGlobalState();
   const [{ wallet }] = useWalletState();
@@ -59,12 +65,9 @@ function NetworkSettings() {
     useState<boolean>(true);
 
   const [newHyperbeamUrl, setNewHyperbeamUrl] = useState<string>(
-    aoNetwork.HYPERBEAM.URL,
+    hyperbeamUrl || '',
   );
   const [validHyperbeamUrl, setValidHyperbeamUrl] = useState<boolean>(true);
-  const [hyperbeamEnabled, setHyperbeamEnabled] = useState<boolean>(
-    aoNetwork.HYPERBEAM.ENABLED,
-  );
 
   function reset() {
     // gateway
@@ -88,12 +91,11 @@ function NetworkSettings() {
     setValidTurboPaymentUrl(true);
     updateTurboNetwork(NETWORK_DEFAULTS.TURBO);
     // hyperbeam network
-    setNewHyperbeamUrl(NETWORK_DEFAULTS.AO.HYPERBEAM.URL);
+    setNewHyperbeamUrl(NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || '');
     setValidHyperbeamUrl(true);
-    setHyperbeamEnabled(NETWORK_DEFAULTS.AO.HYPERBEAM.ENABLED);
-    updateHyperbeamAoNetwork({
-      URL: NETWORK_DEFAULTS.AO.HYPERBEAM.URL,
-      ENABLED: NETWORK_DEFAULTS.AO.HYPERBEAM.ENABLED,
+    dispatchGlobalState({
+      type: 'setHyperbeamUrl',
+      payload: NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || undefined,
     });
   }
 
@@ -112,10 +114,9 @@ function NetworkSettings() {
   }, [aoNetwork.ARIO]);
 
   useEffect(() => {
-    setNewHyperbeamUrl(aoNetwork.HYPERBEAM.URL);
+    setNewHyperbeamUrl(hyperbeamUrl || '');
     setValidHyperbeamUrl(true);
-    setHyperbeamEnabled(aoNetwork.HYPERBEAM.ENABLED);
-  }, [aoNetwork.HYPERBEAM]);
+  }, [hyperbeamUrl]);
 
   async function updateGateway(gate: string) {
     try {
@@ -217,24 +218,6 @@ function NetworkSettings() {
       arioProcessId,
       dispatch: dispatchGlobalState,
     });
-  }
-
-  function updateHyperbeamAoNetwork(config: {
-    URL?: string;
-    ENABLED?: boolean;
-  }) {
-    try {
-      const newConfig = {
-        ...aoNetwork,
-        ...{ HYPERBEAM: { ...aoNetwork.HYPERBEAM, ...config } },
-      };
-      dispatchGlobalState({
-        type: 'setAONetwork',
-        payload: newConfig,
-      });
-    } catch (error) {
-      eventEmitter.emit('error', error);
-    }
   }
 
   return (
@@ -609,36 +592,11 @@ function NetworkSettings() {
               <span className="flex w-fit  whitespace-nowrap items-center bg-primary-thin rounded-t-md px-4 py-1 border-x-2 border-t-2 border-primary text-md text-primary font-semibold mt-2 gap-4 justify-center">
                 Hyperbeam URL:{' '}
                 <span className="text-white pl-2 flex">
-                  {aoNetwork.HYPERBEAM.URL}
+                  {hyperbeamUrl || ''}
                 </span>
-                <span className="text-white pl-2">
-                  ({aoNetwork.HYPERBEAM.ENABLED ? 'Enabled' : 'Disabled'})
-                </span>
-                <div className="flex flex-row items-center gap-2 mt-2 bg-dark-grey p-2 rounded-md">
-                  <span className="text-white font-semibold">
-                    Enable Hyperbeam:
-                  </span>
-                  <Switch
-                    checked={hyperbeamEnabled}
-                    onChange={(checked) => {
-                      setHyperbeamEnabled(checked);
-                      updateHyperbeamAoNetwork({ ENABLED: checked });
-                    }}
-                  />
-                  <button
-                    className="bg-primary-thin text-white h-full flex w-fit p-1 rounded-sm text-xs"
-                    onClick={() => {
-                      setHyperbeamEnabled(
-                        NETWORK_DEFAULTS.AO.HYPERBEAM.ENABLED,
-                      );
-                      updateHyperbeamAoNetwork({
-                        ENABLED: NETWORK_DEFAULTS.AO.HYPERBEAM.ENABLED,
-                      });
-                    }}
-                  >
-                    reset
-                  </button>
-                </div>
+                {!hyperbeamUrl && (
+                  <span className="text-red-500 font-bold">DISABLED</span>
+                )}
               </span>
 
               <Input
@@ -651,8 +609,9 @@ function NetworkSettings() {
                 }}
                 onClear={() => setNewHyperbeamUrl('')}
                 onPressEnter={(e) =>
-                  updateHyperbeamAoNetwork({
-                    URL: e.currentTarget.value.trim(),
+                  dispatchGlobalState({
+                    type: 'setHyperbeamUrl',
+                    payload: e.currentTarget.value.trim(),
                   })
                 }
                 variant="outlined"
@@ -663,8 +622,9 @@ function NetworkSettings() {
                       disabled={!validHyperbeamUrl}
                       className="bg-primary text-black h-full flex w-fit p-1 rounded-sm text-xs"
                       onClick={() =>
-                        updateHyperbeamAoNetwork({
-                          URL: newHyperbeamUrl.trim(),
+                        dispatchGlobalState({
+                          type: 'setHyperbeamUrl',
+                          payload: newHyperbeamUrl.trim(),
                         })
                       }
                     >
@@ -673,10 +633,14 @@ function NetworkSettings() {
                     <button
                       className="bg-primary-thin text-white h-full flex w-fit p-1 rounded-sm text-xs"
                       onClick={() => {
-                        setNewHyperbeamUrl(NETWORK_DEFAULTS.AO.HYPERBEAM.URL);
+                        setNewHyperbeamUrl(
+                          NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || '',
+                        );
                         setValidHyperbeamUrl(true);
-                        updateHyperbeamAoNetwork({
-                          URL: NETWORK_DEFAULTS.AO.HYPERBEAM.URL,
+                        dispatchGlobalState({
+                          type: 'setHyperbeamUrl',
+                          payload:
+                            NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || undefined,
                         });
                       }}
                     >

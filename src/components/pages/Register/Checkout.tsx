@@ -39,8 +39,16 @@ import { useNavigate } from 'react-router-dom';
 // on completion routes to transaction/complete
 function Checkout() {
   const navigate = useNavigate();
-  const [{ arioContract, arioProcessId, aoNetwork, aoClient, arioTicker }] =
-    useGlobalState();
+  const [
+    {
+      arioContract,
+      arioProcessId,
+      aoNetwork,
+      aoClient,
+      arioTicker,
+      hyperbeamUrl,
+    },
+  ] = useGlobalState();
   const turbo = useTurboArNSClient();
   const [, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
@@ -324,6 +332,7 @@ function Checkout() {
             : fundingSource,
         turboArNSClient: turbo,
         aoNetwork,
+        hyperbeamUrl,
       });
     } catch (error) {
       eventEmitter.emit('error', error);

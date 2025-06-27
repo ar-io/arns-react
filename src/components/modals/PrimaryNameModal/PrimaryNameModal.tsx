@@ -183,6 +183,7 @@ function PrimaryNameModal({
             fundFrom: fundingSource,
             dispatch: dispatchTransactionState,
             aoNetwork,
+            hyperbeamUrl,
           });
 
           break;

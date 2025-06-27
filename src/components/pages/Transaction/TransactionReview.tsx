@@ -33,7 +33,7 @@ import { getTransactionHeader } from './transaction-headers';
 // on completion routes to transaction/complete
 function TransactionReview() {
   const navigate = useNavigate();
-  const [{ arioContract, arioProcessId, aoNetwork, aoClient }] =
+  const [{ arioContract, arioProcessId, aoNetwork, aoClient, hyperbeamUrl }] =
     useGlobalState();
   const [, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
@@ -126,6 +126,7 @@ function TransactionReview() {
         scheduler: aoNetwork.ARIO.SCHEDULER,
         fundFrom: fundingSource,
         aoNetwork,
+        hyperbeamUrl,
       });
     } catch (error) {
       eventEmitter.emit('error', error);
