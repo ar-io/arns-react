@@ -1,6 +1,5 @@
 import { useWalletState } from '../../../state/contexts/WalletState';
 import Loader from '../Loader/Loader';
-import './styles.css';
 
 export function WalletAddress({ characterCount }: { characterCount?: number }) {
   const [{ walletAddress }] = useWalletState();
@@ -19,9 +18,9 @@ export function WalletAddress({ characterCount }: { characterCount?: number }) {
   return (
     <>
       {walletAddress ? (
-        <div className="flex-row" style={{ gap: '0.4em' }}>
-          <span className="dot"></span>
-          <span className="text white">
+        <div className="flex flex-row items-center gap-[0.4em]">
+          <span className="h-2 w-2 bg-success rounded-full"></span>
+          <span className="text-sm text-white">
             {handleText(walletAddress.toString())}
           </span>
         </div>

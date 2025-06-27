@@ -179,10 +179,7 @@ function ExtendLease() {
               : 'N/A'}
           </div>
         </div>{' '}
-        <div
-          className="flex flex-row flex-space-between"
-          style={{ gap: '25px' }}
-        >
+        <div className="flex flex-row justify-between" style={{ gap: '25px' }}>
           <button
             className="flex flex-row center text-medium bold pointer"
             onClick={() => setRegistrationType(TRANSACTION_TYPES.LEASE)}
