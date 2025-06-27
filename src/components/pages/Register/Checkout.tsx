@@ -323,6 +323,7 @@ function Checkout() {
             ? 'turbo'
             : fundingSource,
         turboArNSClient: turbo,
+        aoNetwork,
       });
     } catch (error) {
       eventEmitter.emit('error', error);

@@ -182,6 +182,7 @@ function PrimaryNameModal({
             processId: arioProcessId,
             fundFrom: fundingSource,
             dispatch: dispatchTransactionState,
+            aoNetwork,
           });
 
           break;

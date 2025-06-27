@@ -18,6 +18,7 @@ import { Collapse, Input, Space } from 'antd';
 import { List } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import Switch from '../inputs/Switch';
 import ArweaveID, { ArweaveIdTypes } from '../layout/ArweaveID/ArweaveID';
 import SelectGatewayModal from './SelectGatewayModal/SelectGatewayModal';
 import './styles.css';
@@ -57,6 +58,14 @@ function NetworkSettings() {
   const [validTurboPaymentUrl, setValidTurboPaymentUrl] =
     useState<boolean>(true);
 
+  const [newHyperbeamUrl, setNewHyperbeamUrl] = useState<string>(
+    aoNetwork.HYPERBEAM.URL,
+  );
+  const [validHyperbeamUrl, setValidHyperbeamUrl] = useState<boolean>(true);
+  const [hyperbeamEnabled, setHyperbeamEnabled] = useState<boolean>(
+    aoNetwork.HYPERBEAM.ENABLED,
+  );
+
   function reset() {
     // gateway
     setNewGateway(NETWORK_DEFAULTS.ARWEAVE.HOST);
@@ -78,6 +87,14 @@ function NetworkSettings() {
     setNewTurboPaymentUrl(NETWORK_DEFAULTS.TURBO.PAYMENT_URL);
     setValidTurboPaymentUrl(true);
     updateTurboNetwork(NETWORK_DEFAULTS.TURBO);
+    // hyperbeam network
+    setNewHyperbeamUrl(NETWORK_DEFAULTS.AO.HYPERBEAM.URL);
+    setValidHyperbeamUrl(true);
+    setHyperbeamEnabled(NETWORK_DEFAULTS.AO.HYPERBEAM.ENABLED);
+    updateHyperbeamAoNetwork({
+      URL: NETWORK_DEFAULTS.AO.HYPERBEAM.URL,
+      ENABLED: NETWORK_DEFAULTS.AO.HYPERBEAM.ENABLED,
+    });
   }
 
   useEffect(() => {
@@ -93,6 +110,12 @@ function NetworkSettings() {
     setNewSuAddress(aoNetwork.ARIO.SCHEDULER);
     setValidSuAddress(true);
   }, [aoNetwork.ARIO]);
+
+  useEffect(() => {
+    setNewHyperbeamUrl(aoNetwork.HYPERBEAM.URL);
+    setValidHyperbeamUrl(true);
+    setHyperbeamEnabled(aoNetwork.HYPERBEAM.ENABLED);
+  }, [aoNetwork.HYPERBEAM]);
 
   async function updateGateway(gate: string) {
     try {
@@ -194,6 +217,24 @@ function NetworkSettings() {
       arioProcessId,
       dispatch: dispatchGlobalState,
     });
+  }
+
+  function updateHyperbeamAoNetwork(config: {
+    URL?: string;
+    ENABLED?: boolean;
+  }) {
+    try {
+      const newConfig = {
+        ...aoNetwork,
+        ...{ HYPERBEAM: { ...aoNetwork.HYPERBEAM, ...config } },
+      };
+      dispatchGlobalState({
+        type: 'setAONetwork',
+        payload: newConfig,
+      });
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
   }
 
   return (
@@ -565,6 +606,86 @@ function NetworkSettings() {
                   </div>
                 }
               />
+              <span className="flex w-fit  whitespace-nowrap items-center bg-primary-thin rounded-t-md px-4 py-1 border-x-2 border-t-2 border-primary text-md text-primary font-semibold mt-2 gap-4 justify-center">
+                Hyperbeam URL:{' '}
+                <span className="text-white pl-2 flex">
+                  {aoNetwork.HYPERBEAM.URL}
+                </span>
+                <span className="text-white pl-2">
+                  ({aoNetwork.HYPERBEAM.ENABLED ? 'Enabled' : 'Disabled'})
+                </span>
+                <div className="flex flex-row items-center gap-2 mt-2 bg-dark-grey p-2 rounded-md">
+                  <span className="text-white font-semibold">
+                    Enable Hyperbeam:
+                  </span>
+                  <Switch
+                    checked={hyperbeamEnabled}
+                    onChange={(checked) => {
+                      setHyperbeamEnabled(checked);
+                      updateHyperbeamAoNetwork({ ENABLED: checked });
+                    }}
+                  />
+                  <button
+                    className="bg-primary-thin text-white h-full flex w-fit p-1 rounded-sm text-xs"
+                    onClick={() => {
+                      setHyperbeamEnabled(
+                        NETWORK_DEFAULTS.AO.HYPERBEAM.ENABLED,
+                      );
+                      updateHyperbeamAoNetwork({
+                        ENABLED: NETWORK_DEFAULTS.AO.HYPERBEAM.ENABLED,
+                      });
+                    }}
+                  >
+                    reset
+                  </button>
+                </div>
+              </span>
+
+              <Input
+                className="bg-background justify-center items-center"
+                placeholder="Enter custom Hyperbeam URL"
+                value={newHyperbeamUrl}
+                onChange={(e) => {
+                  setValidHyperbeamUrl(isValidURL(e.target.value.trim()));
+                  setNewHyperbeamUrl(e.target.value.trim());
+                }}
+                onClear={() => setNewHyperbeamUrl('')}
+                onPressEnter={(e) =>
+                  updateHyperbeamAoNetwork({
+                    URL: e.currentTarget.value.trim(),
+                  })
+                }
+                variant="outlined"
+                status={validHyperbeamUrl ? '' : 'error'}
+                addonAfter={
+                  <div className="flex flex-row" style={{ gap: '5px' }}>
+                    <button
+                      disabled={!validHyperbeamUrl}
+                      className="bg-primary text-black h-full flex w-fit p-1 rounded-sm text-xs"
+                      onClick={() =>
+                        updateHyperbeamAoNetwork({
+                          URL: newHyperbeamUrl.trim(),
+                        })
+                      }
+                    >
+                      Set Hyperbeam URL
+                    </button>
+                    <button
+                      className="bg-primary-thin text-white h-full flex w-fit p-1 rounded-sm text-xs"
+                      onClick={() => {
+                        setNewHyperbeamUrl(NETWORK_DEFAULTS.AO.HYPERBEAM.URL);
+                        setValidHyperbeamUrl(true);
+                        updateHyperbeamAoNetwork({
+                          URL: NETWORK_DEFAULTS.AO.HYPERBEAM.URL,
+                        });
+                      }}
+                    >
+                      reset
+                    </button>
+                  </div>
+                }
+              />
+
               <div className="flex flex-row p-2 justify-end items-center">
                 <button
                   className="p-2 text-white border-2 border-black hover:bg-primary hover:text-black bg-primary-thin rounded-md font-bold"

@@ -125,6 +125,7 @@ function TransactionReview() {
         ao: aoClient,
         scheduler: aoNetwork.ARIO.SCHEDULER,
         fundFrom: fundingSource,
+        aoNetwork,
       });
     } catch (error) {
       eventEmitter.emit('error', error);

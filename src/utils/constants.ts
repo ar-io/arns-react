@@ -126,6 +126,10 @@ export const STRIPE_PUBLISHABLE_KEY =
 
 export const NETWORK_DEFAULTS = {
   AO: {
+    HYPERBEAM: {
+      URL: 'https://hyperbeam.ario.permaweb.services',
+      ENABLED: false,
+    },
     ARIO: {
       CU_URL: ARIO_AO_CU_URL, // ao public cu: https://cu.ao-testnet.xyz
       MU_URL: 'https://mu.ao-testnet.xyz',
