@@ -92,10 +92,9 @@ export default async function dispatchArIOInteraction({
             module: payload.antModuleId,
           });
           const antRegistry = ANTRegistry.init({
-            signer,
             process: new AOProcess({
               processId: ANT_REGISTRY_ID,
-              ao,
+              ao: antAo,
             }),
           });
           let antRegistryUpdated = false;
@@ -227,7 +226,6 @@ export default async function dispatchArIOInteraction({
 
         const antProcess = ANT.init({
           signer,
-          // we're not using hyperbeam here as we're writing to the contract
           process: new AOProcess({
             ao: antAo,
             processId: payload.antProcessId,

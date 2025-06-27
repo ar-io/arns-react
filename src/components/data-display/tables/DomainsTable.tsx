@@ -1,5 +1,6 @@
 import { AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk';
 import ErrorsTip from '@src/components/Tooltips/ErrorsTip';
+import Tooltip from '@src/components/Tooltips/Tooltip';
 import {
   ChevronRightIcon,
   ExternalLinkIcon,
@@ -11,21 +12,17 @@ import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import UpgradeDomainModal from '@src/components/modals/ant-management/UpgradeDomainModal/UpgradeDomainModal';
-import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import {
   ANTProcessData,
-  useArNSState,
   useGlobalState,
   useModalState,
   useTransactionState,
   useWalletState,
 } from '@src/state';
-import { dispatchANTUpdate } from '@src/state/actions/dispatchANTUpdate';
 import {
   camelToReadable,
   decodeDomainToASCII,
-  doAntsRequireUpdate,
   encodeDomainToASCII,
   formatExpiryDate,
   formatForMaxCharCount,
@@ -40,7 +37,7 @@ import {
   PERMANENT_DOMAIN_MESSAGE,
 } from '@src/utils/constants';
 import { ANTStateError } from '@src/utils/errors';
-import { queryClient } from '@src/utils/network';
+import { useQueryClient } from '@tanstack/react-query';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { capitalize } from 'lodash';
 import { CircleCheck, Star } from 'lucide-react';
@@ -48,7 +45,6 @@ import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
-import { Tooltip } from '..';
 import RegistrationTip from '../../Tooltips/RegistrationTip';
 import TableView from './TableView';
 import UndernamesSubtable from './UndernamesSubtable';
@@ -118,20 +114,17 @@ const DomainsTable = ({
   loading: boolean;
   filter?: string;
 }) => {
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [{ walletAddress }] = useWalletState();
-  const [{ arioProcessId, aoNetwork }] = useGlobalState();
-  const [{ loading: loadingArnsState }, dispatchArNSState] = useArNSState();
-  const { data: antVersion } = useLatestANTVersion();
-  const antModuleId = antVersion?.moduleId ?? null;
+  const [{ arioProcessId }] = useGlobalState();
   const [, dispatchModalState] = useModalState();
   const [, dispatchTransactionState] = useTransactionState();
   const { data: primaryNameData } = usePrimaryName();
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<TableData[]>([]);
   const [sortBy, setSortBy] = useState(searchParams.get('sortBy') ?? 'name');
-
   const [showUpgradeDomainModal, setShowUpgradeDomainModal] =
     useState<boolean>(false);
   const [domainToUpgrade, setDomainToUpgrade] = useState<string | undefined>(
@@ -148,22 +141,6 @@ const DomainsTable = ({
 
       Object.entries(domainData.names).map(([domain, record]) => {
         const ant = domainData.ants[record.processId];
-        const ioCompatible =
-          ant?.errors?.find((e) => e instanceof ANTStateError) ??
-          (walletAddress && ant?.state && record?.processId
-            ? !doAntsRequireUpdate({
-                ants: {
-                  [record.processId]: {
-                    state: ant.state,
-                    version: ant.version,
-                    processMeta: ant.processMeta,
-                  },
-                },
-                userAddress: walletAddress.toString(),
-                currentModuleId: antModuleId,
-              })
-            : false);
-
         const data: TableData = {
           openRow: <></>,
           name: domain,
@@ -175,7 +152,7 @@ const DomainsTable = ({
             ) ?? 'N/A',
           processId: record.processId,
           targetId: ant?.state?.Records?.['@']?.transactionId ?? 'N/A',
-          ioCompatible,
+          ioCompatible: ant?.isLatestVersion,
           undernames: {
             used:
               Object.keys(ant?.state?.Records ?? {}).filter(
@@ -201,13 +178,7 @@ const DomainsTable = ({
 
       setTableData(newTableData);
     }
-  }, [
-    domainData,
-    loading,
-    loadingArnsState,
-    primaryNameData,
-    dispatchArNSState,
-  ]);
+  }, [domainData, loading, primaryNameData]);
 
   useEffect(() => {
     if (filter) {
@@ -342,10 +313,7 @@ const DomainsTable = ({
             );
           }
           case 'ioCompatible': {
-            if (
-              loadingArnsState &&
-              !domainData.ants[row.original.processId]?.state
-            )
+            if (loading && !domainData.ants[row.original.processId]?.state)
               return (
                 <span className="animate-pulse whitespace-nowrap">
                   Loading...
@@ -356,13 +324,9 @@ const DomainsTable = ({
                 <button
                   className="flex whitespace-nowrap justify-center align-center gap-2 text-center"
                   onClick={async () => {
-                    dispatchANTUpdate({
-                      processId,
-                      domain: lowerCaseDomain(row.original.name),
-                      aoNetwork,
-                      queryClient,
-                      walletAddress,
-                      dispatch: dispatchArNSState,
+                    await queryClient.invalidateQueries({
+                      queryKey: ['ant', processId],
+                      refetchType: 'all',
                     });
                   }}
                 >
@@ -375,7 +339,7 @@ const DomainsTable = ({
                 </button>
               );
             }
-            return rowValue === false && row.original.role !== 'controller' ? (
+            return rowValue === false && row.original.role === 'owner' ? (
               <Tooltip
                 message={'Upgrade Domain'}
                 icon={

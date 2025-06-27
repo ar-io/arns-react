@@ -186,7 +186,7 @@ const TableView = <T, S>({
                         )}
                       </td>
                     ))}
-                  </tr>{' '}
+                  </tr>
                   {row.getIsExpanded() && renderSubComponent && (
                     <tr
                       className={`${rowClass({ row })}`}
