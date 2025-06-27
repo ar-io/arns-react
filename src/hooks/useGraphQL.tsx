@@ -55,7 +55,7 @@ export function buildAllGraphQLTransactionsQuery(
             buildGraphQLQuery(graphqlUrl, {
               ids,
               after: cursor,
-              first: 100,
+              first: 1000,
             }),
           );
         if (!res) {

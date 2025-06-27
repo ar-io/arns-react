@@ -34,7 +34,8 @@ export function ReturnNameModal({
 }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [{ arioProcessId, antAoClient, aoNetwork }] = useGlobalState();
+  const [{ arioProcessId, antAoClient, aoNetwork, hyperbeamUrl }] =
+    useGlobalState();
   const [, dispatchArNSState] = useArNSState();
   const [{ signing }, dispatchTransactionState] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
@@ -60,6 +61,7 @@ export function ReturnNameModal({
         dispatchArNSState,
         owner: walletAddress.toString(),
         ao: antAoClient,
+        hyperbeamUrl,
       });
       eventEmitter.emit('success', {
         message: (

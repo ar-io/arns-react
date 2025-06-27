@@ -49,6 +49,7 @@ export type GlobalState = {
   lastBlockUpdateTimestamp?: number;
   arweaveDataProvider: ArweaveCompositeDataProvider;
   arioContract: AoARIORead | AoARIOWrite;
+  hyperbeamUrl: string;
 };
 
 const initialState: GlobalState = {
@@ -59,6 +60,7 @@ const initialState: GlobalState = {
   turboNetwork: NETWORK_DEFAULTS.TURBO,
   aoClient: connect(NETWORK_DEFAULTS.AO.ARIO),
   antAoClient: connect(NETWORK_DEFAULTS.AO.ANT),
+  hyperbeamUrl: NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL,
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,
   arweaveDataProvider: new ArweaveCompositeDataProvider({

@@ -13,6 +13,6 @@ export function useArNSRegistryDomains() {
       });
       return domains;
     },
-    staleTime: 30 * 1000, // 30 seconds
+    staleTime: 60 * 60 * 1000, // 1 hour
   });
 }

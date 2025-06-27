@@ -8,6 +8,13 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.11.0] - 2025-06-26
+
+### Changed
+
+- Upgrades ar-io-sdk and adds optional support for fetching ANT state from
+  provided HyperBEAM url.
+
 ## [1.10.2] - 2025-06-18
 
 ### Changed
