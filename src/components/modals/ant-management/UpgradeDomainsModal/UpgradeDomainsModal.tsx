@@ -135,7 +135,6 @@ function UpgradeDomainsModal({
                 processId: domainData.processId,
                 owner: walletAddress.toString(),
                 ao: antAoClient,
-                aoNetwork,
                 signer,
                 dispatchTransactionState,
                 dispatchArNSState,
