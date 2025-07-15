@@ -5,6 +5,14 @@ import {
   AoARIOWrite,
   AoClient,
 } from '@ar.io/sdk/web';
+import {
+  NetworkGatewaysProvider,
+  RandomRoutingStrategy,
+} from '@ar.io/wayfinder-core';
+import {
+  LocalStorageGatewaysProvider,
+  WayfinderProvider,
+} from '@ar.io/wayfinder-react';
 import { connect } from '@permaweb/aoconnect';
 import eventEmitter from '@src/utils/events';
 import React, {
@@ -18,6 +26,7 @@ import React, {
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import {
+  APP_VERSION,
   ARIO_AO_CU_URL,
   ARIO_PROCESS_ID,
   ARWEAVE_HOST,
@@ -33,6 +42,7 @@ export const defaultArIO = ARIO.init({
     processId: ARIO_PROCESS_ID,
     ao: connect({
       CU_URL: ARIO_AO_CU_URL,
+      MODE: 'legacy',
     }),
   }),
 });
@@ -116,7 +126,26 @@ export function GlobalStateProvider({
 
   return (
     <GlobalStateContext.Provider value={[state, dispatchGlobalState]}>
-      {children}
+      {/* Wrap global state in wayfinder provider */}
+      <WayfinderProvider
+        gatewaysProvider={
+          new LocalStorageGatewaysProvider({
+            gatewaysProvider: new NetworkGatewaysProvider({
+              ario: state.arioContract,
+            }),
+          })
+        }
+        routingSettings={{
+          strategy: new RandomRoutingStrategy(),
+        }}
+        telemetrySettings={{
+          enabled: true,
+          clientName: 'arns-app',
+          clientVersion: APP_VERSION,
+        }}
+      >
+        {children}
+      </WayfinderProvider>
     </GlobalStateContext.Provider>
   );
 }

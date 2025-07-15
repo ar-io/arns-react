@@ -1,31 +1,44 @@
-import { NETWORK_DEFAULTS } from '@src/utils/constants';
+import { useWayfinder } from '@ar.io/wayfinder-react';
+import { Loader } from '@src/components/layout';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { ARNSMapping } from '../../../types';
 import './styles.css';
 
-const protocol = 'https';
-
 function ARNSCard({
   domain,
-  gateway = NETWORK_DEFAULTS.ARNS.HOST,
   imageUrl,
-}: Omit<ARNSMapping, 'processId'> & { gateway?: string; imageUrl: string }) {
+}: Omit<ARNSMapping, 'processId'> & { imageUrl: string }) {
+  const { wayfinder } = useWayfinder();
+  const [wayfinderUrl, setWayfinderUrl] = useState<string | null>(null);
+  useEffect(() => {
+    wayfinder.resolveUrl({ arnsName: domain }).then((url) => {
+      setWayfinderUrl(url.toString());
+    });
+  }, [wayfinder, domain]);
+
+  if (!wayfinderUrl) return <Loader />;
+
   return (
     <Link
       target="_blank"
-      to={`${protocol}://${domain}.${gateway}`}
+      to={wayfinderUrl.toString()}
       className="arns-card hover"
       rel="noreferrer"
     >
-      <img
-        className="arns-preview fade-in"
-        src={imageUrl}
-        key={imageUrl}
-        alt={`${domain}.${gateway}`}
-        width={'100%'}
-        height={'100%'}
-      />
+      {wayfinderUrl ? (
+        <img
+          className="arns-preview fade-in"
+          src={imageUrl}
+          key={imageUrl}
+          alt={`${domain}`}
+          width={'100%'}
+          height={'100%'}
+        />
+      ) : (
+        <Loader size={40} />
+      )}
 
       <div
         className="flex flex-column link"
@@ -38,7 +51,7 @@ function ARNSCard({
           justifyContent: 'center',
         }}
       >
-        <span className="flex white">{`${domain}.${gateway}`}</span>
+        <span className="flex white">{`ar://${domain}`}</span>
       </div>
     </Link>
   );
