@@ -1,5 +1,6 @@
 import { useWayfinderUrl } from '@ar.io/wayfinder-react';
 import { Loader } from '@src/components/layout';
+import { useGlobalState } from '@src/state';
 import { Link } from 'react-router-dom';
 
 import { ARNSMapping } from '../../../types';
@@ -9,8 +10,9 @@ function ARNSCard({
   domain,
   imageUrl,
 }: Omit<ARNSMapping, 'processId'> & { imageUrl: string }) {
+  const [{ gateway }] = useGlobalState();
   const {
-    resolvedUrl = `https://${domain}.ar.io`,
+    resolvedUrl = `https://${domain}.${gateway}`,
     isLoading,
     error,
   } = useWayfinderUrl({
@@ -24,11 +26,11 @@ function ARNSCard({
   return (
     <Link
       target="_blank"
-      to={resolvedUrl?.toString() ?? `https://${domain}.ar.io`}
+      to={resolvedUrl?.toString() ?? `https://${domain}.${gateway}`}
       className="arns-card hover"
       rel="noreferrer"
     >
-      {isLoading ? (
+      {!isLoading ? (
         <img
           className="arns-preview fade-in"
           src={imageUrl}
