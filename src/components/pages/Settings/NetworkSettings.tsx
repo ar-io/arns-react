@@ -138,6 +138,7 @@ function NetworkSettings() {
         GATEWAY_URL: 'https://' + gateway,
         CU_URL: newConfig.CU_URL,
         MU_URL: newConfig.MU_URL,
+        MODE: 'legacy' as const,
       });
       dispatchGlobalState({
         type: 'setARIOAoClient',
