@@ -13,9 +13,15 @@ function ARNSCard({
   const { wayfinder } = useWayfinder();
   const [wayfinderUrl, setWayfinderUrl] = useState<string | null>(null);
   useEffect(() => {
-    wayfinder.resolveUrl({ arnsName: domain }).then((url) => {
-      setWayfinderUrl(url.toString());
-    });
+    wayfinder
+      .resolveUrl({ arnsName: domain })
+      .then((url) => {
+        setWayfinderUrl(url.toString());
+      })
+      .catch((error) => {
+        console.error(error);
+        setWayfinderUrl(`https://${domain}.ar.io`);
+      });
   }, [wayfinder, domain]);
 
   if (!wayfinderUrl) return <Loader />;
