@@ -1,6 +1,5 @@
-import { useWayfinder } from '@ar.io/wayfinder-react';
+import { useWayfinderUrl } from '@ar.io/wayfinder-react';
 import { Loader } from '@src/components/layout';
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { ARNSMapping } from '../../../types';
@@ -10,30 +9,26 @@ function ARNSCard({
   domain,
   imageUrl,
 }: Omit<ARNSMapping, 'processId'> & { imageUrl: string }) {
-  const { wayfinder } = useWayfinder();
-  const [wayfinderUrl, setWayfinderUrl] = useState<string | null>(null);
-  useEffect(() => {
-    wayfinder
-      .resolveUrl({ arnsName: domain })
-      .then((url) => {
-        setWayfinderUrl(url.toString());
-      })
-      .catch((error) => {
-        console.error(error);
-        setWayfinderUrl(`https://${domain}.ar.io`);
-      });
-  }, [wayfinder, domain]);
+  const {
+    resolvedUrl = `https://${domain}.ar.io`,
+    isLoading,
+    error,
+  } = useWayfinderUrl({
+    arnsName: domain,
+  });
 
-  if (!wayfinderUrl) return <Loader />;
+  if (error) {
+    console.error(error);
+  }
 
   return (
     <Link
       target="_blank"
-      to={wayfinderUrl.toString()}
+      to={resolvedUrl?.toString() ?? `https://${domain}.ar.io`}
       className="arns-card hover"
       rel="noreferrer"
     >
-      {wayfinderUrl ? (
+      {isLoading ? (
         <img
           className="arns-preview fade-in"
           src={imageUrl}
