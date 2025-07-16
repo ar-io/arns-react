@@ -42,7 +42,7 @@ function FeaturedDomains() {
           return (
             <ARNSCard
               domain={domain}
-              key={index}
+              key={domain}
               imageUrl={FEATURED_DOMAINS[domain].imageUrl}
             />
           );
