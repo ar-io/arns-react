@@ -40,7 +40,9 @@ function ARNSCard({
           height={'100%'}
         />
       ) : (
-        <Loader size={40} />
+        <div className="flex w-full h-full justify-center items-center">
+          <Loader size={40} />
+        </div>
       )}
 
       <div
