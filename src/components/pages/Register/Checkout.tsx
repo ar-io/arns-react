@@ -331,7 +331,7 @@ function Checkout() {
             ? 'turbo'
             : fundingSource,
         turboArNSClient: turbo,
-        aoNetwork,
+
         hyperbeamUrl,
       });
     } catch (error) {
@@ -343,6 +343,7 @@ function Checkout() {
           arioProcessId,
           walletAddress,
           aoNetworkSettings: aoNetwork,
+          hyperbeamUrl,
         });
       }
     }

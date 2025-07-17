@@ -33,6 +33,7 @@ function loadSettingsFromStorage(): {
   aoNetwork: typeof NETWORK_DEFAULTS.AO;
   turboNetwork: typeof NETWORK_DEFAULTS.TURBO;
   arioProcessId: string;
+  hyperbeamUrl?: string;
 } | null {
   try {
     // Try to get the last used wallet address from localStorage
@@ -62,6 +63,7 @@ function loadSettingsFromStorage(): {
           turboNetwork:
             settings.network?.turboNetwork || NETWORK_DEFAULTS.TURBO,
           arioProcessId: settings.arns?.arioProcessId || ARIO_PROCESS_ID,
+          hyperbeamUrl: settings.network?.hyperbeamUrl,
         };
       }
     }
@@ -81,6 +83,7 @@ const initialAoNetwork = savedSettings?.aoNetwork || NETWORK_DEFAULTS.AO;
 const initialTurboNetwork =
   savedSettings?.turboNetwork || NETWORK_DEFAULTS.TURBO;
 const initialArioProcessId = savedSettings?.arioProcessId || ARIO_PROCESS_ID;
+const initialHyperbeamUrl = savedSettings?.hyperbeamUrl;
 
 export const defaultArIO = ARIO.init({
   paymentUrl: initialTurboNetwork.PAYMENT_URL,
@@ -115,7 +118,7 @@ const initialState: GlobalState = {
   turboNetwork: initialTurboNetwork,
   aoClient: connect(initialAoNetwork.ARIO),
   antAoClient: connect(initialAoNetwork.ANT),
-  hyperbeamUrl: NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || undefined,
+  hyperbeamUrl: initialHyperbeamUrl,
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,
   arweaveDataProvider: new ArweaveCompositeDataProvider({

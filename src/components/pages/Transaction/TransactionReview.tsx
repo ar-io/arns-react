@@ -125,7 +125,7 @@ function TransactionReview() {
         ao: aoClient,
         scheduler: aoNetwork.ARIO.SCHEDULER,
         fundFrom: fundingSource,
-        aoNetwork,
+
         hyperbeamUrl,
       });
     } catch (error) {
@@ -137,6 +137,7 @@ function TransactionReview() {
           arioProcessId,
           walletAddress,
           aoNetworkSettings: aoNetwork,
+          hyperbeamUrl,
         });
       }
     }

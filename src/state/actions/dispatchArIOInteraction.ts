@@ -21,7 +21,7 @@ import {
   ContractInteraction,
 } from '@src/types';
 import { createAntStateForOwner, lowerCaseDomain, sleep } from '@src/utils';
-import { NETWORK_DEFAULTS, WRITE_OPTIONS } from '@src/utils/constants';
+import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
 import { Dispatch } from 'react';
@@ -36,7 +36,6 @@ export default async function dispatchArIOInteraction({
   signer,
   ao,
   antAo,
-  aoNetwork,
   hyperbeamUrl,
   scheduler = DEFAULT_SCHEDULER_ID,
   fundFrom,
@@ -51,7 +50,7 @@ export default async function dispatchArIOInteraction({
   signer?: ContractSigner;
   ao?: AoClient;
   antAo?: AoClient;
-  aoNetwork: typeof NETWORK_DEFAULTS.AO;
+
   hyperbeamUrl?: string;
   scheduler?: string;
   fundFrom?: FundFrom | 'fiat';

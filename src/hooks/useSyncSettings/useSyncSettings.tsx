@@ -1,10 +1,11 @@
 import { useGlobalState, useWalletState } from '@src/state';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 const SETTINGS_STORAGE_KEY = 'arNS_settings';
 
 interface NetworkSettings {
   gateway: string;
+  hyperbeamUrl?: string;
   aoNetwork: {
     ARIO: {
       CU_URL: string;
@@ -39,9 +40,10 @@ interface Settings {
 }
 
 function useSyncSettings() {
-  const [{ gateway, aoNetwork, turboNetwork, arioProcessId }] =
+  const [{ gateway, hyperbeamUrl, aoNetwork, turboNetwork, arioProcessId }] =
     useGlobalState();
   const [{ walletAddress }] = useWalletState();
+  const isInitialLoad = useRef(true);
 
   // Save settings when they change
   useEffect(() => {
@@ -49,9 +51,19 @@ function useSyncSettings() {
       return;
     }
 
+    // Skip saving on initial load when hyperbeamUrl is undefined
+    // This prevents overwriting saved settings with undefined on first load
+    if (isInitialLoad.current && hyperbeamUrl === undefined) {
+      isInitialLoad.current = false;
+      return;
+    }
+
+    isInitialLoad.current = false;
+
     const settings: Settings = {
       network: {
         gateway,
+        hyperbeamUrl,
         aoNetwork,
         turboNetwork,
       },
@@ -73,7 +85,14 @@ function useSyncSettings() {
     } catch (error) {
       console.error('Failed to save settings to localStorage:', error);
     }
-  }, [walletAddress, gateway, aoNetwork, turboNetwork, arioProcessId]);
+  }, [
+    walletAddress,
+    gateway,
+    hyperbeamUrl,
+    aoNetwork,
+    turboNetwork,
+    arioProcessId,
+  ]);
 
   return null;
 }
