@@ -121,7 +121,7 @@ const DomainsTable = ({
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [{ walletAddress }] = useWalletState();
-  const [{ arioProcessId, aoNetwork }] = useGlobalState();
+  const [{ arioProcessId, aoNetwork, hyperbeamUrl }] = useGlobalState();
   const [{ loading: loadingArnsState }, dispatchArNSState] = useArNSState();
   const { data: antVersion } = useLatestANTVersion();
   const antModuleId = antVersion?.moduleId ?? null;
@@ -362,6 +362,7 @@ const DomainsTable = ({
                       aoNetwork,
                       queryClient,
                       walletAddress,
+                      hyperbeamUrl,
                       dispatch: dispatchArNSState,
                     });
                   }}

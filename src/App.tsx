@@ -18,6 +18,7 @@ import Checkout from './components/pages/Register/Checkout';
 import ArNSSettings from './components/pages/Settings/ArNSSettings';
 import NetworkSettings from './components/pages/Settings/NetworkSettings';
 import SettingsOverview from './components/pages/Settings/SettingsOverview';
+import useSyncSettings from './hooks/useSyncSettings/useSyncSettings';
 import useWanderEvents from './hooks/useWanderEvents/useWanderEvents';
 import './index.css';
 import { useGlobalState } from './state';
@@ -71,6 +72,7 @@ const sentryCreateBrowserRouter =
 
 function App() {
   useWanderEvents();
+  useSyncSettings();
   const [{ turboNetwork }] = useGlobalState();
 
   const stripePromise = useMemo(() => {

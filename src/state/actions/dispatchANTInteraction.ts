@@ -256,6 +256,7 @@ export default async function dispatchANTInteraction({
           buildDomainInfoQuery({
             antId: processId,
             aoNetwork: NETWORK_DEFAULTS.AO,
+            hyperbeamUrl,
           }),
         );
 
@@ -320,6 +321,7 @@ export default async function dispatchANTInteraction({
             buildDomainInfoQuery({
               antId: newAntId,
               aoNetwork: NETWORK_DEFAULTS.AO,
+              hyperbeamUrl,
             }),
           )
           .catch((e) => console.error(e));

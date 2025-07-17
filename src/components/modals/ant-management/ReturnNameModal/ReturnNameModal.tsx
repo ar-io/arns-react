@@ -92,6 +92,7 @@ export function ReturnNameModal({
         arioProcessId,
         dispatch: dispatchArNSState,
         aoNetworkSettings: aoNetwork,
+        hyperbeamUrl,
       });
       setShow(false);
       navigate('/manage');

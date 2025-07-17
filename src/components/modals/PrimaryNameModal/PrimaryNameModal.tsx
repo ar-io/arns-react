@@ -182,6 +182,8 @@ function PrimaryNameModal({
             processId: arioProcessId,
             fundFrom: fundingSource,
             dispatch: dispatchTransactionState,
+
+            hyperbeamUrl,
           });
 
           break;
@@ -239,6 +241,7 @@ function PrimaryNameModal({
         aoNetwork: aoNetwork,
         walletAddress,
         queryClient,
+        hyperbeamUrl,
       });
 
       closeModal();

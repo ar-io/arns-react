@@ -16,7 +16,7 @@ import { RefreshIcon, SearchIcon } from '../../icons';
 import './styles.css';
 
 function Manage() {
-  const [{ arioProcessId, aoNetwork }] = useGlobalState();
+  const [{ arioProcessId, aoNetwork, hyperbeamUrl }] = useGlobalState();
   const [{ loading: loadingArnsState, domains, ants }, dispatchArNSState] =
     useArNSState();
   const { data: antVersion } = useLatestANTVersion();
@@ -100,6 +100,7 @@ function Manage() {
                           walletAddress: walletAddress,
                           arioProcessId,
                           aoNetworkSettings: aoNetwork,
+                          hyperbeamUrl,
                         })
                       : eventEmitter.emit('error', {
                           name: 'Manage Assets',
