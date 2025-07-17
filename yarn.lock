@@ -129,10 +129,10 @@
     winston "^3.13.0"
     zod "^3.23.8"
 
-"@ar.io/wayfinder-core@1.0.3-alpha.1", "@ar.io/wayfinder-core@^1.0.3-alpha.1":
-  version "1.0.3-alpha.1"
-  resolved "https://registry.yarnpkg.com/@ar.io/wayfinder-core/-/wayfinder-core-1.0.3-alpha.1.tgz#67d19c00580dc4aba768c4a9f0dd3a817cd2d69c"
-  integrity sha512-A+Wbgv2942d13u19/TZPFoV7op95TjasGVfFFyh3KJoFteL5CVDJHNyj/TUvjCMgjI9q3YQISSp1aIzlwU2L6g==
+"@ar.io/wayfinder-core@1.0.4", "@ar.io/wayfinder-core@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@ar.io/wayfinder-core/-/wayfinder-core-1.0.4.tgz#ffb2a35d07568feb357f751ea055873ca8c8c828"
+  integrity sha512-VOjZ7jaFBgyI4DDqWhciXn78gHruI2bnXGjfKsbghZjoNO8lfxuksJQv3LdB60k/3LwGWTfUG5GFV9Zqeary/w==
   dependencies:
     "@dha-team/arbundles" "^1.0.3"
     "@opentelemetry/api" "^1.9.0"
@@ -147,12 +147,12 @@
     rfc4648 "^1.5.4"
     zone.js "^0.15.1"
 
-"@ar.io/wayfinder-react@^1.0.4-alpha.1":
-  version "1.0.4-alpha.1"
-  resolved "https://registry.yarnpkg.com/@ar.io/wayfinder-react/-/wayfinder-react-1.0.4-alpha.1.tgz#cb8b9caab5750e2bd85af198d166ea357f0c98f3"
-  integrity sha512-+2tKfKpoXBdVyA5TyeweOs414bc29LunpIKcMGkbGsMTc1YddyVxzxZAndTlqCNPT9+fyeKfEQKWDyh+AxLdtw==
+"@ar.io/wayfinder-react@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@ar.io/wayfinder-react/-/wayfinder-react-1.0.5.tgz#61de576a3bf90df7962dc2a720cceed2d013d7e9"
+  integrity sha512-MK+O2AoYp4aM96TCvNmkTsbVHNk4SEdAZYcxvfExMASC5tVGHv5Z71VkG0UXeY71+AN7Yx2meJ69VJcN3y9aXQ==
   dependencies:
-    "@ar.io/wayfinder-core" "1.0.3-alpha.1"
+    "@ar.io/wayfinder-core" "1.0.4"
     react "^18.2.0"
     react-dom "^18.2.0"
 

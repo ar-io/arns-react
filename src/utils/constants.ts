@@ -1,7 +1,7 @@
 import {
   ANT_LUA_ID,
+  ARIO_TESTNET_PROCESS_ID,
   DEFAULT_SCHEDULER_ID,
-  arioDevnetProcessId,
 } from '@ar.io/sdk/web';
 import { TokenType } from '@ardrive/turbo-sdk';
 import Arweave from 'arweave';
@@ -93,7 +93,7 @@ export const URL_REGEX = new RegExp(
   'i',
 );
 export const ARIO_PROCESS_ID =
-  import.meta.env.VITE_ARIO_PROCESS_ID || arioDevnetProcessId;
+  import.meta.env.VITE_ARIO_PROCESS_ID || ARIO_TESTNET_PROCESS_ID;
 
 export const DEFAULT_ANT_LUA_ID = ANT_LUA_ID;
 
