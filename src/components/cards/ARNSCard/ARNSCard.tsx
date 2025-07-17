@@ -11,8 +11,8 @@ function ARNSCard({
   imageUrl,
 }: Omit<ARNSMapping, 'processId'> & { imageUrl: string }) {
   const [{ gateway }] = useGlobalState();
-  const { arnsName } = useMemo(() => ({ arnsName: domain }), [domain]);
-  const { resolvedUrl, error } = useWayfinderUrl({ arnsName });
+  const arnsName = useMemo(() => ({ arnsName: domain }), [domain]);
+  const { resolvedUrl, error } = useWayfinderUrl(arnsName);
 
   if (error) {
     console.error(error);
