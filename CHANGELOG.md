@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.12.0] - 2025-07-18
+
+### Changed
+
+- Use `@ar.io/wayfinder-react` to resolve ARNS URLs.
+
 ## [1.11.0] - 2025-06-26
 
 ### Changed
