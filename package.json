@@ -1,7 +1,7 @@
 {
   "name": "arns-vite-react",
   "private": true,
-  "version": "1.11.0",
+  "version": "1.12.0",
   "homepage": ".",
   "scripts": {
     "build": "yarn clean && tsc --build tsconfig.json && NODE_OPTIONS=--max-old-space-size=32768 vite build",
@@ -26,8 +26,10 @@
   "dependencies": {
     "@ant-design/icons": "5.4.0",
     "@ar.io/sdk": "3.14.0",
+    "@ar.io/wayfinder-core": "^1.0.4",
+    "@ar.io/wayfinder-react": "^1.0.6",
     "@ardrive/turbo-sdk": "^1.23.1",
-    "@permaweb/aoconnect": "^0.0.59",
+    "@permaweb/aoconnect": "0.0.69",
     "@radix-ui/react-checkbox": "^1.1.4",
     "@radix-ui/react-radio-group": "^1.2.1",
     "@radix-ui/react-select": "^2.1.4",
@@ -163,8 +165,5 @@
     "extends": [
       "plugin:storybook/recommended"
     ]
-  },
-  "resolutions": {
-    "@permaweb/aoconnect": "0.0.59"
   }
 }
