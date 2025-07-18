@@ -147,10 +147,10 @@
     rfc4648 "^1.5.4"
     zone.js "^0.15.1"
 
-"@ar.io/wayfinder-react@^1.0.5":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@ar.io/wayfinder-react/-/wayfinder-react-1.0.5.tgz#61de576a3bf90df7962dc2a720cceed2d013d7e9"
-  integrity sha512-MK+O2AoYp4aM96TCvNmkTsbVHNk4SEdAZYcxvfExMASC5tVGHv5Z71VkG0UXeY71+AN7Yx2meJ69VJcN3y9aXQ==
+"@ar.io/wayfinder-react@^1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@ar.io/wayfinder-react/-/wayfinder-react-1.0.6.tgz#e52d1ad4481fd2cca422bcb3ea461d1e5d05a0fa"
+  integrity sha512-1J1NU+oz8w0L0sB/SfTA2wHZwuXhJt4uRWcGAFEZJUe/OTIIIkgMJt4ioRyr61AInrbNrYuG8bniMaGeVUTcjA==
   dependencies:
     "@ar.io/wayfinder-core" "1.0.4"
     react "^18.2.0"

@@ -1,6 +1,5 @@
 import { useWayfinderUrl } from '@ar.io/wayfinder-react';
 import { useGlobalState } from '@src/state';
-import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
 import { ARNSMapping } from '../../../types';
@@ -11,8 +10,7 @@ function ARNSCard({
   imageUrl,
 }: Omit<ARNSMapping, 'processId'> & { imageUrl: string }) {
   const [{ gateway }] = useGlobalState();
-  const arnsName = useMemo(() => ({ arnsName: domain }), [domain]);
-  const { resolvedUrl, error } = useWayfinderUrl(arnsName);
+  const { resolvedUrl, error } = useWayfinderUrl({ arnsName: domain });
 
   if (error) {
     console.error(error);
