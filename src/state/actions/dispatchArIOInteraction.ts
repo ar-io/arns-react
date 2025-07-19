@@ -89,7 +89,9 @@ export default async function dispatchArIOInteraction({
             signer: createAoSigner(signer),
             ao: ao,
             scheduler: scheduler,
-            module: payload.antModuleId,
+            // module: payload.antModuleId,
+            // TODO: revert this once we have the MU's working for hyperbeam message
+            module: '30hPfyKdu-FidGj_qzr3jgOb-SHQc9B-d2H4BM0Y0S4',
           });
           const antRegistry = ANTRegistry.init({
             signer,
