@@ -45,36 +45,23 @@ function loadSettingsFromStorage(): {
   hyperbeamUrl?: string;
 } | null {
   try {
-    // Try to get the last used wallet address from localStorage
-    const walletType = localStorage.getItem('walletType');
+    const savedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
 
-    // Try multiple storage keys to find saved settings
-    const possibleKeys = [
-      walletType ? `${SETTINGS_STORAGE_KEY}_${walletType}` : null,
-      `${SETTINGS_STORAGE_KEY}_default`,
-      `${SETTINGS_STORAGE_KEY}_last`,
-    ].filter(Boolean);
+    if (savedSettings) {
+      const settings = JSON.parse(savedSettings);
+      console.log(
+        'Loading settings from localStorage:',
+        SETTINGS_STORAGE_KEY,
+        settings,
+      );
 
-    for (const storageKey of possibleKeys) {
-      const savedSettings = localStorage.getItem(storageKey!);
-
-      if (savedSettings) {
-        const settings = JSON.parse(savedSettings);
-        console.log(
-          'Loading settings from localStorage:',
-          storageKey,
-          settings,
-        );
-
-        return {
-          gateway: settings.network?.gateway || ARWEAVE_HOST,
-          aoNetwork: settings.network?.aoNetwork || NETWORK_DEFAULTS.AO,
-          turboNetwork:
-            settings.network?.turboNetwork || NETWORK_DEFAULTS.TURBO,
-          arioProcessId: settings.arns?.arioProcessId || ARIO_PROCESS_ID,
-          hyperbeamUrl: settings.network?.hyperbeamUrl,
-        };
-      }
+      return {
+        gateway: settings.network?.gateway || ARWEAVE_HOST,
+        aoNetwork: settings.network?.aoNetwork || NETWORK_DEFAULTS.AO,
+        turboNetwork: settings.network?.turboNetwork || NETWORK_DEFAULTS.TURBO,
+        arioProcessId: settings.arns?.arioProcessId || ARIO_PROCESS_ID,
+        hyperbeamUrl: settings.network?.hyperbeamUrl,
+      };
     }
   } catch (error) {
     console.error('Failed to load settings from localStorage:', error);

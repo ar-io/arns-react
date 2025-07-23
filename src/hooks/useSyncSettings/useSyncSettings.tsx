@@ -68,16 +68,13 @@ function useSyncSettings() {
       },
     };
 
-    // Save to wallet-specific key
-    const walletKey = `${SETTINGS_STORAGE_KEY}_${walletAddress}`;
-
-    // Also save to a "last" key for persistence across wallet switches
-    const lastKey = `${SETTINGS_STORAGE_KEY}_last`;
-
     try {
-      localStorage.setItem(walletKey, JSON.stringify(settings));
-      localStorage.setItem(lastKey, JSON.stringify(settings));
-      console.log('Settings saved to localStorage:', walletKey, settings);
+      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+      console.log(
+        'Settings saved to localStorage:',
+        SETTINGS_STORAGE_KEY,
+        settings,
+      );
     } catch (error) {
       console.error('Failed to save settings to localStorage:', error);
     }
