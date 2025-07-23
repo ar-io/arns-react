@@ -26,7 +26,14 @@ const Panel = Collapse.Panel;
 
 function NetworkSettings() {
   const [
-    { gateway, aoNetwork, arioProcessId, arioContract, turboNetwork },
+    {
+      gateway,
+      aoNetwork,
+      arioProcessId,
+      arioContract,
+      turboNetwork,
+      hyperbeamUrl,
+    },
     dispatchGlobalState,
   ] = useGlobalState();
   const [{ wallet }] = useWalletState();
@@ -57,6 +64,11 @@ function NetworkSettings() {
   const [validTurboPaymentUrl, setValidTurboPaymentUrl] =
     useState<boolean>(true);
 
+  const [newHyperbeamUrl, setNewHyperbeamUrl] = useState<string>(
+    hyperbeamUrl || '',
+  );
+  const [validHyperbeamUrl, setValidHyperbeamUrl] = useState<boolean>(true);
+
   function reset() {
     // gateway
     setNewGateway(NETWORK_DEFAULTS.ARWEAVE.HOST);
@@ -78,6 +90,13 @@ function NetworkSettings() {
     setNewTurboPaymentUrl(NETWORK_DEFAULTS.TURBO.PAYMENT_URL);
     setValidTurboPaymentUrl(true);
     updateTurboNetwork(NETWORK_DEFAULTS.TURBO);
+    // hyperbeam network
+    setNewHyperbeamUrl(NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || '');
+    setValidHyperbeamUrl(true);
+    dispatchGlobalState({
+      type: 'setHyperbeamUrl',
+      payload: NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || undefined,
+    });
   }
 
   useEffect(() => {
@@ -93,6 +112,11 @@ function NetworkSettings() {
     setNewSuAddress(aoNetwork.ARIO.SCHEDULER);
     setValidSuAddress(true);
   }, [aoNetwork.ARIO]);
+
+  useEffect(() => {
+    setNewHyperbeamUrl(hyperbeamUrl || '');
+    setValidHyperbeamUrl(true);
+  }, [hyperbeamUrl]);
 
   async function updateGateway(gate: string) {
     try {
@@ -567,6 +591,67 @@ function NetworkSettings() {
                   </div>
                 }
               />
+              <span className="flex w-fit  whitespace-nowrap items-center bg-primary-thin rounded-t-md px-4 py-1 border-x-2 border-t-2 border-primary text-md text-primary font-semibold mt-2 gap-4 justify-center">
+                Hyperbeam URL:{' '}
+                <span className="text-white pl-2 flex">
+                  {hyperbeamUrl || ''}
+                </span>
+                {!hyperbeamUrl && (
+                  <span className="text-red-500 font-bold">DISABLED</span>
+                )}
+              </span>
+
+              <Input
+                className="bg-background justify-center items-center"
+                placeholder="https://hyperbeam.ario.permaweb.services"
+                value={newHyperbeamUrl}
+                onChange={(e) => {
+                  setValidHyperbeamUrl(isValidURL(e.target.value.trim()));
+                  setNewHyperbeamUrl(e.target.value.trim());
+                }}
+                onClear={() => setNewHyperbeamUrl('')}
+                onPressEnter={(e) =>
+                  dispatchGlobalState({
+                    type: 'setHyperbeamUrl',
+                    payload: e.currentTarget.value.trim(),
+                  })
+                }
+                variant="outlined"
+                status={validHyperbeamUrl ? '' : 'error'}
+                addonAfter={
+                  <div className="flex flex-row" style={{ gap: '5px' }}>
+                    <button
+                      disabled={!validHyperbeamUrl}
+                      className="bg-primary text-black h-full flex w-fit p-1 rounded-sm text-xs"
+                      onClick={() =>
+                        dispatchGlobalState({
+                          type: 'setHyperbeamUrl',
+                          payload: newHyperbeamUrl.trim(),
+                        })
+                      }
+                    >
+                      Set Hyperbeam URL
+                    </button>
+                    <button
+                      className="bg-primary-thin text-white h-full flex w-fit p-1 rounded-sm text-xs"
+                      onClick={() => {
+                        setNewHyperbeamUrl(
+                          NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || '',
+                        );
+                        setValidHyperbeamUrl(true);
+                        dispatchGlobalState({
+                          type: 'setHyperbeamUrl',
+                          payload:
+                            NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || undefined,
+                        });
+                      }}
+                    >
+                      reset
+                    </button>
+                  </div>
+                }
+              />
+
               <div className="flex flex-row p-2 justify-end items-center">
                 <button
                   className="p-2 text-white border-2 border-black hover:bg-primary hover:text-black bg-primary-thin rounded-md font-bold"

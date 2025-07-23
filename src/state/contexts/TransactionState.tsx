@@ -58,7 +58,7 @@ export function TransactionStateProvider({
   );
 
   const queryClient = useQueryClient();
-  const [{ aoNetwork }] = useGlobalState();
+  const [{ aoNetwork, hyperbeamUrl }] = useGlobalState();
   const [walletState] = useWalletState();
   const [, dispatchArNSState] = useArNSState();
 
@@ -93,6 +93,7 @@ export function TransactionStateProvider({
         walletAddress: walletState.walletAddress,
         dispatch: dispatchArNSState,
         aoNetwork,
+        hyperbeamUrl,
       });
     }
   }, [state.interactionResult, queryClient, walletState]);

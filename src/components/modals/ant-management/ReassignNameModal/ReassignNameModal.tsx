@@ -168,6 +168,7 @@ export function ReassignNameModal({
         arioProcessId,
         dispatch: dispatchArNSState,
         aoNetworkSettings: aoNetwork,
+        hyperbeamUrl,
       });
       handleClose();
     } catch (error) {
