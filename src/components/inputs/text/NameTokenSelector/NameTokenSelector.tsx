@@ -108,13 +108,6 @@ function NameTokenSelector({
       }
 
       const fetchedprocessIds: Array<ArweaveTransactionID> = [];
-      // const fetchedprocessIds = await arweaveDataProvider
-      //   .getContractsForWallet({
-      //     address,
-      //   })
-      //   .catch(() => {
-      //     throw new Error('Unable to get contracts for wallet');
-      //   });
 
       const validImports = imports.length
         ? await Promise.all(
