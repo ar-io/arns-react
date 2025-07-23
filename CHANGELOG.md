@@ -8,6 +8,13 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.13.0] - 2025-07-23
+
+### Changed
+
+- Persist settings in local storage.
+- Add HyperBEAM URL option to settings.
+
 ## [1.12.0] - 2025-07-18
 
 ### Changed
