@@ -603,7 +603,7 @@ function NetworkSettings() {
 
               <Input
                 className="bg-background justify-center items-center"
-                placeholder="Enter custom Hyperbeam URL"
+                placeholder="https://hyperbeam.ario.permaweb.services"
                 value={newHyperbeamUrl}
                 onChange={(e) => {
                   setValidHyperbeamUrl(isValidURL(e.target.value.trim()));

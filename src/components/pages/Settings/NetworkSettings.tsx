@@ -437,7 +437,7 @@ function NetworkSettings() {
             <Input
               className={inputClass}
               prefixCls="settings-input"
-              placeholder="Enter custom Hyperbeam URL"
+              placeholder="https://hyperbeam.ario.permaweb.services"
               value={newHyperbeamUrl}
               onChange={(e) => {
                 setValidHyperbeamUrl(isValidURL(e.target.value.trim()));
