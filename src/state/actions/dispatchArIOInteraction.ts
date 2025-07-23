@@ -50,7 +50,6 @@ export default async function dispatchArIOInteraction({
   signer?: ContractSigner;
   ao?: AoClient;
   antAo?: AoClient;
-
   hyperbeamUrl?: string;
   scheduler?: string;
   fundFrom?: FundFrom | 'fiat';
@@ -98,6 +97,7 @@ export default async function dispatchArIOInteraction({
           });
           const antRegistry = ANTRegistry.init({
             signer,
+            hyperbeamUrl,
             process: new AOProcess({
               processId: ANT_REGISTRY_ID,
               ao,
