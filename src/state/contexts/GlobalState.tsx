@@ -127,8 +127,14 @@ const initialState: GlobalState = {
   gateway: initialGateway,
   aoNetwork: initialAoNetwork,
   turboNetwork: initialTurboNetwork,
-  aoClient: connect(initialAoNetwork.ARIO),
-  antAoClient: connect(initialAoNetwork.ANT),
+  aoClient: connect({
+    ...initialAoNetwork.ARIO,
+    GATEWAY_URL: 'https://' + initialGateway,
+  }),
+  antAoClient: connect({
+    ...initialAoNetwork.ANT,
+    GATEWAY_URL: 'https://' + initialGateway,
+  }),
   hyperbeamUrl: initialHyperbeamUrl,
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,

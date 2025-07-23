@@ -11,7 +11,6 @@ import {
   dispatchArIOContract,
   dispatchNewGateway,
   useGlobalState,
-  useWalletState,
 } from '@src/state';
 import { isArweaveTransactionID, isValidGateway, isValidURL } from '@src/utils';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
@@ -25,26 +24,33 @@ import './styles.css';
 
 function NetworkSettings() {
   const [
-    { gateway, aoNetwork, arioProcessId, arioContract, turboNetwork },
+    {
+      gateway,
+      aoNetwork,
+      arioProcessId,
+      arioContract,
+      turboNetwork,
+      hyperbeamUrl,
+    },
     dispatchGlobalState,
   ] = useGlobalState();
-  const [{ wallet }] = useWalletState();
   const [newGateway, setNewGateway] = useState<string>(gateway);
   const [validGateway, setValidGateway] = useState<boolean>(true);
-  const [newCuUrl, setNewCuUrl] = useState<string>(
-    NETWORK_DEFAULTS.AO.ARIO.CU_URL,
-  );
+  const [newCuUrl, setNewCuUrl] = useState<string>(aoNetwork.ARIO.CU_URL);
   const [validCuUrl, setValidCuUrl] = useState<boolean>(true);
-  const [newMuUrl, setNewMuUrl] = useState<string>(
-    NETWORK_DEFAULTS.AO.ARIO.MU_URL,
-  );
+  const [newMuUrl, setNewMuUrl] = useState<string>(aoNetwork.ARIO.MU_URL);
   const [validMuUrl, setValidMuUrl] = useState<boolean>(true);
   const [newSuAddress, setNewSuAddress] = useState<string>(
-    NETWORK_DEFAULTS.AO.ARIO.SCHEDULER,
+    aoNetwork.ARIO.SCHEDULER,
   );
   const [suUrl, setSuUrl] = useState<string>();
   const [validSuAddress, setValidSuAddress] = useState<boolean>(true);
   const [showGatewayModal, setShowGatewayModal] = useState<boolean>(false);
+
+  const [newHyperbeamUrl, setNewHyperbeamUrl] = useState<string>(
+    hyperbeamUrl || '',
+  );
+  const [validHyperbeamUrl, setValidHyperbeamUrl] = useState<boolean>(true);
 
   function reset() {
     // gateway
@@ -63,6 +69,13 @@ function NetworkSettings() {
       MU_URL: NETWORK_DEFAULTS.AO.ARIO.MU_URL,
       SCHEDULER: NETWORK_DEFAULTS.AO.ARIO.SCHEDULER,
     });
+    // hyperbeam network
+    setNewHyperbeamUrl(NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || '');
+    setValidHyperbeamUrl(true);
+    dispatchGlobalState({
+      type: 'setHyperbeamUrl',
+      payload: NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || undefined,
+    });
   }
 
   useEffect(() => {
@@ -78,6 +91,11 @@ function NetworkSettings() {
     setNewSuAddress(aoNetwork.ARIO.SCHEDULER);
     setValidSuAddress(true);
   }, [aoNetwork]);
+
+  useEffect(() => {
+    setNewHyperbeamUrl(hyperbeamUrl || '');
+    setValidHyperbeamUrl(true);
+  }, [hyperbeamUrl]);
 
   useEffect(() => {
     async function updateSUUrl(suAddress: string) {
@@ -106,7 +124,8 @@ function NetworkSettings() {
         console.error(error);
         throw new Error('Gateway not available: ' + gate);
       });
-      if (wallet) dispatchNewGateway(gate, arioContract, dispatchGlobalState);
+      // Always try to update gateway
+      dispatchNewGateway(gate, arioContract, dispatchGlobalState);
     } catch (error) {
       eventEmitter.emit('error', error);
       eventEmitter.emit('error', {
@@ -126,8 +145,7 @@ function NetworkSettings() {
     try {
       const newConfig = {
         ...aoNetwork,
-        ...config,
-        GATEWAY_URL: gateway,
+        ...{ ARIO: { ...aoNetwork.ARIO, ...config, GATEWAY_URL: gateway } },
       };
       dispatchGlobalState({
         type: 'setAONetwork',
@@ -136,8 +154,8 @@ function NetworkSettings() {
 
       const ao = connect({
         GATEWAY_URL: 'https://' + gateway,
-        CU_URL: newConfig.CU_URL,
-        MU_URL: newConfig.MU_URL,
+        CU_URL: newConfig.ARIO.CU_URL,
+        MU_URL: newConfig.ARIO.MU_URL,
         MODE: 'legacy' as const,
       });
       dispatchGlobalState({
@@ -398,6 +416,67 @@ function NetworkSettings() {
                       setValidSuAddress(true);
                       updateAoNetwork({
                         SCHEDULER: NETWORK_DEFAULTS.AO.ARIO.SCHEDULER,
+                      });
+                    }}
+                  >
+                    <RotateCcw width={'16px'} />
+                  </button>
+                </div>
+              }
+            />
+          </div>
+
+          <div className={inputContainerClass}>
+            <span className={labelClass}>
+              Current Hyperbeam URL:{' '}
+              <span className="text-grey pl-2">{hyperbeamUrl || ''}</span>
+              {!hyperbeamUrl && (
+                <span className="text-red-500 font-bold pl-2">DISABLED</span>
+              )}
+            </span>
+            <Input
+              className={inputClass}
+              prefixCls="settings-input"
+              placeholder="Enter custom Hyperbeam URL"
+              value={newHyperbeamUrl}
+              onChange={(e) => {
+                setValidHyperbeamUrl(isValidURL(e.target.value.trim()));
+                setNewHyperbeamUrl(e.target.value);
+              }}
+              onClear={() => setNewHyperbeamUrl('')}
+              onPressEnter={(e) =>
+                dispatchGlobalState({
+                  type: 'setHyperbeamUrl',
+                  payload: e.currentTarget.value.trim(),
+                })
+              }
+              variant="outlined"
+              status={validHyperbeamUrl ? '' : 'error'}
+              addonAfter={
+                <div className="flex flex-row" style={{ gap: '4px' }}>
+                  <button
+                    disabled={!validHyperbeamUrl}
+                    className={setButtonClass}
+                    onClick={() =>
+                      dispatchGlobalState({
+                        type: 'setHyperbeamUrl',
+                        payload: newHyperbeamUrl.trim(),
+                      })
+                    }
+                  >
+                    Set
+                  </button>
+                  <button
+                    className={resetIconClass}
+                    onClick={() => {
+                      setNewHyperbeamUrl(
+                        NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || '',
+                      );
+                      setValidHyperbeamUrl(true);
+                      dispatchGlobalState({
+                        type: 'setHyperbeamUrl',
+                        payload:
+                          NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || undefined,
                       });
                     }}
                   >
