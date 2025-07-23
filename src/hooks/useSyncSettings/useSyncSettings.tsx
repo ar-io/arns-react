@@ -53,10 +53,6 @@ function useSyncSettings() {
 
     // Skip saving on initial load when hyperbeamUrl is undefined
     // This prevents overwriting saved settings with undefined on first load
-    if (isInitialLoad.current && hyperbeamUrl === undefined) {
-      isInitialLoad.current = false;
-      return;
-    }
 
     isInitialLoad.current = false;
 
