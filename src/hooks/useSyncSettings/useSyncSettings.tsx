@@ -1,7 +1,7 @@
 import { useGlobalState, useWalletState } from '@src/state';
 import { useEffect, useRef } from 'react';
 
-const SETTINGS_STORAGE_KEY = 'arns-app-settings';
+export const SETTINGS_STORAGE_KEY = 'arns-app-settings';
 
 interface NetworkSettings {
   gateway: string;

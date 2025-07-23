@@ -14,6 +14,7 @@ import {
   WayfinderProvider,
 } from '@ar.io/wayfinder-react';
 import { connect } from '@permaweb/aoconnect';
+import { SETTINGS_STORAGE_KEY } from '@src/hooks';
 import eventEmitter from '@src/utils/events';
 import React, {
   Dispatch,
@@ -34,8 +35,6 @@ import {
   NETWORK_DEFAULTS,
 } from '../../utils/constants';
 import type { GlobalAction } from '../reducers/GlobalReducer';
-
-const SETTINGS_STORAGE_KEY = 'arNS_settings';
 
 // Function to load settings from localStorage
 function loadSettingsFromStorage(): {
