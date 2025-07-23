@@ -56,6 +56,7 @@ export async function dispatchArNSUpdate({
       process: new AOProcess({ processId: arioProcessId, ao }),
     }) as AoARIORead;
     const antRegistry = ANTRegistry.init({
+      hyperbeamUrl,
       process: new AOProcess({
         processId: ANT_REGISTRY_ID,
         ao: connect(aoNetworkSettings.ANT),
