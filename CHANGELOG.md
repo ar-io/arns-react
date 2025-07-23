@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.14.0] - 2025-07-23
+
+### Changed
+
+- Configure ANTRegistry with HyperBEAM URL
+
 ## [1.13.0] - 2025-07-23
 
 ### Changed
