@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.14.1] - 2025-07-24
+
+### Changed
+
+- Rolled back patch for ANT module ID to placate MU issue.
+
 ## [1.14.0] - 2025-07-23
 
 ### Changed
