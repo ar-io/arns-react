@@ -8,9 +8,6 @@ import eventEmitter from '@src/utils/events';
 import { useState } from 'react';
 
 import ValidationInput from '../inputs/text/ValidationInput/ValidationInput';
-import './styles.css';
-
-// Use styles from NetworkSettings and update the entire rendered component
 
 const inputClass =
   'bg-foreground justify-center items-center outline-none w-full';
