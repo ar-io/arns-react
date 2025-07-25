@@ -3,7 +3,6 @@ import React, { Suspense, useEffect, useState } from 'react';
 import ANTTools from './ANTTools';
 import TransferIO from './TransferIO';
 import UserAddress from './UserAddress';
-import './styles.css';
 
 const ReactQueryDevtoolsProduction = React.lazy(() =>
   import('@tanstack/react-query-devtools/build/modern/production.js').then(
