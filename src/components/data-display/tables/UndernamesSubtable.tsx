@@ -56,7 +56,7 @@ const UndernamesSubtable = ({
   antId: string;
   state?: AoANTState | null;
 }) => {
-  const [{ arioProcessId, antAoClient }] = useGlobalState();
+  const [{ arioProcessId, antAoClient, hyperbeamUrl }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const isOwner = walletAddress
     ? state?.Owner === walletAddress.toString()
@@ -295,6 +295,7 @@ const UndernamesSubtable = ({
               dispatchTransactionState,
               dispatchArNSState,
               ao: antAoClient,
+              hyperbeamUrl,
             }).then(() => {
               eventEmitter.emit('success', {
                 message: (

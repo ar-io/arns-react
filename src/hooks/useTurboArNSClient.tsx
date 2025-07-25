@@ -15,7 +15,11 @@ export function useTurboArNSClient() {
       walletAddress: walletAddress?.toString(),
       paymentUrl: turboNetwork.PAYMENT_URL,
       stripe,
-      ao: connect(aoNetwork.ARIO),
+      ao: connect({
+        CU_URL: aoNetwork.ARIO.CU_URL,
+        MU_URL: aoNetwork.ARIO.MU_URL,
+        MODE: 'legacy',
+      }),
     });
   }, [walletAddress, wallet, turboNetwork, stripe]);
 }

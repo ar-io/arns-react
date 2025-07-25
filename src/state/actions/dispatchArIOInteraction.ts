@@ -21,7 +21,7 @@ import {
   ContractInteraction,
 } from '@src/types';
 import { createAntStateForOwner, lowerCaseDomain, sleep } from '@src/utils';
-import { WRITE_OPTIONS } from '@src/utils/constants';
+import { APP_NAME, WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
 import { Dispatch } from 'react';
@@ -36,6 +36,7 @@ export default async function dispatchArIOInteraction({
   signer,
   ao,
   antAo,
+  hyperbeamUrl,
   scheduler = DEFAULT_SCHEDULER_ID,
   fundFrom,
   turboArNSClient,
@@ -49,6 +50,7 @@ export default async function dispatchArIOInteraction({
   signer?: ContractSigner;
   ao?: AoClient;
   antAo?: AoClient;
+  hyperbeamUrl?: string;
   scheduler?: string;
   fundFrom?: FundFrom | 'fiat';
   turboArNSClient?: TurboArNSClient;
@@ -93,6 +95,7 @@ export default async function dispatchArIOInteraction({
           });
           const antRegistry = ANTRegistry.init({
             signer,
+            hyperbeamUrl,
             process: new AOProcess({
               processId: ANT_REGISTRY_ID,
               ao,
@@ -139,6 +142,7 @@ export default async function dispatchArIOInteraction({
             years,
             processId: antProcessId,
             fundFrom,
+            referrer: APP_NAME,
           });
 
           payload.processId = antProcessId;
@@ -166,6 +170,7 @@ export default async function dispatchArIOInteraction({
               name: lowerCaseDomain(payload.name),
               years: payload.years,
               fundFrom: originalFundFrom,
+              referrer: APP_NAME,
             },
             WRITE_OPTIONS,
           );
@@ -190,6 +195,7 @@ export default async function dispatchArIOInteraction({
               name: lowerCaseDomain(payload.name),
               increaseCount: payload.qty,
               fundFrom: originalFundFrom,
+              referrer: APP_NAME,
             },
             WRITE_OPTIONS,
           );
@@ -214,10 +220,14 @@ export default async function dispatchArIOInteraction({
           existingPrimaryNameRequest.name !== payload.name
         ) {
           await arioContract
-            .requestPrimaryName({
-              name: payload.name,
-              fundFrom: originalFundFrom,
-            })
+            .requestPrimaryName(
+              {
+                name: payload.name,
+                fundFrom: originalFundFrom,
+                referrer: APP_NAME,
+              },
+              WRITE_OPTIONS,
+            )
             .catch((e) => {
               throw new Error('Unable to request Primary name: ' + e.message);
             });
@@ -226,7 +236,9 @@ export default async function dispatchArIOInteraction({
         await sleep(2000);
 
         const antProcess = ANT.init({
+          hyperbeamUrl: hyperbeamUrl,
           signer,
+          // we're not using hyperbeam here as we're writing to the contract
           process: new AOProcess({
             ao: antAo,
             processId: payload.antProcessId,
@@ -263,10 +275,14 @@ export default async function dispatchArIOInteraction({
             email: payload.email,
           });
         } else {
-          result = await arioContract.upgradeRecord({
-            name: payload.name,
-            fundFrom: originalFundFrom,
-          });
+          result = await arioContract.upgradeRecord(
+            {
+              name: payload.name,
+              fundFrom: originalFundFrom,
+              referrer: APP_NAME,
+            },
+            WRITE_OPTIONS,
+          );
         }
         break;
       }

@@ -33,7 +33,7 @@ function NameTokenSelector({
 }: {
   selectedTokenCallback: (id: ArweaveTransactionID | undefined) => void;
 }) {
-  const [{ antAoClient, arioContract, arioProcessId }] = useGlobalState();
+  const [{ arweaveDataProvider, antAoClient, hyperbeamUrl }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
 
   const [searchText, setSearchText] = useState<string>();
@@ -116,6 +116,7 @@ function NameTokenSelector({
             imports.map(async (id: ArweaveTransactionID) => {
               try {
                 const contract = ANT.init({
+                  hyperbeamUrl,
                   process: new AOProcess({
                     processId: id.toString(),
                     ao: antAoClient,
@@ -164,6 +165,7 @@ function NameTokenSelector({
       }[] = await Promise.all(
         processIds.map(async (processId) => {
           const contract = ANT.init({
+            hyperbeamUrl,
             process: new AOProcess({
               processId: processId.toString(),
               ao: antAoClient,

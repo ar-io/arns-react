@@ -8,11 +8,44 @@ and this project adheres to
 
 ## [Unreleased]
 
-## [1.11.0] - 2025-06-20
+## [1.14.2] - 2025-07-25
+
+### Fixed
+
+- Added Referrer along with App-Name and App-Version tags to ArNS and ANT
+  writes.
+
+## [1.14.1] - 2025-07-24
 
 ### Changed
 
-- Implements SDK calls for using HyperBEAM ANT state cache.
+- Rolled back patch for ANT module ID to placate MU issue.
+
+## [1.14.0] - 2025-07-23
+
+### Changed
+
+- Configure ANTRegistry with HyperBEAM URL
+
+## [1.13.0] - 2025-07-23
+
+### Changed
+
+- Persist settings in local storage.
+- Add HyperBEAM URL option to settings.
+
+## [1.12.0] - 2025-07-18
+
+### Changed
+
+- Use `@ar.io/wayfinder-react` to resolve ARNS URLs.
+
+## [1.11.0] - 2025-06-26
+
+### Changed
+
+- Upgrades ar-io-sdk and adds optional support for fetching ANT state from
+  provided HyperBEAM url.
 
 ## [1.10.2] - 2025-06-18
 

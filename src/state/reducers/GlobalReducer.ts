@@ -41,6 +41,10 @@ export type GlobalAction =
   | {
       type: 'setIoTicker';
       payload: string;
+    }
+  | {
+      type: 'setHyperbeamUrl';
+      payload: string | undefined;
     };
 
 export const reducer = (
@@ -99,6 +103,11 @@ export const reducer = (
       return {
         ...state,
         arioProcessId: action.payload,
+      };
+    case 'setHyperbeamUrl':
+      return {
+        ...state,
+        hyperbeamUrl: action.payload,
       };
     default:
       return state;

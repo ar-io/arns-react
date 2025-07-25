@@ -58,6 +58,7 @@ export function buildDomainInfoQuery({
   arioProcessId,
   aoNetwork,
   wallet,
+  hyperbeamUrl,
 }: {
   domain?: string;
   antId?: string;
@@ -65,10 +66,18 @@ export function buildDomainInfoQuery({
   arioProcessId?: string;
   aoNetwork: typeof NETWORK_DEFAULTS.AO;
   wallet?: ArNSWalletConnector;
+  hyperbeamUrl?: string;
 }): Parameters<typeof useQuery<DomainInfo>>[0] {
   return {
     // we are verbose here to enable predictable keys. Passing in the entire params as a single object can have unpredictable side effects
-    queryKey: ['domainInfo', domain, antId, arioProcessId, aoNetwork],
+    queryKey: [
+      'domainInfo',
+      domain,
+      antId,
+      arioProcessId,
+      aoNetwork,
+      hyperbeamUrl,
+    ],
     queryFn: async () => {
       const errors: Error[] = [];
       const antAo = connect(aoNetwork.ANT);
@@ -100,6 +109,7 @@ export function buildDomainInfoQuery({
       }
 
       const antProcess = ANT.init({
+        hyperbeamUrl,
         process: new AOProcess({
           processId,
           ao: antAo,
@@ -108,7 +118,7 @@ export function buildDomainInfoQuery({
       });
 
       const state = await queryClient
-        .fetchQuery(buildAntStateQuery({ processId, ao: antAo }))
+        .fetchQuery(buildAntStateQuery({ processId, ao: antAo, hyperbeamUrl }))
         .catch((e) => {
           captureException(e);
           errors.push(
@@ -196,7 +206,8 @@ export default function useDomainInfo({
   domain?: string;
   antId?: string;
 }) {
-  const [{ arioContract, arioProcessId, aoNetwork }] = useGlobalState();
+  const [{ arioContract, arioProcessId, aoNetwork, hyperbeamUrl }] =
+    useGlobalState();
   const [{ wallet }] = useWalletState();
 
   // TODO: this should be modified or removed
@@ -207,6 +218,7 @@ export default function useDomainInfo({
       aoNetwork,
       arioContract,
       arioProcessId,
+      hyperbeamUrl,
       wallet,
     }),
   );

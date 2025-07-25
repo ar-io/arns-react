@@ -48,7 +48,7 @@ export class LocalStorageCache implements KVCache {
     key: string,
     filter?: { key: string; value: string },
   ): Promise<void> {
-    const currentCache = this.get(key);
+    const currentCache = await this.get(key);
     if (isArray(currentCache)) {
       if (!filter) {
         // no filter set so clear

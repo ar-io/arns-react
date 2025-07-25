@@ -1,7 +1,7 @@
 import {
   ANT_LUA_ID,
+  ARIO_TESTNET_PROCESS_ID,
   DEFAULT_SCHEDULER_ID,
-  arioDevnetProcessId,
 } from '@ar.io/sdk/web';
 import { TokenType } from '@ardrive/turbo-sdk';
 import Arweave from 'arweave';
@@ -42,7 +42,7 @@ export const ARWEAVE_APP_API = new ArweaveWebWallet(
 export const ARWEAVE_HOST = import.meta.env.VITE_ARWEAVE_HOST ?? 'arweave.net';
 export const ARWEAVE_GRAPHQL_URL =
   import.meta.env.VITE_ARWEAVE_GRAPHQL_URL ?? 'https://arweave.net/graphql';
-
+export const HYPERBEAM_URL = import.meta.env.VITE_HYPERBEAM_URL;
 export const DEFAULT_ARWEAVE = new Arweave({
   host: ARWEAVE_HOST,
   protocol: 'https',
@@ -93,7 +93,7 @@ export const URL_REGEX = new RegExp(
   'i',
 );
 export const ARIO_PROCESS_ID =
-  import.meta.env.VITE_ARIO_PROCESS_ID || arioDevnetProcessId;
+  import.meta.env.VITE_ARIO_PROCESS_ID || ARIO_TESTNET_PROCESS_ID;
 
 export const DEFAULT_ANT_LUA_ID = ANT_LUA_ID;
 
@@ -130,13 +130,16 @@ export const NETWORK_DEFAULTS = {
       CU_URL: ARIO_AO_CU_URL, // ao public cu: https://cu.ao-testnet.xyz
       MU_URL: 'https://mu.ao-testnet.xyz',
       SCHEDULER: DEFAULT_SCHEDULER_ID,
+      HYPERBEAM_URL: HYPERBEAM_URL,
+      MODE: 'legacy' as const,
     },
-
     ANT: {
       CU_URL: ANT_AO_CU_URL,
       MU_URL: 'https://mu.ao-testnet.xyz',
       SCHEDULER: DEFAULT_SCHEDULER_ID,
       GRAPHQL_URL: ARWEAVE_GRAPHQL_URL,
+      HYPERBEAM_URL: HYPERBEAM_URL,
+      MODE: 'legacy' as const,
     },
   },
   ARWEAVE: {
@@ -168,17 +171,14 @@ export const YEAR_IN_MILLISECONDS = 31536000000;
 export const AVERAGE_BLOCK_TIME_MS = 120_000; // 2 mins
 
 export const FEATURED_DOMAINS: { [x: string]: { imageUrl: string } } = {
+  // TODO: pull from the ARIO contract
   arlink: { imageUrl: ARLINK_IMAGE },
-
   metalinks: { imageUrl: METALINKS_IMAGE },
   ardrive: { imageUrl: ARDRIVE_IMAGE },
   arwiki: { imageUrl: ARWIKI_IMAGE },
   permaswap: { imageUrl: PERMASWAP_IMAGE },
   'ar-fees': { imageUrl: AR_FEES_IMAGE },
-  // alex: { imageUrl: ALEX_IMAGE },
-  // cookbook: { imageUrl: COOKBOOK_IMAGE },
   ao: { imageUrl: AO_IMAGE },
-
   sam: { imageUrl: SAM_IMAGE },
   mfers: { imageUrl: MFERS_IMAGE },
 };

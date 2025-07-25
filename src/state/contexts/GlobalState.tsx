@@ -5,7 +5,16 @@ import {
   AoARIOWrite,
   AoClient,
 } from '@ar.io/sdk/web';
+import {
+  NetworkGatewaysProvider,
+  RandomRoutingStrategy,
+} from '@ar.io/wayfinder-core';
+import {
+  LocalStorageGatewaysProvider,
+  WayfinderProvider,
+} from '@ar.io/wayfinder-react';
 import { connect } from '@permaweb/aoconnect';
+import { SETTINGS_STORAGE_KEY } from '@src/hooks';
 import eventEmitter from '@src/utils/events';
 import React, {
   Dispatch,
@@ -16,6 +25,7 @@ import React, {
 } from 'react';
 
 import {
+  APP_VERSION,
   ARIO_AO_CU_URL,
   ARIO_PROCESS_ID,
   ARWEAVE_HOST,
@@ -23,12 +33,58 @@ import {
 } from '../../utils/constants';
 import type { GlobalAction } from '../reducers/GlobalReducer';
 
+// Function to load settings from localStorage
+function loadSettingsFromStorage(): {
+  gateway: string;
+  aoNetwork: typeof NETWORK_DEFAULTS.AO;
+  turboNetwork: typeof NETWORK_DEFAULTS.TURBO;
+  arioProcessId: string;
+  hyperbeamUrl?: string;
+} | null {
+  try {
+    const savedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
+
+    if (savedSettings) {
+      const settings = JSON.parse(savedSettings);
+      console.log(
+        'Loading settings from localStorage:',
+        SETTINGS_STORAGE_KEY,
+        settings,
+      );
+
+      return {
+        gateway: settings.network?.gateway || ARWEAVE_HOST,
+        aoNetwork: settings.network?.aoNetwork || NETWORK_DEFAULTS.AO,
+        turboNetwork: settings.network?.turboNetwork || NETWORK_DEFAULTS.TURBO,
+        arioProcessId: settings.arns?.arioProcessId || ARIO_PROCESS_ID,
+        hyperbeamUrl: settings.network?.hyperbeamUrl,
+      };
+    }
+  } catch (error) {
+    console.error('Failed to load settings from localStorage:', error);
+  }
+
+  return null;
+}
+
+export const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);
+
+// Load saved settings or use defaults
+const savedSettings = loadSettingsFromStorage();
+const initialGateway = savedSettings?.gateway || ARWEAVE_HOST;
+const initialAoNetwork = savedSettings?.aoNetwork || NETWORK_DEFAULTS.AO;
+const initialTurboNetwork =
+  savedSettings?.turboNetwork || NETWORK_DEFAULTS.TURBO;
+const initialArioProcessId = savedSettings?.arioProcessId || ARIO_PROCESS_ID;
+const initialHyperbeamUrl = savedSettings?.hyperbeamUrl;
+
 export const defaultArIO = ARIO.init({
-  paymentUrl: NETWORK_DEFAULTS.TURBO.PAYMENT_URL,
+  paymentUrl: initialTurboNetwork.PAYMENT_URL,
   process: new AOProcess({
-    processId: ARIO_PROCESS_ID,
+    processId: initialArioProcessId,
     ao: connect({
       CU_URL: ARIO_AO_CU_URL,
+      MODE: 'legacy',
     }),
   }),
 });
@@ -44,16 +100,24 @@ export type GlobalState = {
   blockHeight?: number;
   lastBlockUpdateTimestamp?: number;
   arioContract: AoARIORead | AoARIOWrite;
+  hyperbeamUrl?: string;
 };
 
 const initialState: GlobalState = {
-  arioProcessId: ARIO_PROCESS_ID,
+  arioProcessId: initialArioProcessId,
   arioTicker: 'ARIO',
-  gateway: ARWEAVE_HOST,
-  aoNetwork: NETWORK_DEFAULTS.AO,
-  turboNetwork: NETWORK_DEFAULTS.TURBO,
-  aoClient: connect(NETWORK_DEFAULTS.AO.ARIO),
-  antAoClient: connect(NETWORK_DEFAULTS.AO.ANT),
+  gateway: initialGateway,
+  aoNetwork: initialAoNetwork,
+  turboNetwork: initialTurboNetwork,
+  aoClient: connect({
+    ...initialAoNetwork.ARIO,
+    GATEWAY_URL: 'https://' + initialGateway,
+  }),
+  antAoClient: connect({
+    ...initialAoNetwork.ANT,
+    GATEWAY_URL: 'https://' + initialGateway,
+  }),
+  hyperbeamUrl: initialHyperbeamUrl,
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,
   arioContract: defaultArIO,
@@ -98,7 +162,26 @@ export function GlobalStateProvider({
 
   return (
     <GlobalStateContext.Provider value={[state, dispatchGlobalState]}>
-      {children}
+      {/* Wrap global state in wayfinder provider */}
+      <WayfinderProvider
+        gatewaysProvider={
+          new LocalStorageGatewaysProvider({
+            gatewaysProvider: new NetworkGatewaysProvider({
+              ario: state.arioContract,
+            }),
+          })
+        }
+        routingSettings={{
+          strategy: new RandomRoutingStrategy(),
+        }}
+        telemetrySettings={{
+          enabled: true,
+          clientName: 'arns-app',
+          clientVersion: APP_VERSION,
+        }}
+      >
+        {children}
+      </WayfinderProvider>
     </GlobalStateContext.Provider>
   );
 }

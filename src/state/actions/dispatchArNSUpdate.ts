@@ -27,11 +27,13 @@ export async function dispatchArNSUpdate({
   walletAddress,
   arioProcessId,
   aoNetworkSettings,
+  hyperbeamUrl,
 }: {
   dispatch: Dispatch<ArNSAction>;
   walletAddress: AoAddress;
   arioProcessId: string;
   aoNetworkSettings: typeof NETWORK_DEFAULTS.AO;
+  hyperbeamUrl?: string;
 }) {
   try {
     const ao = connect(aoNetworkSettings.ARIO);
@@ -54,6 +56,7 @@ export async function dispatchArNSUpdate({
       process: new AOProcess({ processId: arioProcessId, ao }),
     }) as AoARIORead;
     const antRegistry = ANTRegistry.init({
+      hyperbeamUrl,
       process: new AOProcess({
         processId: ANT_REGISTRY_ID,
         ao: connect(aoNetworkSettings.ANT),
@@ -137,6 +140,7 @@ export async function dispatchArNSUpdate({
           buildDomainInfoQuery({
             antId: id,
             aoNetwork: aoNetworkSettings,
+            hyperbeamUrl,
           }),
         );
         // if the user is not associated with the ant, do not load it

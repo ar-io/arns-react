@@ -1,20 +1,27 @@
-import { NETWORK_DEFAULTS } from '@src/utils/constants';
+import { useWayfinderUrl } from '@ar.io/wayfinder-react';
+import { useGlobalState } from '@src/state';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
 import { ARNSMapping } from '../../../types';
 import './styles.css';
 
-const protocol = 'https';
-
 function ARNSCard({
   domain,
-  gateway = NETWORK_DEFAULTS.ARNS.HOST,
   imageUrl,
-}: Omit<ARNSMapping, 'processId'> & { gateway?: string; imageUrl: string }) {
+}: Omit<ARNSMapping, 'processId'> & { imageUrl: string }) {
+  const [{ gateway }] = useGlobalState();
+  const params = useMemo(() => ({ arnsName: domain }), [domain]);
+  const { resolvedUrl, error } = useWayfinderUrl(params);
+
+  if (error) {
+    console.error(error);
+  }
+
   return (
     <Link
       target="_blank"
-      to={`${protocol}://${domain}.${gateway}`}
+      to={resolvedUrl?.toString() ?? `https://${domain}.${gateway}`}
       className="arns-card hover"
       rel="noreferrer"
     >
@@ -22,11 +29,10 @@ function ARNSCard({
         className="arns-preview fade-in"
         src={imageUrl}
         key={imageUrl}
-        alt={`${domain}.${gateway}`}
+        alt={`${domain}`}
         width={'100%'}
         height={'100%'}
       />
-
       <div
         className="flex flex-column link"
         style={{
@@ -38,7 +44,7 @@ function ARNSCard({
           justifyContent: 'center',
         }}
       >
-        <span className="flex white">{`${domain}.${gateway}`}</span>
+        <span className="flex white">{`ar://${domain}`}</span>
       </div>
     </Link>
   );
