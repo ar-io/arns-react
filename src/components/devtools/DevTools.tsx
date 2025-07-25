@@ -1,9 +1,6 @@
 import React, { Suspense, useEffect, useState } from 'react';
 
-import DialogModal from '../modals/DialogModal/DialogModal';
 import ANTTools from './ANTTools';
-import ArNSRegistrySettings from './ArNSRegistrySettings';
-import NetworkSettings from './NetworkSettings';
 import TransferIO from './TransferIO';
 import UserAddress from './UserAddress';
 import './styles.css';
@@ -39,46 +36,19 @@ const DevTools = () => {
   }, []);
 
   return (
-    <>
-      {isOpen && (
-        <div className="modal-container">
-          <DialogModal
-            title={<h2 className="text-white text-2xl">ArNS Devtools</h2>}
-            body={
-              <div
-                className="flex flex-column white scrollbar scrollbar-w-2 scrollbar-thumb-dark-grey scrollbar-thumb-rounded-md p-2"
-                style={{
-                  gap: '20px',
-                  fontSize: '13px',
+    <div className="flex flex-col w-full h-full p-3 text-sm gap-2 overflow-y-auto">
+      <UserAddress />
+      <TransferIO />
+      <ANTTools />
+      <div className="flex flex-row gap-2 w-full justify-end">
+        <button
+          onClick={() => setShowTanstackTools(true)}
+          className="border border-white rounded text-white p-2"
+        >
+          Enable Tanstack Query Tools
+        </button>
+      </div>
 
-                  lineHeight: '1.5',
-                  fontWeight: 160,
-                  width: '90vw',
-                  height: '70vh',
-                  overflowY: 'auto',
-                }}
-              >
-                <div className="flex flex-column" style={{ gap: '10px' }}>
-                  <UserAddress />
-                  <TransferIO />
-                  <ArNSRegistrySettings />
-                  <NetworkSettings />
-                  <ANTTools />
-                  <button
-                    onClick={() => setShowTanstackTools(true)}
-                    className="border border-white rounded text-white p-2"
-                  >
-                    Enable Tanstack Query Tools
-                  </button>
-                </div>
-              </div>
-            }
-            onCancel={toggleModal}
-            onClose={toggleModal}
-            cancelText={'Close Devtools'}
-          />
-        </div>
-      )}
       {showTanstackTools && (
         <Suspense fallback={null}>
           <ReactQueryDevtoolsProduction
@@ -88,7 +58,7 @@ const DevTools = () => {
           />
         </Suspense>
       )}
-    </>
+    </div>
   );
 };
 
