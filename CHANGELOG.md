@@ -8,6 +8,13 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.14.2] - 2025-07-25
+
+### Fixed
+
+- Added Referrer along with App-Name and App-Version tags to ArNS and ANT
+  writes.
+
 ## [1.14.1] - 2025-07-24
 
 ### Changed
