@@ -29,6 +29,7 @@ import {
   formatARIOWithCommas,
   formatDate,
   isArweaveTransactionID,
+  validateArweaveId,
 } from '../../../utils';
 import {
   MAX_LEASE_DURATION,
@@ -483,8 +484,7 @@ function RegisterNameForm() {
                     placeholder={'Arweave Transaction ID (Target ID)'}
                     validationPredicates={{
                       [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                        fn: (id: string) =>
-                          arweaveDataProvider.validateArweaveId(id),
+                        fn: (id: string) => validateArweaveId(id),
                       },
                     }}
                     showValidationChecklist={false}

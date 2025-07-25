@@ -24,14 +24,11 @@ import React, {
   useReducer,
 } from 'react';
 
-import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
-import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import {
   APP_VERSION,
   ARIO_AO_CU_URL,
   ARIO_PROCESS_ID,
   ARWEAVE_HOST,
-  DEFAULT_ARWEAVE,
   NETWORK_DEFAULTS,
 } from '../../utils/constants';
 import type { GlobalAction } from '../reducers/GlobalReducer';
@@ -102,7 +99,6 @@ export type GlobalState = {
   arioProcessId: string;
   blockHeight?: number;
   lastBlockUpdateTimestamp?: number;
-  arweaveDataProvider: ArweaveCompositeDataProvider;
   arioContract: AoARIORead | AoARIOWrite;
   hyperbeamUrl?: string;
 };
@@ -124,10 +120,6 @@ const initialState: GlobalState = {
   hyperbeamUrl: initialHyperbeamUrl,
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,
-  arweaveDataProvider: new ArweaveCompositeDataProvider({
-    arweave: defaultArweave,
-    contract: defaultArIO,
-  }),
   arioContract: defaultArIO,
 };
 
@@ -141,21 +133,14 @@ export const useGlobalState = (): [GlobalState, Dispatch<GlobalAction>] =>
 type StateProviderProps = {
   reducer: React.Reducer<GlobalState, GlobalAction>;
   children: React.ReactNode;
-  arweaveDataProvider?: ArweaveCompositeDataProvider;
 };
 
 /** Create provider to wrap app in */
 export function GlobalStateProvider({
   reducer,
   children,
-  arweaveDataProvider,
 }: StateProviderProps): JSX.Element {
-  const [state, dispatchGlobalState] = useReducer(
-    reducer,
-    arweaveDataProvider
-      ? { ...initialState, arweaveDataProvider }
-      : initialState,
-  );
+  const [state, dispatchGlobalState] = useReducer(reducer, initialState);
 
   useEffect(() => {
     async function updateTicker() {

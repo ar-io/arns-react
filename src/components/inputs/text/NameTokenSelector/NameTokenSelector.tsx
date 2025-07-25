@@ -1,5 +1,7 @@
 import { ANT, AOProcess, AoArNSNameData } from '@ar.io/sdk/web';
 import Tooltip from '@src/components/Tooltips/Tooltip';
+import { validateArweaveId } from '@src/utils';
+import { buildArNSRecordsQuery, queryClient } from '@src/utils/network';
 import { Pagination, PaginationProps } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
@@ -146,11 +148,12 @@ function NameTokenSelector({
       }
 
       const processIds = fetchedprocessIds.concat(validImports);
-      const associatedRecords = await arweaveDataProvider.getRecords({
-        filters: {
-          processId: processIds,
-        },
-      });
+      const associatedRecords = await queryClient.fetchQuery(
+        buildArNSRecordsQuery({
+          arioContract,
+          meta: [arioProcessId.toString()],
+        }),
+      );
 
       const contracts: {
         processId: ArweaveTransactionID;
@@ -377,7 +380,7 @@ function NameTokenSelector({
           validationPredicates={{
             [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
               fn: (id: string) => {
-                return arweaveDataProvider.validateArweaveId(id);
+                return validateArweaveId(id);
               },
             },
           }}

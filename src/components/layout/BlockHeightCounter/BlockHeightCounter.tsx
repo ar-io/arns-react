@@ -1,3 +1,4 @@
+import { useArweaveBlockHeight } from '@src/hooks';
 import Countdown from 'antd/lib/statistic/Countdown';
 import { ReactNode, useEffect, useState } from 'react';
 
@@ -10,17 +11,20 @@ const BlockHeightCounter = ({
 }: {
   prefixText?: ReactNode;
 }) => {
-  const [
-    { blockHeight, lastBlockUpdateTimestamp, arweaveDataProvider },
-    dispatchGlobalState,
-  ] = useGlobalState();
+  const [{ blockHeight, lastBlockUpdateTimestamp }, dispatchGlobalState] =
+    useGlobalState();
+  const { refetch } = useArweaveBlockHeight();
 
   const [timeUntilUpdate, setTimeUntilUpdate] = useState<number>(0);
 
   const updateBlockHeight = async () => {
     try {
-      const blockHeight = await arweaveDataProvider.getCurrentBlockHeight();
-      dispatchGlobalState({ type: 'setBlockHeight', payload: blockHeight });
+      const blockHeight = await refetch();
+      if (blockHeight.data)
+        dispatchGlobalState({
+          type: 'setBlockHeight',
+          payload: blockHeight.data,
+        });
     } catch (error) {
       eventEmitter.emit('error', error);
     }
