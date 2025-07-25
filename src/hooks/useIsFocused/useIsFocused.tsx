@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 export function useIsFocused(id: string) {
-  // helpful when you need to modify the style of a seperate element when another element is focused
+  // helpful when you need to modify the style of a separate element when another element is focused
   const [isFocused, setIsFocused] = useState<boolean>(false);
 
   useEffect(() => {
