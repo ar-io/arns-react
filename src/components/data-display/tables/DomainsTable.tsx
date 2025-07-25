@@ -1,5 +1,4 @@
-import { AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk';
-import ErrorsTip from '@src/components/Tooltips/ErrorsTip';
+import { AoArNSNameData } from '@ar.io/sdk';
 import {
   ChevronRightIcon,
   ExternalLinkIcon,
@@ -49,7 +48,6 @@ import { ReactNode } from 'react-markdown';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { Tooltip } from '..';
-import RegistrationTip from '../../Tooltips/RegistrationTip';
 import TableView from './TableView';
 import UndernamesSubtable from './UndernamesSubtable';
 
@@ -67,7 +65,6 @@ type TableData = {
   expiryDate: string;
   version: number;
   antErrors: Error[];
-  status: string | number | Error[];
   action: ReactNode;
 } & Record<string, any>;
 
@@ -184,11 +181,6 @@ const DomainsTable = ({
             supported: record.undernameLimit,
           },
           expiryDate: (record as any).endTimestamp ?? PERMANENT_DOMAIN_MESSAGE,
-          status: ant?.errors?.length
-            ? ant.errors
-            : isLeasedArNSRecord(record)
-            ? record.endTimestamp
-            : PERMANENT_DOMAIN_MESSAGE,
           action: <></>,
           // metadata used for search and other purposes
           antRecords: ant?.state?.Records,
@@ -223,10 +215,9 @@ const DomainsTable = ({
     'role',
     'processId',
     'targetId',
-    'ioCompatible',
     'undernames',
     'expiryDate',
-    'status',
+    'ioCompatible',
     'action',
   ].map((key) =>
     columnHelper.accessor(key as keyof TableData, {
@@ -475,22 +466,6 @@ const DomainsTable = ({
                 }
                 icon={<>{formatExpiryDate(rowValue)}</>}
               />
-            );
-          }
-          case 'status': {
-            if (Array.isArray(rowValue) && rowValue.length > 0) {
-              return (
-                <span>
-                  <ErrorsTip errors={rowValue} />
-                </span>
-              );
-            }
-            return (
-              <span>
-                <RegistrationTip
-                  domain={domainData.names[row.getValue('name') as string]}
-                />
-              </span>
             );
           }
           case 'action': {

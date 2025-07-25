@@ -1,12 +1,10 @@
 .ario-collapse-content-box {
-  background: var(--text-faded);
-  border-radius: 5px;
-  border-top-left-radius: 0px;
-  border-top-right-radius: 0px;
+  background: transparent;
+  border: none;
 }
 
 .ario-collapse-header {
-  background: var(--text-faded);
+  background: transparent;
   border-top-left-radius: 0px;
   border-top-right-radius: 0px;
 }
@@ -18,7 +16,22 @@
 
 .ario-collapse,
 .ario-collapse-item {
-  background: var(--text-faded);
+  background: transparent;
   border-radius: 5px;
   height: fit-content;
+}
+
+.ant-collapse-expand-icon {
+  color: white;
+  fill: white;
+}
+
+.ant-collapse {
+  border: none;
+}
+
+.ant-collapse .ant-collapse-content {
+  background-color: transparent;
+  color: transparent;
+  border: none;
 }

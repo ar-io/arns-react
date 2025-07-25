@@ -1,7 +1,7 @@
 import { BrandLogo } from '@src/components/icons';
 import { NavBar } from '@src/components/layout';
 import Footer from '@src/components/layout/Footer/Footer';
-import { NetworkIcon } from 'lucide-react';
+import { NetworkIcon, WrenchIcon } from 'lucide-react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 
 import './styles.css';
@@ -17,11 +17,15 @@ const settingsRoutes = [
     path: 'network',
     icon: <NetworkIcon className="size-4" fill={'none'} />,
   },
+  {
+    name: 'Dev Tools',
+    path: 'devtools',
+    icon: <WrenchIcon className="size-4" fill={'none'} />,
+  },
 ];
 
 function SettingsLayout() {
   const location = useLocation();
-  const isSettingsRoot = location?.pathname?.split('/')?.at(-1) == 'settings';
 
   return (
     <div className="flex flex-col w-full h-screen box-border">
@@ -29,29 +33,6 @@ function SettingsLayout() {
         <NavBar />
       </div>
       <div className="flex flex-col w-full h-full px-[100px] py-[30px]">
-        <div className="flex flex-col w-full rounded-t-xl  border-x-[1px] border-t-[1px] border-dark-grey p-2">
-          <div
-            className="flex flex-row text-white text-sm pl-3"
-            style={{ gap: '15px' }}
-          >
-            <Link
-              to={'/settings'}
-              className={
-                isSettingsRoot
-                  ? ''
-                  : 'text-grey' + ' hover:text-primary transition-all'
-              }
-            >
-              Settings
-            </Link>{' '}
-            <span className="text-dark-grey">{isSettingsRoot ? '' : '>'}</span>{' '}
-            {
-              settingsRoutes.find(
-                (route) => location?.pathname?.split('/')?.at(-1) == route.path,
-              )?.name
-            }
-          </div>
-        </div>
         <div
           className="flex flex-row w-full h-full rounded-xl rounded-t-none border-dark-grey border-[1px]"
           style={{ gap: 0 }}

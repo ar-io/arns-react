@@ -2,14 +2,16 @@ import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { AoAddress, VALIDATION_INPUT_TYPES } from '@src/types';
 import { isArweaveTransactionID, isValidAoAddress } from '@src/utils';
-import { Collapse, Space } from 'antd';
 import { useState } from 'react';
 
 import ValidationInput from '../inputs/text/ValidationInput/ValidationInput';
-import ArweaveID, { ArweaveIdTypes } from '../layout/ArweaveID/ArweaveID';
 import './styles.css';
 
-const Panel = Collapse.Panel;
+const inputClass =
+  'bg-foreground justify-center items-center outline-none w-full';
+
+const inputContainerClass =
+  'flex flex-col gap-2 border border-primary-thin p-2 rounded-md bg-metallic-grey';
 
 function UserAddress() {
   const [{ wallet, walletAddress }, dispatchWalletState] = useWalletState();
@@ -17,6 +19,7 @@ function UserAddress() {
     walletAddress?.toString() ?? '',
   );
   const [isValidAddress, setIsValidAddress] = useState<boolean>();
+
   function confirmSetting(id: string) {
     if (isValidAoAddress(id)) {
       dispatchWalletState({
@@ -46,93 +49,63 @@ function UserAddress() {
   }
 
   return (
-    <div className="flex" style={{ width: '100%' }}>
-      <Space direction="vertical" style={{ width: '100%' }}>
-        <Collapse style={{ width: '100%' }} prefixCls="ario-collapse">
-          <Panel
-            header={
-              <div className="flex" style={{ justifyContent: 'space-between' }}>
-                <span>User Settings</span>
-              </div>
-            }
-            key="1"
+    <div className="flex flex-col w-full h-fit p-3 text-sm">
+      <div className={inputContainerClass}>
+        <span className="text-white text-md w-1/3">Current Address:</span>
+        <ValidationInput
+          placeholder="Enter custom wallet address"
+          inputClassName={inputClass}
+          inputCustomStyle={{
+            paddingLeft: '10px',
+            fontSize: '16px',
+            background: 'var(--card-bg)',
+            borderRadius: 'var(--corner-radius)',
+            border: '1px solid var(--text-faded)',
+            padding: '15px',
+            color: 'white',
+          }}
+          wrapperCustomStyle={{
+            position: 'relative',
+            border: 'none',
+            borderRadius: 'var(--corner-radius)',
+          }}
+          showValidationIcon={false}
+          showValidationOutline={false}
+          showValidationChecklist={false}
+          validationListStyle={{ display: 'none' }}
+          maxCharLength={43}
+          value={newUserAddress}
+          setValue={setNewWalletAddress}
+          validityCallback={(validity: boolean) => setIsValidAddress(validity)}
+          validationPredicates={{
+            [VALIDATION_INPUT_TYPES.AO_ADDRESS]: {
+              fn: async (id: string) => {
+                if (!isValidAoAddress(id)) throw new Error('not a valid id');
+              },
+              required: false,
+            },
+          }}
+        />
+        {isValidAddress === false ? (
+          <span className="text-color-error mb-2">Invalid address</span>
+        ) : (
+          <></>
+        )}
+        <div className="flex flex-row gap-2 mt-2">
+          <button
+            className="bg-background hover:bg-light-grey border border-white shadow-md text-white py-2 px-4  rounded-md text-md"
+            onClick={() => confirmSetting(newUserAddress.trim())}
           >
-            <>
-              <div className="flex" style={{ gap: '4px' }}>
-                <button
-                  className="outline-button center"
-                  style={{
-                    borderColor: 'white',
-                    padding: '4px',
-                    width: 'fit-content',
-                    minWidth: '0',
-                  }}
-                  onClick={reset}
-                >
-                  reset
-                </button>
-              </div>
-              <span className="grey text-medium whitespace-nowrap">
-                Wallet Address:{' '}
-                {walletAddress && (
-                  <ArweaveID
-                    id={walletAddress}
-                    characterCount={20}
-                    shouldLink
-                    type={ArweaveIdTypes.ADDRESS}
-                  />
-                )}
-              </span>
-              <ValidationInput
-                placeholder="Enter custom wallet address"
-                inputClassName="name-token-input white"
-                inputCustomStyle={{ paddingLeft: '10px', fontSize: '16px' }}
-                wrapperCustomStyle={{
-                  position: 'relative',
-                  border: '1px solid var(--text-faded)',
-                  borderRadius: 'var(--corner-radius)',
-                }}
-                showValidationIcon={true}
-                showValidationOutline={true}
-                showValidationChecklist={true}
-                validationListStyle={{ display: 'none' }}
-                maxCharLength={43}
-                value={newUserAddress}
-                setValue={setNewWalletAddress}
-                validityCallback={(validity: boolean) =>
-                  setIsValidAddress(validity)
-                }
-                validationPredicates={{
-                  [VALIDATION_INPUT_TYPES.AO_ADDRESS]: {
-                    fn: async (id: string) => {
-                      if (!isValidAoAddress(id))
-                        throw new Error('not a valid id');
-                    },
-                    required: false,
-                  },
-                }}
-              />
-              {isValidAddress === false ? (
-                <span
-                  className="text-color-error"
-                  style={{ marginBottom: '10px' }}
-                >
-                  invalid address
-                </span>
-              ) : (
-                <></>
-              )}
-              <button
-                className="button-secondary center"
-                style={{ width: '100%', marginTop: '5px' }}
-                onClick={() => confirmSetting(newUserAddress.trim())}
-              >
-                Set User Address
-              </button>
-            </>
-          </Panel>
-        </Collapse>
-      </Space>
+            Set User Address
+          </button>
+          <button
+            className="bg-background hover:bg-light-grey border border-white shadow-md text-white py-2 px-4  rounded-md text-md"
+            onClick={reset}
+          >
+            Reset
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

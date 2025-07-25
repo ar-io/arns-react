@@ -426,6 +426,7 @@ function NetworkSettings() {
             />
           </div>
 
+          {/* TODO: add turbo payment url */}
           <div className={inputContainerClass}>
             <span className={labelClass}>
               Current Hyperbeam URL:{' '}

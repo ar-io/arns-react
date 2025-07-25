@@ -8,6 +8,14 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.15.0] - 2025-07-25
+
+### Added
+
+- Added DevTools page for debugging and development.
+
+- Removed status column from domains table.
+
 ## [1.14.2] - 2025-07-25
 
 ### Fixed

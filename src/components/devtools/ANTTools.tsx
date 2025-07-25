@@ -1,38 +1,36 @@
 import { useANTVersions } from '@src/hooks/useANTVersions';
-import { Collapse, Space } from 'antd';
-import ReactMarkdown from 'react-markdown';
+import React from 'react';
 
-import './styles.css';
-
-const Panel = Collapse.Panel;
+const inputContainerClass =
+  'flex flex-col gap-2 border border-primary-thin p-2 rounded-md bg-metallic-grey';
 
 function ANTTools() {
   const { data: antVersions } = useANTVersions();
+  const [expanded, setExpanded] = React.useState(false);
   return (
-    <div className="flex" style={{ width: '100%' }}>
-      <Space direction="vertical" style={{ width: '100%' }}>
-        <Collapse style={{ width: '100%' }} prefixCls="ario-collapse">
-          <Panel
-            header={
-              <div className="flex" style={{ justifyContent: 'space-between' }}>
-                <span>ANT Tools</span>
-              </div>
-            }
-            key="1"
-          >
-            <div className="flex flex-col text-white">
-              <h2 className="text-lg">ANT Versions</h2>
-              {antVersions ? (
-                <ReactMarkdown className="text-white bg-background rounded p-2">
-                  {'```json\n' + JSON.stringify(antVersions, null, 2) + '\n```'}
-                </ReactMarkdown>
-              ) : (
-                <></>
-              )}
-            </div>
-          </Panel>
-        </Collapse>
-      </Space>
+    <div className="flex flex-col w-full h-fit p-3 text-sm">
+      <div className={inputContainerClass}>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-md text-white">ANT Versions</span>
+        </div>
+        {antVersions ? (
+          <div className="flex flex-col text-white w-full">
+            <button
+              onClick={() => setExpanded((e) => !e)}
+              className="text-grey border-[0.5px] border-dark-grey rounded hover:border-white hover:text-white transition-all flex w-fit py-1 px-3 rounded-sm text-xs font-semibold mb-2"
+            >
+              {expanded ? 'Click to hide' : 'Click to show'}
+            </button>
+            {expanded && (
+              <pre className="text-white bg-background rounded p-2 overflow-auto h-fit text-xs w-full mb-2">
+                {JSON.stringify(antVersions, null, 2)}
+              </pre>
+            )}
+          </div>
+        ) : (
+          <span className="text-white">Loading...</span>
+        )}
+      </div>
     </div>
   );
 }
