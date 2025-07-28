@@ -1,5 +1,5 @@
 import { AoANTRecord, AoANTState } from '@ar.io/sdk';
-import { ExternalLinkIcon, PencilIcon } from '@src/components/icons';
+import { ExternalLinkIcon, PencilIcon, TrashIcon } from '@src/components/icons';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
@@ -228,6 +228,23 @@ const UndernamesSubtable = ({
                 >
                   <PencilIcon width={'18px'} height={'18px'} fill="inherit" />
                 </button>
+                <button
+                  className="fill-grey hover:fill-white"
+                  onClick={() => {
+                    setSelectedUndername(undername);
+                    setAction(UNDERNAME_TABLE_ACTIONS.REMOVE);
+                    setTransactionData({
+                      subDomain: undername,
+                    });
+                    setInteractionType(ANT_INTERACTION_TYPES.REMOVE_RECORD);
+                    dispatchTransactionState({
+                      type: 'setWorkflowName',
+                      payload: ANT_INTERACTION_TYPES.REMOVE_RECORD,
+                    });
+                  }}
+                >
+                  <TrashIcon width={'18px'} height={'18px'} fill="inherit" />
+                </button>
               </span>
             ),
           };
@@ -343,9 +360,9 @@ const UndernamesSubtable = ({
         }}
         addOnAfterTable={
           isOwner ? (
-            <div className="w-full flex flex-row text-primary font-semibold rounded-b-md border-b-[1px] border-x-[1px] border-dark-grey text-sm">
+            <div className="w-full flex flex-row text-primary font-semibold border-t-[1px] border-dark-grey text-sm">
               <button
-                className="flex flex-row w-full justify-end items-center p-3 rounded-b-md bg-background hover:bg-primary-gradient text-primary hover:text-primary fill-primary hover:fill-black transition-all"
+                className="flex flex-row w-full items-center p-3 bg-background hover:bg-primary-gradient text-primary hover:text-primary fill-primary hover:fill-black transition-all"
                 style={{ gap: '10px' }}
                 onClick={() => setAction(UNDERNAME_TABLE_ACTIONS.CREATE)}
               >
