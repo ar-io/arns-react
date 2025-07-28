@@ -1,4 +1,3 @@
-import DevTools from '@src/components/devtools/DevTools';
 import { useArNSState } from '@src/state';
 import { Progress } from 'antd';
 import { Outlet, useLocation } from 'react-router-dom';
@@ -74,7 +73,6 @@ function Layout() {
       >
         <Footer />
       </div>
-      <DevTools />
     </div>
   );
 }
