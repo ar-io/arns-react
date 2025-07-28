@@ -145,7 +145,10 @@ function NetworkSettings() {
     try {
       const newConfig = {
         ...aoNetwork,
-        ...{ ARIO: { ...aoNetwork.ARIO, ...config, GATEWAY_URL: gateway } },
+        ...{
+          ARIO: { ...aoNetwork.ARIO, ...config, GATEWAY_URL: gateway },
+          ANT: { ...aoNetwork.ANT, ...config, GATEWAY_URL: gateway },
+        },
       };
       dispatchGlobalState({
         type: 'setAONetwork',
@@ -162,6 +165,18 @@ function NetworkSettings() {
         type: 'setARIOAoClient',
         payload: ao,
       });
+
+      const antAo = connect({
+        GATEWAY_URL: 'https://' + gateway,
+        CU_URL: newConfig.ANT.CU_URL,
+        MU_URL: newConfig.ANT.MU_URL,
+        MODE: 'legacy' as const,
+      });
+      dispatchGlobalState({
+        type: 'setANTAoClient',
+        payload: antAo,
+      });
+
       dispatchArIOContract({
         contract: ARIO.init({
           paymentUrl: turboNetwork.PAYMENT_URL,
