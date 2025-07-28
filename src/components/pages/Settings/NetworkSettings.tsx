@@ -1,11 +1,11 @@
 import { AOProcess, ARIO } from '@ar.io/sdk/web';
 import { connect as suConnect } from '@permaweb/ao-scheduler-utils';
 import { connect } from '@permaweb/aoconnect';
-import SelectGatewayModal from '@src/components/devtools/SelectGatewayModal/SelectGatewayModal';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
+import SelectGatewayModal from '@src/components/modals/SelectGatewayModal/SelectGatewayModal';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
   dispatchArIOContract,

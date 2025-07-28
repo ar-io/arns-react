@@ -5,7 +5,6 @@ import { isArweaveTransactionID, isValidAoAddress } from '@src/utils';
 import { useState } from 'react';
 
 import ValidationInput from '../inputs/text/ValidationInput/ValidationInput';
-import './styles.css';
 
 const inputClass =
   'bg-foreground justify-center items-center outline-none w-full';
