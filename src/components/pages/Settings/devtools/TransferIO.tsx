@@ -7,7 +7,7 @@ import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { useState } from 'react';
 
-import ValidationInput from '../inputs/text/ValidationInput/ValidationInput';
+import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
 
 const inputClass =
   'bg-foreground justify-center items-center outline-none w-full';
