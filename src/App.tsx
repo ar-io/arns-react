@@ -17,7 +17,7 @@ import PageLoader from './components/layout/progress/PageLoader/PageLoader';
 import Checkout from './components/pages/Register/Checkout';
 import ArNSSettings from './components/pages/Settings/ArNSSettings';
 import NetworkSettings from './components/pages/Settings/NetworkSettings';
-import SettingsOverview from './components/pages/Settings/SettingsOverview';
+import DevTools from './components/pages/Settings/devtools/DevTools';
 import useSyncSettings from './hooks/useSyncSettings/useSyncSettings';
 import useWanderEvents from './hooks/useWanderEvents/useWanderEvents';
 import './index.css';
@@ -387,9 +387,10 @@ function App() {
             </Suspense>
           }
         >
-          <Route index element={<SettingsOverview />} />
-          <Route path={'arns'} element={<ArNSSettings />} />
-          <Route path={'network'} element={<NetworkSettings />} />
+          <Route index element={<Navigate to="arns" replace />} />
+          <Route path="arns" element={<ArNSSettings />} />
+          <Route path="network" element={<NetworkSettings />} />
+          <Route path="devtools" element={<DevTools />} />
         </Route>
       </>,
     ),

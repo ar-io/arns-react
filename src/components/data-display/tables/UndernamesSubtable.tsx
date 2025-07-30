@@ -1,9 +1,9 @@
 import { AoANTRecord, AoANTState } from '@ar.io/sdk';
-import { ExternalLinkIcon, PencilIcon } from '@src/components/icons';
+import { ExternalLinkIcon, PencilIcon, TrashIcon } from '@src/components/icons';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
-import { EditUndernameModal } from '@src/components/modals';
+import { AddUndernameModal, EditUndernameModal } from '@src/components/modals';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
@@ -15,7 +15,13 @@ import {
   useWalletState,
 } from '@src/state';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
-import { ANT_INTERACTION_TYPES, TransactionDataPayload } from '@src/types';
+import {
+  ANT_INTERACTION_TYPES,
+  SetRecordPayload,
+  TransactionDataPayload,
+  UNDERNAME_TABLE_ACTIONS,
+  UndernameTableInteractionTypes,
+} from '@src/types';
 import {
   camelToReadable,
   decodeDomainToASCII,
@@ -26,7 +32,7 @@ import {
 import { MIN_ANT_VERSION, NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
-import { Star } from 'lucide-react';
+import { Plus, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link } from 'react-router-dom';
@@ -57,22 +63,84 @@ const UndernamesSubtable = ({
   state?: AoANTState | null;
 }) => {
   const [{ arioProcessId, antAoClient, hyperbeamUrl }] = useGlobalState();
+  const [, dispatchArNSState] = useArNSState();
+
   const [{ wallet, walletAddress }] = useWalletState();
   const isOwner = walletAddress
     ? state?.Owner === walletAddress.toString()
     : false;
   const [, dispatchTransactionState] = useTransactionState();
-  const [, dispatchArNSState] = useArNSState();
   const [, dispatchModalState] = useModalState();
   const { data: primaryNameData } = usePrimaryName();
   const [tableData, setTableData] = useState<Array<TableData>>([]);
-  // modal state
+
+  const [action, setAction] = useState<
+    UndernameTableInteractionTypes | undefined
+  >();
   const [transactionData, setTransactionData] = useState<
     TransactionDataPayload | undefined
   >();
-  const [showEditUndernameModal, setShowEditUndernameModal] =
-    useState<boolean>(false);
+  const [interactionType, setInteractionType] =
+    useState<ANT_INTERACTION_TYPES>();
   const [selectedUndername, setSelectedUndername] = useState<string>();
+
+  async function handleInteraction({
+    payload,
+    workflowName,
+    processId,
+  }: {
+    payload: TransactionDataPayload;
+    workflowName: ANT_INTERACTION_TYPES;
+    processId?: string;
+  }) {
+    try {
+      if (!processId) {
+        throw new Error('Unable to interact with ANT contract - missing ID.');
+      }
+
+      if (!wallet?.contractSigner || !walletAddress) {
+        throw new Error(
+          'Unable to interact with ANT contract - missing signer.',
+        );
+      }
+
+      const { id } = await dispatchANTInteraction({
+        processId,
+        payload,
+        workflowName,
+        signer: wallet?.contractSigner,
+        owner: walletAddress?.toString(),
+        dispatchTransactionState,
+        dispatchArNSState,
+        ao: antAoClient,
+        hyperbeamUrl,
+      });
+      eventEmitter.emit('success', {
+        name: 'Manage Undernames',
+        message: (
+          <span
+            className="flex flex-row whitespace-nowrap"
+            style={{ gap: '10px' }}
+          >
+            {workflowName} complete.{' '}
+            <ArweaveID
+              id={new ArweaveTransactionID(id)}
+              type={ArweaveIdTypes.INTERACTION}
+              shouldLink
+              characterCount={8}
+            />
+          </span>
+        ),
+      });
+      // refresh the row
+      setTableData(tableData);
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    } finally {
+      setTransactionData(undefined);
+      setInteractionType(undefined);
+    }
+  }
 
   useEffect(() => {
     if (undernames) {
@@ -155,10 +223,27 @@ const UndernamesSubtable = ({
                   className="fill-grey hover:fill-white"
                   onClick={() => {
                     setSelectedUndername(undername);
-                    setShowEditUndernameModal(true);
+                    setAction(UNDERNAME_TABLE_ACTIONS.EDIT);
                   }}
                 >
                   <PencilIcon width={'18px'} height={'18px'} fill="inherit" />
+                </button>
+                <button
+                  className="fill-grey hover:fill-white"
+                  onClick={() => {
+                    setSelectedUndername(undername);
+                    setAction(UNDERNAME_TABLE_ACTIONS.REMOVE);
+                    setTransactionData({
+                      subDomain: undername,
+                    });
+                    setInteractionType(ANT_INTERACTION_TYPES.REMOVE_RECORD);
+                    dispatchTransactionState({
+                      type: 'setWorkflowName',
+                      payload: ANT_INTERACTION_TYPES.REMOVE_RECORD,
+                    });
+                  }}
+                >
+                  <TrashIcon width={'18px'} height={'18px'} fill="inherit" />
                 </button>
               </span>
             ),
@@ -273,48 +358,70 @@ const UndernamesSubtable = ({
 
           return '';
         }}
+        addOnAfterTable={
+          isOwner ? (
+            <div className="w-full flex flex-row text-primary font-semibold border-t-[1px] border-dark-grey text-sm">
+              <button
+                className="flex flex-row w-full items-center p-3 bg-background hover:bg-primary-gradient text-primary hover:text-primary fill-primary hover:fill-black transition-all"
+                style={{ gap: '10px' }}
+                onClick={() => setAction(UNDERNAME_TABLE_ACTIONS.CREATE)}
+              >
+                <Plus className="size-4 text-primary fill-black" />
+                Add Undername
+              </button>
+            </div>
+          ) : (
+            <></>
+          )
+        }
       />
-      {showEditUndernameModal && selectedUndername && (
+      {action === UNDERNAME_TABLE_ACTIONS.CREATE && (
+        <AddUndernameModal
+          closeModal={() => {
+            setAction(undefined);
+          }}
+          payloadCallback={(payload: SetRecordPayload) => {
+            setTransactionData(payload);
+            setInteractionType(ANT_INTERACTION_TYPES.SET_RECORD);
+            dispatchTransactionState({
+              type: 'setWorkflowName',
+              payload: ANT_INTERACTION_TYPES.SET_RECORD,
+            });
+            setAction(undefined);
+          }}
+          antId={antId}
+        />
+      )}
+      {action === UNDERNAME_TABLE_ACTIONS.EDIT && selectedUndername && (
         <EditUndernameModal
           antId={new ArweaveTransactionID(antId)}
           undername={selectedUndername}
-          closeModal={() => setShowEditUndernameModal(false)}
-          payloadCallback={(p) => setTransactionData(p)}
+          closeModal={() => setAction(undefined)}
+          payloadCallback={(p) => {
+            setTransactionData(p);
+            setInteractionType(ANT_INTERACTION_TYPES.EDIT_RECORD);
+            dispatchTransactionState({
+              type: 'setWorkflowName',
+              payload: ANT_INTERACTION_TYPES.EDIT_RECORD,
+            });
+            setAction(undefined);
+          }}
         />
       )}
-      {transactionData && wallet?.contractSigner && walletAddress ? (
+      {antId && transactionData && interactionType && isOwner ? (
         <ConfirmTransactionModal
-          interactionType={ANT_INTERACTION_TYPES.EDIT_RECORD}
+          interactionType={interactionType}
           confirm={() =>
-            dispatchANTInteraction({
-              processId: antId,
+            handleInteraction({
               payload: transactionData,
-              workflowName: ANT_INTERACTION_TYPES.EDIT_RECORD,
-              signer: wallet.contractSigner!,
-              owner: walletAddress.toString(),
-              dispatchTransactionState,
-              dispatchArNSState,
-              ao: antAoClient,
-              hyperbeamUrl,
-            }).then(() => {
-              eventEmitter.emit('success', {
-                message: (
-                  <div>
-                    <span>{selectedUndername} successfully updated!</span>
-                  </div>
-                ),
-                name: 'Edit Undername',
-              });
-
-              setTransactionData(undefined);
-              setSelectedUndername(undefined);
-              setShowEditUndernameModal(false);
+              workflowName: interactionType,
+              processId: antId!,
             })
           }
           cancel={() => {
             setTransactionData(undefined);
+            setInteractionType(undefined);
             setSelectedUndername(undefined);
-            setShowEditUndernameModal(false);
           }}
         />
       ) : (
