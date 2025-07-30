@@ -11,13 +11,13 @@ import {
   createRoutesFromElements,
 } from 'react-router-dom';
 
-import DevTools from './components/devtools/DevTools';
 import { Layout } from './components/layout';
 import { ANT_FLAG } from './components/layout/Breadcrumbs/Breadcrumbs';
 import PageLoader from './components/layout/progress/PageLoader/PageLoader';
 import Checkout from './components/pages/Register/Checkout';
 import ArNSSettings from './components/pages/Settings/ArNSSettings';
 import NetworkSettings from './components/pages/Settings/NetworkSettings';
+import DevTools from './components/pages/Settings/devtools/DevTools';
 import useSyncSettings from './hooks/useSyncSettings/useSyncSettings';
 import useWanderEvents from './hooks/useWanderEvents/useWanderEvents';
 import './index.css';

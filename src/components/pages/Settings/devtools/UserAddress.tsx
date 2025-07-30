@@ -4,7 +4,7 @@ import { AoAddress, VALIDATION_INPUT_TYPES } from '@src/types';
 import { isArweaveTransactionID, isValidAoAddress } from '@src/utils';
 import { useState } from 'react';
 
-import ValidationInput from '../inputs/text/ValidationInput/ValidationInput';
+import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
 
 const inputClass =
   'bg-foreground justify-center items-center outline-none w-full';
