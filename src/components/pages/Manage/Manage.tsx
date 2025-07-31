@@ -61,7 +61,9 @@ function Manage() {
                   />
                   <input
                     className="pl-7 flex bg-background w-full focus:outline-none text-white placeholder:text-dark-grey"
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                    }}
                     value={search}
                     placeholder="Search your assets"
                   />
@@ -122,6 +124,9 @@ function Manage() {
             domainData={{ names: domains, ants }}
             loading={loadingArnsState}
             filter={search}
+            setFilter={(filter) => {
+              setSearch(filter);
+            }}
           />
         </div>
       </div>
