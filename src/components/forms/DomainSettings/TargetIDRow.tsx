@@ -85,7 +85,9 @@ export default function TargetIDRow({
                 setValue={(e) => setNewTargetId(e)}
                 validationPredicates={{
                   [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                    fn: (id: string) => validateArweaveId(id),
+                    fn: async (id: string) => {
+                      return validateArweaveId(id);
+                    },
                   },
                 }}
                 maxCharLength={(str) => str.length <= 43}

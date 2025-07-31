@@ -67,8 +67,6 @@ function loadSettingsFromStorage(): {
   return null;
 }
 
-export const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);
-
 // Load saved settings or use defaults
 const savedSettings = loadSettingsFromStorage();
 const initialGateway = savedSettings?.gateway || ARWEAVE_HOST;

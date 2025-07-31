@@ -33,7 +33,8 @@ function NameTokenSelector({
 }: {
   selectedTokenCallback: (id: ArweaveTransactionID | undefined) => void;
 }) {
-  const [{ arweaveDataProvider, antAoClient, hyperbeamUrl }] = useGlobalState();
+  const [{ antAoClient, hyperbeamUrl, arioContract, arioProcessId }] =
+    useGlobalState();
   const [{ walletAddress }] = useWalletState();
 
   const [searchText, setSearchText] = useState<string>();
@@ -150,7 +151,7 @@ function NameTokenSelector({
       const processIds = fetchedprocessIds.concat(validImports);
       const associatedRecords = await queryClient.fetchQuery(
         buildArNSRecordsQuery({
-          arioContract,
+          arioContract: arioContract,
           meta: [arioProcessId.toString()],
         }),
       );
@@ -379,7 +380,7 @@ function NameTokenSelector({
           }
           validationPredicates={{
             [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-              fn: (id: string) => {
+              fn: async (id: string) => {
                 return validateArweaveId(id);
               },
             },

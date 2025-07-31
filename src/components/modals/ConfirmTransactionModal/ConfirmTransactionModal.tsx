@@ -42,11 +42,7 @@ function ConfirmTransactionModal({
         onNext={confirm}
         footer={
           <div style={{ width: 'fit-content' }}>
-            {/* <TransactionCost
-              fee={fee}
-              showBorder={false}
-              feeWrapperStyle={{ alignItems: 'flex-start' }}
-            /> */}
+            {/* TODO show summary of transaction */}
           </div>
         }
       />
