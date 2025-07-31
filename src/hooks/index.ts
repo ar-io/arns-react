@@ -8,4 +8,3 @@ export * from './useArweaveBlockHeight';
 export * from './useArNSRecord';
 export * from './useArNSReserved';
 export * from './useSyncSettings/useSyncSettings';
-

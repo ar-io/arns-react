@@ -8,12 +8,12 @@ import {
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
+import { useArweaveBlockHeight } from '@src/hooks';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useGlobalState, useWalletState } from '@src/state';
 import { isArweaveTransactionID } from '@src/utils';
 import { ARIO_PROCESS_ID } from '@src/utils/constants';
 import { Input } from 'antd';
-import Arweave from 'arweave';
 import { RotateCcw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -29,12 +29,13 @@ function ArNSSettings() {
     arioProcessId?.toString(),
   );
   const [isValidAddress, setIsValidAddress] = useState<boolean>(true);
+  const { data: blockHeight } = useArweaveBlockHeight();
 
   useEffect(() => {
     setRegistryAddress(arioProcessId?.toString());
   }, [arioProcessId]);
 
-  async function confirmSetting(id: string) {
+  function confirmSetting(id: string) {
     if (isArweaveTransactionID(id)) {
       dispatchGlobalState({
         type: 'setIoProcessId',
@@ -53,17 +54,17 @@ function ArNSSettings() {
         type: 'setArIOContract',
         payload: arIOContract,
       });
-
-      const arweave = new Arweave({
-        host: gateway,
-        protocol: 'https',
-      });
-      const blockHeight = (await arweave.blocks.getCurrent()).height;
-      dispatchGlobalState({ type: 'setBlockHeight', payload: blockHeight });
       dispatchGlobalState({
         type: 'setGateway',
         payload: { gateway },
       });
+      // TODO: why do we need to set the block height here?
+      if (blockHeight) {
+        dispatchGlobalState({
+          type: 'setBlockHeight',
+          payload: blockHeight || 0,
+        });
+      }
     }
   }
 
