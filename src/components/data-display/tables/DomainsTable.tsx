@@ -555,6 +555,12 @@ const DomainsTable = ({
           columns={columns}
           data={filteredTableData}
           isLoading={false}
+          onRowClick={(rowData, tableRow) => {
+            if (tableRow) {
+              tableRow.toggleExpanded();
+            }
+            return rowData;
+          }}
           noDataFoundText={
             !walletAddress ? (
               <div className="flex flex-column text-medium center white p-[100px] box-border gap-[20px]">
