@@ -8,6 +8,13 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.15.2] - 2025-07-31
+
+### Changed
+
+- Fixed filter functionality in domains table to show no results found message
+  when no results are found.
+
 ## [1.15.1] - 2025-07-31
 
 ### Changed

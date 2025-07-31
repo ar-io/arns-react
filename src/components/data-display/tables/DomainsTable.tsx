@@ -106,7 +106,8 @@ function filterTableData(filter: string, data: TableData[]): TableData[] {
 const DomainsTable = ({
   domainData,
   loading,
-  filter,
+  filter = '',
+  setFilter,
 }: {
   domainData: {
     names: Record<string, AoArNSNameData>;
@@ -114,6 +115,7 @@ const DomainsTable = ({
   };
   loading: boolean;
   filter?: string;
+  setFilter: (filter: string) => void;
 }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -202,11 +204,8 @@ const DomainsTable = ({
   ]);
 
   useEffect(() => {
-    if (filter) {
-      setFilteredTableData(filterTableData(filter, tableData));
-    } else {
-      setFilteredTableData([]);
-    }
+    const filtered = filterTableData(filter, tableData);
+    setFilteredTableData(filtered);
   }, [filter, tableData]);
   // Define columns for the table
   const columns: ColumnDef<TableData, any>[] = [
@@ -554,13 +553,7 @@ const DomainsTable = ({
       <div className="w-full">
         <TableView
           columns={columns}
-          data={
-            filteredTableData.length
-              ? filteredTableData
-              : tableData.length
-              ? tableData
-              : []
-          }
+          data={filteredTableData}
           isLoading={false}
           noDataFoundText={
             !walletAddress ? (
@@ -581,6 +574,21 @@ const DomainsTable = ({
             ) : loading ? (
               <div className="flex flex-column center white p-[100px]">
                 <Loader message="Loading assets..." />
+              </div>
+            ) : // if a filter is provided, show the no data found message
+            filter && filter.length > 0 ? (
+              <div className="flex flex-column center p-[100px]">
+                <span className="white bold" style={{ fontSize: '16px' }}>
+                  No results found for &apos;{filter}&apos;
+                </span>
+                <button
+                  onClick={() => {
+                    setFilter('');
+                  }}
+                  className="button-secondary center p-[10px] w-fit"
+                >
+                  Clear filter
+                </button>
               </div>
             ) : (
               <div className="flex flex-column center p-[100px]">
