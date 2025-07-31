@@ -608,7 +608,7 @@ const DomainsTable = ({
           }
           defaultSortingState={{
             id: sortBy,
-            desc: sortBy == 'expiryDate' ? false : true,
+            desc: false, // sort by ascending by default
           }}
           renderSubComponent={({ row }) => (
             <UndernamesSubtable
