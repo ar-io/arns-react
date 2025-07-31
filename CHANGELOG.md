@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.15.1] - 2025-07-31
+
+### Changed
+
+- Changed default sort order to ascending for domains table.
+
 ## [1.15.0] - 2025-07-30
 
 ### Added
