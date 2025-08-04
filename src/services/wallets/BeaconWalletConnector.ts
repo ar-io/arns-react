@@ -4,7 +4,6 @@ import { BeaconError } from '@src/utils/errors';
 import eventEmitter from '@src/utils/events';
 import WalletClient from '@vela-ventures/ao-sync-sdk';
 import { PermissionType } from 'arconnect';
-import { ApiConfig } from 'arweave/node/lib/api';
 
 import { ArNSWalletConnector, WALLET_TYPES } from '../../types';
 import { ArweaveTransactionID } from '../arweave/ArweaveTransactionID';
@@ -59,11 +58,6 @@ export class BeaconWalletConnector implements ArNSWalletConnector {
     return await this._wallet
       ?.getActiveAddress()
       .then((res) => new ArweaveTransactionID(res));
-  }
-
-  async getGatewayConfig(): Promise<ApiConfig> {
-    const config = await this._wallet?.getArweaveConfig();
-    return config as unknown as ApiConfig;
   }
 
   async updatePermissions(): Promise<void> {
