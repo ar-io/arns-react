@@ -146,6 +146,7 @@ const UndernamesSubtable = ({
     if (undernames) {
       const newTableData: TableData[] = [];
 
+      // TODO: add priority to undernames table
       Object.entries(undernames).map(([undername, record]) => {
         const data = {
           undername,
@@ -161,7 +162,11 @@ const UndernamesSubtable = ({
                       : version < MIN_ANT_VERSION
                       ? 'Update ANT to access Primary Names workflow'
                       : primaryNameData?.name ===
-                        encodePrimaryName(undername + '_' + arnsDomain)
+                        encodePrimaryName(
+                          undername === '@'
+                            ? arnsDomain
+                            : undername + '_' + arnsDomain,
+                        )
                       ? 'Remove Primary Name'
                       : 'Set Primary Name'
                   }
@@ -171,7 +176,9 @@ const UndernamesSubtable = ({
                       onClick={() => {
                         if (!arnsDomain || !antId) return;
                         const targetName = encodePrimaryName(
-                          undername + '_' + arnsDomain,
+                          undername === '@'
+                            ? arnsDomain
+                            : undername + '_' + arnsDomain,
                         );
                         if (primaryNameData?.name === targetName) {
                           // remove primary name payload
@@ -204,8 +211,11 @@ const UndernamesSubtable = ({
                     >
                       <Star
                         className={
-                          (encodePrimaryName(undername + '_' + arnsDomain) ==
-                          primaryNameData?.name
+                          (encodePrimaryName(
+                            undername === '@'
+                              ? arnsDomain
+                              : undername + '_' + arnsDomain,
+                          ) == primaryNameData?.name
                             ? 'text-primary fill-primary'
                             : 'text-grey') +
                           ` 
@@ -274,7 +284,7 @@ const UndernamesSubtable = ({
           : key == 'ttlSeconds'
           ? 'TTL Seconds'
           : camelToReadable(key),
-      sortDescFirst: true,
+      sortDescFirst: false,
       cell: ({ row }) => {
         const rowValue = row.getValue(key) as any;
         if (!rowValue) {
@@ -345,7 +355,7 @@ const UndernamesSubtable = ({
             No Undernames Found
           </span>
         }
-        defaultSortingState={{ id: 'undername', desc: true }}
+        defaultSortingState={{ id: 'undername', desc: false }}
         tableClass="bg-metallic-grey"
         rowClass={(props) => {
           const pad = '*:pl-[60px]';
