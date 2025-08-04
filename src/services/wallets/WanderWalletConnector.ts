@@ -3,7 +3,6 @@ import { TokenType } from '@ardrive/turbo-sdk';
 import { WalletNotInstalledError, WanderError } from '@src/utils/errors';
 import eventEmitter from '@src/utils/events';
 import { PermissionType } from 'arconnect';
-import { ApiConfig } from 'arweave/node/lib/api';
 
 import { WANDER_UNRESPONSIVE_ERROR } from '../../components/layout/Notifications/Notifications';
 import { ArNSWalletConnector, WALLET_TYPES } from '../../types';
@@ -97,13 +96,6 @@ export class WanderWalletConnector implements ArNSWalletConnector {
         ?.getActiveAddress()
         .then((res) => new ArweaveTransactionID(res)),
     );
-  }
-
-  async getGatewayConfig(): Promise<ApiConfig> {
-    const config = await this.safeWanderApiExecutor(
-      this._wallet?.getArweaveConfig,
-    );
-    return config as unknown as ApiConfig;
   }
 
   async updatePermissions(): Promise<void> {

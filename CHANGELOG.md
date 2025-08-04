@@ -8,6 +8,16 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.15.4] - 2025-08-04
+
+### Fixed
+
+- Default to arweave.net for Arweave.app and Metamask wallets
+
+### Changed
+
+- Remove wallet-based gateway config and only use app-based gateway config
+
 ## [1.15.3] - 2025-07-31
 
 ### Changed

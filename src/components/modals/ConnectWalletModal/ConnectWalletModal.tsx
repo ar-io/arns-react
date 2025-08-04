@@ -1,4 +1,3 @@
-import { AOProcess, ARIO } from '@ar.io/sdk/web';
 import {
   BeaconWalletConnector,
   EthWalletConnector,
@@ -10,8 +9,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useConfig } from 'wagmi';
 
-import { dispatchNewGateway } from '../../../state/actions';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import { AoAddress, ArNSWalletConnector } from '../../../types';
 import eventEmitter from '../../../utils/events';
@@ -27,8 +24,6 @@ import './styles.css';
 
 function ConnectWalletModal(): JSX.Element {
   const modalRef = useRef<HTMLDivElement>(null);
-  const [{ arioProcessId, aoClient, turboNetwork }, dispatchGlobalState] =
-    useGlobalState();
   const [
     { wallet, walletAddress, walletStateInitialized },
     dispatchWalletState,
@@ -87,22 +82,6 @@ function ConnectWalletModal(): JSX.Element {
     try {
       setConnecting(true);
       await walletConnector.connect();
-      const arweaveGate = await walletConnector.getGatewayConfig();
-      const contract = ARIO.init({
-        paymentUrl: turboNetwork.PAYMENT_URL,
-        process: new AOProcess({
-          processId: arioProcessId,
-          ao: aoClient,
-        }),
-        signer: walletConnector.turboSigner!,
-      });
-      if (arweaveGate?.host) {
-        await dispatchNewGateway(
-          arweaveGate.host,
-          contract,
-          dispatchGlobalState,
-        );
-      }
 
       const address = await walletConnector.getWalletAddress();
       dispatchWalletState({

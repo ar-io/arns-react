@@ -7,7 +7,6 @@ import {
 import { TokenType } from '@ardrive/turbo-sdk';
 import { createData } from '@dha-team/arbundles';
 import { MetamaskError } from '@src/utils/errors';
-import { ApiConfig } from 'arweave/node/lib/api';
 import { hashMessage, parseEther, recoverPublicKey, toBytes } from 'viem';
 import { mainnet } from 'viem/chains';
 import { Config, Connector } from 'wagmi';
@@ -128,14 +127,6 @@ export class EthWalletConnector implements ArNSWalletConnector {
       throw new MetamaskError('No address found');
     }
     return address;
-  }
-
-  async getGatewayConfig(): Promise<ApiConfig> {
-    return {
-      host: 'ar-io.dev',
-      port: 443,
-      protocol: 'https',
-    };
   }
 
   async submitNativeTransaction(
