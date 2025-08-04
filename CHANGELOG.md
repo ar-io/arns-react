@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.16.0] - 2025-08-04
+
+### Changed
+
+- Allow managing '@' record in undername table of Manage page.
+
 ## [1.15.4] - 2025-08-04
 
 ### Fixed
