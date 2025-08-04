@@ -30,9 +30,10 @@ export function isARNSDomainNameValid({ name }: { name?: string }): boolean {
 export function isUndernameValid(name: string): boolean {
   return (
     !!name &&
-    UNDERNAME_REGEX.test(
-      emojiRegex().test(name) ? encodeDomainToASCII(name) : name,
-    )
+    (name === '@' ||
+      UNDERNAME_REGEX.test(
+        emojiRegex().test(name) ? encodeDomainToASCII(name) : name,
+      ))
   );
 }
 
