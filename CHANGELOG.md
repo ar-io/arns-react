@@ -14,6 +14,10 @@ and this project adheres to
 
 - Default to arweave.net for Arweave.app and Metamask wallets
 
+### Changed
+
+- Remove wallet-based gateway config and only use app-based gateway config
+
 ## [1.15.3] - 2025-07-31
 
 ### Changed

@@ -2,7 +2,6 @@ import { TurboArNSSigner } from '@ar.io/sdk/web';
 import { TokenType } from '@ardrive/turbo-sdk';
 import { ARWEAVE_APP_API } from '@src/utils/constants';
 import { ArweaveAppError } from '@src/utils/errors';
-import { ApiConfig } from 'arweave/node/lib/api';
 import { ReactiveConnector } from 'node_modules/arweave-wallet-connector/lib/browser/Reactive';
 
 import { WANDER_UNRESPONSIVE_ERROR } from '../../components/layout/Notifications/Notifications';
@@ -79,13 +78,5 @@ export class ArweaveAppWalletConnector implements ArNSWalletConnector {
     const address =
       await this._wallet.namespaces.arweaveWallet.getActiveAddress();
     return new ArweaveTransactionID(address);
-  }
-
-  async getGatewayConfig(): Promise<ApiConfig> {
-    return {
-      host: 'arweave.net',
-      port: 443,
-      protocol: 'https',
-    };
   }
 }
