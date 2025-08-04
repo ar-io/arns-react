@@ -1,14 +1,32 @@
+import { useANTVersions } from '@src/hooks/useANTVersions';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { isArweaveTransactionID } from '@src/utils';
-import { ANT_CHANGELOG } from '@src/utils/constants';
 import ReactMarkdown from 'react-markdown';
 
+import { Loader } from '../layout';
 import ArweaveID, { ArweaveIdTypes } from '../layout/ArweaveID/ArweaveID';
 
 function AntChangelog({ className }: { className?: string }) {
-  const FORMATTED_CHANGELOG = ANT_CHANGELOG.substring(
-    ANT_CHANGELOG.indexOf('## [Unreleased]') + 16,
-  )
+  const { data: versions, isLoading, refetch, error } = useANTVersions();
+  if (isLoading) {
+    return <Loader size={80} />;
+  }
+  if (!versions || Object.keys(versions).length === 0 || error) {
+    return (
+      <div className="text-grey">
+        No versions found
+        <button onClick={() => refetch()}>Refresh</button>
+      </div>
+    );
+  }
+
+  const FORMATTED_CHANGELOG = Object.entries(versions ?? {})
+    .sort(([a], [b]) => Number(b) - Number(a))
+    .map(
+      ([version, { moduleId, notes }]) =>
+        `## [${version}] - ${moduleId}\n${notes}`,
+    )
+    .join('\n')
     .trim()
     .replace(/\[([\d.]+)\]/g, (_, text) => `v${text}`)
     .replace(/<!--.*?-->/g, () => ``) // remove comments
@@ -43,21 +61,13 @@ function AntChangelog({ className }: { className?: string }) {
             );
           },
           h2: ({ children, index }) => {
-            const [version, id, date] = (children[0] as string)
-              .trim()
-              .split(' - ');
+            // TODO: add date on published module versions (when available)
+            const [version, id] = (children[0] as string).trim().split(' - ');
             const isFirstHeader = index == 0;
 
             if (!isArweaveTransactionID(id)) {
               return <></>;
             }
-            const formattedDate = new Date(
-              date.replace(/[\(\)]/g, ''),
-            ).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            });
             return (
               <div>
                 {!isFirstHeader && (
@@ -75,14 +85,7 @@ function AntChangelog({ className }: { className?: string }) {
                   <div className="flex gap-3">
                     {version}
 
-                    <span
-                      className={
-                        'text-base w-fit italic ' +
-                        (isFirstHeader ? 'text-white' : 'text-grey')
-                      }
-                    >
-                      {formattedDate}
-                    </span>
+                    {/* TODO: add date on published module versions */}
                   </div>
 
                   <ArweaveID
