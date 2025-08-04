@@ -3,12 +3,13 @@ import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID
 import { isArweaveTransactionID } from '@src/utils';
 import ReactMarkdown from 'react-markdown';
 
+import { Loader } from '../layout';
 import ArweaveID, { ArweaveIdTypes } from '../layout/ArweaveID/ArweaveID';
 
 function AntChangelog({ className }: { className?: string }) {
   const { data: versions, isLoading, refetch, error } = useANTVersions();
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Loader size={80} />;
   }
   if (!versions || Object.keys(versions).length === 0 || error) {
     return (
