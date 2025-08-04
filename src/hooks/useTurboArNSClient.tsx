@@ -9,7 +9,9 @@ export function useTurboArNSClient() {
   const [{ wallet, walletAddress }] = useWalletState();
   const stripe = useStripe();
   return useMemo(() => {
-    if (!stripe) return null;
+    if (!stripe) {
+      return null;
+    }
     return new TurboArNSClient({
       signer: wallet?.contractSigner,
       walletAddress: walletAddress?.toString(),

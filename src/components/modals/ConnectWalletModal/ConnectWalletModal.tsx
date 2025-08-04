@@ -9,8 +9,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useConfig } from 'wagmi';
 
-import { dispatchNewGateway } from '../../../state/actions';
-import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import { AoAddress, ArNSWalletConnector } from '../../../types';
 import eventEmitter from '../../../utils/events';
@@ -26,7 +24,6 @@ import './styles.css';
 
 function ConnectWalletModal(): JSX.Element {
   const modalRef = useRef<HTMLDivElement>(null);
-  const [, dispatchGlobalState] = useGlobalState();
   const [
     { wallet, walletAddress, walletStateInitialized },
     dispatchWalletState,
@@ -85,11 +82,6 @@ function ConnectWalletModal(): JSX.Element {
     try {
       setConnecting(true);
       await walletConnector.connect();
-      const arweaveGate = await walletConnector.getGatewayConfig();
-      if (arweaveGate?.host) {
-        await dispatchNewGateway(arweaveGate.host, dispatchGlobalState);
-      }
-
       const address = await walletConnector.getWalletAddress();
       dispatchWalletState({
         type: 'setWalletAddress',

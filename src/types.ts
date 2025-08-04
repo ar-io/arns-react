@@ -6,7 +6,6 @@ import {
   TurboArNSSigner,
 } from '@ar.io/sdk/web';
 import { TokenType } from '@ardrive/turbo-sdk';
-import { ApiConfig } from 'arweave/web/lib/api';
 import type { Dispatch, SetStateAction } from 'react';
 
 import { AntDetailKey } from './components/cards/ANTCard/ANTCard';
@@ -86,7 +85,6 @@ export interface ArNSWalletConnector {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   getWalletAddress(): Promise<AoAddress>;
-  getGatewayConfig(): Promise<ApiConfig>;
   contractSigner?: ContractSigner;
   on?: (event: string, listener: (data: any) => void) => Promise<void>;
   off?: (event: string, listener: (data: any) => void) => Promise<void>;
