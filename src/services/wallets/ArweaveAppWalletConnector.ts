@@ -83,7 +83,7 @@ export class ArweaveAppWalletConnector implements ArNSWalletConnector {
 
   async getGatewayConfig(): Promise<ApiConfig> {
     return {
-      host: 'ar-io.dev',
+      host: 'arweave.net',
       port: 443,
       protocol: 'https',
     };
