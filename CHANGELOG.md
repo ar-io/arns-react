@@ -13,6 +13,7 @@ and this project adheres to
 ### Fixed
 
 - Default to arweave.net for Arweave.app and Metamask wallets
+- Fix Turbo Credits top up modal so app doesn't crash.
 
 ### Changed
 
