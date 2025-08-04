@@ -13,14 +13,7 @@ const useUploadCostGib = () => {
       if (!turbo) {
         throw Error('TurboUnauthenticatedClient is not set');
       }
-      const res = await turbo.turboUploader
-        .getUploadCosts({ bytes: [GiB] })
-        .catch((err) => {
-          console.log('err', err);
-          return null;
-        });
-      console.log('res', res);
-      return res;
+      return turbo.turboUploader.getUploadCosts({ bytes: [GiB] });
     },
   });
   return res;
