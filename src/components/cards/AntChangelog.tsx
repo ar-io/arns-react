@@ -6,7 +6,19 @@ import ReactMarkdown from 'react-markdown';
 import ArweaveID, { ArweaveIdTypes } from '../layout/ArweaveID/ArweaveID';
 
 function AntChangelog({ className }: { className?: string }) {
-  const { data: versions } = useANTVersions();
+  const { data: versions, isLoading, refetch, error } = useANTVersions();
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  if (!versions || Object.keys(versions).length === 0 || error) {
+    return (
+      <div className="text-grey">
+        No versions found
+        <button onClick={() => refetch()}>Refresh</button>
+      </div>
+    );
+  }
+
   const FORMATTED_CHANGELOG = Object.entries(versions ?? {})
     .sort(([a], [b]) => Number(b) - Number(a))
     .map(
