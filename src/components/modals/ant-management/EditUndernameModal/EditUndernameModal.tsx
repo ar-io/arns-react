@@ -8,8 +8,8 @@ import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { SetRecordPayload, VALIDATION_INPUT_TYPES } from '../../../../types';
 import {
   formatForMaxCharCount,
+  isApexOrValidUndername,
   isArweaveTransactionID,
-  isUndernameValid,
   validateTTLSeconds,
 } from '../../../../utils';
 import {
@@ -176,7 +176,7 @@ function EditUndernameModal({
         onClose={closeModal}
         onNext={
           isArweaveTransactionID(targetId) &&
-          isUndernameValid(undername) &&
+          isApexOrValidUndername(undername) && // allows editing of '@' records
           ttlSeconds >= MIN_TTL_SECONDS &&
           ttlSeconds <= MAX_TTL_SECONDS
             ? () => handlePayloadCallback()

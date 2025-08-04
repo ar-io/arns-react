@@ -146,88 +146,97 @@ const UndernamesSubtable = ({
     if (undernames) {
       const newTableData: TableData[] = [];
 
-      Object.entries(undernames)
-        .filter(([u]) => u !== '@')
-        .map(([undername, record]) => {
-          const data = {
-            undername,
-            targetId: record.transactionId,
-            ttlSeconds: record.ttlSeconds,
-            action: (
-              <span className="flex justify-end pr-3 gap-3">
-                {isOwner && (
-                  <Tooltip
-                    message={
-                      !arnsDomain
-                        ? 'Loading...'
-                        : version < MIN_ANT_VERSION
-                        ? 'Update ANT to access Primary Names workflow'
-                        : primaryNameData?.name ===
-                          encodePrimaryName(undername + '_' + arnsDomain)
-                        ? 'Remove Primary Name'
-                        : 'Set Primary Name'
-                    }
-                    icon={
-                      <button
-                        disabled={version < MIN_ANT_VERSION}
-                        onClick={() => {
-                          if (!arnsDomain || !antId) return;
-                          const targetName = encodePrimaryName(
-                            undername + '_' + arnsDomain,
-                          );
-                          if (primaryNameData?.name === targetName) {
-                            // remove primary name payload
-                            dispatchTransactionState({
-                              type: 'setTransactionData',
-                              payload: {
-                                names: [targetName],
-                                arioProcessId,
-                                assetId: antId,
-                                functionName: 'removePrimaryNames',
-                              },
-                            });
-                          } else {
-                            dispatchTransactionState({
-                              type: 'setTransactionData',
-                              payload: {
-                                name: targetName,
-                                arioProcessId,
-                                assetId: arioProcessId,
-                                functionName: 'primaryNameRequest',
-                              },
-                            });
-                          }
-
-                          dispatchModalState({
-                            type: 'setModalOpen',
-                            payload: { showPrimaryNameModal: true },
+      // TODO: add priority to undernames table
+      Object.entries(undernames).map(([undername, record]) => {
+        const data = {
+          undername,
+          targetId: record.transactionId,
+          ttlSeconds: record.ttlSeconds,
+          action: (
+            <span className="flex justify-end pr-3 gap-3">
+              {isOwner && (
+                <Tooltip
+                  message={
+                    !arnsDomain
+                      ? 'Loading...'
+                      : version < MIN_ANT_VERSION
+                      ? 'Update ANT to access Primary Names workflow'
+                      : primaryNameData?.name ===
+                        encodePrimaryName(
+                          undername === '@'
+                            ? arnsDomain
+                            : undername + '_' + arnsDomain,
+                        )
+                      ? 'Remove Primary Name'
+                      : 'Set Primary Name'
+                  }
+                  icon={
+                    <button
+                      disabled={version < MIN_ANT_VERSION}
+                      onClick={() => {
+                        if (!arnsDomain || !antId) return;
+                        const targetName = encodePrimaryName(
+                          undername === '@'
+                            ? arnsDomain
+                            : undername + '_' + arnsDomain,
+                        );
+                        if (primaryNameData?.name === targetName) {
+                          // remove primary name payload
+                          dispatchTransactionState({
+                            type: 'setTransactionData',
+                            payload: {
+                              names: [targetName],
+                              arioProcessId,
+                              assetId: antId,
+                              functionName: 'removePrimaryNames',
+                            },
                           });
-                        }}
-                      >
-                        <Star
-                          className={
-                            (encodePrimaryName(undername + '_' + arnsDomain) ==
-                            primaryNameData?.name
-                              ? 'text-primary fill-primary'
-                              : 'text-grey') +
-                            ` 
+                        } else {
+                          dispatchTransactionState({
+                            type: 'setTransactionData',
+                            payload: {
+                              name: targetName,
+                              arioProcessId,
+                              assetId: arioProcessId,
+                              functionName: 'primaryNameRequest',
+                            },
+                          });
+                        }
+
+                        dispatchModalState({
+                          type: 'setModalOpen',
+                          payload: { showPrimaryNameModal: true },
+                        });
+                      }}
+                    >
+                      <Star
+                        className={
+                          (encodePrimaryName(
+                            undername === '@'
+                              ? arnsDomain
+                              : undername + '_' + arnsDomain,
+                          ) == primaryNameData?.name
+                            ? 'text-primary fill-primary'
+                            : 'text-grey') +
+                          ` 
                     w-[18px]
                     `
-                          }
-                        />
-                      </button>
-                    }
-                  />
-                )}
-                <button
-                  className="fill-grey hover:fill-white"
-                  onClick={() => {
-                    setSelectedUndername(undername);
-                    setAction(UNDERNAME_TABLE_ACTIONS.EDIT);
-                  }}
-                >
-                  <PencilIcon width={'18px'} height={'18px'} fill="inherit" />
-                </button>
+                        }
+                      />
+                    </button>
+                  }
+                />
+              )}
+              <button
+                className="fill-grey hover:fill-white"
+                onClick={() => {
+                  setSelectedUndername(undername);
+                  setAction(UNDERNAME_TABLE_ACTIONS.EDIT);
+                }}
+              >
+                <PencilIcon width={'18px'} height={'18px'} fill="inherit" />
+              </button>
+              {undername !== '@' ? (
                 <button
                   className="fill-grey hover:fill-white"
                   onClick={() => {
@@ -245,11 +254,14 @@ const UndernamesSubtable = ({
                 >
                   <TrashIcon width={'18px'} height={'18px'} fill="inherit" />
                 </button>
-              </span>
-            ),
-          };
-          newTableData.push(data as TableData);
-        });
+              ) : (
+                <></>
+              )}
+            </span>
+          ),
+        };
+        newTableData.push(data as TableData);
+      });
 
       setTableData(newTableData as TableData[]);
     }
@@ -272,7 +284,7 @@ const UndernamesSubtable = ({
           : key == 'ttlSeconds'
           ? 'TTL Seconds'
           : camelToReadable(key),
-      sortDescFirst: true,
+      sortDescFirst: false,
       cell: ({ row }) => {
         const rowValue = row.getValue(key) as any;
         if (!rowValue) {
@@ -294,9 +306,9 @@ const UndernamesSubtable = ({
                 icon={
                   <Link
                     className="link gap-2 items-center w-fit"
-                    to={`https://${encodeDomainToASCII(
-                      rowValue,
-                    )}_${encodeDomainToASCII(arnsDomain ?? '')}.${
+                    to={`https://${
+                      rowValue === '@' ? '' : `${rowValue}_`
+                    }${encodeDomainToASCII(arnsDomain ?? '')}.${
                       NETWORK_DEFAULTS.ARNS.HOST
                     }`}
                     target="_blank"
@@ -343,7 +355,7 @@ const UndernamesSubtable = ({
             No Undernames Found
           </span>
         }
-        defaultSortingState={{ id: 'undername', desc: true }}
+        defaultSortingState={{ id: 'undername', desc: false }}
         tableClass="bg-metallic-grey"
         rowClass={(props) => {
           const pad = '*:pl-[60px]';
