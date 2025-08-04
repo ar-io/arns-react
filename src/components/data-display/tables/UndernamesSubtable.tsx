@@ -226,23 +226,27 @@ const UndernamesSubtable = ({
               >
                 <PencilIcon width={'18px'} height={'18px'} fill="inherit" />
               </button>
-              <button
-                className="fill-grey hover:fill-white"
-                onClick={() => {
-                  setSelectedUndername(undername);
-                  setAction(UNDERNAME_TABLE_ACTIONS.REMOVE);
-                  setTransactionData({
-                    subDomain: undername,
-                  });
-                  setInteractionType(ANT_INTERACTION_TYPES.REMOVE_RECORD);
-                  dispatchTransactionState({
-                    type: 'setWorkflowName',
-                    payload: ANT_INTERACTION_TYPES.REMOVE_RECORD,
-                  });
-                }}
-              >
-                <TrashIcon width={'18px'} height={'18px'} fill="inherit" />
-              </button>
+              {undername !== '@' ? (
+                <button
+                  className="fill-grey hover:fill-white"
+                  onClick={() => {
+                    setSelectedUndername(undername);
+                    setAction(UNDERNAME_TABLE_ACTIONS.REMOVE);
+                    setTransactionData({
+                      subDomain: undername,
+                    });
+                    setInteractionType(ANT_INTERACTION_TYPES.REMOVE_RECORD);
+                    dispatchTransactionState({
+                      type: 'setWorkflowName',
+                      payload: ANT_INTERACTION_TYPES.REMOVE_RECORD,
+                    });
+                  }}
+                >
+                  <TrashIcon width={'18px'} height={'18px'} fill="inherit" />
+                </button>
+              ) : (
+                <></>
+              )}
             </span>
           ),
         };
