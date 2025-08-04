@@ -27,6 +27,10 @@ export function isARNSDomainNameValid({ name }: { name?: string }): boolean {
   return true;
 }
 
+export function isApexOrValidUndername(name: string): boolean {
+  return name === '@' || isUndernameValid(name);
+}
+
 export function isUndernameValid(name: string): boolean {
   return (
     !!name &&

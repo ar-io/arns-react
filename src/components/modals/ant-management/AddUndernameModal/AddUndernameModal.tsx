@@ -307,7 +307,7 @@ function AddUndernameModal({
         onClose={closeModal}
         onNext={
           isArweaveTransactionID(targetId) &&
-          isUndernameValid(undername) &&
+          isUndernameValid(undername) && // only allow adding non-'@' undernames
           ttlSeconds >= MIN_TTL_SECONDS &&
           ttlSeconds <= MAX_TTL_SECONDS
             ? () => handlePayloadCallback()
