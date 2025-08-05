@@ -630,7 +630,12 @@ const DomainsTable = ({
                 domainData.ants?.[row.getValue('processId') as string]?.state
                   ?.Records ?? {}
               }
-              arnsDomain={row.getValue('name')}
+              arnsRecord={{
+                name: row.getValue('name'),
+                version: row.original.version,
+                undernameLimit: row.original.undernames.supported,
+                processId: row.getValue('processId'),
+              }}
               antId={row.getValue('processId')}
               version={row.original.version}
               state={
