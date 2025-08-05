@@ -193,6 +193,7 @@ export function GlobalStateProvider({
           enabled: true,
           clientName: 'arns-app',
           clientVersion: APP_VERSION,
+          sampleRate: 1,
         }}
       >
         {children}
