@@ -90,8 +90,8 @@ function ANTCard({
     controllers = [],
     records,
   } = {
-    ...useANT(processId.toString()),
-    ...(processId.toString() === 'atomic' ? state : {}),
+    ...useANT(processId?.toString()),
+    ...(processId ? {} : state),
   };
 
   const [limitDetails, setLimitDetails] = useState<boolean>(true);

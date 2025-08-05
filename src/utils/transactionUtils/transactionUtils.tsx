@@ -252,10 +252,9 @@ export function getARNSMappingByInteractionType(
           ? Date.now() + YEAR_IN_MILLISECONDS * transactionData.years
           : PERMANENT_DOMAIN_MESSAGE;
 
-      const processId =
-        transactionData.processId === 'atomic'
-          ? 'atomic'
-          : new ArweaveTransactionID(transactionData.processId);
+      const processId = transactionData.processId
+        ? new ArweaveTransactionID(transactionData.processId)
+        : undefined;
 
       return {
         domain: transactionData.name,
