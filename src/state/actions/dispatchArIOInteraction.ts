@@ -1,6 +1,10 @@
 import {
+<<<<<<< HEAD
   ANTRegistry,
   ANT_REGISTRY_ID,
+=======
+  ANT,
+>>>>>>> e752ad3e (feat(arns): use updated ANT.spawn to spawn ants and check registrey)
   AOProcess,
   AoARIOWrite,
   AoClient,
@@ -10,7 +14,6 @@ import {
   FundFrom,
   MessageResult,
   createAoSigner,
-  spawnANT,
 } from '@ar.io/sdk/web';
 import { TurboArNSClient } from '@src/services/turbo/TurboArNSClient';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
@@ -74,48 +77,24 @@ export default async function dispatchArIOInteraction({
     switch (workflowName) {
       case ARNS_INTERACTION_TYPES.BUY_RECORD: {
         const { name, type, years, paymentMethodId, email } = payload;
-        let antProcessId: string = payload.processId;
-
-        if (antProcessId === 'atomic') {
-          const state =
-            payload.state ||
-            createAntStateForOwner(
-              owner.toString(),
-              payload.targetId?.toString(),
-            );
-          antProcessId = await spawnANT({
+        const state =
+          payload.state ||
+          createAntStateForOwner(
+            owner.toString(),
+            payload.targetId?.toString(),
+          );
+        // spawn creates the new ant, registers it to the ant registry, validates the state and returns the processId
+        const antProcessId: string =
+          payload.processId ||
+          (await ANT.spawn({
             state,
             signer: createAoSigner(signer),
             ao: ao,
             scheduler: scheduler,
             module: payload.antModuleId,
-          });
-          const antRegistry = ANTRegistry.init({
-            signer,
-            hyperbeamUrl,
-            process: new AOProcess({
-              processId: ANT_REGISTRY_ID,
-              ao,
-            }),
-          });
-          let antRegistryUpdated = false;
-          let retries = 0;
-          const maxRetries = 10;
-          // We need to wait for the registration to get cranked
-          while (!antRegistryUpdated && retries <= maxRetries) {
-            await sleep(2000 * retries);
-            const aclRes = await antRegistry.accessControlList({
-              address: owner.toString(),
-            });
-
-            const antIdSet = new Set([...aclRes.Controlled, ...aclRes.Owned]);
-            antRegistryUpdated = antIdSet.has(antProcessId);
-            retries++;
-          }
-          if (!antRegistryUpdated) {
-            throw new Error('Failed to register ANT, please try again later.');
-          }
-        }
+            antRegistryId: payload.antRegistryId,
+            // TODO: spawn support onSigningProgress if we want to show progress to the user
+          }));
         if (fundFrom === 'fiat') {
           if (!turboArNSClient) {
             throw new Error('Turbo ArNS Client is not defined');
@@ -130,7 +109,6 @@ export default async function dispatchArIOInteraction({
             email,
             intent: 'Buy-Record',
           });
-          payload.processId = antProcessId;
           result = buyRecordResult;
         } else {
           const buyRecordResult = await arioContract.buyRecord({
@@ -141,11 +119,9 @@ export default async function dispatchArIOInteraction({
             fundFrom,
             referrer: APP_NAME,
           });
-
-          payload.processId = antProcessId;
-
           result = buyRecordResult;
         }
+        payload.processId = antProcessId;
         break;
       }
       case ARNS_INTERACTION_TYPES.EXTEND_LEASE:
