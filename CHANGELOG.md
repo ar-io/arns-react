@@ -8,6 +8,13 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.17.0] - 2025-08-05
+
+### Changed
+
+- Pull ANT changelog from ANTRegistry.
+- Updated `@ar.io/wayfinder-react` to 1.1.0.
+
 ## [1.16.0] - 2025-08-04
 
 ### Changed
