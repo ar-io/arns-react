@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.18.0] - 2025-08-06
+
+### Changed
+
+- Add `priority` column to undername table.
+
 ## [1.17.0] - 2025-08-05
 
 ### Changed
