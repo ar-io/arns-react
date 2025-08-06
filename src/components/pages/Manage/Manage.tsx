@@ -88,7 +88,7 @@ function Manage() {
                           }
                           className="h-fit animate-pulse whitespace-nowrap rounded-[4px] bg-primary-thin px-4 py-1 text-sm text-primary transition-all hover:bg-primary hover:text-black"
                         >
-                          Upgrade Domains
+                          Upgrade ANTs
                         </button>
                       }
                     />

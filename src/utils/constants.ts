@@ -7,7 +7,6 @@ import { TokenType } from '@ardrive/turbo-sdk';
 import Arweave from 'arweave';
 import { ArweaveWebWallet } from 'arweave-wallet-connector';
 
-import antChangelog from '../../assets/ant-changelog.md?raw';
 import AO_IMAGE from '../../assets/images/featured-domains/ao.png';
 import ARDRIVE_IMAGE from '../../assets/images/featured-domains/ardrive.png';
 import ARLINK_IMAGE from '../../assets/images/featured-domains/arlink.png';
@@ -235,7 +234,6 @@ export const ARIO_DISCORD_LINK = 'https://discord.com/invite/HGG52EtTc2';
 export const PERMANENT_DOMAIN_MESSAGE = 'Indefinite';
 
 export const METAMASK_URL = 'https://metamask.io/';
-export const ANT_CHANGELOG = antChangelog;
 
 export const KiB = 1024;
 export const MiB = 1024 * KiB;
