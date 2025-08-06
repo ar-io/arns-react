@@ -53,8 +53,6 @@ const columnHelper = createColumnHelper<TableData>();
 const UndernamesSubtable = ({
   undernames,
   arnsRecord,
-  antId,
-  version,
   state,
 }: {
   undernames: Record<string, AoANTRecord>;
@@ -64,8 +62,6 @@ const UndernamesSubtable = ({
     undernameLimit: number;
     processId: string;
   };
-  version: number;
-  antId: string;
   state?: AoANTState | null;
 }) => {
   const [{ arioProcessId, antAoClient, hyperbeamUrl }] = useGlobalState();
@@ -167,7 +163,7 @@ const UndernamesSubtable = ({
                   message={
                     !arnsRecord
                       ? 'Loading...'
-                      : version < MIN_ANT_VERSION
+                      : arnsRecord.version < MIN_ANT_VERSION
                       ? 'Update ANT to access Primary Names workflow'
                       : primaryNameData?.name ===
                         encodePrimaryName(
@@ -180,9 +176,9 @@ const UndernamesSubtable = ({
                   }
                   icon={
                     <button
-                      disabled={version < MIN_ANT_VERSION}
+                      disabled={arnsRecord.version < MIN_ANT_VERSION}
                       onClick={() => {
-                        if (!arnsRecord || !antId) return;
+                        if (!arnsRecord || !arnsRecord.processId) return;
                         const targetName = encodePrimaryName(
                           undername === '@'
                             ? arnsRecord.name
@@ -195,7 +191,7 @@ const UndernamesSubtable = ({
                             payload: {
                               names: [targetName],
                               arioProcessId,
-                              assetId: antId,
+                              assetId: arnsRecord.processId,
                               functionName: 'removePrimaryNames',
                             },
                           });
@@ -448,12 +444,12 @@ const UndernamesSubtable = ({
             });
             setAction(undefined);
           }}
-          antId={antId}
+          antId={arnsRecord.processId}
         />
       )}
       {action === UNDERNAME_TABLE_ACTIONS.EDIT && selectedUndername && (
         <EditUndernameModal
-          antId={new ArweaveTransactionID(antId)}
+          antId={new ArweaveTransactionID(arnsRecord.processId)}
           undername={selectedUndername}
           closeModal={() => setAction(undefined)}
           payloadCallback={(p) => {
@@ -467,14 +463,14 @@ const UndernamesSubtable = ({
           }}
         />
       )}
-      {antId && transactionData && interactionType && isOwner ? (
+      {arnsRecord.processId && transactionData && interactionType && isOwner ? (
         <ConfirmTransactionModal
           interactionType={interactionType}
           confirm={() =>
             handleInteraction({
               payload: transactionData,
               workflowName: interactionType,
-              processId: antId!,
+              processId: arnsRecord.processId,
             })
           }
           cancel={() => {

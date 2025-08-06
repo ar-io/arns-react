@@ -636,8 +636,6 @@ const DomainsTable = ({
                 undernameLimit: row.original.undernames.supported,
                 processId: row.getValue('processId'),
               }}
-              antId={row.getValue('processId')}
-              version={row.original.version}
               state={
                 domainData.ants?.[row.getValue('processId') as string]?.state
               }
