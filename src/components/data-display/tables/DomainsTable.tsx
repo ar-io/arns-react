@@ -396,21 +396,19 @@ const DomainsTable = ({
                 }}
                 message={
                   used >= supported ? (
-                    <span className="flex flex-column" style={{ gap: '8px' }}>
-                      <span className="w-fit items-center text-center">
-                        You&apos;ve exceeded your undername support by{' '}
-                        {used - supported} undername
-                        {used - supported > 1 ? 's' : ''}.{' '}
-                      </span>
+                    <div className="w-50 text-white text-center">
+                      The first {supported} undernames for this name (ordered by
+                      priority) will resolve on AR.IO gateways. Click{' '}
                       <Link
-                        className="w-full whitespace-nowrap bg-primary rounded-md text-black hover:text-black center hover px-2"
+                        className="text-primary"
                         to={`/manage/names/${row.getValue(
                           'name',
                         )}/upgrade-undernames`}
                       >
-                        Increase your undername support.
-                      </Link>
-                    </span>
+                        here
+                      </Link>{' '}
+                      to increase the undername limit.
+                    </div>
                   ) : (
                     <span className="justify-center items-center whitespace-nowrap flex flex-col">
                       <span className="w-fit">
@@ -630,9 +628,12 @@ const DomainsTable = ({
                 domainData.ants?.[row.getValue('processId') as string]?.state
                   ?.Records ?? {}
               }
-              arnsDomain={row.getValue('name')}
-              antId={row.getValue('processId')}
-              version={row.original.version}
+              arnsRecord={{
+                name: row.getValue('name'),
+                version: row.original.version,
+                undernameLimit: row.original.undernames.supported,
+                processId: row.getValue('processId'),
+              }}
               state={
                 domainData.ants?.[row.getValue('processId') as string]?.state
               }
