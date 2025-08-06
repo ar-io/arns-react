@@ -177,7 +177,6 @@ const TableView = <T, S>({
                     onClick={
                       onRowClick
                         ? (e) => {
-                            console.log(e.target);
                             // Prevent row click if a button inside the row was clicked
                             if (
                               e.target instanceof HTMLElement &&

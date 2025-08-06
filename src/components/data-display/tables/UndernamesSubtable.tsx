@@ -1,4 +1,5 @@
-import { AoANTRecord, AoANTState } from '@ar.io/sdk';
+import { AoANTRecord, AoANTState, sortANTRecords } from '@ar.io/sdk';
+import { Tooltip } from '@src/components/data-display';
 import { ExternalLinkIcon, PencilIcon, TrashIcon } from '@src/components/icons';
 import ArweaveID, {
   ArweaveIdTypes,
@@ -37,13 +38,13 @@ import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link } from 'react-router-dom';
 
-import { Tooltip } from '..';
 import TableView from './TableView';
 
 interface TableData {
   undername: string;
   targetId: string;
   ttlSeconds: number;
+  priority: number;
   action: ReactNode;
 }
 
@@ -51,15 +52,16 @@ const columnHelper = createColumnHelper<TableData>();
 
 const UndernamesSubtable = ({
   undernames,
-  arnsDomain,
-  antId,
-  version,
+  arnsRecord,
   state,
 }: {
   undernames: Record<string, AoANTRecord>;
-  arnsDomain: string;
-  version: number;
-  antId: string;
+  arnsRecord: {
+    name: string;
+    version: number;
+    undernameLimit: number;
+    processId: string;
+  };
   state?: AoANTState | null;
 }) => {
   const [{ arioProcessId, antAoClient, hyperbeamUrl }] = useGlobalState();
@@ -146,39 +148,41 @@ const UndernamesSubtable = ({
     if (undernames) {
       const newTableData: TableData[] = [];
 
-      // TODO: add priority to undernames table
-      Object.entries(undernames).map(([undername, record]) => {
+      // sort undernames by priority
+      const sortedRecords = sortANTRecords(undernames);
+      Object.entries(sortedRecords).map(([undername, record]) => {
         const data = {
           undername,
           targetId: record.transactionId,
           ttlSeconds: record.ttlSeconds,
+          priority: record.index,
           action: (
             <span className="flex justify-end pr-3 gap-3">
               {isOwner && (
                 <Tooltip
                   message={
-                    !arnsDomain
+                    !arnsRecord
                       ? 'Loading...'
-                      : version < MIN_ANT_VERSION
+                      : arnsRecord.version < MIN_ANT_VERSION
                       ? 'Update ANT to access Primary Names workflow'
                       : primaryNameData?.name ===
                         encodePrimaryName(
                           undername === '@'
-                            ? arnsDomain
-                            : undername + '_' + arnsDomain,
+                            ? arnsRecord.name
+                            : undername + '_' + arnsRecord.name,
                         )
                       ? 'Remove Primary Name'
                       : 'Set Primary Name'
                   }
                   icon={
                     <button
-                      disabled={version < MIN_ANT_VERSION}
+                      disabled={arnsRecord.version < MIN_ANT_VERSION}
                       onClick={() => {
-                        if (!arnsDomain || !antId) return;
+                        if (!arnsRecord || !arnsRecord.processId) return;
                         const targetName = encodePrimaryName(
                           undername === '@'
-                            ? arnsDomain
-                            : undername + '_' + arnsDomain,
+                            ? arnsRecord.name
+                            : undername + '_' + arnsRecord.name,
                         );
                         if (primaryNameData?.name === targetName) {
                           // remove primary name payload
@@ -187,7 +191,7 @@ const UndernamesSubtable = ({
                             payload: {
                               names: [targetName],
                               arioProcessId,
-                              assetId: antId,
+                              assetId: arnsRecord.processId,
                               functionName: 'removePrimaryNames',
                             },
                           });
@@ -213,8 +217,8 @@ const UndernamesSubtable = ({
                         className={
                           (encodePrimaryName(
                             undername === '@'
-                              ? arnsDomain
-                              : undername + '_' + arnsDomain,
+                              ? arnsRecord.name
+                              : undername + '_' + arnsRecord.name,
                           ) == primaryNameData?.name
                             ? 'text-primary fill-primary'
                             : 'text-grey') +
@@ -272,6 +276,7 @@ const UndernamesSubtable = ({
     'undername',
     'targetId',
     'ttlSeconds',
+    'priority',
     'action',
   ].map((key) =>
     columnHelper.accessor(key as keyof TableData, {
@@ -287,7 +292,7 @@ const UndernamesSubtable = ({
       sortDescFirst: false,
       cell: ({ row }) => {
         const rowValue = row.getValue(key) as any;
-        if (!rowValue) {
+        if (rowValue === undefined) {
           return '';
         }
         switch (key) {
@@ -308,7 +313,7 @@ const UndernamesSubtable = ({
                     className="link gap-2 items-center w-fit"
                     to={`https://${
                       rowValue === '@' ? '' : `${rowValue}_`
-                    }${encodeDomainToASCII(arnsDomain ?? '')}.${
+                    }${encodeDomainToASCII(arnsRecord.name)}.${
                       NETWORK_DEFAULTS.ARNS.HOST
                     }`}
                     target="_blank"
@@ -335,6 +340,44 @@ const UndernamesSubtable = ({
               />
             );
           }
+          case 'priority': {
+            // with tool tip explaining that priority indicates which names will resolve based on the limit
+            return (
+              <Tooltip
+                tooltipOverrides={{
+                  overlayClassName: 'w-fit',
+                  overlayInnerStyle: { width: 'fit-content' },
+                }}
+                message={
+                  <div className="w-50 text-white text-center">
+                    The first {arnsRecord.undernameLimit} undernames for this
+                    name (ordered by priority) will resolve on AR.IO gateways.
+                    Click{' '}
+                    <Link
+                      className="text-primary"
+                      to={`/manage/names/${arnsRecord.name}/upgrade-undernames`}
+                    >
+                      here
+                    </Link>{' '}
+                    to increase the undername limit.
+                  </div>
+                }
+                icon={
+                  <div className="flex flex-row items-center gap-2">
+                    <span
+                      className={`w-fit whitespace-nowrap ${
+                        rowValue <= arnsRecord.undernameLimit
+                          ? 'text-white'
+                          : 'text-primary'
+                      }`}
+                    >
+                      {rowValue}
+                    </span>
+                  </div>
+                }
+              />
+            );
+          }
           default: {
             return rowValue;
           }
@@ -345,7 +388,6 @@ const UndernamesSubtable = ({
 
   return (
     <>
-      {' '}
       <TableView
         columns={columns}
         data={tableData}
@@ -357,6 +399,11 @@ const UndernamesSubtable = ({
         }
         defaultSortingState={{ id: 'undername', desc: false }}
         tableClass="bg-metallic-grey"
+        paginationConfig={{
+          // do not paginate undernames, show all of them in one page
+          pageIndex: 0,
+          pageSize: Object.keys(undernames).length,
+        }}
         rowClass={(props) => {
           const pad = '*:pl-[60px]';
           if (props?.row !== undefined) {
@@ -401,12 +448,12 @@ const UndernamesSubtable = ({
             });
             setAction(undefined);
           }}
-          antId={antId}
+          antId={arnsRecord.processId}
         />
       )}
       {action === UNDERNAME_TABLE_ACTIONS.EDIT && selectedUndername && (
         <EditUndernameModal
-          antId={new ArweaveTransactionID(antId)}
+          antId={new ArweaveTransactionID(arnsRecord.processId)}
           undername={selectedUndername}
           closeModal={() => setAction(undefined)}
           payloadCallback={(p) => {
@@ -420,14 +467,14 @@ const UndernamesSubtable = ({
           }}
         />
       )}
-      {antId && transactionData && interactionType && isOwner ? (
+      {arnsRecord.processId && transactionData && interactionType && isOwner ? (
         <ConfirmTransactionModal
           interactionType={interactionType}
           confirm={() =>
             handleInteraction({
               payload: transactionData,
               workflowName: interactionType,
-              processId: antId!,
+              processId: arnsRecord.processId,
             })
           }
           cancel={() => {
