@@ -396,21 +396,19 @@ const DomainsTable = ({
                 }}
                 message={
                   used >= supported ? (
-                    <span className="flex flex-column" style={{ gap: '8px' }}>
-                      <span className="w-fit items-center text-center">
-                        You&apos;ve exceeded your undername support by{' '}
-                        {used - supported} undername
-                        {used - supported > 1 ? 's' : ''}.{' '}
-                      </span>
+                    <div className="w-50 text-white text-center">
+                      The first {supported} undernames for this name (ordered by
+                      priority) will resolve on AR.IO gateways. Click{' '}
                       <Link
-                        className="w-full whitespace-nowrap bg-primary rounded-md text-black hover:text-black center hover px-2"
+                        className="text-primary"
                         to={`/manage/names/${row.getValue(
                           'name',
                         )}/upgrade-undernames`}
                       >
-                        Increase your undername support.
-                      </Link>
-                    </span>
+                        here
+                      </Link>{' '}
+                      to increase the undername limit.
+                    </div>
                   ) : (
                     <span className="justify-center items-center whitespace-nowrap flex flex-col">
                       <span className="w-fit">
