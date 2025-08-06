@@ -368,7 +368,7 @@ const UndernamesSubtable = ({
                       className={`w-fit whitespace-nowrap ${
                         rowValue <= arnsRecord.undernameLimit
                           ? 'text-white'
-                          : 'text-red'
+                          : 'text-primary'
                       }`}
                     >
                       {rowValue}
@@ -388,7 +388,6 @@ const UndernamesSubtable = ({
 
   return (
     <>
-      {' '}
       <TableView
         columns={columns}
         data={tableData}
@@ -400,6 +399,11 @@ const UndernamesSubtable = ({
         }
         defaultSortingState={{ id: 'undername', desc: false }}
         tableClass="bg-metallic-grey"
+        paginationConfig={{
+          // do not paginate undernames, show all of them in one page
+          pageIndex: 0,
+          pageSize: Object.keys(undernames).length,
+        }}
         rowClass={(props) => {
           const pad = '*:pl-[60px]';
           if (props?.row !== undefined) {
