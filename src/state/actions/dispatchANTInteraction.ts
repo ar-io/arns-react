@@ -7,7 +7,6 @@ import {
   ContractSigner,
   createAoSigner,
   evolveANT,
-  spawnANT,
 } from '@ar.io/sdk/web';
 import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
 import { buildGraphQLQuery } from '@src/hooks/useGraphQL';
@@ -206,10 +205,11 @@ export default async function dispatchANTInteraction({
         break;
       }
       case ANT_INTERACTION_TYPES.REASSIGN_NAME: {
+        // TODO: use native upgrade + reassign flow from ar-io-sdk when it is available
         let newAntProcessId = payload.newAntProcessId;
         if (!newAntProcessId) {
           await stepCallback('Spawning new ANT, please wait... 1/2');
-          newAntProcessId = await spawnANT({
+          newAntProcessId = await ANT.spawn({
             ao,
             signer: createAoSigner(signer),
             state: payload.previousState,
@@ -287,7 +287,7 @@ export default async function dispatchANTInteraction({
         await stepCallback('Upgrading ANT, please wait...');
         const state = payload.state;
         // spawn new ANT with previous state
-        const newAntId = await spawnANT({
+        const newAntId = await ANT.spawn({
           signer: createAoSigner(signer),
           module: payload.antModuleId,
           ao,
@@ -320,6 +320,7 @@ export default async function dispatchANTInteraction({
           }),
         );
 
+        // TODO: we should just remove support for this and refer them to some manual process to upgrade/fork their ant
         if (preEvolveInfo.version < MIN_ANT_VERSION) {
           await stepCallback('Migrating ANT to support Reassign-Name...');
           await evolveANT({

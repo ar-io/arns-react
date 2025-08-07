@@ -188,7 +188,7 @@ function RegisterNameForm() {
         : domain;
     const buyRecordPayload: BuyRecordPayload = {
       name,
-      processId: antID?.toString() ?? 'atomic',
+      processId: antID?.toString(),
       // TODO: move this to a helper function
       years:
         registrationType === TRANSACTION_TYPES.LEASE
