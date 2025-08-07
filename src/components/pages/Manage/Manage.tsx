@@ -26,7 +26,7 @@ function Manage() {
   const [search, setSearch] = useState<string>('');
 
   return (
-    <div className="overflow-auto px-[100px] pb-[30px] pt-[10px]">
+    <div className="overflow-auto px-4 pb-[30px] pt-[10px] sm:px-[100px]">
       <div className="flex flex-col gap-[10px]">
         <div className="flex justify-start">
           <h1
@@ -50,10 +50,10 @@ function Manage() {
             minHeight: '400px',
           }}
         >
-          <div className="flex flex-row border-[1px] border-b-0 border-dark-grey h-fit px-3 py-1 rounded-t-[2px]">
+          <div className="flex flex-col gap-2 border-[1px] border-b-0 border-dark-grey h-fit px-3 py-2 rounded-t-[2px] sm:flex-row sm:gap-0">
             {
-              <div className="flex w-full flex-row">
-                <div className="flex w-full p-[5px]">
+              <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center">
+                <div className="relative flex w-full p-[5px]">
                   <SearchIcon
                     width={'18px'}
                     height={'18px'}
@@ -69,53 +69,55 @@ function Manage() {
                   />
                 </div>
 
-                {!loadingArnsState &&
-                  walletAddress &&
-                  doAntsRequireUpdate({
-                    ants,
-                    userAddress: walletAddress.toString(),
-                    currentModuleId: antModuleId,
-                  }) && (
-                    <Tooltip
-                      message={'Your Domains require an update'}
-                      icon={
-                        <button
-                          onClick={() =>
-                            dispatchModalState({
-                              type: 'setModalOpen',
-                              payload: { showUpgradeAntModal: true },
-                            })
-                          }
-                          className="h-fit animate-pulse whitespace-nowrap rounded-[4px] bg-primary-thin px-4 py-1 text-sm text-primary transition-all hover:bg-primary hover:text-black"
-                        >
-                          Upgrade ANTs
-                        </button>
-                      }
+                <div className="flex gap-2 p-[5px] sm:ml-auto">
+                  {!loadingArnsState &&
+                    walletAddress &&
+                    doAntsRequireUpdate({
+                      ants,
+                      userAddress: walletAddress.toString(),
+                      currentModuleId: antModuleId,
+                    }) && (
+                      <Tooltip
+                        message={'Your Domains require an update'}
+                        icon={
+                          <button
+                            onClick={() =>
+                              dispatchModalState({
+                                type: 'setModalOpen',
+                                payload: { showUpgradeAntModal: true },
+                              })
+                            }
+                            className="h-fit animate-pulse whitespace-nowrap rounded-[4px] bg-primary-thin px-4 py-1 text-sm text-primary transition-all hover:bg-primary hover:text-black"
+                          >
+                            Upgrade ANTs
+                          </button>
+                        }
+                      />
+                    )}
+                  <button
+                    className={'button center pointer'}
+                    onClick={() =>
+                      walletAddress
+                        ? dispatchArNSUpdate({
+                            dispatch: dispatchArNSState,
+                            walletAddress: walletAddress,
+                            arioProcessId,
+                            aoNetworkSettings: aoNetwork,
+                            hyperbeamUrl,
+                          })
+                        : eventEmitter.emit('error', {
+                            name: 'Manage Assets',
+                            message: 'Connect wallet before refreshing',
+                          })
+                    }
+                  >
+                    <RefreshIcon
+                      height={16}
+                      width={16}
+                      fill="var(--text-white)"
                     />
-                  )}
-                <button
-                  className={'button center pointer'}
-                  onClick={() =>
-                    walletAddress
-                      ? dispatchArNSUpdate({
-                          dispatch: dispatchArNSState,
-                          walletAddress: walletAddress,
-                          arioProcessId,
-                          aoNetworkSettings: aoNetwork,
-                          hyperbeamUrl,
-                        })
-                      : eventEmitter.emit('error', {
-                          name: 'Manage Assets',
-                          message: 'Connect wallet before refreshing',
-                        })
-                  }
-                >
-                  <RefreshIcon
-                    height={16}
-                    width={16}
-                    fill="var(--text-white)"
-                  />
-                </button>
+                  </button>
+                </div>
               </div>
             }
           </div>
