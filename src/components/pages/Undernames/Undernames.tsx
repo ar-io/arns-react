@@ -1,15 +1,14 @@
 import { Tooltip } from '@src/components/data-display';
-import UndernamesTable from '@src/components/data-display/tables/UndernamesTable';
+import UndernamesSubtable from '@src/components/data-display/tables/UndernamesSubtable';
 import { SearchIcon } from '@src/components/icons';
+import { Loader } from '@src/components/layout';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { MAX_UNDERNAME_COUNT } from '@src/utils/constants';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { useWalletState } from '../../../state/contexts/WalletState';
 import {
   formatForMaxCharCount,
-  getOwnershipStatus,
   isArweaveTransactionID,
   lowerCaseDomain,
 } from '../../../utils';
@@ -19,20 +18,12 @@ import './styles.css';
 function Undernames() {
   const navigate = useNavigate();
   const { id, name } = useParams();
-  const {
-    data,
-    isLoading: isLoadingDomainInfo,
-    refetch,
-  } = useDomainInfo({
+  const { data, isLoading: isLoadingDomainInfo } = useDomainInfo({
     domain: name,
     antId: isArweaveTransactionID(id) ? id : undefined,
   });
-  const [{ walletAddress }] = useWalletState();
   const [isMaxUndernameCount, setIsMaxUndernameCount] =
     useState<boolean>(false);
-  const [ownershipStatus, setOwnershipStatus] = useState<
-    'controller' | 'owner' | undefined
-  >(undefined);
   const [search, setSearch] = useState<string>('');
 
   useEffect(() => {
@@ -41,29 +32,17 @@ function Undernames() {
       navigate('/manage/ants');
       return;
     }
-    if (data?.owner && data?.controllers) {
-      setOwnershipStatus(
-        getOwnershipStatus(
-          data?.owner,
-          data?.controllers,
-          walletAddress?.toString(),
-        ),
-      );
-    }
-
     setIsMaxUndernameCount(
       !!data?.arnsRecord?.undernameLimit &&
         data?.arnsRecord?.undernameLimit >= MAX_UNDERNAME_COUNT,
     );
-  }, [
-    id,
-    name,
-    data,
-    data?.owner,
-    data?.controllers,
-    walletAddress,
-    isLoadingDomainInfo,
-  ]);
+  }, [id, name, data, isLoadingDomainInfo]);
+
+  const filteredUndernames = Object.fromEntries(
+    Object.entries(data?.state?.Records ?? {}).filter(([undername]) =>
+      undername.toLowerCase().includes(search.toLowerCase()),
+    ),
+  );
 
   return (
     <>
@@ -129,20 +108,22 @@ function Undernames() {
                 }'`}
               />
             </div>
-            <UndernamesTable
-              undernames={data?.records ?? {}}
-              arnsDomain={name}
-              antId={data?.arnsRecord?.processId}
-              ownershipStatus={ownershipStatus}
-              isLoading={isLoadingDomainInfo}
-              filter={search}
-              state={data?.state ?? null}
-              version={data?.version ?? 0}
-              refresh={() => {
-                if (isLoadingDomainInfo) return;
-                refetch();
-              }}
-            />
+            {isLoadingDomainInfo ? (
+              <div className="h-fit flex flex-col text-white w-full items-center p-5 justify-center">
+                <Loader size={80} message="Loading Undernames..." />
+              </div>
+            ) : (
+              <UndernamesSubtable
+                undernames={filteredUndernames}
+                arnsRecord={{
+                  name: data?.name ?? name ?? '',
+                  version: data?.version ?? 0,
+                  undernameLimit: data?.arnsRecord?.undernameLimit ?? 0,
+                  processId: data?.arnsRecord?.processId ?? '',
+                }}
+                state={data?.state ?? null}
+              />
+            )}
           </div>
         </div>
       </div>
