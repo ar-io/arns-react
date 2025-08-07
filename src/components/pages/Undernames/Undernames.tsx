@@ -1,7 +1,6 @@
 import { Tooltip } from '@src/components/data-display';
-import UndernamesSubtable from '@src/components/data-display/tables/UndernamesSubtable';
+import UndernamesTable from '@src/components/data-display/tables/UndernamesTable';
 import { SearchIcon } from '@src/components/icons';
-import { Loader } from '@src/components/layout';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { MAX_UNDERNAME_COUNT } from '@src/utils/constants';
 import { useEffect, useState } from 'react';
@@ -108,22 +107,17 @@ function Undernames() {
                 }'`}
               />
             </div>
-            {isLoadingDomainInfo ? (
-              <div className="h-fit flex flex-col text-white w-full items-center p-5 justify-center">
-                <Loader size={80} message="Loading Undernames..." />
-              </div>
-            ) : (
-              <UndernamesSubtable
-                undernames={filteredUndernames}
-                arnsRecord={{
-                  name: data?.name ?? name ?? '',
-                  version: data?.version ?? 0,
-                  undernameLimit: data?.arnsRecord?.undernameLimit ?? 0,
-                  processId: data?.arnsRecord?.processId ?? '',
-                }}
-                state={data?.state ?? null}
-              />
-            )}
+            <UndernamesTable
+              undernames={filteredUndernames}
+              arnsRecord={{
+                name: data?.name ?? name ?? '',
+                version: data?.version ?? 0,
+                undernameLimit: data?.arnsRecord?.undernameLimit ?? 0,
+                processId: data?.arnsRecord?.processId ?? '',
+              }}
+              state={data?.state ?? null}
+              isLoading={isLoadingDomainInfo}
+            />
           </div>
         </div>
       </div>

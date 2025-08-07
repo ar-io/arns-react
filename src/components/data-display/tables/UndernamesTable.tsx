@@ -33,11 +33,13 @@ import {
 import { MIN_ANT_VERSION, NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
+import Lottie from 'lottie-react';
 import { Plus, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link } from 'react-router-dom';
 
+import arioLoading from '../../icons/ario-spinner.json';
 import TableView from './TableView';
 
 interface TableData {
@@ -50,10 +52,11 @@ interface TableData {
 
 const columnHelper = createColumnHelper<TableData>();
 
-const UndernamesSubtable = ({
+const UndernamesTable = ({
   undernames,
   arnsRecord,
   state,
+  isLoading = false,
 }: {
   undernames: Record<string, AoANTRecord>;
   arnsRecord: {
@@ -63,6 +66,7 @@ const UndernamesSubtable = ({
     processId: string;
   };
   state?: AoANTState | null;
+  isLoading: boolean;
 }) => {
   const [{ arioProcessId, antAoClient, hyperbeamUrl }] = useGlobalState();
   const [, dispatchArNSState] = useArNSState();
@@ -393,9 +397,20 @@ const UndernamesSubtable = ({
         data={tableData}
         isLoading={false}
         noDataFoundText={
-          <span className="h-20 flex w-full items-center justify-center">
-            No Undernames Found
-          </span>
+          isLoading ? (
+            <span className="h-fit flex flex-col text-white w-full items-center p-5 justify-center">
+              <Lottie
+                animationData={arioLoading}
+                loop={true}
+                className="h-[100px]"
+              />
+              <span>Loading Undernames...</span>
+            </span>
+          ) : (
+            <span className="h-20 flex w-full items-center justify-center">
+              No Undernames Found
+            </span>
+          )
         }
         defaultSortingState={{ id: 'undername', desc: false }}
         tableClass="bg-metallic-grey"
@@ -490,4 +505,4 @@ const UndernamesSubtable = ({
   );
 };
 
-export default UndernamesSubtable;
+export default UndernamesTable;
