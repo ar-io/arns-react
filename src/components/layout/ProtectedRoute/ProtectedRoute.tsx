@@ -13,7 +13,7 @@ function ProtectedRoute({ children }: { children: JSX.Element }) {
       to={`/connect${location.search}`}
       state={{
         from: location?.state?.from,
-        to: location?.state?.to ?? location.pathname + location.search ?? '/',
+        to: location?.state?.to ?? `${location.pathname}${location.search}`,
       }}
     />
   );
