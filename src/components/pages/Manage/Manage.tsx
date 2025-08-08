@@ -85,7 +85,9 @@ function Manage() {
                   />
                   <input
                     className="pl-7 flex bg-background w-full focus:outline-none text-white placeholder:text-dark-grey"
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                    }}
                     value={search}
                     placeholder="Search your assets"
                   />
@@ -106,7 +108,7 @@ function Manage() {
                           }
                           className="h-fit animate-pulse whitespace-nowrap rounded-[4px] bg-primary-thin px-4 py-1 text-sm text-primary transition-all hover:bg-primary hover:text-black"
                         >
-                          Upgrade Domains
+                          Upgrade ANTs
                         </button>
                       }
                     />
@@ -139,6 +141,9 @@ function Manage() {
             domainData={{ names: domains, ants: antData }}
             loading={true}
             filter={search}
+            setFilter={(filter) => {
+              setSearch(filter);
+            }}
           />
         </div>
       </div>

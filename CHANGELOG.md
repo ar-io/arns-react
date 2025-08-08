@@ -8,6 +8,98 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.18.0] - 2025-08-06
+
+### Changed
+
+- Add `priority` column to undername table.
+
+## [1.17.0] - 2025-08-05
+
+### Changed
+
+- Pull ANT changelog from ANTRegistry.
+- Updated `@ar.io/wayfinder-react` to 1.1.0.
+
+## [1.16.0] - 2025-08-04
+
+### Changed
+
+- Allow managing '@' record in undername table of Manage page.
+
+## [1.15.4] - 2025-08-04
+
+### Fixed
+
+- Default to arweave.net for Arweave.app and Metamask wallets
+- Fix Turbo Credits top up modal so app doesn't crash.
+
+### Changed
+
+- Remove wallet-based gateway config and only use app-based gateway config
+
+## [1.15.3] - 2025-07-31
+
+### Changed
+
+- Open undername table on row click in domains table.
+
+## [1.15.2] - 2025-07-31
+
+### Changed
+
+- Fixed filter functionality in domains table to show no results found message
+  when no results are found.
+
+## [1.15.1] - 2025-07-31
+
+### Changed
+
+- Changed default sort order to ascending for domains table.
+
+## [1.15.0] - 2025-07-30
+
+### Added
+
+- Added DevTools page for debugging and development.
+- Added Delete and Add undername actions to domains table.
+
+### Changed
+
+- Removed status column from domains table.
+
+## [1.14.2] - 2025-07-25
+
+### Fixed
+
+- Added Referrer along with App-Name and App-Version tags to ArNS and ANT
+  writes.
+
+## [1.14.1] - 2025-07-24
+
+### Changed
+
+- Rolled back patch for ANT module ID to placate MU issue.
+
+## [1.14.0] - 2025-07-23
+
+### Changed
+
+- Configure ANTRegistry with HyperBEAM URL
+
+## [1.13.0] - 2025-07-23
+
+### Changed
+
+- Persist settings in local storage.
+- Add HyperBEAM URL option to settings.
+
+## [1.12.0] - 2025-07-18
+
+### Changed
+
+- Use `@ar.io/wayfinder-react` to resolve ARNS URLs.
+
 ## [1.11.0] - 2025-06-26
 
 ### Changed

@@ -41,8 +41,9 @@ function UpgradeDomainsModal({
   visible: boolean;
   setVisible: (visible: boolean) => void;
 }) {
-  const [{ antAoClient, aoNetwork, arioProcessId, arioContract }] =
-    useGlobalState();
+  const [
+    { antAoClient, aoNetwork, arioProcessId, arioContract, hyperbeamUrl },
+  ] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [accepted, setAccepted] = useState(false);
   const [domainsToUpgrade, setDomainsToUpgrade] = useState<string[]>([]);
@@ -104,6 +105,7 @@ function UpgradeDomainsModal({
                   arioContract,
                   arioProcessId,
                   aoNetwork,
+                  hyperbeamUrl,
                   wallet,
                 }),
               );
@@ -185,6 +187,7 @@ function UpgradeDomainsModal({
         walletAddress: walletAddress!,
         arioProcessId: arioProcessId,
         aoNetworkSettings: aoNetwork,
+        hyperbeamUrl,
       });
       handleClose();
     }

@@ -1,13 +1,12 @@
 import {
   ANT_LUA_ID,
+  ARIO_TESTNET_PROCESS_ID,
   DEFAULT_SCHEDULER_ID,
-  arioDevnetProcessId,
 } from '@ar.io/sdk/web';
 import { TokenType } from '@ardrive/turbo-sdk';
 import Arweave from 'arweave';
 import { ArweaveWebWallet } from 'arweave-wallet-connector';
 
-import antChangelog from '../../assets/ant-changelog.md?raw';
 import AO_IMAGE from '../../assets/images/featured-domains/ao.png';
 import ARDRIVE_IMAGE from '../../assets/images/featured-domains/ardrive.png';
 import ARLINK_IMAGE from '../../assets/images/featured-domains/arlink.png';
@@ -93,7 +92,7 @@ export const URL_REGEX = new RegExp(
   'i',
 );
 export const ARIO_PROCESS_ID =
-  import.meta.env.VITE_ARIO_PROCESS_ID || arioDevnetProcessId;
+  import.meta.env.VITE_ARIO_PROCESS_ID || ARIO_TESTNET_PROCESS_ID;
 
 export const DEFAULT_ANT_LUA_ID = ANT_LUA_ID;
 
@@ -131,6 +130,7 @@ export const NETWORK_DEFAULTS = {
       MU_URL: 'https://mu.ao-testnet.xyz',
       SCHEDULER: DEFAULT_SCHEDULER_ID,
       HYPERBEAM_URL: HYPERBEAM_URL,
+      MODE: 'legacy' as const,
     },
     ANT: {
       CU_URL: ANT_AO_CU_URL,
@@ -138,6 +138,7 @@ export const NETWORK_DEFAULTS = {
       SCHEDULER: DEFAULT_SCHEDULER_ID,
       GRAPHQL_URL: ARWEAVE_GRAPHQL_URL,
       HYPERBEAM_URL: HYPERBEAM_URL,
+      MODE: 'legacy' as const,
     },
   },
   ARWEAVE: {
@@ -169,17 +170,14 @@ export const YEAR_IN_MILLISECONDS = 31536000000;
 export const AVERAGE_BLOCK_TIME_MS = 120_000; // 2 mins
 
 export const FEATURED_DOMAINS: { [x: string]: { imageUrl: string } } = {
+  // TODO: pull from the ARIO contract
   arlink: { imageUrl: ARLINK_IMAGE },
-
   metalinks: { imageUrl: METALINKS_IMAGE },
   ardrive: { imageUrl: ARDRIVE_IMAGE },
   arwiki: { imageUrl: ARWIKI_IMAGE },
   permaswap: { imageUrl: PERMASWAP_IMAGE },
   'ar-fees': { imageUrl: AR_FEES_IMAGE },
-  // alex: { imageUrl: ALEX_IMAGE },
-  // cookbook: { imageUrl: COOKBOOK_IMAGE },
   ao: { imageUrl: AO_IMAGE },
-
   sam: { imageUrl: SAM_IMAGE },
   mfers: { imageUrl: MFERS_IMAGE },
 };
@@ -236,7 +234,6 @@ export const ARIO_DISCORD_LINK = 'https://discord.com/invite/HGG52EtTc2';
 export const PERMANENT_DOMAIN_MESSAGE = 'Indefinite';
 
 export const METAMASK_URL = 'https://metamask.io/';
-export const ANT_CHANGELOG = antChangelog;
 
 export const KiB = 1024;
 export const MiB = 1024 * KiB;

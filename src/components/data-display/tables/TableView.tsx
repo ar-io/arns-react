@@ -48,7 +48,7 @@ const TableView = <T, S>({
   defaultSortingState: ColumnSort;
   isLoading: boolean;
   noDataFoundText?: ReactNode;
-  onRowClick?: (row: T) => T;
+  onRowClick?: (row: T, tableRow?: Row<T>) => T;
   getSubRows?: (row: T, index: number) => T[] | undefined;
   renderSubComponent?: (props: { row: Row<T> }) => ReactNode;
   tableClass?: string;
@@ -175,7 +175,19 @@ const TableView = <T, S>({
                       onRowClick ? 'cursor-pointer' : ''
                     }`}
                     onClick={
-                      onRowClick ? () => onRowClick(row.original) : undefined
+                      onRowClick
+                        ? (e) => {
+                            // Prevent row click if a button inside the row was clicked
+                            if (
+                              e.target instanceof HTMLElement &&
+                              (e.target.closest('button') ||
+                                e.target.tagName === 'BUTTON')
+                            ) {
+                              return;
+                            }
+                            onRowClick(row.original, row);
+                          }
+                        : undefined
                     }
                   >
                     {row.getVisibleCells().map((cell) => (

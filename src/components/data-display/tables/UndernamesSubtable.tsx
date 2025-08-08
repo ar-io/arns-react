@@ -1,9 +1,10 @@
-import { AoANTRecord, AoANTState } from '@ar.io/sdk';
-import { ExternalLinkIcon, PencilIcon } from '@src/components/icons';
+import { AoANTRecord, AoANTState, sortANTRecords } from '@ar.io/sdk';
+import { Tooltip } from '@src/components/data-display';
+import { ExternalLinkIcon, PencilIcon, TrashIcon } from '@src/components/icons';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
-import { EditUndernameModal } from '@src/components/modals';
+import { AddUndernameModal, EditUndernameModal } from '@src/components/modals';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
@@ -15,7 +16,13 @@ import {
   useWalletState,
 } from '@src/state';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
-import { ANT_INTERACTION_TYPES, TransactionDataPayload } from '@src/types';
+import {
+  ANT_INTERACTION_TYPES,
+  SetRecordPayload,
+  TransactionDataPayload,
+  UNDERNAME_TABLE_ACTIONS,
+  UndernameTableInteractionTypes,
+} from '@src/types';
 import {
   camelToReadable,
   decodeDomainToASCII,
@@ -26,18 +33,18 @@ import {
 import { MIN_ANT_VERSION, NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
-import { Star } from 'lucide-react';
+import { Plus, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link } from 'react-router-dom';
 
-import { Tooltip } from '..';
 import TableView from './TableView';
 
 interface TableData {
   undername: string;
   targetId: string;
   ttlSeconds: number;
+  priority: number;
   action: ReactNode;
 }
 
@@ -45,126 +52,220 @@ const columnHelper = createColumnHelper<TableData>();
 
 const UndernamesSubtable = ({
   undernames,
-  arnsDomain,
-  antId,
-  version,
+  arnsRecord,
   state,
 }: {
   undernames: Record<string, AoANTRecord>;
-  arnsDomain: string;
-  version: number;
-  antId: string;
+  arnsRecord: {
+    name: string;
+    version: number;
+    undernameLimit: number;
+    processId: string;
+  };
   state?: AoANTState | null;
 }) => {
   const [{ arioProcessId, antAoClient, hyperbeamUrl }] = useGlobalState();
+  const [, dispatchArNSState] = useArNSState();
+
   const [{ wallet, walletAddress }] = useWalletState();
   const isOwner = walletAddress
     ? state?.Owner === walletAddress.toString()
     : false;
   const [, dispatchTransactionState] = useTransactionState();
-  const [, dispatchArNSState] = useArNSState();
   const [, dispatchModalState] = useModalState();
   const { data: primaryNameData } = usePrimaryName();
   const [tableData, setTableData] = useState<Array<TableData>>([]);
-  // modal state
+
+  const [action, setAction] = useState<
+    UndernameTableInteractionTypes | undefined
+  >();
   const [transactionData, setTransactionData] = useState<
     TransactionDataPayload | undefined
   >();
-  const [showEditUndernameModal, setShowEditUndernameModal] =
-    useState<boolean>(false);
+  const [interactionType, setInteractionType] =
+    useState<ANT_INTERACTION_TYPES>();
   const [selectedUndername, setSelectedUndername] = useState<string>();
+
+  async function handleInteraction({
+    payload,
+    workflowName,
+    processId,
+  }: {
+    payload: TransactionDataPayload;
+    workflowName: ANT_INTERACTION_TYPES;
+    processId?: string;
+  }) {
+    try {
+      if (!processId) {
+        throw new Error('Unable to interact with ANT contract - missing ID.');
+      }
+
+      if (!wallet?.contractSigner || !walletAddress) {
+        throw new Error(
+          'Unable to interact with ANT contract - missing signer.',
+        );
+      }
+
+      const { id } = await dispatchANTInteraction({
+        processId,
+        payload,
+        workflowName,
+        signer: wallet?.contractSigner,
+        owner: walletAddress?.toString(),
+        dispatchTransactionState,
+        dispatchArNSState,
+        ao: antAoClient,
+        hyperbeamUrl,
+      });
+      eventEmitter.emit('success', {
+        name: 'Manage Undernames',
+        message: (
+          <span
+            className="flex flex-row whitespace-nowrap"
+            style={{ gap: '10px' }}
+          >
+            {workflowName} complete.{' '}
+            <ArweaveID
+              id={new ArweaveTransactionID(id)}
+              type={ArweaveIdTypes.INTERACTION}
+              shouldLink
+              characterCount={8}
+            />
+          </span>
+        ),
+      });
+      // refresh the row
+      setTableData(tableData);
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    } finally {
+      setTransactionData(undefined);
+      setInteractionType(undefined);
+    }
+  }
 
   useEffect(() => {
     if (undernames) {
       const newTableData: TableData[] = [];
 
-      Object.entries(undernames)
-        .filter(([u]) => u !== '@')
-        .map(([undername, record]) => {
-          const data = {
-            undername,
-            targetId: record.transactionId,
-            ttlSeconds: record.ttlSeconds,
-            action: (
-              <span className="flex justify-end pr-3 gap-3">
-                {isOwner && (
-                  <Tooltip
-                    message={
-                      !arnsDomain
-                        ? 'Loading...'
-                        : version < MIN_ANT_VERSION
-                        ? 'Update ANT to access Primary Names workflow'
-                        : primaryNameData?.name ===
-                          encodePrimaryName(undername + '_' + arnsDomain)
-                        ? 'Remove Primary Name'
-                        : 'Set Primary Name'
-                    }
-                    icon={
-                      <button
-                        disabled={version < MIN_ANT_VERSION}
-                        onClick={() => {
-                          if (!arnsDomain || !antId) return;
-                          const targetName = encodePrimaryName(
-                            undername + '_' + arnsDomain,
-                          );
-                          if (primaryNameData?.name === targetName) {
-                            // remove primary name payload
-                            dispatchTransactionState({
-                              type: 'setTransactionData',
-                              payload: {
-                                names: [targetName],
-                                arioProcessId,
-                                assetId: antId,
-                                functionName: 'removePrimaryNames',
-                              },
-                            });
-                          } else {
-                            dispatchTransactionState({
-                              type: 'setTransactionData',
-                              payload: {
-                                name: targetName,
-                                arioProcessId,
-                                assetId: arioProcessId,
-                                functionName: 'primaryNameRequest',
-                              },
-                            });
-                          }
-
-                          dispatchModalState({
-                            type: 'setModalOpen',
-                            payload: { showPrimaryNameModal: true },
+      // sort undernames by priority
+      const sortedRecords = sortANTRecords(undernames);
+      Object.entries(sortedRecords).map(([undername, record]) => {
+        const data = {
+          undername,
+          targetId: record.transactionId,
+          ttlSeconds: record.ttlSeconds,
+          priority: record.index,
+          action: (
+            <span className="flex justify-end pr-3 gap-3">
+              {isOwner && (
+                <Tooltip
+                  message={
+                    !arnsRecord
+                      ? 'Loading...'
+                      : arnsRecord.version < MIN_ANT_VERSION
+                      ? 'Update ANT to access Primary Names workflow'
+                      : primaryNameData?.name ===
+                        encodePrimaryName(
+                          undername === '@'
+                            ? arnsRecord.name
+                            : undername + '_' + arnsRecord.name,
+                        )
+                      ? 'Remove Primary Name'
+                      : 'Set Primary Name'
+                  }
+                  icon={
+                    <button
+                      disabled={arnsRecord.version < MIN_ANT_VERSION}
+                      onClick={() => {
+                        if (!arnsRecord || !arnsRecord.processId) return;
+                        const targetName = encodePrimaryName(
+                          undername === '@'
+                            ? arnsRecord.name
+                            : undername + '_' + arnsRecord.name,
+                        );
+                        if (primaryNameData?.name === targetName) {
+                          // remove primary name payload
+                          dispatchTransactionState({
+                            type: 'setTransactionData',
+                            payload: {
+                              names: [targetName],
+                              arioProcessId,
+                              assetId: arnsRecord.processId,
+                              functionName: 'removePrimaryNames',
+                            },
                           });
-                        }}
-                      >
-                        <Star
-                          className={
-                            (encodePrimaryName(undername + '_' + arnsDomain) ==
-                            primaryNameData?.name
-                              ? 'text-primary fill-primary'
-                              : 'text-grey') +
-                            ` 
+                        } else {
+                          dispatchTransactionState({
+                            type: 'setTransactionData',
+                            payload: {
+                              name: targetName,
+                              arioProcessId,
+                              assetId: arioProcessId,
+                              functionName: 'primaryNameRequest',
+                            },
+                          });
+                        }
+
+                        dispatchModalState({
+                          type: 'setModalOpen',
+                          payload: { showPrimaryNameModal: true },
+                        });
+                      }}
+                    >
+                      <Star
+                        className={
+                          (encodePrimaryName(
+                            undername === '@'
+                              ? arnsRecord.name
+                              : undername + '_' + arnsRecord.name,
+                          ) == primaryNameData?.name
+                            ? 'text-primary fill-primary'
+                            : 'text-grey') +
+                          ` 
                     w-[18px]
                     `
-                          }
-                        />
-                      </button>
-                    }
-                  />
-                )}
+                        }
+                      />
+                    </button>
+                  }
+                />
+              )}
+              <button
+                className="fill-grey hover:fill-white"
+                onClick={() => {
+                  setSelectedUndername(undername);
+                  setAction(UNDERNAME_TABLE_ACTIONS.EDIT);
+                }}
+              >
+                <PencilIcon width={'18px'} height={'18px'} fill="inherit" />
+              </button>
+              {undername !== '@' ? (
                 <button
                   className="fill-grey hover:fill-white"
                   onClick={() => {
                     setSelectedUndername(undername);
-                    setShowEditUndernameModal(true);
+                    setAction(UNDERNAME_TABLE_ACTIONS.REMOVE);
+                    setTransactionData({
+                      subDomain: undername,
+                    });
+                    setInteractionType(ANT_INTERACTION_TYPES.REMOVE_RECORD);
+                    dispatchTransactionState({
+                      type: 'setWorkflowName',
+                      payload: ANT_INTERACTION_TYPES.REMOVE_RECORD,
+                    });
                   }}
                 >
-                  <PencilIcon width={'18px'} height={'18px'} fill="inherit" />
+                  <TrashIcon width={'18px'} height={'18px'} fill="inherit" />
                 </button>
-              </span>
-            ),
-          };
-          newTableData.push(data as TableData);
-        });
+              ) : (
+                <></>
+              )}
+            </span>
+          ),
+        };
+        newTableData.push(data as TableData);
+      });
 
       setTableData(newTableData as TableData[]);
     }
@@ -175,6 +276,7 @@ const UndernamesSubtable = ({
     'undername',
     'targetId',
     'ttlSeconds',
+    'priority',
     'action',
   ].map((key) =>
     columnHelper.accessor(key as keyof TableData, {
@@ -187,10 +289,10 @@ const UndernamesSubtable = ({
           : key == 'ttlSeconds'
           ? 'TTL Seconds'
           : camelToReadable(key),
-      sortDescFirst: true,
+      sortDescFirst: false,
       cell: ({ row }) => {
         const rowValue = row.getValue(key) as any;
-        if (!rowValue) {
+        if (rowValue === undefined) {
           return '';
         }
         switch (key) {
@@ -209,9 +311,9 @@ const UndernamesSubtable = ({
                 icon={
                   <Link
                     className="link gap-2 items-center w-fit"
-                    to={`https://${encodeDomainToASCII(
-                      rowValue,
-                    )}_${encodeDomainToASCII(arnsDomain ?? '')}.${
+                    to={`https://${
+                      rowValue === '@' ? '' : `${rowValue}_`
+                    }${encodeDomainToASCII(arnsRecord.name)}.${
                       NETWORK_DEFAULTS.ARNS.HOST
                     }`}
                     target="_blank"
@@ -238,6 +340,44 @@ const UndernamesSubtable = ({
               />
             );
           }
+          case 'priority': {
+            // with tool tip explaining that priority indicates which names will resolve based on the limit
+            return (
+              <Tooltip
+                tooltipOverrides={{
+                  overlayClassName: 'w-fit',
+                  overlayInnerStyle: { width: 'fit-content' },
+                }}
+                message={
+                  <div className="w-50 text-white text-center">
+                    The first {arnsRecord.undernameLimit} undernames for this
+                    name (ordered by priority) will resolve on AR.IO gateways.
+                    Click{' '}
+                    <Link
+                      className="text-primary"
+                      to={`/manage/names/${arnsRecord.name}/upgrade-undernames`}
+                    >
+                      here
+                    </Link>{' '}
+                    to increase the undername limit.
+                  </div>
+                }
+                icon={
+                  <div className="flex flex-row items-center gap-2">
+                    <span
+                      className={`w-fit whitespace-nowrap ${
+                        rowValue <= arnsRecord.undernameLimit
+                          ? 'text-white'
+                          : 'text-primary'
+                      }`}
+                    >
+                      {rowValue}
+                    </span>
+                  </div>
+                }
+              />
+            );
+          }
           default: {
             return rowValue;
           }
@@ -248,7 +388,6 @@ const UndernamesSubtable = ({
 
   return (
     <>
-      {' '}
       <TableView
         columns={columns}
         data={tableData}
@@ -258,8 +397,13 @@ const UndernamesSubtable = ({
             No Undernames Found
           </span>
         }
-        defaultSortingState={{ id: 'undername', desc: true }}
+        defaultSortingState={{ id: 'undername', desc: false }}
         tableClass="bg-metallic-grey"
+        paginationConfig={{
+          // do not paginate undernames, show all of them in one page
+          pageIndex: 0,
+          pageSize: Object.keys(undernames).length,
+        }}
         rowClass={(props) => {
           const pad = '*:pl-[60px]';
           if (props?.row !== undefined) {
@@ -273,48 +417,70 @@ const UndernamesSubtable = ({
 
           return '';
         }}
+        addOnAfterTable={
+          isOwner ? (
+            <div className="w-full flex flex-row text-primary font-semibold border-t-[1px] border-dark-grey text-sm">
+              <button
+                className="flex flex-row w-full items-center p-3 bg-background hover:bg-primary-gradient text-primary hover:text-primary fill-primary hover:fill-black transition-all"
+                style={{ gap: '10px' }}
+                onClick={() => setAction(UNDERNAME_TABLE_ACTIONS.CREATE)}
+              >
+                <Plus className="size-4 text-primary fill-black" />
+                Add Undername
+              </button>
+            </div>
+          ) : (
+            <></>
+          )
+        }
       />
-      {showEditUndernameModal && selectedUndername && (
-        <EditUndernameModal
-          antId={new ArweaveTransactionID(antId)}
-          undername={selectedUndername}
-          closeModal={() => setShowEditUndernameModal(false)}
-          payloadCallback={(p) => setTransactionData(p)}
+      {action === UNDERNAME_TABLE_ACTIONS.CREATE && (
+        <AddUndernameModal
+          closeModal={() => {
+            setAction(undefined);
+          }}
+          payloadCallback={(payload: SetRecordPayload) => {
+            setTransactionData(payload);
+            setInteractionType(ANT_INTERACTION_TYPES.SET_RECORD);
+            dispatchTransactionState({
+              type: 'setWorkflowName',
+              payload: ANT_INTERACTION_TYPES.SET_RECORD,
+            });
+            setAction(undefined);
+          }}
+          antId={arnsRecord.processId}
         />
       )}
-      {transactionData && wallet?.contractSigner && walletAddress ? (
+      {action === UNDERNAME_TABLE_ACTIONS.EDIT && selectedUndername && (
+        <EditUndernameModal
+          antId={new ArweaveTransactionID(arnsRecord.processId)}
+          undername={selectedUndername}
+          closeModal={() => setAction(undefined)}
+          payloadCallback={(p) => {
+            setTransactionData(p);
+            setInteractionType(ANT_INTERACTION_TYPES.EDIT_RECORD);
+            dispatchTransactionState({
+              type: 'setWorkflowName',
+              payload: ANT_INTERACTION_TYPES.EDIT_RECORD,
+            });
+            setAction(undefined);
+          }}
+        />
+      )}
+      {arnsRecord.processId && transactionData && interactionType && isOwner ? (
         <ConfirmTransactionModal
-          interactionType={ANT_INTERACTION_TYPES.EDIT_RECORD}
+          interactionType={interactionType}
           confirm={() =>
-            dispatchANTInteraction({
-              processId: antId,
+            handleInteraction({
               payload: transactionData,
-              workflowName: ANT_INTERACTION_TYPES.EDIT_RECORD,
-              signer: wallet.contractSigner!,
-              owner: walletAddress.toString(),
-              dispatchTransactionState,
-              dispatchArNSState,
-              ao: antAoClient,
-              hyperbeamUrl,
-            }).then(() => {
-              eventEmitter.emit('success', {
-                message: (
-                  <div>
-                    <span>{selectedUndername} successfully updated!</span>
-                  </div>
-                ),
-                name: 'Edit Undername',
-              });
-
-              setTransactionData(undefined);
-              setSelectedUndername(undefined);
-              setShowEditUndernameModal(false);
+              workflowName: interactionType,
+              processId: arnsRecord.processId,
             })
           }
           cancel={() => {
             setTransactionData(undefined);
+            setInteractionType(undefined);
             setSelectedUndername(undefined);
-            setShowEditUndernameModal(false);
           }}
         />
       ) : (

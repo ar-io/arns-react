@@ -13,6 +13,7 @@ export async function dispatchANTUpdate({
   processId,
   dispatch,
   aoNetwork,
+  hyperbeamUrl,
 }: {
   queryClient: QueryClient;
   domain?: string;
@@ -20,6 +21,7 @@ export async function dispatchANTUpdate({
   walletAddress: AoAddress;
   dispatch: Dispatch<ArNSAction>;
   aoNetwork: typeof NETWORK_DEFAULTS.AO;
+  hyperbeamUrl?: string;
 }) {
   try {
     dispatch({
@@ -55,6 +57,7 @@ export async function dispatchANTUpdate({
         buildDomainInfoQuery({
           antId: processId,
           aoNetwork,
+          hyperbeamUrl,
         }),
       )
       .catch((e) => console.error(e));

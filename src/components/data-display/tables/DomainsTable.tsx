@@ -1,6 +1,4 @@
-import { AoArNSNameData, isLeasedArNSRecord } from '@ar.io/sdk';
-import ErrorsTip from '@src/components/Tooltips/ErrorsTip';
-import Tooltip from '@src/components/Tooltips/Tooltip';
+import { AoArNSNameData } from '@ar.io/sdk';
 import {
   ChevronRightIcon,
   ExternalLinkIcon,
@@ -45,7 +43,7 @@ import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
-import RegistrationTip from '../../Tooltips/RegistrationTip';
+import { Tooltip } from '..';
 import TableView from './TableView';
 import UndernamesSubtable from './UndernamesSubtable';
 
@@ -63,7 +61,6 @@ type TableData = {
   expiryDate: string;
   version: number;
   antErrors: Error[];
-  status: string | number | Error[];
   action: ReactNode;
 } & Record<string, any>;
 
@@ -105,7 +102,8 @@ function filterTableData(filter: string, data: TableData[]): TableData[] {
 const DomainsTable = ({
   domainData,
   loading,
-  filter,
+  filter = '',
+  setFilter,
 }: {
   domainData: {
     names: Record<string, AoArNSNameData>;
@@ -113,6 +111,7 @@ const DomainsTable = ({
   };
   loading: boolean;
   filter?: string;
+  setFilter: (filter: string) => void;
 }) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -161,11 +160,6 @@ const DomainsTable = ({
             supported: record.undernameLimit,
           },
           expiryDate: (record as any).endTimestamp ?? PERMANENT_DOMAIN_MESSAGE,
-          status: ant?.errors?.length
-            ? ant.errors
-            : isLeasedArNSRecord(record)
-            ? record.endTimestamp
-            : PERMANENT_DOMAIN_MESSAGE,
           action: <></>,
           // metadata used for search and other purposes
           antRecords: ant?.state?.Records,
@@ -181,11 +175,8 @@ const DomainsTable = ({
   }, [domainData, loading, primaryNameData]);
 
   useEffect(() => {
-    if (filter) {
-      setFilteredTableData(filterTableData(filter, tableData));
-    } else {
-      setFilteredTableData([]);
-    }
+    const filtered = filterTableData(filter, tableData);
+    setFilteredTableData(filtered);
   }, [filter, tableData]);
   // Define columns for the table
   const columns: ColumnDef<TableData, any>[] = [
@@ -194,10 +185,9 @@ const DomainsTable = ({
     'role',
     'processId',
     'targetId',
-    'ioCompatible',
     'undernames',
     'expiryDate',
-    'status',
+    'ioCompatible',
     'action',
   ].map((key) =>
     columnHelper.accessor(key as keyof TableData, {
@@ -369,21 +359,19 @@ const DomainsTable = ({
                 }}
                 message={
                   used >= supported ? (
-                    <span className="flex flex-column" style={{ gap: '8px' }}>
-                      <span className="w-fit items-center text-center">
-                        You&apos;ve exceeded your undername support by{' '}
-                        {used - supported} undername
-                        {used - supported > 1 ? 's' : ''}.{' '}
-                      </span>
+                    <div className="w-50 text-white text-center">
+                      The first {supported} undernames for this name (ordered by
+                      priority) will resolve on AR.IO gateways. Click{' '}
                       <Link
-                        className="w-full whitespace-nowrap bg-primary rounded-md text-black hover:text-black center hover px-2"
+                        className="text-primary"
                         to={`/manage/names/${row.getValue(
                           'name',
                         )}/upgrade-undernames`}
                       >
-                        Increase your undername support.
-                      </Link>
-                    </span>
+                        here
+                      </Link>{' '}
+                      to increase the undername limit.
+                    </div>
                   ) : (
                     <span className="justify-center items-center whitespace-nowrap flex flex-col">
                       <span className="w-fit">
@@ -438,22 +426,6 @@ const DomainsTable = ({
                 }
                 icon={<>{formatExpiryDate(rowValue)}</>}
               />
-            );
-          }
-          case 'status': {
-            if (Array.isArray(rowValue) && rowValue.length > 0) {
-              return (
-                <span>
-                  <ErrorsTip errors={rowValue} />
-                </span>
-              );
-            }
-            return (
-              <span>
-                <RegistrationTip
-                  domain={domainData.names[row.getValue('name') as string]}
-                />
-              </span>
             );
           }
           case 'action': {
@@ -542,14 +514,14 @@ const DomainsTable = ({
       <div className="w-full">
         <TableView
           columns={columns}
-          data={
-            filteredTableData.length
-              ? filteredTableData
-              : tableData.length
-              ? tableData
-              : []
-          }
+          data={filteredTableData}
           isLoading={false}
+          onRowClick={(rowData, tableRow) => {
+            if (tableRow) {
+              tableRow.toggleExpanded();
+            }
+            return rowData;
+          }}
           noDataFoundText={
             !walletAddress ? (
               <div className="flex flex-column text-medium center white p-[100px] box-border gap-[20px]">
@@ -569,6 +541,21 @@ const DomainsTable = ({
             ) : loading ? (
               <div className="flex flex-column center white p-[100px]">
                 <Loader message="Loading assets..." />
+              </div>
+            ) : // if a filter is provided, show the no data found message
+            filter && filter.length > 0 ? (
+              <div className="flex flex-column center p-[100px]">
+                <span className="white bold" style={{ fontSize: '16px' }}>
+                  No results found for &apos;{filter}&apos;
+                </span>
+                <button
+                  onClick={() => {
+                    setFilter('');
+                  }}
+                  className="button-secondary center p-[10px] w-fit"
+                >
+                  Clear filter
+                </button>
               </div>
             ) : (
               <div className="flex flex-column center p-[100px]">
@@ -596,7 +583,7 @@ const DomainsTable = ({
           }
           defaultSortingState={{
             id: sortBy,
-            desc: sortBy == 'expiryDate' ? false : true,
+            desc: false, // sort by ascending by default
           }}
           renderSubComponent={({ row }) => (
             <UndernamesSubtable
@@ -604,9 +591,12 @@ const DomainsTable = ({
                 domainData.ants?.[row.getValue('processId') as string]?.state
                   ?.Records ?? {}
               }
-              arnsDomain={row.getValue('name')}
-              antId={row.getValue('processId')}
-              version={row.original.version}
+              arnsRecord={{
+                name: row.getValue('name'),
+                version: row.original.version,
+                undernameLimit: row.original.undernames.supported,
+                processId: row.getValue('processId'),
+              }}
               state={
                 domainData.ants?.[row.getValue('processId') as string]?.state
               }

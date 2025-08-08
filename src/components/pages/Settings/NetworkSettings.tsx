@@ -1,20 +1,25 @@
 import { AOProcess, ARIO } from '@ar.io/sdk/web';
 import { connect as suConnect } from '@permaweb/ao-scheduler-utils';
 import { connect } from '@permaweb/aoconnect';
-import SelectGatewayModal from '@src/components/devtools/SelectGatewayModal/SelectGatewayModal';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
+import SelectGatewayModal from '@src/components/modals/SelectGatewayModal/SelectGatewayModal';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
   dispatchArIOContract,
   dispatchNewGateway,
   useGlobalState,
-  useWalletState,
 } from '@src/state';
 import { isArweaveTransactionID, isValidGateway, isValidURL } from '@src/utils';
-import { NETWORK_DEFAULTS } from '@src/utils/constants';
+import {
+  NETWORK_DEFAULTS,
+  devPaymentServiceFqdn,
+  devStripePublishableKey,
+  prodPaymentServiceFqdn,
+  prodStripePublishableKey,
+} from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Input } from 'antd';
 import { List, RotateCcw } from 'lucide-react';
@@ -25,26 +30,39 @@ import './styles.css';
 
 function NetworkSettings() {
   const [
-    { gateway, aoNetwork, arioProcessId, arioContract, turboNetwork },
+    {
+      gateway,
+      aoNetwork,
+      arioProcessId,
+      arioContract,
+      turboNetwork,
+      hyperbeamUrl,
+    },
     dispatchGlobalState,
   ] = useGlobalState();
-  const [{ wallet }] = useWalletState();
   const [newGateway, setNewGateway] = useState<string>(gateway);
   const [validGateway, setValidGateway] = useState<boolean>(true);
-  const [newCuUrl, setNewCuUrl] = useState<string>(
-    NETWORK_DEFAULTS.AO.ARIO.CU_URL,
-  );
+  const [newCuUrl, setNewCuUrl] = useState<string>(aoNetwork.ARIO.CU_URL);
   const [validCuUrl, setValidCuUrl] = useState<boolean>(true);
-  const [newMuUrl, setNewMuUrl] = useState<string>(
-    NETWORK_DEFAULTS.AO.ARIO.MU_URL,
-  );
+  const [newMuUrl, setNewMuUrl] = useState<string>(aoNetwork.ARIO.MU_URL);
   const [validMuUrl, setValidMuUrl] = useState<boolean>(true);
   const [newSuAddress, setNewSuAddress] = useState<string>(
-    NETWORK_DEFAULTS.AO.ARIO.SCHEDULER,
+    aoNetwork.ARIO.SCHEDULER,
   );
   const [suUrl, setSuUrl] = useState<string>();
   const [validSuAddress, setValidSuAddress] = useState<boolean>(true);
   const [showGatewayModal, setShowGatewayModal] = useState<boolean>(false);
+
+  const [newHyperbeamUrl, setNewHyperbeamUrl] = useState<string>(
+    hyperbeamUrl || '',
+  );
+  const [validHyperbeamUrl, setValidHyperbeamUrl] = useState<boolean>(true);
+
+  const [newTurboPaymentUrl, setNewTurboPaymentUrl] = useState<string>(
+    turboNetwork.PAYMENT_URL,
+  );
+  const [validTurboPaymentUrl, setValidTurboPaymentUrl] =
+    useState<boolean>(true);
 
   function reset() {
     // gateway
@@ -63,6 +81,20 @@ function NetworkSettings() {
       MU_URL: NETWORK_DEFAULTS.AO.ARIO.MU_URL,
       SCHEDULER: NETWORK_DEFAULTS.AO.ARIO.SCHEDULER,
     });
+    // hyperbeam network
+    setNewHyperbeamUrl(NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || '');
+    setValidHyperbeamUrl(true);
+    dispatchGlobalState({
+      type: 'setHyperbeamUrl',
+      payload: NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || undefined,
+    });
+    // turbo network
+    setNewTurboPaymentUrl(NETWORK_DEFAULTS.TURBO.PAYMENT_URL);
+    setValidTurboPaymentUrl(true);
+    updateTurboNetwork({
+      PAYMENT_URL: NETWORK_DEFAULTS.TURBO.PAYMENT_URL,
+      STRIPE_PUBLISHABLE_KEY: NETWORK_DEFAULTS.TURBO.STRIPE_PUBLISHABLE_KEY,
+    });
   }
 
   useEffect(() => {
@@ -78,6 +110,16 @@ function NetworkSettings() {
     setNewSuAddress(aoNetwork.ARIO.SCHEDULER);
     setValidSuAddress(true);
   }, [aoNetwork]);
+
+  useEffect(() => {
+    setNewHyperbeamUrl(hyperbeamUrl || '');
+    setValidHyperbeamUrl(true);
+  }, [hyperbeamUrl]);
+
+  useEffect(() => {
+    setNewTurboPaymentUrl(turboNetwork.PAYMENT_URL);
+    setValidTurboPaymentUrl(true);
+  }, [turboNetwork]);
 
   useEffect(() => {
     async function updateSUUrl(suAddress: string) {
@@ -106,7 +148,8 @@ function NetworkSettings() {
         console.error(error);
         throw new Error('Gateway not available: ' + gate);
       });
-      if (wallet) dispatchNewGateway(gate, arioContract, dispatchGlobalState);
+      // Always try to update gateway
+      dispatchNewGateway(gate, arioContract, dispatchGlobalState);
     } catch (error) {
       eventEmitter.emit('error', error);
       eventEmitter.emit('error', {
@@ -126,8 +169,10 @@ function NetworkSettings() {
     try {
       const newConfig = {
         ...aoNetwork,
-        ...config,
-        GATEWAY_URL: gateway,
+        ...{
+          ARIO: { ...aoNetwork.ARIO, ...config, GATEWAY_URL: gateway },
+          ANT: { ...aoNetwork.ANT, ...config, GATEWAY_URL: gateway },
+        },
       };
       dispatchGlobalState({
         type: 'setAONetwork',
@@ -136,13 +181,26 @@ function NetworkSettings() {
 
       const ao = connect({
         GATEWAY_URL: 'https://' + gateway,
-        CU_URL: newConfig.CU_URL,
-        MU_URL: newConfig.MU_URL,
+        CU_URL: newConfig.ARIO.CU_URL,
+        MU_URL: newConfig.ARIO.MU_URL,
+        MODE: 'legacy' as const,
       });
       dispatchGlobalState({
         type: 'setARIOAoClient',
         payload: ao,
       });
+
+      const antAo = connect({
+        GATEWAY_URL: 'https://' + gateway,
+        CU_URL: newConfig.ANT.CU_URL,
+        MU_URL: newConfig.ANT.MU_URL,
+        MODE: 'legacy' as const,
+      });
+      dispatchGlobalState({
+        type: 'setANTAoClient',
+        payload: antAo,
+      });
+
       dispatchArIOContract({
         contract: ARIO.init({
           paymentUrl: turboNetwork.PAYMENT_URL,
@@ -158,6 +216,25 @@ function NetworkSettings() {
       eventEmitter.emit('error', error);
     }
   }
+
+  function updateTurboNetwork(config: {
+    PAYMENT_URL?: string;
+    STRIPE_PUBLISHABLE_KEY?: string;
+  }) {
+    try {
+      const newConfig = {
+        ...turboNetwork,
+        ...config,
+      };
+      dispatchGlobalState({
+        type: 'setTurboNetwork',
+        payload: newConfig,
+      });
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
+  }
+
   const labelClass =
     'flex w-fit justify-center items-center bg-background rounded-md px-4 py-1 border border-primary-thin text-md text-light-grey';
 
@@ -406,13 +483,170 @@ function NetworkSettings() {
               }
             />
           </div>
+
+          {/* TODO: add turbo payment url */}
+          <div className={inputContainerClass}>
+            <span className={labelClass}>
+              Current Hyperbeam URL:{' '}
+              <span className="text-grey pl-2">{hyperbeamUrl || ''}</span>
+              {!hyperbeamUrl && (
+                <span className="text-red-500 font-bold pl-2">DISABLED</span>
+              )}
+            </span>
+            <Input
+              className={inputClass}
+              prefixCls="settings-input"
+              placeholder="https://hyperbeam.ario.permaweb.services"
+              value={newHyperbeamUrl}
+              onChange={(e) => {
+                setValidHyperbeamUrl(isValidURL(e.target.value.trim()));
+                setNewHyperbeamUrl(e.target.value);
+              }}
+              onClear={() => setNewHyperbeamUrl('')}
+              onPressEnter={(e) =>
+                dispatchGlobalState({
+                  type: 'setHyperbeamUrl',
+                  payload: e.currentTarget.value.trim(),
+                })
+              }
+              variant="outlined"
+              status={validHyperbeamUrl ? '' : 'error'}
+              addonAfter={
+                <div className="flex flex-row" style={{ gap: '4px' }}>
+                  <button
+                    disabled={!validHyperbeamUrl}
+                    className={setButtonClass}
+                    onClick={() =>
+                      dispatchGlobalState({
+                        type: 'setHyperbeamUrl',
+                        payload: newHyperbeamUrl.trim(),
+                      })
+                    }
+                  >
+                    Set
+                  </button>
+                  <button
+                    className={resetIconClass}
+                    onClick={() => {
+                      setNewHyperbeamUrl(
+                        NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || '',
+                      );
+                      setValidHyperbeamUrl(true);
+                      dispatchGlobalState({
+                        type: 'setHyperbeamUrl',
+                        payload:
+                          NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || undefined,
+                      });
+                    }}
+                  >
+                    <RotateCcw width={'16px'} />
+                  </button>
+                </div>
+              }
+            />
+          </div>
+
+          <div className={inputContainerClass}>
+            <div className="flex flex-row gap-2">
+              <span className={labelClass}>
+                Current Turbo Payment URL:{' '}
+                <span className="text-grey pl-2">
+                  {turboNetwork.PAYMENT_URL}
+                </span>
+              </span>
+              <button
+                className={
+                  (turboNetwork.PAYMENT_URL ==
+                  `https://${devPaymentServiceFqdn}`
+                    ? 'bg-primary text-black'
+                    : ' bg-dark-grey  text-light-grey') +
+                  ` flex px-3 py-2 rounded  hover:bg-primary-thin hover:text-primary transition-all`
+                }
+                onClick={() =>
+                  updateTurboNetwork({
+                    PAYMENT_URL: `https://${devPaymentServiceFqdn}`,
+                    STRIPE_PUBLISHABLE_KEY: devStripePublishableKey,
+                  })
+                }
+              >
+                Testnet
+              </button>
+              <button
+                className={
+                  (turboNetwork.PAYMENT_URL ==
+                  `https://${prodPaymentServiceFqdn}`
+                    ? 'bg-primary text-black'
+                    : ' bg-dark-grey  text-light-grey') +
+                  ` flex px-3 py-2 rounded  hover:bg-primary-thin hover:text-primary transition-all`
+                }
+                onClick={() =>
+                  updateTurboNetwork({
+                    PAYMENT_URL: `https://${prodPaymentServiceFqdn}`,
+                    STRIPE_PUBLISHABLE_KEY: prodStripePublishableKey,
+                  })
+                }
+              >
+                Mainnet
+              </button>
+            </div>
+
+            <Input
+              className={inputClass}
+              prefixCls="settings-input"
+              placeholder="https://payment.ar.io"
+              value={newTurboPaymentUrl}
+              onChange={(e) => {
+                setValidTurboPaymentUrl(isValidURL(e.target.value.trim()));
+                setNewTurboPaymentUrl(e.target.value);
+              }}
+              onClear={() => setNewTurboPaymentUrl('')}
+              onPressEnter={(e) =>
+                updateTurboNetwork({
+                  PAYMENT_URL: e.currentTarget.value.trim(),
+                })
+              }
+              variant="outlined"
+              status={validTurboPaymentUrl ? '' : 'error'}
+              addonAfter={
+                <div className="flex flex-row" style={{ gap: '4px' }}>
+                  <button
+                    disabled={!validTurboPaymentUrl}
+                    className={setButtonClass}
+                    onClick={() =>
+                      updateTurboNetwork({
+                        PAYMENT_URL: newTurboPaymentUrl.trim(),
+                      })
+                    }
+                  >
+                    Set
+                  </button>
+                  <button
+                    className={resetIconClass}
+                    onClick={() => {
+                      setNewTurboPaymentUrl(NETWORK_DEFAULTS.TURBO.PAYMENT_URL);
+                      setValidTurboPaymentUrl(true);
+                      updateTurboNetwork({
+                        PAYMENT_URL: NETWORK_DEFAULTS.TURBO.PAYMENT_URL,
+                        STRIPE_PUBLISHABLE_KEY:
+                          NETWORK_DEFAULTS.TURBO.STRIPE_PUBLISHABLE_KEY,
+                      });
+                    }}
+                  >
+                    <RotateCcw width={'16px'} />
+                  </button>
+                </div>
+              }
+            />
+          </div>
           <div className="flex flex-col p-2 w-wfull h-full justify-end items-end">
-            <button
-              className="whitespace-nowrap flex flex-nowrap justify-center items-center gap-2 py-2 px-3 w-fit text-white border border-primary-thin hover:bg-primary hover:text-black bg-metallic-grey rounded-md transition-all"
-              onClick={reset}
-            >
-              Reset to Defaults <RotateCcw width={'16px'} />
-            </button>
+            <div className="flex flex-row gap-3 items-end w-full justify-end">
+              <button
+                className="whitespace-nowrap flex flex-nowrap justify-center items-center gap-2 py-2 px-3 w-fit text-white border border-primary-thin hover:bg-primary hover:text-black bg-metallic-grey rounded-md transition-all"
+                onClick={reset}
+              >
+                Reset to Defaults <RotateCcw width={'16px'} />
+              </button>
+            </div>
           </div>
         </>
       </div>

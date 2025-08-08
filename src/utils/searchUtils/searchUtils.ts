@@ -27,6 +27,10 @@ export function isARNSDomainNameValid({ name }: { name?: string }): boolean {
   return true;
 }
 
+export function isApexOrValidUndername(name: string): boolean {
+  return name === '@' || isUndernameValid(name);
+}
+
 export function isUndernameValid(name: string): boolean {
   return (
     !!name &&
@@ -207,7 +211,7 @@ export function isMaxLeaseDuration(duration: number | string) {
 }
 
 /**
- * @description - Formats the ArNS domain as ascii with the appropriate underscore seperator
+ * @description - Formats the ArNS domain as ascii with the appropriate underscore separator
  * @param name - unicode representation of the arns name
  * @returns ascii representation of the domain
  */
@@ -232,7 +236,7 @@ export function encodePrimaryName(name: string) {
 }
 
 /**
- * @description - Formats the ArNS domain as unicode with the appropriate underscore seperator
+ * @description - Formats the ArNS domain as unicode with the appropriate underscore separator
  * @param name - ascii representation of the arns name
  * @returns unicode representation of the domain
  */

@@ -66,8 +66,9 @@ export function ArNSStateProvider({
   reducer,
   children,
 }: ArNSStateProviderProps): JSX.Element {
-  const [{ arioContract, arioProcessId, antAoClient, aoNetwork }] =
-    useGlobalState();
+  const [
+    { arioContract, arioProcessId, antAoClient, aoNetwork, hyperbeamUrl },
+  ] = useGlobalState();
   const [state, dispatchArNSState] = useReducer(reducer, initialArNSState);
   const [{ walletAddress }] = useWalletState();
 
@@ -90,8 +91,9 @@ export function ArNSStateProvider({
       walletAddress: walletAddress,
       arioProcessId: arioProcessId,
       aoNetworkSettings: aoNetwork,
+      hyperbeamUrl,
     });
-  }, [walletAddress, aoNetwork, arioProcessId]);
+  }, [walletAddress, aoNetwork, arioProcessId, hyperbeamUrl]);
 
   return (
     <ArNSStateContext.Provider value={[state, dispatchArNSState]}>
