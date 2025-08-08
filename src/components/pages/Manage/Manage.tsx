@@ -3,7 +3,7 @@ import {
   useAntsForWallet,
   useAntsRequireUpdate,
 } from '@src/hooks/useAntsForWallet';
-import { useDomainsForWallet } from '@src/hooks/useDomainsForWallet';
+import { useArNSRecordsForWallet } from '@src/hooks/useArNSRecordsForWallet';
 import { useModalState, useWalletState } from '@src/state';
 import eventEmitter from '@src/utils/events';
 import { useEffect, useState } from 'react';
@@ -27,7 +27,7 @@ function Manage() {
     isLoading: isLoadingDomains,
     isRefetching: isRefetchingDomains,
     refetch: refetchDomains,
-  } = useDomainsForWallet();
+  } = useArNSRecordsForWallet();
   const { ants: antsRequireUpdate, isLoading: isLoadingAntsRequireUpdate } =
     useAntsRequireUpdate();
   const [isLoading, setIsLoading] = useState(isLoadingDomains || isLoadingAnts);

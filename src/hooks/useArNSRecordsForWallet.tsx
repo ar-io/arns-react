@@ -2,7 +2,7 @@ import { AoArNSNameData } from '@ar.io/sdk';
 import { useGlobalState, useWalletState } from '@src/state';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
-export const useDomainsForWallet = (): UseQueryResult<
+export const useArNSRecordsForWallet = (): UseQueryResult<
   Record<string, AoArNSNameData>
 > => {
   const [{ walletAddress }] = useWalletState();
