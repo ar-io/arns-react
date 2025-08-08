@@ -23,7 +23,7 @@ export const useAntsForWallet = (): UseQueryResult<
   const { data: antVersions = {} } = useANTVersions();
   const { data: latestAntVersion } = useLatestANTVersion();
   return useQuery({
-    queryKey: ['ants', walletAddress?.toString()],
+    queryKey: ['ants-with-metadata', walletAddress?.toString()],
     queryFn: async () => {
       const antAo = connect(aoNetwork.ANT);
       const uniqueAnts = [
@@ -35,13 +35,19 @@ export const useAntsForWallet = (): UseQueryResult<
       const antsWithMetadata = await Promise.all(
         uniqueAnts.map(async (processId) => {
           const [state, processMeta] = await Promise.all([
-            queryClient.fetchQuery(
-              buildAntStateQuery({
-                processId,
-                ao: antAo,
-                hyperbeamUrl: hyperbeamUrl,
+            queryClient
+              .fetchQuery(
+                buildAntStateQuery({
+                  processId,
+                  ao: antAo,
+                  hyperbeamUrl: hyperbeamUrl,
+                }),
+              )
+              .catch((e) => {
+                console.error(e);
+                return undefined;
               }),
-            ),
+            // TODO: send these in a single request
             queryClient
               .fetchQuery(
                 buildGraphQLQuery(aoNetwork.ANT.GRAPHQL_URL, {
@@ -54,7 +60,6 @@ export const useAntsForWallet = (): UseQueryResult<
                 return null;
               }),
           ]);
-
           const moduleId = processMeta?.tags.find(
             (tag) => tag.name === 'Module',
           )?.value;

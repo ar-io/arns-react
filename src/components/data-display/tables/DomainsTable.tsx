@@ -140,6 +140,7 @@ const DomainsTable = ({
 
       Object.entries(domainData.names).map(([domain, record]) => {
         const ant = domainData.ants[record.processId];
+        console.log(domainData);
         const data: TableData = {
           openRow: <></>,
           name: domain,

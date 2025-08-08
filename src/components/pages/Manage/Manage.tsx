@@ -92,7 +92,7 @@ function Manage() {
                   walletAddress &&
                   antsRequireUpdate.length > 0 && (
                     <Tooltip
-                      message={`${antsRequireUpdate.length} domains are eligible for an update`}
+                      message={`${antsRequireUpdate.length} ANTs are eligible for an update`}
                       icon={
                         <button
                           onClick={() =>

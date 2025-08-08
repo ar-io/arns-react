@@ -55,7 +55,7 @@ export function buildAntStateQuery({
   hyperbeamUrl?: string;
 }): {
   queryKey: ['ant', string] | string[];
-  queryFn: () => Promise<AoANTState | null>;
+  queryFn: () => Promise<AoANTState | undefined>;
   staleTime: number;
 } {
   return {
@@ -68,7 +68,7 @@ export function buildAntStateQuery({
         process: new AOProcess({ processId, ao }),
         hyperbeamUrl,
       });
-      return await ant.getState();
+      return ant.getState();
     },
     staleTime: Infinity,
   };
