@@ -49,7 +49,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { Tooltip } from '..';
 import TableView from './TableView';
-import UndernamesSubtable from './UndernamesSubtable';
+import UndernamesTable from './UndernamesTable';
 
 type TableData = {
   openRow: ReactNode;
@@ -623,7 +623,8 @@ const DomainsTable = ({
             desc: false, // sort by ascending by default
           }}
           renderSubComponent={({ row }) => (
-            <UndernamesSubtable
+            <UndernamesTable
+              isLoading={false}
               undernames={
                 domainData.ants?.[row.getValue('processId') as string]?.state
                   ?.Records ?? {}
