@@ -1,6 +1,6 @@
 import { Tooltip } from '@src/components/data-display';
 import UndernamesTable from '@src/components/data-display/tables/UndernamesTable';
-import { SearchIcon } from '@src/components/icons';
+import { RefreshIcon, SearchIcon } from '@src/components/icons';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { MAX_UNDERNAME_COUNT } from '@src/utils/constants';
 import { useEffect, useState } from 'react';
@@ -17,7 +17,12 @@ import './styles.css';
 function Undernames() {
   const navigate = useNavigate();
   const { id, name } = useParams();
-  const { data, isLoading: isLoadingDomainInfo } = useDomainInfo({
+  const {
+    data,
+    isLoading: isLoadingDomainInfo,
+    isRefetching: isRefetchingDomainInfo,
+    refetch: refetchDomainInfo,
+  } = useDomainInfo({
     domain: name,
     antId: isArweaveTransactionID(id) ? id : undefined,
   });
@@ -106,6 +111,12 @@ function Undernames() {
                   name ?? formatForMaxCharCount(id ?? '', 10)
                 }'`}
               />
+              <button
+                onClick={() => refetchDomainInfo()}
+                className="button center pointer"
+              >
+                <RefreshIcon height={16} width={16} fill="var(--text-white)" />
+              </button>
             </div>
             <UndernamesTable
               undernames={filteredUndernames}
@@ -116,7 +127,7 @@ function Undernames() {
                 processId: data?.arnsRecord?.processId ?? '',
               }}
               state={data?.state ?? null}
-              isLoading={isLoadingDomainInfo}
+              isLoading={isLoadingDomainInfo || isRefetchingDomainInfo}
             />
           </div>
         </div>
