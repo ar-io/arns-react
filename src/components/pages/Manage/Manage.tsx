@@ -2,7 +2,7 @@ import { Tooltip } from '@src/components/data-display';
 import {
   useAntsForWallet,
   useAntsRequireUpdate,
-} from '@src/hooks/useANTsForWallet';
+} from '@src/hooks/useAntsForWallet';
 import { useDomainsForWallet } from '@src/hooks/useDomainsForWallet';
 import { useModalState, useWalletState } from '@src/state';
 import eventEmitter from '@src/utils/events';
@@ -23,7 +23,7 @@ function Manage() {
     refetch: refetchAnts,
   } = useAntsForWallet();
   const {
-    domains = {},
+    data: domains = {},
     isLoading: isLoadingDomains,
     isRefetching: isRefetchingDomains,
     refetch: refetchDomains,
@@ -33,11 +33,6 @@ function Manage() {
   const [isLoading, setIsLoading] = useState(isLoadingDomains || isLoadingAnts);
 
   useEffect(() => {
-    console.log('isLoadingDomains', isLoadingDomains);
-    console.log('isLoadingAnts', isLoadingAnts);
-    console.log('isRefetchingDomains', isRefetchingDomains);
-    console.log('isRefetchingAnts', isRefetchingAnts);
-    console.log('isLoadingAntsRequireUpdate', isLoadingAntsRequireUpdate);
     setIsLoading(
       isLoadingDomains || isLoadingAnts || isLoadingAntsRequireUpdate,
     );

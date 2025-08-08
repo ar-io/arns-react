@@ -9,7 +9,7 @@ import {
 import { TransactionEdge } from 'arweave-graphql';
 
 import { useANTVersions, useLatestANTVersion } from './useANTVersions';
-import { useDomainsForWallet } from './useDomainsForWallet';
+import { useAccessControlList } from './useAccessControlList';
 import { buildGraphQLQuery } from './useGraphQL';
 
 export const useAntsForWallet = (): UseQueryResult<
@@ -18,15 +18,22 @@ export const useAntsForWallet = (): UseQueryResult<
   const [{ aoNetwork, hyperbeamUrl }] = useGlobalState();
   const queryClient = useQueryClient();
   const [{ walletAddress }] = useWalletState();
-  const { ants = [] } = useDomainsForWallet();
+  const { data: accessControlList = { Owned: [], Controlled: [] } } =
+    useAccessControlList();
   const { data: antVersions = {} } = useANTVersions();
   const { data: latestAntVersion } = useLatestANTVersion();
   return useQuery({
     queryKey: ['ants', walletAddress?.toString()],
     queryFn: async () => {
       const antAo = connect(aoNetwork.ANT);
+      const uniqueAnts = [
+        ...new Set([
+          ...(accessControlList?.Owned ?? []),
+          ...(accessControlList?.Controlled ?? []),
+        ]),
+      ];
       const antsWithMetadata = await Promise.all(
-        ants.map(async (processId) => {
+        uniqueAnts.map(async (processId) => {
           const [state, processMeta] = await Promise.all([
             queryClient.fetchQuery(
               buildAntStateQuery({
