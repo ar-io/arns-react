@@ -50,6 +50,7 @@ export async function dispatchArNSUpdate({
       payload: true,
     });
 
+    // TODO: move all of these async calls to unique hooks and remove the need for the dispatchArNSUpdate action
     const arioContract = ARIO.init({
       hyperbeamUrl,
       process: new AOProcess({ processId: arioProcessId, ao }),
@@ -75,7 +76,6 @@ export async function dispatchArNSUpdate({
     const registeredUserAnts = Array.from(
       new Set(Object.values(userDomains).map((record) => record.processId)),
     );
-    console.log(userDomains);
     // Fetch ANT Process meta from graphql
     const antMetas = (await queryClient
       .fetchQuery<TransactionEdge['node'][] | null>(
