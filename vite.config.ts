@@ -12,8 +12,10 @@ export default defineConfig({
   esbuild: false,
   build: {
     sourcemap: true,
-    minify: true,
-    cssMinify: true,
+    // Disable minification during build to reduce memory usage in constrained
+    // environments.
+    minify: false,
+    cssMinify: false,
   },
   plugins: [
     svgr(),
