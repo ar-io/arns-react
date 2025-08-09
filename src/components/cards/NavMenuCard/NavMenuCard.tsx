@@ -100,7 +100,6 @@ function NavMenuCard() {
     // const arBalance = await queryClient.fetchQuery(
     //   buildARBalanceQuery({
     //     address: walletAddress,
-    //     provider: arweaveDataProvider,
     //     meta: [gateway],
     //   }),
     // );

@@ -110,32 +110,6 @@ export interface KVCache {
   clean(): void;
 }
 
-export interface ArweaveDataProvider {
-  // add isAddress method
-  getTransactionStatus(
-    ids: ArweaveTransactionID[] | ArweaveTransactionID,
-    blockheight?: number,
-  ): Promise<Record<string, { confirmations: number; blockHeight: number }>>;
-  getTransactionTags(
-    id: ArweaveTransactionID,
-  ): Promise<{ [x: string]: string }>;
-  validateTransactionTags(params: {
-    id: string;
-    requiredTags?: {
-      [x: string]: string[] | ArweaveTransactionID[]; // allowed values
-    };
-  }): Promise<void>;
-  validateArweaveId(id: string): Promise<ArweaveTransactionID>;
-  validateConfirmations(
-    id: string,
-    numberOfConfirmations?: number,
-  ): Promise<void>;
-  validateArweaveAddress(address: string): Promise<undefined | boolean>;
-  getArBalance(wallet: ArweaveTransactionID): Promise<number>;
-  getArPrice(data: number): Promise<number>;
-  getCurrentBlockHeight(): Promise<number>;
-}
-
 export type ConnectWalletModalProps = {
   setShowModal: Dispatch<SetStateAction<boolean>>;
 };

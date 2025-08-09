@@ -1,7 +1,6 @@
 import { AoARIORead, AoARIOWrite, AoClient } from '@ar.io/sdk/web';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
 
-import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
 import { GlobalState } from '../contexts/GlobalState';
 
 export type GlobalAction =
@@ -9,7 +8,6 @@ export type GlobalAction =
       type: 'setGateway';
       payload: {
         gateway: string;
-        provider: ArweaveCompositeDataProvider;
       };
     }
   | {
@@ -58,7 +56,6 @@ export const reducer = (
       return {
         ...state,
         gateway: action.payload.gateway,
-        arweaveDataProvider: action.payload.provider,
       };
     case 'setAONetwork':
       return {
