@@ -44,9 +44,9 @@ export type DomainInfo = {
     ttlSeconds: number;
   };
   records?: Record<string, AoANTRecord>;
-  state: AoANTState | null;
+  state: AoANTState | undefined;
   isInGracePeriod?: boolean;
-  processMeta?: TransactionEdge['node'] | null;
+  processMeta?: TransactionEdge['node'] | undefined;
   errors: Error[];
   version: number;
 };
@@ -126,7 +126,7 @@ export function buildDomainInfoQuery({
               e?.message ?? 'Unknown Error - Unable to fetch ANT state',
             ),
           );
-          return null;
+          return undefined;
         });
 
       const processMeta = await queryClient
@@ -136,7 +136,7 @@ export function buildDomainInfoQuery({
         .then((res) => res?.transactions.edges[0].node)
         .catch((e) => {
           console.error(e);
-          return null;
+          return undefined;
         });
 
       const associatedNames = arnsRecords
@@ -187,7 +187,7 @@ export function buildDomainInfoQuery({
         isInGracePeriod: record ? isInGracePeriod(record) : false,
         processMeta: processMeta
           ? (processMeta as TransactionEdge['node'])
-          : null,
+          : undefined,
         version: version ? parseInt(version) : 0,
       };
 
