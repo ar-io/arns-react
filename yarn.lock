@@ -113,7 +113,7 @@
 
 "@ar.io/sdk@^3.17.2-alpha.1":
   version "3.17.2-alpha.1"
-  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-3.17.2-alpha.1.tgz#6c7df7401af03fd6bbd41245f73b0f5daddf07ff"
+  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-3.17.2-alpha.1.tgz#6c7df7401af03fd6bbd41245f73b0f5daddf07ff"
   integrity sha512-nEUBV/8CpDiHxNBZvv/lRwbr8ahj/PJhTanw8Xq7ghp6FBJPkY23A48r84emxzIiP8rWA/8A6zhozPmgw6HBVg==
   dependencies:
     "@dha-team/arbundles" "^1.0.1"
