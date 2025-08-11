@@ -1,12 +1,4 @@
-import {
-  ANTRegistry,
-  ANT_REGISTRY_ID,
-  AOProcess,
-  ARIO,
-  AoARIORead,
-  AoArNSNameData,
-  fetchAllArNSRecords,
-} from '@ar.io/sdk/web';
+import { AOProcess, ARIO, AoARIORead, AoArNSNameData } from '@ar.io/sdk/web';
 import { connect } from '@permaweb/aoconnect';
 import { captureException } from '@sentry/react';
 import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
@@ -36,7 +28,12 @@ export async function dispatchArNSUpdate({
   hyperbeamUrl?: string;
 }) {
   try {
-    const ao = connect(aoNetworkSettings.ARIO);
+    const ao = connect({
+      MODE: aoNetworkSettings.ARIO.MODE,
+      CU_URL: aoNetworkSettings.ARIO.CU_URL,
+      MU_URL: aoNetworkSettings.ARIO.MU_URL,
+    });
+
     const throttle = pLimit(20);
     // reset queries
     queryClient.resetQueries({ queryKey: ['domainInfo'] });
@@ -52,43 +49,32 @@ export async function dispatchArNSUpdate({
       type: 'setLoading',
       payload: true,
     });
+
+    // TODO: move all of these async calls to unique hooks and remove the need for the dispatchArNSUpdate action
     const arioContract = ARIO.init({
       process: new AOProcess({ processId: arioProcessId, ao }),
     }) as AoARIORead;
-    const antRegistry = ANTRegistry.init({
-      hyperbeamUrl,
-      process: new AOProcess({
-        processId: ANT_REGISTRY_ID,
-        ao: connect(aoNetworkSettings.ANT),
-      }),
-    });
-    // TODO: we should paginate or send a filter by process ID on the network process for the records we want
-    const [arnsRecords, allUserAnts] = await Promise.all([
-      fetchAllArNSRecords({ contract: arioContract, pageSize: 1000 }),
-      antRegistry.accessControlList({ address: walletAddress.toString() }),
-    ]);
 
-    const flatAntIds = new Set([
-      ...allUserAnts.Controlled,
-      ...allUserAnts.Owned,
-    ]);
-
-    const userDomains = Object.entries(arnsRecords).reduce(
-      (acc: Record<string, AoArNSNameData>, recordData) => {
-        const [name, record] = recordData;
-        if (flatAntIds.has(record.processId)) {
-          acc[name] = record;
-        }
-        return acc;
-      },
-      {},
-    );
+    const userDomains: Record<string, AoArNSNameData> = {};
+    let cursor: string | undefined = undefined;
+    let hasMore = true;
+    while (hasMore) {
+      const res = await arioContract.getArNSRecordsForAddress({
+        address: walletAddress.toString(),
+        limit: 1000,
+        cursor,
+      });
+      res.items.forEach((record) => {
+        userDomains[record.name] = record;
+      });
+      cursor = res.nextCursor;
+      hasMore = res.hasMore;
+    }
 
     // ONLY QUERY FOR ANTS THAT WE ARE INTERESTED IN, EG REGISTERED ANTS
     const registeredUserAnts = Array.from(
       new Set(Object.values(userDomains).map((record) => record.processId)),
     );
-
     // Fetch ANT Process meta from graphql
     const antMetas = (await queryClient
       .fetchQuery<TransactionEdge['node'][] | null>(
