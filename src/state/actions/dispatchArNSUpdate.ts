@@ -52,7 +52,6 @@ export async function dispatchArNSUpdate({
 
     // TODO: move all of these async calls to unique hooks and remove the need for the dispatchArNSUpdate action
     const arioContract = ARIO.init({
-      hyperbeamUrl,
       process: new AOProcess({ processId: arioProcessId, ao }),
     }) as AoARIORead;
 
