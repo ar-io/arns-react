@@ -38,7 +38,6 @@ const TableView = <T, S>({
   rowClass = () => '',
   dataClass = () => '',
   addOnAfterTable,
-  onSortingChange,
   paginationConfig = {
     pageIndex: 0, //initial page index
     pageSize: 10, //default page size
@@ -62,13 +61,11 @@ const TableView = <T, S>({
     headerGroup?: HeaderGroup<T>;
   }) => string;
   addOnAfterTable?: ReactNode;
-  onSortingChange?: (sortingState: SortingState) => void;
   paginationConfig?: {
     pageIndex?: number;
     pageSize?: number;
   };
 }) => {
-  console.log('TableView rendered with onSortingChange:', !!onSortingChange);
   const [sorting, setSorting] = useState<SortingState>([defaultSortingState]);
   const [expanded, setExpanded] = useState<ExpandedState>({});
   const [pagination, setPagination] = useState({
@@ -88,27 +85,8 @@ const TableView = <T, S>({
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
     state: { sorting, expanded, pagination },
-    onSortingChange: (updaterOrValue) => {
-      console.log('TableView onSortingChange called with:', updaterOrValue);
-      // Calculate the new sorting state
-      const newSorting =
-        typeof updaterOrValue === 'function'
-          ? updaterOrValue(sorting)
-          : updaterOrValue;
-
-      console.log('New sorting state calculated:', newSorting);
-      // Update the local state
-      setSorting(newSorting);
-
-      // Call the callback if provided
-      if (onSortingChange) {
-        console.log('Calling parent onSortingChange callback');
-        onSortingChange(newSorting);
-      } else {
-        console.log('No parent onSortingChange callback provided');
-      }
-    },
     enableExpanding: true,
+    onSortingChange: setSorting,
     onExpandedChange: (getState: any) => {
       const state = getState();
       const isSame = Object.keys(state)[0] == Object.keys(expanded)[0];
