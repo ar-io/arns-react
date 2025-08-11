@@ -45,11 +45,11 @@ import { capitalize } from 'lodash';
 import { CircleCheck, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { Tooltip } from '..';
 import TableView from './TableView';
-import UndernamesSubtable from './UndernamesSubtable';
+import UndernamesTable from './UndernamesTable';
 
 type TableData = {
   openRow: ReactNode;
@@ -118,7 +118,6 @@ const DomainsTable = ({
   setFilter: (filter: string) => void;
 }) => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [{ walletAddress }] = useWalletState();
   const [{ arioProcessId, aoNetwork, hyperbeamUrl }] = useGlobalState();
   const [{ loading: loadingArnsState }, dispatchArNSState] = useArNSState();
@@ -129,17 +128,11 @@ const DomainsTable = ({
   const { data: primaryNameData } = usePrimaryName();
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<TableData[]>([]);
-  const [sortBy, setSortBy] = useState(searchParams.get('sortBy') ?? 'name');
-
   const [showUpgradeDomainModal, setShowUpgradeDomainModal] =
     useState<boolean>(false);
   const [domainToUpgrade, setDomainToUpgrade] = useState<string | undefined>(
     undefined,
   );
-
-  useEffect(() => {
-    setSortBy(searchParams.get('sortBy') ?? 'name');
-  }, [searchParams]);
 
   useEffect(() => {
     if (domainData) {
@@ -222,6 +215,7 @@ const DomainsTable = ({
     columnHelper.accessor(key as keyof TableData, {
       id: key,
       size: key == 'action' || key == 'openRow' ? 20 : undefined,
+      enableSorting: key !== 'action' && key !== 'openRow',
       header:
         key == 'action' || key == 'openRow'
           ? ''
@@ -618,12 +612,10 @@ const DomainsTable = ({
               </div>
             )
           }
-          defaultSortingState={{
-            id: sortBy,
-            desc: false, // sort by ascending by default
-          }}
+          defaultSortingState={{ id: 'name', desc: false }}
           renderSubComponent={({ row }) => (
-            <UndernamesSubtable
+            <UndernamesTable
+              isLoading={false}
               undernames={
                 domainData.ants?.[row.getValue('processId') as string]?.state
                   ?.Records ?? {}
