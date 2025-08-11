@@ -23,8 +23,14 @@ function AntChangelog({ className }: { className?: string }) {
   const FORMATTED_CHANGELOG = Object.entries(versions ?? {})
     .sort(([a], [b]) => Number(b) - Number(a))
     .map(
-      ([version, { moduleId, notes }]) =>
-        `## [${version}] - ${moduleId}\n${notes}`,
+      ([version, { moduleId, notes, releaseTimestamp }]) =>
+        `## [${version}] - ${moduleId} - ${new Date(
+          releaseTimestamp,
+        ).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })}\n${notes}`,
     )
     .join('\n')
     .trim()
@@ -61,8 +67,9 @@ function AntChangelog({ className }: { className?: string }) {
             );
           },
           h2: ({ children, index }) => {
-            // TODO: add date on published module versions (when available)
-            const [version, id] = (children[0] as string).trim().split(' - ');
+            const [version, id, releaseDate] = (children[0] as string)
+              .trim()
+              .split(' - ');
             const isFirstHeader = index == 0;
 
             if (!isArweaveTransactionID(id)) {
@@ -84,8 +91,18 @@ function AntChangelog({ className }: { className?: string }) {
                 >
                   <div className="flex gap-3">
                     {version}
-
-                    {/* TODO: add date on published module versions */}
+                    {releaseDate ? (
+                      <span
+                        className={
+                          'text-base w-fit ' +
+                          (isFirstHeader ? 'text-white' : 'text-grey')
+                        }
+                      >
+                        - {releaseDate}
+                      </span>
+                    ) : (
+                      <></>
+                    )}
                   </div>
 
                   <ArweaveID
