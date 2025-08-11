@@ -199,7 +199,8 @@ export default async function dispatchArIOInteraction({
         }
         break;
       case ARNS_INTERACTION_TYPES.PRIMARY_NAME_REQUEST: {
-        await arioContract.setPrimaryName(
+        console.log('herherhehr', arioContract.process.processId);
+        result = await arioContract.setPrimaryName(
           {
             name: payload.name,
           },
@@ -229,6 +230,10 @@ export default async function dispatchArIOInteraction({
         dispatch({
           type: 'setSigningMessage',
           payload: `Successfully set primary name '${payload.name}'`,
+        });
+        // invalidate the primary name query
+        queryClient.invalidateQueries({
+          queryKey: ['primary-name', payload.name],
         });
         break;
       }
