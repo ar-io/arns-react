@@ -111,11 +111,10 @@
     winston "^3.13.0"
     zod "^3.23.8"
 
-
-"@ar.io/sdk@^3.17.2-alpha.1":
-  version "3.17.2-alpha.1"
-  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-3.17.2-alpha.1.tgz#6c7df7401af03fd6bbd41245f73b0f5daddf07ff"
-  integrity sha512-nEUBV/8CpDiHxNBZvv/lRwbr8ahj/PJhTanw8Xq7ghp6FBJPkY23A48r84emxzIiP8rWA/8A6zhozPmgw6HBVg==
+"@ar.io/sdk@^3.18.0-alpha.3":
+  version "3.18.0-alpha.3"
+  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-3.18.0-alpha.3.tgz#c20778559c97ac8761fa2f94e82ffaf5cf2a6c15"
+  integrity sha512-JaSf2lyeYfIZt+NHmixjcmX69gfx3AFSIQ8bJCePTy4aF9CPaMyKiM2dicTNBN0dhTHqY/POiVlPRib21d603Q==
   dependencies:
     "@dha-team/arbundles" "^1.0.1"
     "@permaweb/aoconnect" "0.0.68"

@@ -331,7 +331,6 @@ function Checkout() {
             ? 'turbo'
             : fundingSource,
         turboArNSClient: turbo,
-
         hyperbeamUrl,
       });
     } catch (error) {
