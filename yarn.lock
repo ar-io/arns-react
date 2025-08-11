@@ -93,10 +93,10 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@^3.10.1":
-  version "3.14.0"
-  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-3.14.0.tgz#aadfd03ca157d017265df39b12c8f57633303ee5"
-  integrity sha512-1moIb3CZzS7qu16K7CM8nc4vzuG4AHzXLVo711P+s5mSioZ235wshiXDJscQ2kZku4m/XpLSo1eEYv300AgAEA==
+"@ar.io/sdk@3.17.2":
+  version "3.17.2"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-3.17.2.tgz#1472605de299af2b5ee066f80e2449afdc119fda"
+  integrity sha512-3oYso5gsThj0BBh1XUE5XQWNzy+YXPq4l0kh5vrxwWbCeWOjskiXcTdrS9r/wDRhbbSYoXeolGHsFKzfE2hh3g==
   dependencies:
     "@dha-team/arbundles" "^1.0.1"
     "@permaweb/aoconnect" "0.0.68"
@@ -111,11 +111,10 @@
     winston "^3.13.0"
     zod "^3.23.8"
 
-
-"@ar.io/sdk@^3.17.2-alpha.1":
-  version "3.17.2-alpha.1"
-  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-3.17.2-alpha.1.tgz#6c7df7401af03fd6bbd41245f73b0f5daddf07ff"
-  integrity sha512-nEUBV/8CpDiHxNBZvv/lRwbr8ahj/PJhTanw8Xq7ghp6FBJPkY23A48r84emxzIiP8rWA/8A6zhozPmgw6HBVg==
+"@ar.io/sdk@^3.10.1":
+  version "3.14.0"
+  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-3.14.0.tgz#aadfd03ca157d017265df39b12c8f57633303ee5"
+  integrity sha512-1moIb3CZzS7qu16K7CM8nc4vzuG4AHzXLVo711P+s5mSioZ235wshiXDJscQ2kZku4m/XpLSo1eEYv300AgAEA==
   dependencies:
     "@dha-team/arbundles" "^1.0.1"
     "@permaweb/aoconnect" "0.0.68"

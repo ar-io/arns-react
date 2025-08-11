@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "5.4.0",
-    "@ar.io/sdk": "^3.17.2-alpha.1",
+    "@ar.io/sdk": "3.17.2",
     "@ar.io/wayfinder-core": "^1.0.4",
     "@ar.io/wayfinder-react": "^1.0.11",
     "@ardrive/turbo-sdk": "^1.23.1",
