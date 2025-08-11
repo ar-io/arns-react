@@ -1,5 +1,4 @@
 import {
-  ANT,
   ANTRegistry,
   ANT_REGISTRY_ID,
   AOProcess,
@@ -35,7 +34,6 @@ export default async function dispatchArIOInteraction({
   dispatch,
   signer,
   ao,
-  antAo,
   hyperbeamUrl,
   scheduler = DEFAULT_SCHEDULER_ID,
   fundFrom,
@@ -49,7 +47,6 @@ export default async function dispatchArIOInteraction({
   dispatch: Dispatch<TransactionAction>;
   signer?: ContractSigner;
   ao?: AoClient;
-  antAo?: AoClient;
   hyperbeamUrl?: string;
   scheduler?: string;
   fundFrom?: FundFrom | 'fiat';
@@ -202,60 +199,37 @@ export default async function dispatchArIOInteraction({
         }
         break;
       case ARNS_INTERACTION_TYPES.PRIMARY_NAME_REQUEST: {
+        await arioContract.setPrimaryName(
+          {
+            name: payload.name,
+          },
+          {
+            ...WRITE_OPTIONS,
+            onSigningProgress: (step, payload) => {
+              if (step === 'requesting-primary-name') {
+                dispatch({
+                  type: 'setSigningMessage',
+                  payload: `Requesting primary name '${payload.name}'`,
+                });
+              } else if (step === 'request-already-exists') {
+                dispatch({
+                  type: 'setSigningMessage',
+                  payload: `Primary name request for '${payload.name}' already exists!`,
+                });
+              } else if (step === 'approving-request') {
+                dispatch({
+                  type: 'setSigningMessage',
+                  payload: `Approving primary name request for '${payload.name}'`,
+                });
+              }
+            },
+          },
+        );
+        // send a final confirmation message
         dispatch({
           type: 'setSigningMessage',
-          payload: 'Confirming Primary Name 1/2',
+          payload: `Successfully set primary name '${payload.name}'`,
         });
-        const existingPrimaryNameRequest = await arioContract
-          .getPrimaryNameRequest({
-            initiator: owner.toString(),
-          })
-          .catch((e) => {
-            console.error(e);
-            return undefined;
-          });
-
-        if (
-          !existingPrimaryNameRequest ||
-          existingPrimaryNameRequest.name !== payload.name
-        ) {
-          await arioContract
-            .requestPrimaryName(
-              {
-                name: payload.name,
-                fundFrom: originalFundFrom,
-                referrer: APP_NAME,
-              },
-              WRITE_OPTIONS,
-            )
-            .catch((e) => {
-              throw new Error('Unable to request Primary name: ' + e.message);
-            });
-        }
-        // UX sleep between transactions
-        await sleep(2000);
-
-        const antProcess = ANT.init({
-          hyperbeamUrl: hyperbeamUrl,
-          signer,
-          // we're not using hyperbeam here as we're writing to the contract
-          process: new AOProcess({
-            ao: antAo,
-            processId: payload.antProcessId,
-          }),
-        });
-
-        dispatch({
-          type: 'setSigningMessage',
-          payload: 'Confirming Primary Name 2/2',
-        });
-        await sleep(2000);
-        result = await antProcess.approvePrimaryNameRequest({
-          name: payload.name,
-          address: owner.toString(),
-          arioProcessId: payload.arioProcessId,
-        });
-
         break;
       }
       case ARNS_INTERACTION_TYPES.UPGRADE_NAME: {
