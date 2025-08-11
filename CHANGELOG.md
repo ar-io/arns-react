@@ -8,6 +8,15 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.19.0] - 2025-08-11
+
+### Changed
+
+- Asset resolution now uses processId filter to get exactly the ArNS names
+  needed instead of all ArNS names.
+
+- ANT Changelog uses releaseTimestamp from the ANT Registry
+
 ## [1.18.1] - 2025-08-10
 
 ### Changed
