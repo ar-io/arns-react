@@ -87,6 +87,7 @@ export function TransactionStateProvider({
       ) &&
       state.interactionResult
     ) {
+      // TODO: this is an anti pattern, we should not be doing this here. Remove this once we have a better way to handle this.
       // on these workflows, we need to remove the ANT from state
       if (
         [
