@@ -1,11 +1,5 @@
 import {
-<<<<<<< HEAD
-  ANTRegistry,
-  ANT_REGISTRY_ID,
-=======
   ANT,
->>>>>>> e752ad3e (feat(arns): use updated ANT.spawn to spawn ants and check registrey)
-  AOProcess,
   AoARIOWrite,
   AoClient,
   AoMessageResult,
@@ -13,6 +7,7 @@ import {
   DEFAULT_SCHEDULER_ID,
   FundFrom,
   MessageResult,
+  SpawnAntProgressEvent,
   createAoSigner,
 } from '@ar.io/sdk/web';
 import { TurboArNSClient } from '@src/services/turbo/TurboArNSClient';
@@ -22,7 +17,7 @@ import {
   AoAddress,
   ContractInteraction,
 } from '@src/types';
-import { createAntStateForOwner, lowerCaseDomain, sleep } from '@src/utils';
+import { createAntStateForOwner, lowerCaseDomain } from '@src/utils';
 import { APP_NAME, WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
@@ -37,7 +32,6 @@ export default async function dispatchArIOInteraction({
   dispatch,
   signer,
   ao,
-  hyperbeamUrl,
   scheduler = DEFAULT_SCHEDULER_ID,
   fundFrom,
   turboArNSClient,
@@ -93,7 +87,30 @@ export default async function dispatchArIOInteraction({
             scheduler: scheduler,
             module: payload.antModuleId,
             antRegistryId: payload.antRegistryId,
-            // TODO: spawn support onSigningProgress if we want to show progress to the user
+            onSigningProgress: (
+              step: keyof SpawnAntProgressEvent,
+              setPayload: SpawnAntProgressEvent[keyof SpawnAntProgressEvent],
+            ) => {
+              if (step === 'spawning-ant') {
+                dispatch({
+                  type: 'setSigningMessage',
+                  payload: `Spawning new ANT for new ArNS name '${name}'`,
+                });
+              } else if (step === 'verifying-state') {
+                dispatch({
+                  type: 'setSigningMessage',
+                  // TODO: fix this type
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
+                  payload: `Validating state of new ANT '${setPayload.processId}'`,
+                });
+              } else if (step === 'registering-ant') {
+                dispatch({
+                  type: 'setSigningMessage',
+                  payload: `Adding ANT to the registry (${setPayload.antRegistryId})`,
+                });
+              }
+            },
           }));
         if (fundFrom === 'fiat') {
           if (!turboArNSClient) {
@@ -122,6 +139,11 @@ export default async function dispatchArIOInteraction({
           result = buyRecordResult;
         }
         payload.processId = antProcessId;
+        // TODO: add some cool ass animation here to get the dopamine hit
+        dispatch({
+          type: 'setSigningMessage',
+          payload: `Successfully purchased '${name}'`,
+        });
         break;
       }
       case ARNS_INTERACTION_TYPES.EXTEND_LEASE:
