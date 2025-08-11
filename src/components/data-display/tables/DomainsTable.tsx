@@ -40,7 +40,12 @@ import {
 } from '@src/utils/constants';
 import { ANTStateError } from '@src/utils/errors';
 import { queryClient } from '@src/utils/network';
-import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
+import {
+  ColumnDef,
+  ColumnSort,
+  SortingState,
+  createColumnHelper,
+} from '@tanstack/react-table';
 import { capitalize } from 'lodash';
 import { CircleCheck, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -118,7 +123,7 @@ const DomainsTable = ({
   setFilter: (filter: string) => void;
 }) => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [{ walletAddress }] = useWalletState();
   const [{ arioProcessId, aoNetwork, hyperbeamUrl }] = useGlobalState();
   const [{ loading: loadingArnsState }, dispatchArNSState] = useArNSState();
@@ -129,7 +134,11 @@ const DomainsTable = ({
   const { data: primaryNameData } = usePrimaryName();
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<TableData[]>([]);
-  const [sortBy, setSortBy] = useState(searchParams.get('sortBy') ?? 'name');
+  const [defaultSortingState, setDefaultSortingState] = useState<ColumnSort>({
+    id: searchParams.get('sortBy') ?? 'name',
+    desc: searchParams.get('desc') === 'true' ? true : false,
+  });
+  const [isUpdatingFromTable, setIsUpdatingFromTable] = useState(false);
 
   const [showUpgradeDomainModal, setShowUpgradeDomainModal] =
     useState<boolean>(false);
@@ -138,8 +147,50 @@ const DomainsTable = ({
   );
 
   useEffect(() => {
-    setSortBy(searchParams.get('sortBy') ?? 'name');
-  }, [searchParams]);
+    // Only update from URL if we're not currently updating from table
+    if (!isUpdatingFromTable) {
+      setDefaultSortingState({
+        id: searchParams.get('sortBy') ?? 'name',
+        desc: searchParams.get('desc') === 'true' ? true : false,
+      });
+    }
+    setIsUpdatingFromTable(false);
+  }, [searchParams, isUpdatingFromTable]);
+
+  // Handle sorting changes and update URL parameters
+  const handleSortingChange = (sortingState: SortingState) => {
+    console.log('handleSortingChange called with:', sortingState);
+    console.log('sortingState.length:', sortingState.length);
+    if (sortingState.length > 0) {
+      console.log('First sort column:', sortingState[0]);
+    }
+    setIsUpdatingFromTable(true);
+
+    if (sortingState.length > 0) {
+      const sortColumn = sortingState[0];
+      console.log('Updating URL with:', {
+        sortBy: sortColumn.id,
+        desc: sortColumn.desc,
+      });
+
+      // Use the callback form to ensure we get the current params
+      setSearchParams((prevParams) => {
+        const newParams = new URLSearchParams(prevParams);
+        newParams.set('sortBy', sortColumn.id);
+        newParams.set('desc', sortColumn.desc.toString());
+        return newParams;
+      });
+    } else {
+      console.log('No sorting state, removing sort params');
+      // If no sorting, remove the sort parameters
+      setSearchParams((prevParams) => {
+        const newParams = new URLSearchParams(prevParams);
+        newParams.delete('sortBy');
+        newParams.delete('desc');
+        return newParams;
+      });
+    }
+  };
 
   useEffect(() => {
     if (domainData) {
@@ -222,6 +273,7 @@ const DomainsTable = ({
     columnHelper.accessor(key as keyof TableData, {
       id: key,
       size: key == 'action' || key == 'openRow' ? 20 : undefined,
+      enableSorting: key !== 'action' && key !== 'openRow',
       header:
         key == 'action' || key == 'openRow'
           ? ''
@@ -618,10 +670,8 @@ const DomainsTable = ({
               </div>
             )
           }
-          defaultSortingState={{
-            id: sortBy,
-            desc: false, // sort by ascending by default
-          }}
+          defaultSortingState={defaultSortingState}
+          onSortingChange={handleSortingChange}
           renderSubComponent={({ row }) => (
             <UndernamesTable
               isLoading={false}

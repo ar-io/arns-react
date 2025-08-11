@@ -412,13 +412,8 @@ const UndernamesTable = ({
             </span>
           )
         }
-        defaultSortingState={{ id: 'undername', desc: false }}
+        defaultSortingState={{ id: 'priority', desc: false }}
         tableClass="bg-metallic-grey"
-        paginationConfig={{
-          // do not paginate undernames, show all of them in one page
-          pageIndex: 0,
-          pageSize: Object.keys(undernames).length,
-        }}
         rowClass={(props) => {
           const pad = '*:pl-[60px]';
           if (props?.row !== undefined) {

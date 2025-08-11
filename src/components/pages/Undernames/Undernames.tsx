@@ -96,8 +96,8 @@ function Undernames() {
             </div>
           </div>
 
-          <div>
-            <div className="flex w-full p-3 border-x-[1px] border-t-[1px] border-dark-grey rounded-t-[5px] relative">
+          <div className="border-x-[1px] border-y-[1px] border-dark-grey rounded-t-[5px]">
+            <div className="flex w-full p-3 border-b-[1px] border-dark-grey relative">
               <SearchIcon
                 width={'18px'}
                 height={'18px'}

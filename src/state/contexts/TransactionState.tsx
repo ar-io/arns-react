@@ -87,6 +87,19 @@ export function TransactionStateProvider({
       ) &&
       state.interactionResult
     ) {
+      // on these workflows, we need to remove the ANT from state
+      if (
+        [
+          ANT_INTERACTION_TYPES.REASSIGN_NAME,
+          ANT_INTERACTION_TYPES.UPGRADE_ANT,
+          ANT_INTERACTION_TYPES.TRANSFER,
+        ].includes(state.workflowName as ANT_INTERACTION_TYPES)
+      ) {
+        dispatchArNSState({
+          type: 'removeAnts',
+          payload: [state.interactionResult?.processId],
+        });
+      }
       dispatchANTUpdate({
         queryClient,
         processId: state.interactionResult?.processId,
