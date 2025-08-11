@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.18.1] - 2025-08-10
+
+### Changed
+
+- Updated `@ar.io/sdk` to 3.17.2.
+
 ## [1.18.0] - 2025-08-06
 
 ### Changed
