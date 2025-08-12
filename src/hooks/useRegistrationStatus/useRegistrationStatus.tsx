@@ -1,20 +1,13 @@
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useEffect, useState } from 'react';
 
 import { useGlobalState } from '../../state/contexts/GlobalState';
 
-const defaultReserved = {
-  isReserved: false,
-  reservedFor: undefined,
-};
+const defaultReserved = false;
 
 export function useRegistrationStatus(domain: string) {
   const [{ arweaveDataProvider }] = useGlobalState();
   const [isAvailable, setIsAvailable] = useState<boolean>(false);
-  const [isReserved, setIsReserved] = useState<{
-    isReserved: boolean;
-    reservedFor?: ArweaveTransactionID;
-  }>(defaultReserved);
+  const [isReserved, setIsReserved] = useState<boolean>(defaultReserved);
   const [validated, setValidated] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -43,25 +36,15 @@ export function useRegistrationStatus(domain: string) {
       if (!domain.length) {
         return reset();
       }
-      const availablePromise = arweaveDataProvider.isDomainAvailable({
-        domain,
-      });
-      const reservedPromise = arweaveDataProvider.isDomainReserved({
+      // TODO: use a hook with react-query for this call
+      const isAvailable = await arweaveDataProvider.isDomainAvailable({
         domain,
       });
 
-      const [isAvailable, isReserved] = await Promise.all([
-        availablePromise,
-        reservedPromise,
-      ]);
+      const isReserved = domain === 'www';
 
       setIsAvailable(isAvailable);
-      setIsReserved({
-        ...isReserved,
-        reservedFor: isReserved.reservedFor
-          ? new ArweaveTransactionID(isReserved.reservedFor)
-          : undefined,
-      });
+      setIsReserved(isReserved);
       setValidated(true);
     } catch (error) {
       console.error(error);
@@ -72,8 +55,7 @@ export function useRegistrationStatus(domain: string) {
   }
   return {
     isAvailable,
-    isReserved: isReserved?.isReserved,
-    reservedFor: isReserved?.reservedFor,
+    isReserved,
     loading,
     validated,
   };
