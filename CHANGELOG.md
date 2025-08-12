@@ -14,7 +14,6 @@ and this project adheres to
 
 - Undernames subtable and undernames table are now the same component.
 
-
 ## [1.19.0] - 2025-08-11
 
 ### Changed

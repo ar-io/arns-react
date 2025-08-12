@@ -3,11 +3,13 @@ import { isARNSDomainNameValid, lowerCaseDomain } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { useQuery } from '@tanstack/react-query';
 
+import { useRegistrationStatus } from './useRegistrationStatus/useRegistrationStatus';
 import { useTurboArNSClient } from './useTurboArNSClient';
 
 export function useArNSDomainPriceList(domain: string) {
   const [{ arioContract, arioProcessId }] = useGlobalState();
   const turbo = useTurboArNSClient();
+  const { isAvailable, loading } = useRegistrationStatus(domain);
 
   return useQuery({
     queryKey: [
@@ -18,18 +20,17 @@ export function useArNSDomainPriceList(domain: string) {
       const prices: {
         lease: number; // lease of 1 year
         buy: number; // permabuy
-
         turboFiatLease: number; // lease of 1 year
         turboFiatBuy: number; // permabuy
       } = {
         lease: 0,
         buy: 0,
-
         turboFiatLease: 0,
         turboFiatBuy: 0,
       };
       try {
         if (
+          isAvailable &&
           domain &&
           domain.length > 0 &&
           isARNSDomainNameValid({ name: domain })
@@ -77,7 +78,7 @@ export function useArNSDomainPriceList(domain: string) {
       }
       return prices;
     },
-    staleTime: 60 * 1000 * 5, // 5 minutes ~ demand factor changes once daily.
-    // TODO: use stale time as next demand factor timestamp - current timestamp
+    staleTime: 1000 * 60 * 60 * 4, // 4 hours ~ demand factor changes once daily.
+    enabled: isAvailable && !loading && domain.length > 0,
   });
 }
