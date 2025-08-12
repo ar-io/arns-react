@@ -1,28 +1,29 @@
 import { useGlobalState } from '@src/state';
+import { isARNSDomainNameValid } from '@src/utils';
 import { useQuery } from '@tanstack/react-query';
 
 export function useReturnedNames() {
-  const [{ arioContract, arioProcessId, gateway, aoNetwork }] =
-    useGlobalState();
+  const [{ arioContract, arioProcessId, aoNetwork }] = useGlobalState();
   return useQuery({
-    queryKey: ['get-returned-names', arioProcessId, gateway, aoNetwork],
-    queryFn: async () => {
-      return await arioContract.getArNSReturnedNames();
+    queryKey: ['get-returned-names', arioProcessId, aoNetwork],
+    queryFn: () => {
+      return arioContract.getArNSReturnedNames();
     },
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useReturnedName(name?: string) {
-  const [{ arioContract, arioProcessId, gateway, aoNetwork }] =
-    useGlobalState();
+  const [{ arioContract, arioProcessId, aoNetwork }] = useGlobalState();
 
   return useQuery({
-    queryKey: ['get-returned-name', arioProcessId, gateway, aoNetwork, name],
+    queryKey: ['get-returned-name', arioProcessId, aoNetwork, name],
     queryFn: async () => {
-      if (!name) throw new Error('Must provide name in hook');
-      return await arioContract.getArNSReturnedName({ name });
+      if (!name || !isARNSDomainNameValid({ name }))
+        throw new Error('Invalid ArNS name');
+      return arioContract.getArNSReturnedName({ name });
     },
+    enabled: !!name && name.length > 0,
     staleTime: 1000 * 60 * 5,
   });
 }

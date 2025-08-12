@@ -1,11 +1,11 @@
 import { useArNSRecord } from '../useArNSRecord';
-import { useArNSReturnedName } from '../useArNSReturnedName';
+import { useReturnedName } from '../useReturnedNames';
 
 const RESERVED_NAMES = ['www'];
 
 export function useRegistrationStatus(domain: string) {
   const { data: returnedName, isLoading: loadingReturnedName } =
-    useArNSReturnedName({ name: domain });
+    useReturnedName(domain);
   const { data: record, isLoading: loadingRecord } = useArNSRecord({
     name: domain,
   });
