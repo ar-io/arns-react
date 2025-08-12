@@ -1,62 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useArNSRecord } from '../useArNSRecord';
+import { useArNSReturnedName } from '../useArNSReturnedName';
 
-import { useGlobalState } from '../../state/contexts/GlobalState';
-
-const defaultReserved = false;
+const RESERVED_NAMES = ['www'];
 
 export function useRegistrationStatus(domain: string) {
-  const [{ arweaveDataProvider }] = useGlobalState();
-  const [isAvailable, setIsAvailable] = useState<boolean>(false);
-  const [isReserved, setIsReserved] = useState<boolean>(defaultReserved);
-  const [validated, setValidated] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+  const { data: returnedName, isLoading: loadingReturnedName } =
+    useArNSReturnedName({ name: domain });
+  const { data: record, isLoading: loadingRecord } = useArNSRecord({
+    name: domain,
+  });
 
-  useEffect(() => {
-    if (loading) {
-      return;
-    }
-    if (!domain.length) {
-      reset();
-    }
-    updateRegistrationStatus(domain);
-  }, [domain]);
+  const isReserved = RESERVED_NAMES.includes(domain);
+  const isLoading = loadingReturnedName || loadingRecord;
+  const isAvailable =
+    returnedName === undefined && record === undefined && !isReserved;
 
-  function reset() {
-    setIsAvailable(false);
-    setIsReserved(defaultReserved);
-    setValidated(false);
-  }
-
-  async function updateRegistrationStatus(domain: string) {
-    try {
-      reset();
-      setLoading(true);
-      setValidated(false);
-
-      if (!domain.length) {
-        return reset();
-      }
-      // TODO: use a hook with react-query for this call
-      const isAvailable = await arweaveDataProvider.isDomainAvailable({
-        domain,
-      });
-
-      const isReserved = domain === 'www';
-
-      setIsAvailable(isAvailable);
-      setIsReserved(isReserved);
-      setValidated(true);
-    } catch (error) {
-      console.error(error);
-      reset();
-    } finally {
-      setLoading(false);
-    }
-  }
   return {
     isAvailable,
     isReserved,
-    loading,
-    validated,
+    loading: isLoading,
   };
 }
