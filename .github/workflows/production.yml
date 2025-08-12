@@ -87,7 +87,7 @@ jobs:
         uses: rtCamp/action-slack-notify@v2
         if: always()
         env:
-          SLACK_TITLE: 'ArNS App Deployment - ${{ job.status }}'
+          SLACK_TITLE: 'ArNS App Deployment (PRODUCTION) - ${{ job.status }}'
           SLACK_COLOR: ${{ job.status }}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_MESSAGE:
