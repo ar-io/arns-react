@@ -14,10 +14,12 @@ export function useRegistrationStatus(domain: string) {
   const isLoading = loadingReturnedName || loadingRecord;
   const isAvailable =
     returnedName === undefined && record === undefined && !isReserved;
+  const isReturnedName = returnedName !== undefined;
 
   return {
     isAvailable,
     isReserved,
+    isReturnedName,
     loading: isLoading,
   };
 }

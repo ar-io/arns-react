@@ -1,5 +1,5 @@
 import { AoArNSNameData } from '@ar.io/sdk/web';
-import { useArNSRegistryDomains } from '@src/hooks/useArNSRegistryDomains';
+import { useRegistrationStatus } from '@src/hooks/useRegistrationStatus/useRegistrationStatus';
 import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
 import { MAX_ARNS_NAME_LENGTH } from '@src/utils/constants';
 import { SearchIcon, XIcon } from 'lucide-react';
@@ -11,6 +11,7 @@ function DomainSearch({
   placeholder = 'Search for a domain',
   setIsSearching = () => null,
   setIsAvailable = () => null,
+  setIsReturnedName = () => null,
   setDomainQuery = () => null,
   setDomainRecord = () => null,
   setIsValidDomain = () => null,
@@ -30,6 +31,7 @@ function DomainSearch({
   placeholder?: string;
   setIsSearching?: (isSearching: boolean) => void;
   setIsAvailable?: (isAvailable: boolean) => void;
+  setIsReturnedName?: (isReturnedName: boolean) => void;
   setDomainQuery?: (searchQuery: string) => void;
   setDomainRecord?: (domainRecord: AoArNSNameData | undefined) => void;
   setIsValidDomain?: (isValidDomain: boolean) => void;
@@ -45,9 +47,12 @@ function DomainSearch({
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
-  const { data: arnsDomains, isLoading: loadingArnsRegistryDomains } =
-    useArNSRegistryDomains();
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const {
+    isAvailable,
+    isReturnedName,
+    loading: loadingRegistrationStatus,
+  } = useRegistrationStatus(searchQuery);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceTimeoutRef = useRef<NodeJS.Timeout>();
@@ -57,29 +62,36 @@ function DomainSearch({
     setSearchQuery('');
     setIsSearching(false);
     setIsAvailable(false);
+    setIsReturnedName(false);
     setDomainQuery('');
     setDomainRecord({} as AoArNSNameData);
   }
 
-  function availabilityHandler({
-    domain,
-    registeredDomains,
-  }: {
-    domain: string;
-    registeredDomains: Record<string, AoArNSNameData>;
-  }) {
-    const domainRecord = registeredDomains[domain];
-    if (domainRecord) {
+  function availabilityHandler() {
+    if (searchQuery.length === 0) {
       setIsAvailable(false);
-      setDomainRecord(domainRecord);
-      setIsValidDomain(false);
-      setValidationError('This domain is already taken');
-      setDomainRecord(domainRecord);
-    } else {
-      setIsAvailable(true);
+      setIsReturnedName(isReturnedName);
       setDomainRecord({} as AoArNSNameData);
+      setIsValidDomain(false);
+      setValidationError('');
+      return;
+    }
+
+    if (loadingRegistrationStatus) {
+      setIsSearching(true);
+      return;
+    }
+
+    setIsReturnedName(isReturnedName);
+    setIsAvailable(isAvailable);
+    setDomainRecord({} as AoArNSNameData);
+
+    if (isAvailable) {
       setIsValidDomain(true);
       setValidationError('');
+    } else {
+      setIsValidDomain(false);
+      setValidationError('This domain is already taken');
     }
   }
 
@@ -123,13 +135,8 @@ function DomainSearch({
 
   // handle domain availability and price changes
   useEffect(() => {
-    availabilityHandler({
-      domain: searchQuery,
-      registeredDomains: arnsDomains ?? {},
-    });
-
-    setIsSearching(loadingArnsRegistryDomains);
-  }, [searchQuery, arnsDomains, loadingArnsRegistryDomains]);
+    availabilityHandler();
+  }, [searchQuery, isAvailable, loadingRegistrationStatus]);
 
   // add listeners to trigger focus and click out callbacks
   useEffect(() => {
