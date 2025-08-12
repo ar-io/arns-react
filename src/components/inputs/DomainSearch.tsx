@@ -50,6 +50,7 @@ function DomainSearch({
   const [searchQuery, setSearchQuery] = useState<string>('');
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout>();
 
   function reset() {
     setSearchParams({ ...searchParams, search: '' });
@@ -89,16 +90,27 @@ function DomainSearch({
     }
     setSearchParams({ ...searchParams, search: newSearchQuery });
     setSearchQuery(newSearchQuery);
-    if (newSearchQuery.length > 0) {
-      setIsSearching(true);
-      setDomainQuery(newSearchQuery);
-    } else {
+
+    // Handle immediate search for empty input
+    if (newSearchQuery.length === 0) {
       setIsSearching(false);
       setIsAvailable(false);
       setDomainQuery('');
       setDomainRecord({} as AoArNSNameData);
       setValidationError('');
+      return;
     }
+
+    // Clear existing timeout
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    // Set new timeout for debounced search operations
+    debounceTimeoutRef.current = setTimeout(() => {
+      setIsSearching(true);
+      setDomainQuery(newSearchQuery);
+    }, 300); // 300ms delay
   }
 
   // handle search param changes
@@ -142,6 +154,15 @@ function DomainSearch({
     return () => {
       document.removeEventListener('click', handleClickOutside);
       container.removeEventListener('focus', handleFocus, true);
+    };
+  }, []);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
     };
   }, []);
 
