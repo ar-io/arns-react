@@ -7,6 +7,7 @@ import {
   DEFAULT_SCHEDULER_ID,
   FundFrom,
   MessageResult,
+  SetPrimaryNameProgressEvents,
   SpawnAntProgressEvent,
   createAoSigner,
 } from '@ar.io/sdk/web';
@@ -203,7 +204,10 @@ export default async function dispatchArIOInteraction({
           },
           {
             ...WRITE_OPTIONS,
-            onSigningProgress: (step, payload) => {
+            onSigningProgress: (
+              step: keyof SetPrimaryNameProgressEvents,
+              payload: SetPrimaryNameProgressEvents[keyof SetPrimaryNameProgressEvents],
+            ) => {
               if (step === 'requesting-primary-name') {
                 dispatch({
                   type: 'setSigningMessage',
