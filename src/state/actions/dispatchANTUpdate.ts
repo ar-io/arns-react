@@ -28,17 +28,6 @@ export async function dispatchANTUpdate({
       type: 'setLoading',
       payload: true,
     });
-    dispatch({
-      type: 'addAnts',
-      payload: {
-        [processId]: {
-          state: null,
-          version: 0,
-          errors: [],
-          processMeta: null,
-        },
-      },
-    });
 
     await queryClient.resetQueries({
       predicate({ queryKey }) {
