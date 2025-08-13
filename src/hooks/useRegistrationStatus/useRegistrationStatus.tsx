@@ -62,11 +62,7 @@ export function useRegistrationStatus(domain: string) {
 
   const record = recordQuery.data;
   const returnedName = returnedNameQuery.data;
-  const isAvailable =
-    !(recordQuery.isLoading || returnedNameQuery.isLoading) &&
-    !record &&
-    !returnedName &&
-    !isReserved;
+  const isAvailable = !recordQuery.isLoading && !record && !isReserved;
   const isReturnedName = !!returnedName;
 
   return {

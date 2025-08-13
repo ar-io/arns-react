@@ -144,7 +144,7 @@ function HomeSearch() {
             />
           ) : (
             <div
-              className="flex flex-row min-h-[50px] pb-2 text-2xl font-semibold text-white justify-center items-center"
+              className="flex flex-row min-h-[50px] pb-2 text-2xl font-semibold text-white justify-center items-center flex-wrap"
               style={{ gap: 0 }}
               data-testid="home-search-available-header"
             >
