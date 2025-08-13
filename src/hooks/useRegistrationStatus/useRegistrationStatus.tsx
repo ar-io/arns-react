@@ -16,6 +16,10 @@ export function useRegistrationStatus(domain: string) {
   const [{ arioContract }] = useGlobalState();
   const isReserved = RESERVED_NAMES.includes(domain);
 
+// at the top of src/hooks/useRegistrationStatus/useRegistrationStatus.tsx
+import { useGlobalState } from '@src/state';
+import { isARNSDomainNameValid } from '@src/utils';
+
   // this query always runs if the name is not reserved
   const recordQuery = useQuery({
     queryKey: ['record', domain, arioContract.process.processId],
@@ -29,7 +33,8 @@ export function useRegistrationStatus(domain: string) {
         .getArNSRecord({ name: domain })
         .then((r) => (r === undefined ? null : r)); // null is serializable, undefined is not
     },
-    enabled: !isReserved,
+    enabled: !isReserved && isARNSDomainNameValid({ name: domain }),
+    retry: false,
     staleTime: 4 * 60 * 60 * 1000,
   });
 
