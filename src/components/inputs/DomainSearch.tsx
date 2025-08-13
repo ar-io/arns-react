@@ -1,16 +1,16 @@
 import { AoArNSNameData } from '@ar.io/sdk/web';
-import { useArNSRegistryDomains } from '@src/hooks/useArNSRegistryDomains';
+import { useRegistrationStatus } from '@src/hooks/useRegistrationStatus/useRegistrationStatus';
 import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
 import { MAX_ARNS_NAME_LENGTH } from '@src/utils/constants';
 import { SearchIcon, XIcon } from 'lucide-react';
 import { ReactNode, useEffect, useRef, useState } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
 
 function DomainSearch({
   children = <></>,
   placeholder = 'Search for a domain',
   setIsSearching = () => null,
   setIsAvailable = () => null,
+  setIsReturnedName = () => null,
   setDomainQuery = () => null,
   setDomainRecord = () => null,
   setIsValidDomain = () => null,
@@ -30,6 +30,7 @@ function DomainSearch({
   placeholder?: string;
   setIsSearching?: (isSearching: boolean) => void;
   setIsAvailable?: (isAvailable: boolean) => void;
+  setIsReturnedName?: (isReturnedName: boolean) => void;
   setDomainQuery?: (searchQuery: string) => void;
   setDomainRecord?: (domainRecord: AoArNSNameData | undefined) => void;
   setIsValidDomain?: (isValidDomain: boolean) => void;
@@ -43,43 +44,55 @@ function DomainSearch({
   searchIcon?: ReactNode;
   clearIcon?: ReactNode;
 }) {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const location = useLocation();
-  const { data: arnsDomains, isLoading: loadingArnsRegistryDomains } =
-    useArNSRegistryDomains();
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
+  const {
+    record: domainRecord,
+    isAvailable,
+    isReturnedName,
+    isLoading,
+  } = useRegistrationStatus(debouncedSearchQuery);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout>();
 
   function reset() {
-    setSearchParams({ ...searchParams, search: '' });
     setSearchQuery('');
     setIsSearching(false);
     setIsAvailable(false);
+    setIsReturnedName(false);
     setDomainQuery('');
+    setDebouncedSearchQuery('');
     setDomainRecord({} as AoArNSNameData);
+    setIsValidDomain(false);
+    setValidationError('');
   }
 
   function availabilityHandler({
-    domain,
-    registeredDomains,
+    debouncedSearchQuery,
+    isLoading,
+    isAvailable,
+    isReturnedName,
+    domainRecord,
   }: {
-    domain: string;
-    registeredDomains: Record<string, AoArNSNameData>;
+    debouncedSearchQuery: string;
+    isLoading: boolean;
+    isAvailable: boolean;
+    isReturnedName: boolean;
+    domainRecord: AoArNSNameData | null | undefined;
   }) {
-    const domainRecord = registeredDomains[domain];
-    if (domainRecord) {
-      setIsAvailable(false);
-      setDomainRecord(domainRecord);
-      setIsValidDomain(false);
-      setValidationError('This domain is already taken');
-      setDomainRecord(domainRecord);
-    } else {
-      setIsAvailable(true);
-      setDomainRecord({} as AoArNSNameData);
-      setIsValidDomain(true);
-      setValidationError('');
+    if (debouncedSearchQuery.length === 0) {
+      reset();
+      return;
     }
+
+    // we have already handled debounced on the input, so if this is called, we are ready to update the state
+    setIsSearching(isLoading);
+    setDomainQuery(debouncedSearchQuery);
+    setIsAvailable(isAvailable);
+    setIsReturnedName(isReturnedName);
+    setDomainRecord(domainRecord ?? ({} as AoArNSNameData));
+    setValidationError(isAvailable ? '' : 'This domain is already taken');
   }
 
   function inputHandler(v: string) {
@@ -87,37 +100,30 @@ function DomainSearch({
     if (newSearchQuery.length > MAX_ARNS_NAME_LENGTH) {
       return;
     }
-    setSearchParams({ ...searchParams, search: newSearchQuery });
+
+    // set the state right away so the input is updated
     setSearchQuery(newSearchQuery);
-    if (newSearchQuery.length > 0) {
-      setIsSearching(true);
-      setDomainQuery(newSearchQuery);
-    } else {
-      setIsSearching(false);
-      setIsAvailable(false);
-      setDomainQuery('');
-      setDomainRecord({} as AoArNSNameData);
-      setValidationError('');
+
+    // clear the timeout if it exists
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
     }
+
+    // no need to trigger anything if the search query is empty
+    if (newSearchQuery.length === 0) {
+      reset();
+      return;
+    }
+
+    // show searching right away, but do not update the search query until the debounce timeout is complete
+    setIsSearching(true);
+
+    // set the debounced search query
+    debounceTimeoutRef.current = setTimeout(() => {
+      console.log('setting debounced search query to', newSearchQuery);
+      setDebouncedSearchQuery(newSearchQuery);
+    }, 500); // 500ms delay
   }
-
-  // handle search param changes
-  useEffect(() => {
-    const search = searchParams.get('search');
-    if (searchQuery !== search) {
-      inputHandler(search ?? '');
-    }
-  }, [location.search]);
-
-  // handle domain availability and price changes
-  useEffect(() => {
-    availabilityHandler({
-      domain: searchQuery,
-      registeredDomains: arnsDomains ?? {},
-    });
-
-    setIsSearching(loadingArnsRegistryDomains);
-  }, [searchQuery, arnsDomains, loadingArnsRegistryDomains]);
 
   // add listeners to trigger focus and click out callbacks
   useEffect(() => {
@@ -144,6 +150,31 @@ function DomainSearch({
       container.removeEventListener('focus', handleFocus, true);
     };
   }, []);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    availabilityHandler({
+      debouncedSearchQuery,
+      isLoading,
+      isAvailable,
+      isReturnedName,
+      domainRecord,
+    });
+  }, [
+    debouncedSearchQuery,
+    isLoading,
+    isAvailable,
+    isReturnedName,
+    domainRecord,
+  ]);
 
   return (
     <div ref={containerRef} className={`${className}`}>

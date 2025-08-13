@@ -9,7 +9,7 @@ import { useTurboArNSClient } from './useTurboArNSClient';
 export function useArNSDomainPriceList(domain: string) {
   const [{ arioContract, arioProcessId }] = useGlobalState();
   const turbo = useTurboArNSClient();
-  const { isAvailable, loading } = useRegistrationStatus(domain);
+  const { isAvailable } = useRegistrationStatus(domain);
 
   return useQuery({
     queryKey: [
@@ -39,36 +39,35 @@ export function useArNSDomainPriceList(domain: string) {
             intent: 'Buy-Name',
             name: lowerCaseDomain(domain),
           };
-          const [leasePrice, buyPrice] = await Promise.all([
-            arioContract.getCostDetails({
-              ...sharedOptions,
-              years: 1,
-              type: 'lease',
-            }),
-            arioContract.getCostDetails({
-              ...sharedOptions,
-              type: 'permabuy',
-            }),
-          ]);
-          prices.lease = leasePrice.tokenCost;
-          prices.buy = buyPrice.tokenCost;
-          prices.turboFiatLease =
-            (await turbo
-              ?.getPriceForArNSIntent({
+          const [leasePrice, buyPrice, turboFiatLease, turboFiatBuy] =
+            await Promise.all([
+              arioContract.getCostDetails({
                 ...sharedOptions,
                 years: 1,
                 type: 'lease',
-              })
-              .then((res) => {
-                return res.fiatEstimate.paymentAmount;
-              })) ?? 0;
-          prices.turboFiatBuy =
-            (await turbo
-              ?.getPriceForArNSIntent({
+              }),
+              arioContract.getCostDetails({
                 ...sharedOptions,
                 type: 'permabuy',
-              })
-              .then((res) => res.fiatEstimate.paymentAmount)) ?? 0;
+              }),
+              turbo
+                ?.getPriceForArNSIntent({
+                  ...sharedOptions,
+                  years: 1,
+                  type: 'lease',
+                })
+                .then((res) => res.fiatEstimate.paymentAmount),
+              turbo
+                ?.getPriceForArNSIntent({
+                  ...sharedOptions,
+                  type: 'permabuy',
+                })
+                .then((res) => res.fiatEstimate.paymentAmount),
+            ]);
+          prices.lease = leasePrice.tokenCost;
+          prices.buy = buyPrice.tokenCost;
+          prices.turboFiatLease = turboFiatLease ?? 0;
+          prices.turboFiatBuy = turboFiatBuy ?? 0;
         }
       } catch (error) {
         eventEmitter.emit('error', {
@@ -79,6 +78,6 @@ export function useArNSDomainPriceList(domain: string) {
       return prices;
     },
     staleTime: 1000 * 60 * 60 * 4, // 4 hours ~ demand factor changes once daily.
-    enabled: isAvailable && !loading && domain.length > 0,
+    enabled: isAvailable && domain.length > 0,
   });
 }
