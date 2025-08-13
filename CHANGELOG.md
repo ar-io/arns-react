@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.21.0] - 2025-08-13
+
+### Changed
+
+- Improved search functionality.
+
 ## [1.20.0] - 2025-08-12
 
 ### Changed
