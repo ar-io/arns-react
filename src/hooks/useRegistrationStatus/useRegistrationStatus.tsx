@@ -54,7 +54,12 @@ import { isARNSDomainNameValid } from '@src/utils';
           return null;
         });
     },
-    enabled: !isReserved && !recordQuery.data && !recordQuery.isLoading,
+    enabled:
+      !isReserved &&
+      !recordQuery.data &&
+      !recordQuery.isLoading &&
+      isARNSDomainNameValid({ name: domain }),
+    retry: false,
     staleTime: 4 * 60 * 60 * 1000,
   });
 
