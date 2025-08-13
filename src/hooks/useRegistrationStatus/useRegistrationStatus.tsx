@@ -1,4 +1,5 @@
 import { useGlobalState } from '@src/state';
+import { isARNSDomainNameValid } from '@src/utils';
 import { useQuery } from '@tanstack/react-query';
 
 // NOTE: this is a hard coded list, if the reserved names are ever updated (requiring a multi-sig vote) we'll need to update this
@@ -16,13 +17,9 @@ export function useRegistrationStatus(domain: string) {
   const [{ arioContract }] = useGlobalState();
   const isReserved = RESERVED_NAMES.includes(domain);
 
-// at the top of src/hooks/useRegistrationStatus/useRegistrationStatus.tsx
-import { useGlobalState } from '@src/state';
-import { isARNSDomainNameValid } from '@src/utils';
-
   // this query always runs if the name is not reserved
   const recordQuery = useQuery({
-    queryKey: ['record', domain, arioContract.process.processId],
+    queryKey: ['arns-record', domain, arioContract.process.processId],
     queryFn: () => {
       if (domain.length === 0) {
         return null;
@@ -40,7 +37,7 @@ import { isARNSDomainNameValid } from '@src/utils';
 
   // this query only runs if the first query returned null, which means the name is not registered
   const returnedNameQuery = useQuery({
-    queryKey: ['returned-name', domain, arioContract.process.processId],
+    queryKey: ['arns-returned-name', domain, arioContract.process.processId],
     queryFn: () => {
       if (domain.length === 0) {
         return null;

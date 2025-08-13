@@ -12,14 +12,9 @@ export function useArNSRecord({ name }: { name: string | undefined }) {
         throw new Error('Invalid ArNS name');
 
       const record = await arioContract.getArNSRecord({ name });
-
-      if (record === undefined) {
-        throw new Error('Record not found');
-      }
-
-      return record;
+      return record ?? null; // null is serializable, undefined is not
     },
-    enabled: !!name && name.length > 0,
-    staleTime: 24 * 60 * 60 * 1000, // 24 hours
+    enabled: isARNSDomainNameValid({ name }),
+    staleTime: 4 * 60 * 60 * 1000, // 4 hours
   });
 }
