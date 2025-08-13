@@ -79,7 +79,7 @@ function RegisterNameForm() {
     )} ${arioTicker} )`;
   }, [fiatPrice, costDetails]);
 
-  const [{ walletAddress, balances }] = useWalletState();
+  const [{ walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const { name } = useParams();
   const { isLoading: isValidatingRegistration } = useRegistrationStatus(
@@ -98,14 +98,6 @@ function RegisterNameForm() {
     refetch: refetchAntVersion,
   } = useLatestANTVersion();
   const antModuleId = useMemo(() => antVersion?.moduleId, [antVersion]);
-
-  useEffect(() => {
-    if (name) {
-      if (!balances[arioTicker]) return;
-      handleNext();
-      return;
-    }
-  }, [balances]);
 
   useEffect(() => {
     if (name && domain !== name) {
@@ -147,10 +139,9 @@ function RegisterNameForm() {
     try {
       // validate transaction cost, return if insufficient balance and emit validation message
       if (!walletAddress) {
-        const redirectParams = new URLSearchParams({ redirect: 'true' });
         navigate('/connect', {
           state: {
-            to: `/register/${domain}?${redirectParams.toString()}`,
+            to: `/register/${domain}`,
             from: `/register/${domain}`,
           },
         });
@@ -208,9 +199,6 @@ function RegisterNameForm() {
     dispatchTransactionState({
       type: 'setInteractionType',
       payload: ARNS_INTERACTION_TYPES.BUY_RECORD,
-    });
-    dispatchRegisterState({
-      type: 'reset',
     });
     dispatchTransactionState({
       type: 'setWorkflowName',
@@ -517,7 +505,13 @@ function RegisterNameForm() {
                 nextText="Next"
                 backText="Back"
                 onNext={validatingNext ? undefined : handleNext}
-                onBack={() => navigate('/', { state: `/register/${domain}` })}
+                onBack={() => {
+                  // reset the state when going back to the home page
+                  dispatchRegisterState({
+                    type: 'reset',
+                  });
+                  navigate('/', { state: `/register/${domain}` });
+                }}
                 customBackStyle={{ fontSize: '.875rem', padding: '.625rem' }}
                 customNextStyle={{
                   width: '100px',

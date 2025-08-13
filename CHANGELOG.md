@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.21.1] - 2025-08-13
+
+### Fixed
+
+- Fixed redirect issue when registering a name.
+
 ## [1.21.0] - 2025-08-13
 
 ### Changed
