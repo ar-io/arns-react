@@ -1,4 +1,4 @@
-import { AoArNSNameData } from '@ar.io/sdk';
+import { AoArNSNameData } from '@ar.io/sdk/web';
 import { useGlobalState } from '@src/state';
 import { useQuery } from '@tanstack/react-query';
 
