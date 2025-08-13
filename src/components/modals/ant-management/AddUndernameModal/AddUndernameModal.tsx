@@ -1,5 +1,5 @@
 import { AoArNSNameData } from '@ar.io/sdk/web';
-import { useArNSRegistryDomains } from '@src/hooks/useArNSRegistryDomains';
+import { useArNSRecords } from '@src/hooks/useArNSRecords';
 import { Tooltip } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
@@ -34,9 +34,7 @@ function AddUndernameModal({
   closeModal: () => void;
   payloadCallback: (payload: SetRecordPayload) => void;
 }) {
-  const { data: registeredDomains } = useArNSRegistryDomains();
   const isMobile = useIsMobile();
-
   const targetIdRef = useRef<HTMLInputElement>(null);
   const ttlRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
@@ -50,13 +48,18 @@ function AddUndernameModal({
   >({});
   const [maxUndernameLength, setMaxUndernameLength] =
     useState<number>(MAX_UNDERNAME_LENGTH);
+  const { data: affiliatedArNSRecords } = useArNSRecords({
+    filters: {
+      processId: [antId],
+    },
+  });
 
   useEffect(() => {
-    if (registeredDomains) {
-      const arnsRecords = Object.entries(registeredDomains).reduce(
-        (acc: Record<string, AoArNSNameData>, [name, record]) => {
+    if (affiliatedArNSRecords) {
+      const arnsRecords = affiliatedArNSRecords.reduce(
+        (acc: Record<string, AoArNSNameData>, record) => {
           if (record.processId == antId.toString()) {
-            acc[name] = record;
+            acc[record.name] = record;
           }
           return acc;
         },
@@ -65,7 +68,7 @@ function AddUndernameModal({
       loadDetails({ arnsRecords });
     }
     nameRef.current?.focus();
-  }, [antId.toString(), registeredDomains]);
+  }, [antId.toString(), affiliatedArNSRecords]);
 
   async function loadDetails({
     arnsRecords,
