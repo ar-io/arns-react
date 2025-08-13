@@ -1,6 +1,7 @@
 name: Production Deploy
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -82,3 +83,13 @@ jobs:
           VITE_NODE_ENV: production
           VITE_ARIO_AO_CU_URL: ${{ vars.VITE_ARIO_AO_CU_URL }}
           VITE_ANT_AO_CU_URL: ${{ vars.VITE_ANT_AO_CU_URL }}
+
+      - name: Notify Slack
+        uses: rtCamp/action-slack-notify@v2
+        if: always()
+        env:
+          SLACK_TITLE: 'ArNS App Deployment (PRODUCTION) - ${{ job.status }}'
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_MESSAGE:
+            'ArNS app (arns.app & ar://arns) ${{ job.status }} deployment'

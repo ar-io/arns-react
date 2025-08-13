@@ -1,80 +1,76 @@
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { useEffect, useState } from 'react';
+import { useGlobalState } from '@src/state';
+import { isARNSDomainNameValid } from '@src/utils';
+import { useQuery } from '@tanstack/react-query';
 
-import { useGlobalState } from '../../state/contexts/GlobalState';
+// NOTE: this is a hard coded list, if the reserved names are ever updated (requiring a multi-sig vote) we'll need to update this
+const RESERVED_NAMES = ['www'];
 
-const defaultReserved = {
-  isReserved: false,
-  reservedFor: undefined,
-};
-
+/**
+ * This hook determines if a domain is available, returned, or reserved. It uses queries that are
+ * different than the ones used in the useArNSRecord and useReturnedName hooks as we want to call them
+ * in specific order and we want to avoid calling the returned name query if the name is registered.
+ *
+ * @param domain - The domain to check.
+ * @returns An object with the registration status of the domain (e.g. isAvailable, isReturnedName, isReserved, isLoading)
+ */
 export function useRegistrationStatus(domain: string) {
-  const [{ arweaveDataProvider }] = useGlobalState();
-  const [isAvailable, setIsAvailable] = useState<boolean>(false);
-  const [isReserved, setIsReserved] = useState<{
-    isReserved: boolean;
-    reservedFor?: ArweaveTransactionID;
-  }>(defaultReserved);
-  const [validated, setValidated] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [{ arioContract }] = useGlobalState();
+  const isReserved = RESERVED_NAMES.includes(domain);
 
-  useEffect(() => {
-    if (loading) {
-      return;
-    }
-    if (!domain.length) {
-      reset();
-    }
-    updateRegistrationStatus(domain);
-  }, [domain]);
-
-  function reset() {
-    setIsAvailable(false);
-    setIsReserved(defaultReserved);
-    setValidated(false);
-  }
-
-  async function updateRegistrationStatus(domain: string) {
-    try {
-      reset();
-      setLoading(true);
-      setValidated(false);
-
-      if (!domain.length) {
-        return reset();
+  // this query always runs if the name is not reserved
+  const recordQuery = useQuery({
+    queryKey: ['arns-record', domain, arioContract.process.processId],
+    queryFn: () => {
+      if (domain.length === 0) {
+        return null;
       }
-      const availablePromise = arweaveDataProvider.isDomainAvailable({
-        domain,
-      });
-      const reservedPromise = arweaveDataProvider.isDomainReserved({
-        domain,
-      });
 
-      const [isAvailable, isReserved] = await Promise.all([
-        availablePromise,
-        reservedPromise,
-      ]);
+      // getArNSRecord returns undefined if the name is not registered, so convert that to null for caching purposes
+      return arioContract
+        .getArNSRecord({ name: domain })
+        .then((r) => (r === undefined ? null : r)); // null is serializable, undefined is not
+    },
+    enabled: !isReserved && isARNSDomainNameValid({ name: domain }),
+    retry: false,
+    staleTime: 4 * 60 * 60 * 1000,
+  });
 
-      setIsAvailable(isAvailable);
-      setIsReserved({
-        ...isReserved,
-        reservedFor: isReserved.reservedFor
-          ? new ArweaveTransactionID(isReserved.reservedFor)
-          : undefined,
-      });
-      setValidated(true);
-    } catch (error) {
-      console.error(error);
-      reset();
-    } finally {
-      setLoading(false);
-    }
-  }
+  // this query only runs if the first query returned null, which means the name is not registered
+  const returnedNameQuery = useQuery({
+    queryKey: ['arns-returned-name', domain, arioContract.process.processId],
+    queryFn: () => {
+      if (domain.length === 0) {
+        return null;
+      }
+
+      // return name API throws a 'Not found' error if the name is not returned, so we catch it and return null for caching purposes
+      return arioContract
+        .getArNSReturnedName({ name: domain })
+        .then((r) => (r === undefined ? null : r)) // null is serializable, undefined is not
+        .catch(() => {
+          return null;
+        });
+    },
+    enabled:
+      !isReserved &&
+      !recordQuery.data &&
+      !recordQuery.isLoading &&
+      isARNSDomainNameValid({ name: domain }),
+    retry: false,
+    staleTime: 4 * 60 * 60 * 1000,
+  });
+
+  const record = recordQuery.data;
+  const returnedName = returnedNameQuery.data;
+  const isAvailable = !recordQuery.isLoading && !record && !isReserved;
+  const isReturnedName = !!returnedName;
+
   return {
+    record,
+    returnedName,
     isAvailable,
-    isReserved: isReserved?.isReserved,
-    reservedFor: isReserved?.reservedFor,
-    loading,
-    validated,
+    isReturnedName,
+    isReserved,
+    isLoading: recordQuery.isLoading || returnedNameQuery.isLoading,
   };
 }
