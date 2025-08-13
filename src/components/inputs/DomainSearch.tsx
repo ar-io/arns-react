@@ -4,7 +4,6 @@ import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
 import { MAX_ARNS_NAME_LENGTH } from '@src/utils/constants';
 import { SearchIcon, XIcon } from 'lucide-react';
 import { ReactNode, useEffect, useRef, useState } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
 
 function DomainSearch({
   children = <></>,
@@ -45,54 +44,55 @@ function DomainSearch({
   searchIcon?: ReactNode;
   clearIcon?: ReactNode;
 }) {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
   const {
+    record: domainRecord,
     isAvailable,
     isReturnedName,
-    loading: loadingRegistrationStatus,
-  } = useRegistrationStatus(searchQuery);
+    isLoading,
+  } = useRegistrationStatus(debouncedSearchQuery);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceTimeoutRef = useRef<NodeJS.Timeout>();
 
   function reset() {
-    setSearchParams({ ...searchParams, search: '' });
     setSearchQuery('');
     setIsSearching(false);
     setIsAvailable(false);
     setIsReturnedName(false);
     setDomainQuery('');
+    setDebouncedSearchQuery('');
     setDomainRecord({} as AoArNSNameData);
+    setIsValidDomain(false);
+    setValidationError('');
   }
 
-  function availabilityHandler() {
-    if (searchQuery.length === 0) {
-      setIsAvailable(false);
-      setIsReturnedName(isReturnedName);
-      setDomainRecord({} as AoArNSNameData);
-      setIsValidDomain(false);
-      setValidationError('');
+  function availabilityHandler({
+    debouncedSearchQuery,
+    isLoading,
+    isAvailable,
+    isReturnedName,
+    domainRecord,
+  }: {
+    debouncedSearchQuery: string;
+    isLoading: boolean;
+    isAvailable: boolean;
+    isReturnedName: boolean;
+    domainRecord: AoArNSNameData | null | undefined;
+  }) {
+    if (debouncedSearchQuery.length === 0) {
+      reset();
       return;
     }
 
-    if (loadingRegistrationStatus) {
-      setIsSearching(true);
-      return;
-    }
-
-    setIsReturnedName(isReturnedName);
+    // we have already handled debounced on the input, so if this is called, we are ready to update the state
+    setIsSearching(isLoading);
+    setDomainQuery(debouncedSearchQuery);
     setIsAvailable(isAvailable);
-    setDomainRecord({} as AoArNSNameData);
-
-    if (isAvailable) {
-      setIsValidDomain(true);
-      setValidationError('');
-    } else {
-      setIsValidDomain(false);
-      setValidationError('This domain is already taken');
-    }
+    setIsReturnedName(isReturnedName);
+    setDomainRecord(domainRecord ?? ({} as AoArNSNameData));
+    setValidationError(isAvailable ? '' : 'This domain is already taken');
   }
 
   function inputHandler(v: string) {
@@ -100,43 +100,30 @@ function DomainSearch({
     if (newSearchQuery.length > MAX_ARNS_NAME_LENGTH) {
       return;
     }
-    setSearchParams({ ...searchParams, search: newSearchQuery });
+
+    // set the state right away so the input is updated
     setSearchQuery(newSearchQuery);
 
-    // Handle immediate search for empty input
-    if (newSearchQuery.length === 0) {
-      setIsSearching(false);
-      setIsAvailable(false);
-      setDomainQuery('');
-      setDomainRecord({} as AoArNSNameData);
-      setValidationError('');
-      return;
-    }
-
-    // Clear existing timeout
+    // clear the timeout if it exists
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
     }
 
-    // Set new timeout for debounced search operations
-    debounceTimeoutRef.current = setTimeout(() => {
-      setIsSearching(true);
-      setDomainQuery(newSearchQuery);
-    }, 300); // 300ms delay
-  }
-
-  // handle search param changes
-  useEffect(() => {
-    const search = searchParams.get('search');
-    if (searchQuery !== search) {
-      inputHandler(search ?? '');
+    // no need to trigger anything if the search query is empty
+    if (newSearchQuery.length === 0) {
+      reset();
+      return;
     }
-  }, [location.search]);
 
-  // handle domain availability and price changes
-  useEffect(() => {
-    availabilityHandler();
-  }, [searchQuery, isAvailable, loadingRegistrationStatus]);
+    // show searching right away, but do not update the search query until the debounce timeout is complete
+    setIsSearching(true);
+
+    // set the debounced search query
+    debounceTimeoutRef.current = setTimeout(() => {
+      console.log('setting debounced search query to', newSearchQuery);
+      setDebouncedSearchQuery(newSearchQuery);
+    }, 500); // 500ms delay
+  }
 
   // add listeners to trigger focus and click out callbacks
   useEffect(() => {
@@ -172,6 +159,22 @@ function DomainSearch({
       }
     };
   }, []);
+
+  useEffect(() => {
+    availabilityHandler({
+      debouncedSearchQuery,
+      isLoading,
+      isAvailable,
+      isReturnedName,
+      domainRecord,
+    });
+  }, [
+    debouncedSearchQuery,
+    isLoading,
+    isAvailable,
+    isReturnedName,
+    domainRecord,
+  ]);
 
   return (
     <div ref={containerRef} className={`${className}`}>

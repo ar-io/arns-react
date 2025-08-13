@@ -8,7 +8,7 @@ import { useCostDetails } from '@src/hooks/useCostDetails';
 import { ValidationError } from '@src/utils/errors';
 import emojiRegex from 'emoji-regex';
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { useIsFocused, useRegistrationStatus } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
@@ -82,13 +82,12 @@ function RegisterNameForm() {
   const [{ walletAddress, balances }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const { name } = useParams();
-  const { loading: isValidatingRegistration } = useRegistrationStatus(
+  const { isLoading: isValidatingRegistration } = useRegistrationStatus(
     name ?? domain,
   );
   const [newTargetId, setNewTargetId] = useState<string>();
   const targetIdFocused = useIsFocused('target-id-input');
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [hasValidationErrors, setHasValidationErrors] =
     useState<boolean>(false);
   const [validatingNext, setValidatingNext] = useState<boolean>(false);
@@ -101,10 +100,8 @@ function RegisterNameForm() {
   const antModuleId = useMemo(() => antVersion?.moduleId, [antVersion]);
 
   useEffect(() => {
-    const redirect = searchParams.get('redirect');
-    if (redirect && name) {
+    if (name) {
       if (!balances[arioTicker]) return;
-      setSearchParams();
       handleNext();
       return;
     }
