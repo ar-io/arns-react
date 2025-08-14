@@ -227,7 +227,7 @@ export default async function dispatchArIOInteraction({
 
         // wait 5 seconds and check if the primary name is set, if not show a warning saying due to cranking the primary name may take a few minutes
         await sleep(5000);
-        queryClient.refetchQueries({
+        await queryClient.refetchQueries({
           predicate: ({ queryKey }) =>
             queryKey.includes('primary-name') && queryKey[1] === payload.name,
         });
