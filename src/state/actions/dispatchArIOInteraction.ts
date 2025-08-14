@@ -1,17 +1,16 @@
 import {
   ANT,
-  ANTRegistry,
-  ANT_REGISTRY_ID,
-  AOProcess,
   AoARIOWrite,
   AoClient,
   AoMessageResult,
+  AoPrimaryName,
   ContractSigner,
   DEFAULT_SCHEDULER_ID,
   FundFrom,
   MessageResult,
+  SetPrimaryNameProgressEvents,
+  SpawnAntProgressEvent,
   createAoSigner,
-  spawnANT,
 } from '@ar.io/sdk/web';
 import { TurboArNSClient } from '@src/services/turbo/TurboArNSClient';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
@@ -35,8 +34,6 @@ export default async function dispatchArIOInteraction({
   dispatch,
   signer,
   ao,
-  antAo,
-  hyperbeamUrl,
   scheduler = DEFAULT_SCHEDULER_ID,
   fundFrom,
   turboArNSClient,
@@ -49,19 +46,12 @@ export default async function dispatchArIOInteraction({
   dispatch: Dispatch<TransactionAction>;
   signer?: ContractSigner;
   ao?: AoClient;
-  antAo?: AoClient;
   hyperbeamUrl?: string;
   scheduler?: string;
   fundFrom?: FundFrom | 'fiat';
   turboArNSClient?: TurboArNSClient;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult<MessageResult | unknown> | undefined = undefined;
-  const aoCongestedTimeout = setTimeout(
-    () => {
-      eventEmitter.emit('network:ao:congested', true);
-    }, // if it is taking longer than 10 seconds, consider the network congested
-    1000 * 10,
-  );
   try {
     if (!arioContract) throw new Error('ArIO provider is not defined');
     if (!signer) throw new Error('signer is not defined');
@@ -77,48 +67,41 @@ export default async function dispatchArIOInteraction({
     switch (workflowName) {
       case ARNS_INTERACTION_TYPES.BUY_RECORD: {
         const { name, type, years, paymentMethodId, email } = payload;
-        let antProcessId: string = payload.processId;
-
-        if (antProcessId === 'atomic') {
-          const state =
-            payload.state ||
-            createAntStateForOwner(
-              owner.toString(),
-              payload.targetId?.toString(),
-            );
-          antProcessId = await spawnANT({
+        const state =
+          payload.state ||
+          createAntStateForOwner(
+            owner.toString(),
+            payload.targetId?.toString(),
+          );
+        // spawn creates the new ant, registers it to the ant registry, validates the state and returns the processId
+        const antProcessId: string =
+          payload.processId ||
+          (await ANT.spawn({
             state,
             signer: createAoSigner(signer),
             ao: ao,
             scheduler: scheduler,
             module: payload.antModuleId,
-          });
-          const antRegistry = ANTRegistry.init({
-            signer,
-            hyperbeamUrl,
-            process: new AOProcess({
-              processId: ANT_REGISTRY_ID,
-              ao,
-            }),
-          });
-          let antRegistryUpdated = false;
-          let retries = 0;
-          const maxRetries = 10;
-          // We need to wait for the registration to get cranked
-          while (!antRegistryUpdated && retries <= maxRetries) {
-            await sleep(2000 * retries);
-            const aclRes = await antRegistry.accessControlList({
-              address: owner.toString(),
-            });
-
-            const antIdSet = new Set([...aclRes.Controlled, ...aclRes.Owned]);
-            antRegistryUpdated = antIdSet.has(antProcessId);
-            retries++;
-          }
-          if (!antRegistryUpdated) {
-            throw new Error('Failed to register ANT, please try again later.');
-          }
-        }
+            antRegistryId: payload.antRegistryId,
+            onSigningProgress: (step: keyof SpawnAntProgressEvent) => {
+              if (step === 'spawning-ant') {
+                dispatch({
+                  type: 'setSigningMessage',
+                  payload: `Spawning new ANT for new ArNS name '${name}'`,
+                });
+              } else if (step === 'verifying-state') {
+                dispatch({
+                  type: 'setSigningMessage',
+                  payload: `Validating state of new ANT`,
+                });
+              } else if (step === 'registering-ant') {
+                dispatch({
+                  type: 'setSigningMessage',
+                  payload: `Adding ANT to the registry`,
+                });
+              }
+            },
+          }));
         if (fundFrom === 'fiat') {
           if (!turboArNSClient) {
             throw new Error('Turbo ArNS Client is not defined');
@@ -133,7 +116,6 @@ export default async function dispatchArIOInteraction({
             email,
             intent: 'Buy-Record',
           });
-          payload.processId = antProcessId;
           result = buyRecordResult;
         } else {
           const buyRecordResult = await arioContract.buyRecord({
@@ -144,11 +126,14 @@ export default async function dispatchArIOInteraction({
             fundFrom,
             referrer: APP_NAME,
           });
-
-          payload.processId = antProcessId;
-
           result = buyRecordResult;
         }
+        payload.processId = antProcessId;
+        // TODO: add some cool ass animation here to get the dopamine hit
+        dispatch({
+          type: 'setSigningMessage',
+          payload: `Successfully purchased '${name}'`,
+        });
         break;
       }
       case ARNS_INTERACTION_TYPES.EXTEND_LEASE:
@@ -202,60 +187,66 @@ export default async function dispatchArIOInteraction({
         }
         break;
       case ARNS_INTERACTION_TYPES.PRIMARY_NAME_REQUEST: {
+        result = await arioContract.setPrimaryName(
+          {
+            name: payload.name,
+          },
+          {
+            ...WRITE_OPTIONS,
+            onSigningProgress: (
+              step: keyof SetPrimaryNameProgressEvents,
+              payload: SetPrimaryNameProgressEvents[keyof SetPrimaryNameProgressEvents],
+            ) => {
+              if (step === 'requesting-primary-name') {
+                dispatch({
+                  type: 'setSigningMessage',
+                  payload: `Requesting primary name '${payload.name}'`,
+                });
+              } else if (step === 'request-already-exists') {
+                dispatch({
+                  type: 'setSigningMessage',
+                  payload: `Primary name request for '${payload.name}' already exists!`,
+                });
+              } else if (step === 'approving-request') {
+                dispatch({
+                  type: 'setSigningMessage',
+                  payload: `Approving primary name request for '${payload.name}'`,
+                });
+              }
+            },
+          },
+        );
+
         dispatch({
           type: 'setSigningMessage',
-          payload: 'Confirming Primary Name 1/2',
+          payload: `Confirming primary name has been updated`,
         });
-        const existingPrimaryNameRequest = await arioContract
-          .getPrimaryNameRequest({
-            initiator: owner.toString(),
-          })
-          .catch((e) => {
-            console.error(e);
-            return undefined;
+
+        // wait 3 seconds and check if the primary name is set, if not show a warning saying due to cranking the primary name may take a few minutes
+        await sleep(3000);
+        await queryClient.refetchQueries({
+          predicate: ({ queryKey }) =>
+            queryKey.includes('primary-name') &&
+            queryKey[1] === owner.toString(),
+        });
+        const updatedPrimaryName = queryClient.getQueryData<AoPrimaryName>([
+          'primary-name',
+          owner.toString(),
+          arioContract?.process.processId,
+        ]);
+        if (!updatedPrimaryName || updatedPrimaryName.name !== payload.name) {
+          dispatch({
+            type: 'setSigningMessage',
+            payload: `Primary name updated. It may take a few minutes to reflect due to network delays. Please check back in a few minutes.`,
           });
-
-        if (
-          !existingPrimaryNameRequest ||
-          existingPrimaryNameRequest.name !== payload.name
-        ) {
-          await arioContract
-            .requestPrimaryName(
-              {
-                name: payload.name,
-                fundFrom: originalFundFrom,
-                referrer: APP_NAME,
-              },
-              WRITE_OPTIONS,
-            )
-            .catch((e) => {
-              throw new Error('Unable to request Primary name: ' + e.message);
-            });
+          await sleep(3000); // show this message for 3 seconds
+        } else {
+          // send a final confirmation message
+          dispatch({
+            type: 'setSigningMessage',
+            payload: `Successfully set primary name '${payload.name}'!`,
+          });
         }
-        // UX sleep between transactions
-        await sleep(2000);
-
-        const antProcess = ANT.init({
-          hyperbeamUrl: hyperbeamUrl,
-          signer,
-          // we're not using hyperbeam here as we're writing to the contract
-          process: new AOProcess({
-            ao: antAo,
-            processId: payload.antProcessId,
-          }),
-        });
-
-        dispatch({
-          type: 'setSigningMessage',
-          payload: 'Confirming Primary Name 2/2',
-        });
-        await sleep(2000);
-        result = await antProcess.approvePrimaryNameRequest({
-          name: payload.name,
-          address: owner.toString(),
-          arioProcessId: payload.arioProcessId,
-        });
-
         break;
       }
       case ARNS_INTERACTION_TYPES.UPGRADE_NAME: {
@@ -296,7 +287,6 @@ export default async function dispatchArIOInteraction({
       type: 'setSigning',
       payload: false,
     });
-    clearTimeout(aoCongestedTimeout);
     queryClient.invalidateQueries({
       predicate: ({ queryKey }) =>
         queryKey.includes('io-balance') ||

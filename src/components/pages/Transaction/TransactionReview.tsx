@@ -125,7 +125,6 @@ function TransactionReview() {
         ao: aoClient,
         scheduler: aoNetwork.ARIO.SCHEDULER,
         fundFrom: fundingSource,
-
         hyperbeamUrl,
       });
     } catch (error) {
