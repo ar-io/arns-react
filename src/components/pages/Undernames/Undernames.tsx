@@ -121,7 +121,7 @@ function Undernames() {
             <UndernamesTable
               undernames={filteredUndernames}
               arnsRecord={{
-                name: data?.name ?? name ?? '',
+                name: lowerCaseDomain(name ?? ''),
                 version: data?.version ?? 0,
                 undernameLimit: data?.arnsRecord?.undernameLimit ?? 0,
                 processId: data?.arnsRecord?.processId ?? '',
