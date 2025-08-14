@@ -18,7 +18,7 @@ import {
   AoAddress,
   ContractInteraction,
 } from '@src/types';
-import { createAntStateForOwner, lowerCaseDomain } from '@src/utils';
+import { createAntStateForOwner, lowerCaseDomain, sleep } from '@src/utils';
 import { APP_NAME, WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
@@ -240,7 +240,7 @@ export default async function dispatchArIOInteraction({
         if (!primaryName) {
           dispatch({
             type: 'setSigningMessage',
-            payload: `Primary name updated. It may take a few minutes to reflect due to network delays.\nTransaction ID: ${result.id}`,
+            payload: `Primary name updated. It may take a few minutes to reflect due to network delays. Please check back in a few minutes.`,
           });
           await sleep(5000); // show this message for 5 seconds
         } else {
