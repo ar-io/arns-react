@@ -643,9 +643,7 @@ export function getLinkId(
 ): string {
   const isUpgradeName = interactionType === ARNS_INTERACTION_TYPES.UPGRADE_NAME;
   const isBuyRecord = interactionType === ARNS_INTERACTION_TYPES.BUY_RECORD;
-
   const isExtendLease = interactionType === ARNS_INTERACTION_TYPES.EXTEND_LEASE;
-
   const isIncreaseUndernames =
     interactionType === ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES;
 
