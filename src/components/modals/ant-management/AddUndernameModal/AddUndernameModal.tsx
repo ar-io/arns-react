@@ -40,7 +40,7 @@ function AddUndernameModal({
     LANDING_PAGE_TXID.toString(),
   );
   const [ttlSeconds, setTtlSeconds] = useState<number>(MIN_TTL_SECONDS);
-  const maxUndernameLength = MAX_UNDERNAME_LENGTH - name.length;
+  const maxUndernameLength = MAX_UNDERNAME_LENGTH - name.length - 1;
 
   function handlePayloadCallback() {
     payloadCallback({
@@ -126,10 +126,8 @@ function AddUndernameModal({
                             <span>
                               The full ArNS name (undername + base name) can be
                               up to {MAX_UNDERNAME_LENGTH} characters. For base
-                              names longer than{' '}
-                              {MAX_UNDERNAME_LENGTH - undername.length}{' '}
-                              characters, this undername will not resolve on
-                              AR.IO gateways.
+                              names longer than {maxUndernameLength} characters,
+                              this undername will not resolve on AR.IO gateways.
                             </span>
                           }
                           icon={<InfoIcon className="size-4 fill-primary" />}
