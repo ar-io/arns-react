@@ -1,4 +1,5 @@
 import { FundFrom } from '@ar.io/sdk';
+import type { AoPrimaryName } from '@ar.io/sdk/web';
 import { TransactionDetails } from '@src/components/data-display/TransactionDetails/TransactionDetails';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
@@ -26,6 +27,7 @@ import {
 } from '@src/types';
 import { decodePrimaryName, encodePrimaryName } from '@src/utils';
 import eventEmitter from '@src/utils/events';
+import { queryKeys } from '@src/utils/queryKeys';
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowDown } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -78,6 +80,13 @@ function PrimaryNameModal({
   const [{ arioProcessId, arioContract, aoClient, aoNetwork, hyperbeamUrl }] =
     useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
+  const primaryNameKey = queryKeys.primaryName(
+    walletAddress?.toString(),
+    arioProcessId?.toString(),
+  );
+  const cachedPrimaryNameData = queryClient.getQueryData<AoPrimaryName | null>(
+    primaryNameKey,
+  );
   const { data: primaryNameData, isLoading: isLoadingPrimaryNameData } =
     usePrimaryName();
 
@@ -121,11 +130,15 @@ function PrimaryNameModal({
   >();
 
   useEffect(() => {
-    if (isPrimaryNameRequest(transactionData) && primaryNameData == undefined) {
+    const currentPrimaryName = primaryNameData ?? cachedPrimaryNameData;
+    if (
+      isPrimaryNameRequest(transactionData) &&
+      currentPrimaryName == undefined
+    ) {
       setWorkflow(PRIMARY_NAME_WORKFLOWS.REQUEST);
     } else if (
       isPrimaryNameRequest(transactionData) &&
-      primaryNameData !== undefined
+      currentPrimaryName !== undefined
     ) {
       setWorkflow(PRIMARY_NAME_WORKFLOWS.CHANGE);
     } else if (isRemovePrimaryNamesPayload(transactionData)) {
@@ -133,7 +146,7 @@ function PrimaryNameModal({
     } else {
       setWorkflow(undefined);
     }
-  }, [transactionData]);
+  }, [transactionData, primaryNameData, cachedPrimaryNameData]);
 
   function closeModal() {
     dispatchTransactionState({ type: 'reset' });
