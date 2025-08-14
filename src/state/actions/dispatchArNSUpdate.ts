@@ -1,6 +1,8 @@
 import { AOProcess, ARIO, AoARIORead, AoArNSNameData } from '@ar.io/sdk/web';
 import { connect } from '@permaweb/aoconnect';
 import { captureException } from '@sentry/react';
+import { populateIndividualRecordQueries } from '@src/hooks/arns-cache-utils';
+import { arnsQueryKeys } from '@src/hooks/arns-query-keys';
 import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
 import { buildAllGraphQLTransactionsQuery } from '@src/hooks/useGraphQL';
 import { AoAddress } from '@src/types';
@@ -55,20 +57,69 @@ export async function dispatchArNSUpdate({
       process: new AOProcess({ processId: arioProcessId, ao }),
     }) as AoARIORead;
 
-    const userDomains: Record<string, AoArNSNameData> = {};
-    let cursor: string | undefined = undefined;
-    let hasMore = true;
-    while (hasMore) {
-      const res = await arioContract.getArNSRecordsForAddress({
-        address: walletAddress.toString(),
-        limit: 1000,
-        cursor,
+    // Use existing query cache data if available, otherwise fetch fresh
+    const recordsQueryKey = arnsQueryKeys.recordsForAddress(
+      arioProcessId,
+      walletAddress.toString(),
+    );
+    let userDomains: Record<string, AoArNSNameData>;
+
+    try {
+      // Try to use the query system for consistency
+      const userRecordsArray = await queryClient.fetchQuery({
+        queryKey: recordsQueryKey,
+        queryFn: async () => {
+          const domains: Record<string, AoArNSNameData> = {};
+          let cursor: string | undefined = undefined;
+          let hasMore = true;
+
+          while (hasMore) {
+            const res = await arioContract.getArNSRecordsForAddress({
+              address: walletAddress.toString(),
+              limit: 1000,
+              cursor,
+            });
+            Object.entries(res.items).forEach(([name, record]) => {
+              domains[name] = record;
+            });
+            cursor = res.nextCursor;
+            hasMore = res.hasMore;
+          }
+
+          // Populate individual record queries from this collection
+          populateIndividualRecordQueries(queryClient, arioProcessId, domains);
+
+          return Object.values(domains);
+        },
+        staleTime: 4 * 60 * 60 * 1000, // 4 hours
       });
-      res.items.forEach((record) => {
-        userDomains[record.name] = record;
-      });
-      cursor = res.nextCursor;
-      hasMore = res.hasMore;
+
+      // Reconstruct the domains object from the array (this is a limitation of the current approach)
+      userDomains = userRecordsArray.reduce((acc, record, index) => {
+        acc[`domain_${index}`] = record;
+        return acc;
+      }, {} as Record<string, AoArNSNameData>);
+    } catch (error) {
+      console.error(
+        'Failed to fetch records via query system, falling back to direct fetch',
+        error,
+      );
+      // Fallback to direct fetch if query system fails
+      userDomains = {};
+      let cursor: string | undefined = undefined;
+      let hasMore = true;
+      while (hasMore) {
+        const res = await arioContract.getArNSRecordsForAddress({
+          address: walletAddress.toString(),
+          limit: 1000,
+          cursor,
+        });
+        Object.entries(res.items).forEach(([name, record]) => {
+          userDomains[name] = record;
+        });
+        cursor = res.nextCursor;
+        hasMore = res.hasMore;
+      }
     }
 
     // ONLY QUERY FOR ANTS THAT WE ARE INTERESTED IN, EG REGISTERED ANTS

@@ -1,6 +1,9 @@
 import { AoArNSNameData } from '@ar.io/sdk/web';
 import { useGlobalState } from '@src/state';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
+import { populateIndividualRecordQueries } from './arns-cache-utils';
+import { arnsQueryKeys } from './arns-query-keys';
 
 export function useArNSRecords({
   filters,
@@ -13,8 +16,13 @@ export function useArNSRecords({
   >;
 } = {}) {
   const [{ arioContract }] = useGlobalState();
+  const queryClient = useQueryClient();
+
   return useQuery({
-    queryKey: ['arns-records', arioContract.process.processId, filters],
+    queryKey: arnsQueryKeys.recordsWithFilters(
+      arioContract.process.processId,
+      filters,
+    ),
     queryFn: async () => {
       let hasMore = true;
       let cursor = undefined;
@@ -33,6 +41,14 @@ export function useArNSRecords({
         cursor = nextCursor;
         records.push(...items);
       }
+
+      // Populate individual record queries from this collection
+      populateIndividualRecordQueries(
+        queryClient,
+        arioContract.process.processId,
+        records,
+      );
+
       return records;
     },
     staleTime: 4 * 60 * 60 * 1000, // 4 hours
