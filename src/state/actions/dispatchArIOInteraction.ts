@@ -3,6 +3,7 @@ import {
   AoARIOWrite,
   AoClient,
   AoMessageResult,
+  AoPrimaryName,
   ContractSigner,
   DEFAULT_SCHEDULER_ID,
   FundFrom,
@@ -224,14 +225,14 @@ export default async function dispatchArIOInteraction({
         // wait 5 seconds and check if the primary name is set, if not show a warning saying due to cranking the primary name may take a few minutes
         await sleep(5000);
         await queryClient.refetchQueries({
-          predicate: ({ queryKey }) =>
-            queryKey.includes('primary-name') && queryKey[1] === payload.name,
+          predicate: ({ queryKey }) => queryKey.includes('primary-name'),
         });
-        const primaryName = queryClient.getQueryData([
+        const updatedPrimaryName = queryClient.getQueryData<AoPrimaryName>([
           'primary-name',
-          payload.name,
+          owner.toString(),
+          arioContract?.process.processId,
         ]);
-        if (!primaryName) {
+        if (!updatedPrimaryName || updatedPrimaryName.name !== payload.name) {
           dispatch({
             type: 'setSigningMessage',
             payload: `Primary name updated. It may take a few minutes to reflect due to network delays. Please check back in a few minutes.`,
