@@ -82,10 +82,7 @@ export default async function dispatchArIOInteraction({
             scheduler: scheduler,
             module: payload.antModuleId,
             antRegistryId: payload.antRegistryId,
-            onSigningProgress: (
-              step: keyof SpawnAntProgressEvent,
-              setPayload: SpawnAntProgressEvent[keyof SpawnAntProgressEvent],
-            ) => {
+            onSigningProgress: (step: keyof SpawnAntProgressEvent) => {
               if (step === 'spawning-ant') {
                 dispatch({
                   type: 'setSigningMessage',
@@ -94,15 +91,12 @@ export default async function dispatchArIOInteraction({
               } else if (step === 'verifying-state') {
                 dispatch({
                   type: 'setSigningMessage',
-                  // TODO: fix this type
-                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                  // @ts-ignore
-                  payload: `Validating state of new ANT '${setPayload.processId}'`,
+                  payload: `Validating state of new ANT`,
                 });
               } else if (step === 'registering-ant') {
                 dispatch({
                   type: 'setSigningMessage',
-                  payload: `Adding ANT to the registry (${setPayload.antRegistryId})`,
+                  payload: `Adding ANT to the registry`,
                 });
               }
             },
@@ -242,7 +236,7 @@ export default async function dispatchArIOInteraction({
             type: 'setSigningMessage',
             payload: `Primary name updated. It may take a few minutes to reflect due to network delays. Please check back in a few minutes.`,
           });
-          await sleep(5000); // show this message for 5 seconds
+          await sleep(3000); // show this message for 3 seconds
         } else {
           // send a final confirmation message
           dispatch({

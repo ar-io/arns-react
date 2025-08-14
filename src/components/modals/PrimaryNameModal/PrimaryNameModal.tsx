@@ -173,7 +173,6 @@ function PrimaryNameModal({
             signer: wallet.contractSigner,
             payload: {
               ...transactionPayload,
-
               name: encodePrimaryName(targetName),
               antProcessId: domainData.processId,
             },
