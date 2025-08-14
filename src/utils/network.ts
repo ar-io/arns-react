@@ -18,6 +18,7 @@ import {
 import { del, get, set } from 'idb-keyval';
 
 import { isArweaveTransactionID } from '.';
+import type { QueryKey } from './queryKeys';
 
 /**
  * Creates an Indexed DB persister
@@ -35,6 +36,12 @@ export function createIDBPersister(idbValidKey: IDBValidKey = 'reactQuery') {
       await del(idbValidKey);
     },
   } as Persister;
+}
+
+declare module '@tanstack/react-query' {
+  interface Register {
+    queryKey: QueryKey;
+  }
 }
 
 export const queryClient = new QueryClient({
