@@ -446,6 +446,7 @@ const UndernamesTable = ({
       />
       {action === UNDERNAME_TABLE_ACTIONS.CREATE && (
         <AddUndernameModal
+          name={arnsRecord.name}
           closeModal={() => {
             setAction(undefined);
           }}
@@ -458,7 +459,6 @@ const UndernamesTable = ({
             });
             setAction(undefined);
           }}
-          antId={arnsRecord.processId}
         />
       )}
       {action === UNDERNAME_TABLE_ACTIONS.EDIT && selectedUndername && (
