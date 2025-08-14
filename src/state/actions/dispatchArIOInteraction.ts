@@ -53,12 +53,6 @@ export default async function dispatchArIOInteraction({
   turboArNSClient?: TurboArNSClient;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult<MessageResult | unknown> | undefined = undefined;
-  const aoCongestedTimeout = setTimeout(
-    () => {
-      eventEmitter.emit('network:ao:congested', true);
-    }, // if it is taking longer than 10 seconds, consider the network congested
-    1000 * 10,
-  );
   try {
     if (!arioContract) throw new Error('ArIO provider is not defined');
     if (!signer) throw new Error('signer is not defined');
@@ -199,7 +193,6 @@ export default async function dispatchArIOInteraction({
         }
         break;
       case ARNS_INTERACTION_TYPES.PRIMARY_NAME_REQUEST: {
-        console.log('herherhehr', arioContract.process.processId);
         result = await arioContract.setPrimaryName(
           {
             name: payload.name,
@@ -226,15 +219,35 @@ export default async function dispatchArIOInteraction({
             },
           },
         );
-        // send a final confirmation message
+
         dispatch({
           type: 'setSigningMessage',
-          payload: `Successfully set primary name '${payload.name}'`,
+          payload: `Confirming primary name has been updated`,
         });
-        // invalidate the primary name query
-        queryClient.invalidateQueries({
-          queryKey: ['primary-name', payload.name],
+
+        // wait 5 seconds and check if the primary name is set, if not show a warning saying due to cranking the primary name may take a few minutes
+        await sleep(5000);
+        queryClient.refetchQueries({
+          predicate: ({ queryKey }) =>
+            queryKey.includes('primary-name') && queryKey[1] === payload.name,
         });
+        const primaryName = queryClient.getQueryData([
+          'primary-name',
+          payload.name,
+        ]);
+        if (!primaryName) {
+          dispatch({
+            type: 'setSigningMessage',
+            payload: `Primary name updated. It may take a few minutes to reflect due to network delays.\nTransaction ID: ${result.id}`,
+          });
+          await sleep(5000); // show this message for 5 seconds
+        } else {
+          // send a final confirmation message
+          dispatch({
+            type: 'setSigningMessage',
+            payload: `Successfully set primary name '${payload.name}'!`,
+          });
+        }
         break;
       }
       case ARNS_INTERACTION_TYPES.UPGRADE_NAME: {
@@ -275,7 +288,6 @@ export default async function dispatchArIOInteraction({
       type: 'setSigning',
       payload: false,
     });
-    clearTimeout(aoCongestedTimeout);
     queryClient.invalidateQueries({
       predicate: ({ queryKey }) =>
         queryKey.includes('io-balance') ||
