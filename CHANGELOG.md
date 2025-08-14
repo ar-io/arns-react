@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.21.2] - 2025-08-14
+
+### Fixed
+
+- Fixed links on undernames table
+
 ## [1.21.1] - 2025-08-13
 
 ### Fixed
