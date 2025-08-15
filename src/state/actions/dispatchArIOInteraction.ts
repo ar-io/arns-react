@@ -37,6 +37,7 @@ export default async function dispatchArIOInteraction({
   scheduler = DEFAULT_SCHEDULER_ID,
   fundFrom,
   turboArNSClient,
+  paidBy,
 }: {
   payload: Record<string, any>;
   workflowName: ARNS_INTERACTION_TYPES;
@@ -50,6 +51,7 @@ export default async function dispatchArIOInteraction({
   scheduler?: string;
   fundFrom?: FundFrom | 'fiat';
   turboArNSClient?: TurboArNSClient;
+  paidBy?: string[];
 }): Promise<ContractInteraction> {
   let result: AoMessageResult<MessageResult | unknown> | undefined = undefined;
   try {
@@ -125,6 +127,7 @@ export default async function dispatchArIOInteraction({
             processId: antProcessId,
             fundFrom,
             referrer: APP_NAME,
+            paidBy,
           });
           result = buyRecordResult;
         }
@@ -156,6 +159,7 @@ export default async function dispatchArIOInteraction({
               years: payload.years,
               fundFrom: originalFundFrom,
               referrer: APP_NAME,
+              paidBy,
             },
             WRITE_OPTIONS,
           );
@@ -181,6 +185,7 @@ export default async function dispatchArIOInteraction({
               increaseCount: payload.qty,
               fundFrom: originalFundFrom,
               referrer: APP_NAME,
+              paidBy,
             },
             WRITE_OPTIONS,
           );
@@ -271,6 +276,7 @@ export default async function dispatchArIOInteraction({
               name: payload.name,
               fundFrom: originalFundFrom,
               referrer: APP_NAME,
+              paidBy,
             },
             WRITE_OPTIONS,
           );
