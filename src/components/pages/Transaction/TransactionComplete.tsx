@@ -68,6 +68,7 @@ function TransactionComplete() {
 
   const link = getLinkId(localData.interactionType as ValidInteractionType, {
     ...localData.transactionData,
+    processId: localData.interactionResult.payload.processId,
     deployedTransactionId: localData.interactionResult.id,
   }).trim();
 

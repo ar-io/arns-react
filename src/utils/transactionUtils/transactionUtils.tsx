@@ -252,10 +252,9 @@ export function getARNSMappingByInteractionType(
           ? Date.now() + YEAR_IN_MILLISECONDS * transactionData.years
           : PERMANENT_DOMAIN_MESSAGE;
 
-      const processId =
-        transactionData.processId === 'atomic'
-          ? 'atomic'
-          : new ArweaveTransactionID(transactionData.processId);
+      const processId = transactionData.processId
+        ? new ArweaveTransactionID(transactionData.processId)
+        : undefined;
 
       return {
         domain: transactionData.name,
@@ -644,9 +643,7 @@ export function getLinkId(
 ): string {
   const isUpgradeName = interactionType === ARNS_INTERACTION_TYPES.UPGRADE_NAME;
   const isBuyRecord = interactionType === ARNS_INTERACTION_TYPES.BUY_RECORD;
-
   const isExtendLease = interactionType === ARNS_INTERACTION_TYPES.EXTEND_LEASE;
-
   const isIncreaseUndernames =
     interactionType === ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES;
 

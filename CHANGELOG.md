@@ -8,6 +8,20 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.22.0] - 2025-08-14
+
+### Changed
+
+- Update `@ar.io/sdk` to 3.18.0.
+- Use updated `onSigningProgress` callbacks with `ANT.spawn` and
+  `ARIO.setPrimaryName`.
+- Add `Register Name` button to `Manage` page.
+- Support using shared credits when paying with Turbo Credits.
+
+### Fixed
+
+- Remove unnecessary network calls on `Manage Name` page.
+
 ## [1.21.2] - 2025-08-14
 
 ### Fixed

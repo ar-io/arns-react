@@ -6,8 +6,8 @@ import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { act } from 'react';
 
-jest.mock('@src/hooks/useArNSRegistryDomains', () => ({
-  useArNSRegistryDomains: jest.fn().mockReturnValue({
+jest.mock('@src/hooks/useArNSRecords', () => ({
+  useArNSRecords: jest.fn().mockReturnValue({
     data: {
       ardrive: {
         processId: 'I-cxQhfh0Zb9UqQNizC9PiLC41KpUeA9hjiVV02rQRw',

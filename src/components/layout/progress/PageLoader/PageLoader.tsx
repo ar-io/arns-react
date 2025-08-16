@@ -13,7 +13,9 @@ function PageLoader({
         className="flex flex-column center white"
         style={{
           padding: '30px',
-          width: 'fit-content',
+          width: '30%',
+          minWidth: '300px',
+          wordBreak: 'break-word',
           height: 'fit-content',
           background: 'var(--card-bg)',
           borderRadius: 'var(--corner-radius)',

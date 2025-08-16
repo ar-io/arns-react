@@ -604,9 +604,9 @@ const DomainsTable = ({
                 <div className="flex flex-row center" style={{ gap: '16px' }}>
                   <Link
                     to="/"
-                    className="bg-primary rounded-md text-black center hover px-4 py-3 text-sm"
+                    className="bg-primary rounded-md text-black center hover px-4 py-3 text-sm hover:scale-105"
                   >
-                    Search for a Name
+                    Register a Name
                   </Link>
                 </div>
               </div>

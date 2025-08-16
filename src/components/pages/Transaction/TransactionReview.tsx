@@ -125,8 +125,11 @@ function TransactionReview() {
         ao: aoClient,
         scheduler: aoNetwork.ARIO.SCHEDULER,
         fundFrom: fundingSource,
-
         hyperbeamUrl,
+        // TODO: Do we need paidBy from turbo balance in this workflow
+        // paidBy: creditsBalance?.receivedApprovals.map(
+        //   (approval) => approval.payingAddress,
+        // ),
       });
     } catch (error) {
       eventEmitter.emit('error', error);
