@@ -330,8 +330,10 @@ function Checkout() {
             : paymentMethod === 'credits'
             ? 'turbo'
             : fundingSource,
+        paidBy: creditsBalance?.receivedApprovals.map(
+          (approval) => approval.payingAddress,
+        ),
         turboArNSClient: turbo,
-
         hyperbeamUrl,
       });
     } catch (error) {

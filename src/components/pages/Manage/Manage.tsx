@@ -9,6 +9,7 @@ import {
 } from '@src/state';
 import eventEmitter from '@src/utils/events';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { doAntsRequireUpdate } from '../../../utils';
 import DomainsTable from '../../data-display/tables/DomainsTable';
@@ -16,6 +17,7 @@ import { RefreshIcon, SearchIcon } from '../../icons';
 import './styles.css';
 
 function Manage() {
+  const navigate = useNavigate();
   const [{ arioProcessId, aoNetwork, hyperbeamUrl }] = useGlobalState();
   const [{ loading: loadingArnsState, domains, ants }, dispatchArNSState] =
     useArNSState();
@@ -28,7 +30,7 @@ function Manage() {
   return (
     <div className="overflow-auto px-[100px] pb-[30px] pt-[10px]">
       <div className="flex flex-col gap-[10px]">
-        <div className="flex justify-start">
+        <div className="flex justify-between items-center">
           <h1
             className="flex white text-[2rem]"
             style={{
@@ -39,6 +41,12 @@ function Manage() {
           >
             Manage Assets
           </h1>
+          <button
+            onClick={() => navigate('/')}
+            className="whitespace-nowrap rounded-[4px] bg-primary px-4 py-2 text-sm text-black font-medium transition-all hover:bg-primary-dark hover:scale-105"
+          >
+            Register a Name
+          </button>
         </div>
         <div
           id="manage-table-wrapper"
@@ -86,7 +94,7 @@ function Manage() {
                               payload: { showUpgradeAntModal: true },
                             })
                           }
-                          className="h-fit animate-pulse whitespace-nowrap rounded-[4px] bg-primary-thin px-4 py-1 text-sm text-primary transition-all hover:bg-primary hover:text-black"
+                          className="h-fit animate-pulse whitespace-nowrap rounded-[4px] bg-primary-thin px-4 py-1 text-sm text-primary transition-all hover:bg-primary hover:text-black hover:scale-105"
                         >
                           Upgrade ANTs
                         </button>
@@ -94,7 +102,9 @@ function Manage() {
                     />
                   )}
                 <button
-                  className={'button center pointer'}
+                  className={
+                    'button center pointer transition-transform duration-200 ease-in-out hover:scale-105'
+                  }
                   onClick={() =>
                     walletAddress
                       ? dispatchArNSUpdate({

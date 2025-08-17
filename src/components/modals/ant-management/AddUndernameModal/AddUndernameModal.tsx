@@ -1,7 +1,6 @@
-import { AoArNSNameData } from '@ar.io/sdk/web';
-import { useArNSRegistryDomains } from '@src/hooks/useArNSRegistryDomains';
-import { Tooltip } from 'antd';
-import { useEffect, useRef, useState } from 'react';
+import { Tooltip } from '@src/components/data-display';
+import { InfoIcon } from '@src/components/icons';
+import { useRef, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { SetRecordPayload, VALIDATION_INPUT_TYPES } from '../../../../types';
@@ -20,23 +19,19 @@ import {
   MIN_TTL_SECONDS,
   UNDERNAME_REGEX,
 } from '../../../../utils/constants';
-import eventEmitter from '../../../../utils/events';
-import WarningCard from '../../../cards/WarningCard/WarningCard';
 import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
 import DialogModal from '../../DialogModal/DialogModal';
 
 function AddUndernameModal({
-  antId,
+  name,
   closeModal,
   payloadCallback,
 }: {
-  antId: string; // process ID if asset type is a contract interaction
+  name: string;
   closeModal: () => void;
   payloadCallback: (payload: SetRecordPayload) => void;
 }) {
-  const { data: registeredDomains } = useArNSRegistryDomains();
   const isMobile = useIsMobile();
-
   const targetIdRef = useRef<HTMLInputElement>(null);
   const ttlRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
@@ -45,43 +40,7 @@ function AddUndernameModal({
     LANDING_PAGE_TXID.toString(),
   );
   const [ttlSeconds, setTtlSeconds] = useState<number>(MIN_TTL_SECONDS);
-  const [associatedRecords, setAssociatedRecords] = useState<
-    Record<string, AoArNSNameData>
-  >({});
-  const [maxUndernameLength, setMaxUndernameLength] =
-    useState<number>(MAX_UNDERNAME_LENGTH);
-
-  useEffect(() => {
-    if (registeredDomains) {
-      const arnsRecords = Object.entries(registeredDomains).reduce(
-        (acc: Record<string, AoArNSNameData>, [name, record]) => {
-          if (record.processId == antId.toString()) {
-            acc[name] = record;
-          }
-          return acc;
-        },
-        {},
-      );
-      loadDetails({ arnsRecords });
-    }
-    nameRef.current?.focus();
-  }, [antId.toString(), registeredDomains]);
-
-  async function loadDetails({
-    arnsRecords,
-  }: {
-    arnsRecords: Record<string, AoArNSNameData>;
-  }) {
-    try {
-      setAssociatedRecords(arnsRecords);
-      const shortestAssociatedName = Object.keys(arnsRecords).length
-        ? Math.min(...Object.keys(arnsRecords).map((name) => name.length))
-        : 0;
-      setMaxUndernameLength(MAX_UNDERNAME_LENGTH - shortestAssociatedName);
-    } catch (error) {
-      eventEmitter.emit('error', error);
-    }
-  }
+  const maxUndernameLength = MAX_UNDERNAME_LENGTH - name.length - 1;
 
   function handlePayloadCallback() {
     payloadCallback({
@@ -89,15 +48,6 @@ function AddUndernameModal({
       transactionId: targetId,
       ttlSeconds,
     });
-  }
-
-  function getIncompatibleNames(
-    undername: string,
-    records: Record<string, AoArNSNameData>,
-  ): string[] {
-    return Object.keys(records).filter(
-      (name: string) => undername.length + name.length > MAX_UNDERNAME_LENGTH,
-    );
   }
 
   return (
@@ -170,59 +120,23 @@ function AddUndernameModal({
                       }}
                     >
                       {undername.length} / {maxUndernameLength}
+                      {undername.length > 0 ? (
+                        <Tooltip
+                          message={
+                            <span>
+                              The full ArNS name (undername + base name) can be
+                              up to {MAX_UNDERNAME_LENGTH} characters. For base
+                              names longer than {maxUndernameLength} characters,
+                              this undername will not resolve on AR.IO gateways.
+                            </span>
+                          }
+                          icon={<InfoIcon className="size-4 fill-primary" />}
+                        />
+                      ) : (
+                        <></>
+                      )}
                     </span>
                   </span>
-                  {getIncompatibleNames(undername, associatedRecords).length ? (
-                    <WarningCard
-                      text={
-                        <span>
-                          This ANT has{' '}
-                          <Tooltip
-                            title={
-                              <div
-                                className="flex flex-column"
-                                style={{
-                                  padding: '5px',
-                                  gap: '5px',
-                                  boxSizing: 'border-box',
-                                }}
-                              >
-                                {getIncompatibleNames(
-                                  undername,
-                                  associatedRecords,
-                                ).map((name) => (
-                                  <span key={name}>{name}</span>
-                                ))}
-                              </div>
-                            }
-                            color="var(--card-bg)"
-                            placement="top"
-                            showArrow={true}
-                          >
-                            <span className="underline bold">
-                              {
-                                getIncompatibleNames(
-                                  undername,
-                                  associatedRecords,
-                                ).length
-                              }{' '}
-                              name
-                              {getIncompatibleNames(
-                                undername,
-                                associatedRecords,
-                              ).length > 1
-                                ? 's'
-                                : ''}
-                            </span>
-                          </Tooltip>{' '}
-                          that will not support this undername as it is over
-                          their supported length.
-                        </span>
-                      }
-                    />
-                  ) : (
-                    <></>
-                  )}
                 </div>
 
                 <div className="flex flex-col gap-2">
