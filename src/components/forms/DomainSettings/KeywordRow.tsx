@@ -155,15 +155,19 @@ export default function KeywordsRow({
                   className="flex flex-row top-0 bottom-0 left-0 flex-wrap"
                   style={{ gap: '0.625rem' }}
                 >
-                  {keywords?.map((word: string, index: number) => {
-                    return (
-                      <Pill className="" key={index}>
-                        <span className="text-[0.875rem] p-0 w-full">
-                          {word}
-                        </span>
-                      </Pill>
-                    );
-                  })}
+                  {keywords.length ? (
+                    keywords?.map((word: string, index: number) => {
+                      return (
+                        <Pill className="" key={index}>
+                          <span className="text-[0.875rem] p-0 w-full">
+                            {word}
+                          </span>
+                        </Pill>
+                      );
+                    })
+                  ) : (
+                    <span className="text-xs text-grey">None</span>
+                  )}
                 </div>
               </div>
             ) : (

@@ -27,7 +27,7 @@ import {
   SECONDS_IN_GRACE_PERIOD,
 } from '@src/utils/constants';
 import { useQueryClient } from '@tanstack/react-query';
-import { List, Skeleton } from 'antd';
+import { Skeleton } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -43,7 +43,6 @@ import TTLRow from './TTLRow';
 import TargetIDRow from './TargetIDRow';
 import TickerRow from './TickerRow';
 import UndernamesRow from './UndernamesRow';
-import './styles.css';
 
 export enum DomainSettingsRowTypes {
   EXPIRY_DATE = 'Expiry Date',
@@ -148,8 +147,9 @@ function DomainSettings({
 
   return (
     <>
-      <List prefixCls="domain-settings-list">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mt-4">
         {Object.entries({
+          // TODO: this should go on a name section, not the ant section
           [DomainSettingsRowTypes.EXPIRY_DATE]: (
             <DomainSettingsRow
               label="Expiry Date"
@@ -165,6 +165,7 @@ function DomainSettings({
               }
             />
           ),
+          // TODO: this should go on a name section, not the ant section
           [DomainSettingsRowTypes.LEASE_DURATION]: (
             <DomainSettingsRow
               label="Lease Duration"
@@ -238,6 +239,7 @@ function DomainSettings({
           [DomainSettingsRowTypes.ASSOCIATED_NAMES]: (
             <DomainSettingsRow
               label="Associated Names"
+              labelTooltip={`These names are connected to this ANT process. Any changes made to this ANT will be reflected on all associated names.`}
               value={
                 data?.associatedNames ? (
                   data?.associatedNames
@@ -314,6 +316,7 @@ function DomainSettings({
                   <ArweaveID
                     id={new ArweaveTransactionID(data.processId.toString())}
                     shouldLink
+                    characterCount={16}
                     type={ArweaveIdTypes.CONTRACT}
                   />
                 ) : (
@@ -337,7 +340,7 @@ function DomainSettings({
                         data?.isInGracePeriod
                       }
                       onClick={() => setShowReassignNameModal(true)}
-                      className={`flex flex-row text-[12px] rounded-[4px] p-[6px] px-[10px] border border-error bg-error-thin text-error whitespace-nowrap`}
+                      className={`flex flex-row text-[12px] rounded-[4px] p-[6px] px-[10px] border border-error bg-error-thin text-error whitespace-nowrap hover:scale-105 transition-all`}
                     >
                       Reassign
                     </button>
@@ -473,11 +476,10 @@ function DomainSettings({
               }
             />
           ),
+          // TODO: this should go on a name section, not the ant section
           [DomainSettingsRowTypes.UNDERNAMES]: (
             <UndernamesRow
               key={DomainSettingsRowTypes.UNDERNAMES}
-              domain={domain}
-              antId={data?.processId?.toString()}
               undernameLimit={data?.undernameCount ?? 0}
               undernameSupport={
                 data?.arnsRecord?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES
@@ -556,7 +558,7 @@ function DomainSettings({
         }).map(([rowName, row]) =>
           rowFilter.includes(rowName as DomainSettingsRowTypes) ? <></> : row,
         )}
-      </List>
+      </div>
 
       {domain && data?.processId && (
         <ReturnNameModal

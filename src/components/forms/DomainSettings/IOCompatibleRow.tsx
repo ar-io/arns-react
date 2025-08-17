@@ -18,7 +18,7 @@ export default function IOCompatibleRow({
   return (
     <>
       <DomainSettingsRow
-        label="AR.IO Compatible:"
+        label="AR.IO Compatible"
         editable={true}
         value={
           !requiresUpdate ? (
@@ -34,11 +34,13 @@ export default function IOCompatibleRow({
           requiresUpdate && [
             <Tooltip
               key={1}
-              message={'Your ANT requires an update'}
+              message={
+                'Upgrade your ANT (i.e. fork and reassign) to the latest version in order to leverage the latest features and performance improvements.'
+              }
               icon={
                 <button
                   onClick={() => setShowUpgradeDomainModal(true)}
-                  className="p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap"
+                  className="p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap hover:scale-105 transition-all"
                 >
                   Upgrade ANT
                 </button>

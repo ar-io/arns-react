@@ -38,7 +38,7 @@ export default function TickerRow({
   return (
     <>
       <DomainSettingsRow
-        label="Ticker:"
+        label="Ticker"
         value={
           typeof ticker === 'string' ? (
             <ValidationInput
