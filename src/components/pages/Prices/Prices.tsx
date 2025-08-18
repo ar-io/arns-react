@@ -1,10 +1,7 @@
 import TableView from '@src/components/data-display/tables/TableView';
+import { useArIoPrice } from '@src/hooks/useArIOPrice';
 import { useDemandFactor } from '@src/hooks/useDemandFactor';
-import {
-  camelToReadable,
-  formatARIOWithCommas,
-  lowerCaseDomain,
-} from '@src/utils';
+import { camelToReadable, lowerCaseDomain } from '@src/utils';
 import {
   ARNS_NAME_REGEX_PARTIAL,
   MAX_ARNS_NAME_LENGTH,
@@ -15,13 +12,13 @@ import { useMemo, useState } from 'react';
 
 type TableData = {
   characters: number;
-  baseFee: number;
-  adjustedRegistrationFee: number;
-  renewalFee: number;
-  oneYearLeaseFee: number;
-  permabuyFee: number;
-  undernameFee: number;
-  permabuyUndernameFee: number;
+  baseFee: string;
+  adjustedRegistrationFee: string;
+  renewalFee: string;
+  oneYearLeaseFee: string;
+  permabuyFee: string;
+  undernameFee: string;
+  permabuyUndernameFee: string;
 } & Record<string, any>;
 
 const columnHelper = createColumnHelper<TableData>();
@@ -52,28 +49,50 @@ const BASE_NAME_FEES: Record<number, number> = {
 export default function Prices() {
   const { data: demandFactor, isLoading, error } = useDemandFactor();
   const [domain, setDomain] = useState('');
+  const { data: arIoPrice } = useArIoPrice();
+  const [unit, setUnit] = useState<'usd' | 'ario'>('ario');
+
+  const formatValue = (
+    value: number,
+    unit: 'usd' | 'ario',
+    arIoPrice: number,
+  ) => {
+    const converted = unit === 'usd' ? value : value * arIoPrice;
+    return `${Number(converted).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} ${unit.toUpperCase()}`;
+  };
 
   const tableData = useMemo(() => {
-    if (!demandFactor) return [];
+    if (!demandFactor || !arIoPrice) return [];
     const newData = Object.entries(BASE_NAME_FEES).map(
       ([characters, baseFee]) => {
         const arf = baseFee * demandFactor;
         const af = arf * 0.2;
         const data: TableData = {
           characters: Number(characters),
-          baseFee,
-          adjustedRegistrationFee: arf,
-          renewalFee: af,
-          oneYearLeaseFee: arf + af * 1,
-          permabuyFee: arf + af * 20,
-          undernameFee: baseFee * demandFactor * 0.001,
-          permabuyUndernameFee: baseFee * demandFactor * 0.005,
+          baseFee: formatValue(baseFee, unit, arIoPrice),
+          adjustedRegistrationFee: formatValue(arf, unit, arIoPrice),
+          renewalFee: formatValue(af, unit, arIoPrice),
+          oneYearLeaseFee: formatValue(arf + af * 1, unit, arIoPrice),
+          permabuyFee: formatValue(arf + af * 20, unit, arIoPrice),
+          undernameFee: formatValue(
+            baseFee * demandFactor * 0.001,
+            unit,
+            arIoPrice,
+          ),
+          permabuyUndernameFee: formatValue(
+            baseFee * demandFactor * 0.005,
+            unit,
+            arIoPrice,
+          ),
         };
         return data;
       },
     );
     return newData;
-  }, [demandFactor, isLoading, error]);
+  }, [demandFactor, isLoading, error, arIoPrice, unit]);
 
   const columns = [
     'characters',
@@ -89,17 +108,24 @@ export default function Prices() {
         return <span className="">{camelToReadable(key)} </span>;
       },
       cell: ({ row }) => {
-        const numVal = Number(row.getValue(key));
-        if (key === 'characters') return numVal.toString();
-        return formatARIOWithCommas(Number(numVal.toFixed(1)));
+        return row.getValue(key);
       },
     });
   });
 
   return (
     <div className="page sm:px-10 lg:px-[100px]">
-      <div className="flex justify-between w-full items-center">
-        <h1 className="text-white text-3xl w-full">Prices ($ARIO)</h1>{' '}
+      <div className="flex justify-between w-full items-center gap-5">
+        <h1 className="text-white text-3xl w-full">
+          Prices (${unit.toUpperCase()})
+        </h1>{' '}
+        <button
+          className="px-4 py-2 ml-4 rounded bg-primary text-black font-semibold hover:bg-primary-dark transition-colors"
+          onClick={() => setUnit(unit === 'usd' ? 'ario' : 'usd')}
+          type="button"
+        >
+          {unit === 'usd' ? '$ARIO' : '$USD'}
+        </button>
         <span className="flex p-2 bg-foreground border border-dark-grey rounded text-white whitespace-nowrap">
           Demand Factor:{' '}
           {isLoading ? 'Loading...' : error ? error.message : demandFactor}
