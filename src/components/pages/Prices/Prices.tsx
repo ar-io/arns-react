@@ -57,7 +57,7 @@ export default function Prices() {
     unit: 'usd' | 'ario',
     arIoPrice: number,
   ) => {
-    const converted = unit === 'usd' ? value : value * arIoPrice;
+    const converted = unit === 'usd' ? value * arIoPrice : value;
     return `${Number(converted).toLocaleString(undefined, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
@@ -119,13 +119,32 @@ export default function Prices() {
         <h1 className="text-white text-3xl w-full">
           Prices (${unit.toUpperCase()})
         </h1>{' '}
-        <button
-          className="px-4 py-2 ml-4 rounded bg-primary text-black font-semibold hover:bg-primary-dark transition-colors"
-          onClick={() => setUnit(unit === 'usd' ? 'ario' : 'usd')}
-          type="button"
-        >
-          {unit === 'usd' ? '$ARIO' : '$USD'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            className={
+              (unit === 'usd'
+                ? 'bg-primary text-black'
+                : ' bg-dark-grey  text-light-grey') +
+              ` flex px-3 py-2 rounded  hover:bg-primary-thin hover:text-primary transition-all`
+            }
+            onClick={() => setUnit('usd')}
+            type="button"
+          >
+            $USD
+          </button>
+          <button
+            className={
+              (unit === 'ario'
+                ? 'bg-primary text-black'
+                : ' bg-dark-grey  text-light-grey') +
+              ` flex px-3 py-2 rounded  hover:bg-primary-thin hover:text-primary transition-all`
+            }
+            onClick={() => setUnit('ario')}
+            type="button"
+          >
+            $ARIO
+          </button>
+        </div>
         <span className="flex p-2 bg-foreground border border-dark-grey rounded text-white whitespace-nowrap">
           Demand Factor:{' '}
           {isLoading ? 'Loading...' : error ? error.message : demandFactor}
