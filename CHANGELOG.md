@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.22.1] - 2025-08-18
+
+### Changed
+
+- Updated plausible analytics to track arns.ar.io
+
 ## [1.22.0] - 2025-08-14
 
 ### Changed
