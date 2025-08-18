@@ -1,4 +1,3 @@
-import { BrandLogo } from '@src/components/icons';
 import { NavBar } from '@src/components/layout';
 import Footer from '@src/components/layout/Footer/Footer';
 import { NetworkIcon, WrenchIcon } from 'lucide-react';
@@ -7,11 +6,6 @@ import { Link, Outlet, useLocation } from 'react-router-dom';
 import './styles.css';
 
 const settingsRoutes = [
-  {
-    name: 'ArNS Registry',
-    path: 'arns',
-    icon: <BrandLogo className="size-4" fill={'inherit'} />,
-  },
   {
     name: 'Network',
     path: 'network',
@@ -28,7 +22,7 @@ function SettingsLayout() {
   const location = useLocation();
 
   return (
-    <div className="flex flex-col w-full h-screen box-border">
+    <div className="flex flex-col w-full h-fit min-h-full box-border">
       <div className="bg-foreground">
         <NavBar />
       </div>
@@ -37,7 +31,7 @@ function SettingsLayout() {
           className="flex flex-row w-full h-full rounded-xl rounded-t-none border-dark-grey border-[1px]"
           style={{ gap: 0 }}
         >
-          <div className="flex flex-col w-fit h-full text-white max-w-[300px] border-r-[1px] border-dark-grey rounded-bl-xl">
+          <div className="flex flex-col w-1/4 h-full text-white max-w-[300px] border-r-[1px] border-dark-grey rounded-bl-xl">
             <div className="flex flex-col py-2 pt-4 px-4 gap-3">
               {settingsRoutes.map((route) => (
                 <Link

@@ -1,4 +1,9 @@
-import { AOProcess, ARIO } from '@ar.io/sdk/web';
+import {
+  AOProcess,
+  ARIO,
+  ARIO_MAINNET_PROCESS_ID,
+  ARIO_TESTNET_PROCESS_ID,
+} from '@ar.io/sdk/web';
 import { connect as suConnect } from '@permaweb/ao-scheduler-utils';
 import { connect } from '@permaweb/aoconnect';
 import { Loader } from '@src/components/layout';
@@ -14,6 +19,7 @@ import {
 } from '@src/state';
 import { isArweaveTransactionID, isValidGateway, isValidURL } from '@src/utils';
 import {
+  ARIO_PROCESS_ID,
   NETWORK_DEFAULTS,
   devPaymentServiceFqdn,
   devStripePublishableKey,
@@ -52,7 +58,10 @@ function NetworkSettings() {
   const [suUrl, setSuUrl] = useState<string>();
   const [validSuAddress, setValidSuAddress] = useState<boolean>(true);
   const [showGatewayModal, setShowGatewayModal] = useState<boolean>(false);
-
+  const [registryAddress, setRegistryAddress] = useState<string>(
+    arioProcessId || '',
+  );
+  const [isValidAddress, setIsValidAddress] = useState<boolean>(true);
   const [newHyperbeamUrl, setNewHyperbeamUrl] = useState<string>(
     hyperbeamUrl || '',
   );
@@ -65,6 +74,9 @@ function NetworkSettings() {
     useState<boolean>(true);
 
   function reset() {
+    // arns
+    setRegistryAddress(ARIO_PROCESS_ID);
+    setIsValidAddress(true);
     // gateway
     setNewGateway(NETWORK_DEFAULTS.ARWEAVE.HOST);
     setValidGateway(true);
@@ -236,7 +248,7 @@ function NetworkSettings() {
   }
 
   const labelClass =
-    'flex w-fit justify-center items-center bg-background rounded-md px-4 py-1 border border-primary-thin text-md text-light-grey';
+    'flex flex-row flex-1 w-full bg-background rounded-md px-4 py-1 border border-primary-thin text-md text-light-grey ';
 
   const inputClass = 'bg-foreground justify-center items-center outline-none';
   const inputContainerClass =
@@ -248,6 +260,103 @@ function NetworkSettings() {
     <div className="flex flex-col w-full h-full p-3 text-sm">
       <div className="flex flex-col w-full h-full  gap-5 p-2 rounded-xl">
         <>
+          <div className={inputContainerClass}>
+            <div
+              className="flex flex-row justify-between items-center"
+              style={{ gap: '4px' }}
+            >
+              <div className={labelClass}>
+                <span className="flex flex-row w-fit">AR.IO Contract: </span>
+                {registryAddress ? (
+                  <ArweaveID
+                    id={new ArweaveTransactionID(registryAddress)}
+                    shouldLink
+                    type={ArweaveIdTypes.CONTRACT}
+                  />
+                ) : (
+                  'N/A'
+                )}
+              </div>
+              <div
+                className="flex flex-row max-w-fit text-sm"
+                style={{ gap: '10px' }}
+              >
+                <button
+                  className={
+                    (registryAddress === ARIO_TESTNET_PROCESS_ID
+                      ? 'bg-primary text-black'
+                      : ' bg-dark-grey  text-light-grey') +
+                    ` flex px-3 py-2 rounded  hover:bg-primary-thin hover:text-primary transition-all`
+                  }
+                  onClick={() => setRegistryAddress(ARIO_TESTNET_PROCESS_ID)}
+                >
+                  Testnet
+                </button>
+
+                <button
+                  className={
+                    (registryAddress === ARIO_MAINNET_PROCESS_ID
+                      ? 'bg-primary text-black'
+                      : ' bg-dark-grey  text-light-grey') +
+                    ` flex px-3 py-2 rounded  hover:bg-primary-thin hover:text-primary transition-all`
+                  }
+                  onClick={() => setRegistryAddress(ARIO_MAINNET_PROCESS_ID)}
+                >
+                  Mainnet
+                </button>
+              </div>
+            </div>
+
+            <Input
+              className={inputClass}
+              prefixCls="settings-input"
+              placeholder="Enter custom ArNS Registry Address"
+              value={registryAddress}
+              onChange={(e) => {
+                setIsValidAddress(
+                  isArweaveTransactionID(e.target.value.trim()),
+                );
+                setRegistryAddress(e.target.value.trim());
+              }}
+              onClear={() => setRegistryAddress('')}
+              onPressEnter={() =>
+                isArweaveTransactionID(registryAddress) &&
+                setRegistryAddress(registryAddress)
+              }
+              variant="outlined"
+              status={isValidAddress ? '' : 'error'}
+              addonAfter={
+                <div className="flex flex-row" style={{ gap: '4px' }}>
+                  <button
+                    disabled={!isValidAddress}
+                    className={setButtonClass}
+                    onClick={() => setRegistryAddress(registryAddress)}
+                  >
+                    Set
+                  </button>
+                  <button
+                    className={resetIconClass}
+                    onClick={() => {
+                      setRegistryAddress(ARIO_PROCESS_ID);
+                      setIsValidAddress(true);
+                    }}
+                  >
+                    <RotateCcw width={'16px'} />
+                  </button>
+                </div>
+              }
+            />
+            {isValidAddress === false ? (
+              <span
+                className="text-color-error"
+                style={{ marginBottom: '10px' }}
+              >
+                invalid address
+              </span>
+            ) : (
+              <></>
+            )}
+          </div>
           <div className={inputContainerClass}>
             <div className="flex flex-row justify-between items-center text-white">
               <span className={labelClass}>
