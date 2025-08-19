@@ -55,8 +55,9 @@ export function ReassignNameModal({
   name: string;
 }) {
   const queryClient = useQueryClient();
-  const [{ arioProcessId, aoClient, aoNetwork, hyperbeamUrl }] =
-    useGlobalState();
+  const [
+    { arioProcessId, aoClient, aoNetwork, hyperbeamUrl, antRegistryProcessId },
+  ] = useGlobalState();
   const [, dispatchArNSState] = useArNSState();
   const { data: antVersion } = useLatestANTVersion();
   const antModuleId = antVersion?.moduleId ?? null;
@@ -166,6 +167,7 @@ export function ReassignNameModal({
       dispatchArNSUpdate({
         walletAddress: walletAddress,
         arioProcessId,
+        antRegistryProcessId,
         dispatch: dispatchArNSState,
         aoNetworkSettings: aoNetwork,
         hyperbeamUrl,

@@ -22,16 +22,16 @@ function SettingsLayout() {
   const location = useLocation();
 
   return (
-    <div className="flex flex-col w-full h-fit min-h-full box-border">
+    <div className="flex flex-col w-full h-fit min-h-screen min-h-full box-border">
       <div className="bg-foreground">
         <NavBar />
       </div>
       <div className="flex flex-col w-full h-full px-[100px] py-[30px]">
         <div
-          className="flex flex-row w-full h-full rounded-xl rounded-t-none border-dark-grey border-[1px]"
+          className="flex w-full h-full rounded-xl rounded-t-none border-dark-grey border-[1px]"
           style={{ gap: 0 }}
         >
-          <div className="flex flex-col w-1/4 h-full text-white max-w-[300px] border-r-[1px] border-dark-grey rounded-bl-xl">
+          <div className="flex flex-col w-1/4 text-white max-w-[300px] border-r-[1px] border-dark-grey rounded-bl-xl">
             <div className="flex flex-col py-2 pt-4 px-4 gap-3">
               {settingsRoutes.map((route) => (
                 <Link
@@ -41,7 +41,7 @@ function SettingsLayout() {
                     location?.pathname?.split('/')?.at(-1) == route.path
                       ? 'bg-[#222224] text-white fill-white'
                       : ' text-white fill-white  opacity-[0.4]'
-                  } flex  flex-row py-1.5 px-4 items-center justify-start whitespace-nowrap rounded-md hover:opacity-100 transition-all text-sm`}
+                  } flex flex-row py-1.5 px-4 items-center justify-start whitespace-nowrap rounded-md hover:opacity-100 transition-all text-sm`}
                   style={{ gap: '5px' }}
                 >
                   {route.icon}

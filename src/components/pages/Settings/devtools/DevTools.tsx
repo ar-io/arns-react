@@ -35,7 +35,10 @@ const DevTools = () => {
   }, []);
 
   return (
-    <div className="flex flex-col w-full h-full p-3 text-sm gap-2 overflow-y-auto">
+    <div className="flex flex-col w-full h-full text-sm p-2 overflow-y-auto">
+      <div className="flex flex-row p-3 justify-between items-center">
+        <h2 className="text-white text-lg font-semibold">Dev Tools</h2>
+      </div>
       <UserAddress />
       <TransferIO />
       <ANTTools />
