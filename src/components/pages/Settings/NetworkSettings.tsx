@@ -50,9 +50,7 @@ function NetworkSettings() {
     },
     dispatchGlobalState,
   ] = useGlobalState();
-  const [newGateway, setNewGateway] = useState<string>(
-    new URL(`https://${gateway}`).toString(),
-  );
+  const [newGateway, setNewGateway] = useState<string>(gateway);
   const [validGateway, setValidGateway] = useState<boolean>(true);
   const [newCuUrl, setNewCuUrl] = useState<string>(aoNetwork.ARIO.CU_URL);
   const [validCuUrl, setValidCuUrl] = useState<boolean>(true);
@@ -78,7 +76,7 @@ function NetworkSettings() {
   );
   const [validHyperbeamUrl, setValidHyperbeamUrl] = useState<boolean>(true);
   const [newTurboPaymentUrl, setNewTurboPaymentUrl] = useState<string>(
-    new URL(`https://${turboNetwork.PAYMENT_URL}`).toString(),
+    turboNetwork.PAYMENT_URL,
   );
   const [validTurboPaymentUrl, setValidTurboPaymentUrl] =
     useState<boolean>(true);
@@ -114,9 +112,7 @@ function NetworkSettings() {
       payload: NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || undefined,
     });
     // turbo network
-    setNewTurboPaymentUrl(
-      new URL(`https://${NETWORK_DEFAULTS.TURBO.PAYMENT_URL}`).toString(),
-    );
+    setNewTurboPaymentUrl(NETWORK_DEFAULTS.TURBO.PAYMENT_URL);
     setValidTurboPaymentUrl(true);
     updateTurboNetwork({
       PAYMENT_URL: NETWORK_DEFAULTS.TURBO.PAYMENT_URL,
@@ -125,7 +121,7 @@ function NetworkSettings() {
   }
 
   useEffect(() => {
-    setNewGateway(new URL(`https://${gateway}`).toString());
+    setNewGateway(gateway);
     setValidGateway(true);
   }, [gateway]);
 
@@ -144,9 +140,7 @@ function NetworkSettings() {
   }, [hyperbeamUrl]);
 
   useEffect(() => {
-    setNewTurboPaymentUrl(
-      new URL(`https://${turboNetwork.PAYMENT_URL}`).toString(),
-    );
+    setNewTurboPaymentUrl(turboNetwork.PAYMENT_URL);
     setValidTurboPaymentUrl(true);
   }, [turboNetwork]);
 
@@ -269,7 +263,7 @@ function NetworkSettings() {
     setRegistryAddress(ARIO_TESTNET_PROCESS_ID);
     setAntRegistryAddress(ANT_REGISTRY_TESTNET_PROCESS_ID);
     setNewTurboPaymentUrl(devPaymentServiceFqdn);
-    setNewGateway(new URL(`https://ar-io.dev`).toString());
+    setNewGateway('ar-io.dev');
     setValidGateway(true);
     setValidTurboPaymentUrl(true);
 
@@ -289,9 +283,7 @@ function NetworkSettings() {
     setRegistryAddress(ARIO_MAINNET_PROCESS_ID);
     setAntRegistryAddress(ANT_REGISTRY_ID);
     setNewTurboPaymentUrl(prodPaymentServiceFqdn);
-    setNewGateway(
-      new URL(`https://${NETWORK_DEFAULTS.ARWEAVE.HOST}`).toString(),
-    );
+    setNewGateway(NETWORK_DEFAULTS.ARWEAVE.HOST);
     setValidGateway(true);
     setValidTurboPaymentUrl(true);
 

@@ -33,6 +33,10 @@ export type GlobalAction =
       payload: string;
     }
   | {
+      type: 'setAntRegistryProcessId';
+      payload: string;
+    }
+  | {
       type: 'setBlockHeight';
       payload: number;
     }
