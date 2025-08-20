@@ -10,6 +10,12 @@ import {
 } from '@src/utils/constants';
 import { useCallback, useMemo, useReducer } from 'react';
 
+import {
+  NetworkSettingsAction,
+  NetworkSettingsState,
+  NetworkSettingsValidation,
+} from './types';
+
 export function useNetworkSettings() {
   const [state, dispatch] = useReducer(settingsReducer, {
     ...initialState,
@@ -70,18 +76,18 @@ export function useNetworkSettings() {
         gateway: state.gateway,
         cuUrl: state.cuUrl,
         muUrl: state.muUrl,
+        suAddress: state.suAddress,
+        registryAddress: state.registryAddress,
+        antRegistryAddress: state.antRegistryAddress,
+        hyperbeamUrl: state.hyperbeamUrl,
+        turboPaymentUrl: state.turboPaymentUrl,
+        showGatewayModal: state.showGatewayModal,
       },
       validation: state.validation,
     },
     actions,
   };
 }
-
-import {
-  NetworkSettingsAction,
-  NetworkSettingsState,
-  NetworkSettingsValidation,
-} from './types';
 
 const initialState: NetworkSettingsState = {
   gateway: NETWORK_DEFAULTS.ARWEAVE.HOST,
@@ -163,41 +169,4 @@ function settingsReducer(
     default:
       return state;
   }
-}
-
-export function useNetworkSettings() {
-  const [state, dispatch] = useReducer(settingsReducer, {
-    ...initialState,
-    validation: initialValidation,
-  });
-
-  return {
-    state: {
-      values: {
-        gateway: state.gateway,
-        cuUrl: state.cuUrl,
-        muUrl: state.muUrl,
-        suAddress: state.suAddress,
-        registryAddress: state.registryAddress,
-        antRegistryAddress: state.antRegistryAddress,
-        hyperbeamUrl: state.hyperbeamUrl,
-        turboPaymentUrl: state.turboPaymentUrl,
-        showGatewayModal: state.showGatewayModal,
-      },
-      validation: state.validation,
-    },
-    actions: {
-      setValue: (field: keyof NetworkSettingsState, value: string | boolean) =>
-        dispatch({ type: 'SET_VALUE', field, value }),
-      setValidation: (
-        field: keyof NetworkSettingsValidation,
-        isValid: boolean,
-      ) => dispatch({ type: 'SET_VALIDATION', field, isValid }),
-      resetToDefaults: () => dispatch({ type: 'RESET_TO_DEFAULTS' }),
-      setTestnetDefaults: () => dispatch({ type: 'SET_TESTNET_DEFAULTS' }),
-      setMainnetDefaults: () => dispatch({ type: 'SET_MAINNET_DEFAULTS' }),
-      syncFromGlobalState: (payload: Partial<NetworkSettingsState>) =>
-        dispatch({ type: 'SYNC_FROM_GLOBAL_STATE', payload }),
-    },
-  };
 }
