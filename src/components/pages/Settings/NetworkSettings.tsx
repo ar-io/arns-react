@@ -25,12 +25,13 @@ import {
   NETWORK_DEFAULTS,
 } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
-import { Input } from 'antd';
 import { List, RotateCcw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { SettingInput, TransactionIdSettingInput } from './SettingInput';
 import './styles.css';
+import { useNetworkSettings } from './useNetworkSettings';
 
 function NetworkSettings() {
   const [
@@ -45,70 +46,22 @@ function NetworkSettings() {
     },
     dispatchGlobalState,
   ] = useGlobalState();
-  const [newGateway, setNewGateway] = useState<string>(gateway);
-  const [validGateway, setValidGateway] = useState<boolean>(true);
-  const [newCuUrl, setNewCuUrl] = useState<string>(aoNetwork.ARIO.CU_URL);
-  const [validCuUrl, setValidCuUrl] = useState<boolean>(true);
-  const [newMuUrl, setNewMuUrl] = useState<string>(aoNetwork.ARIO.MU_URL);
-  const [validMuUrl, setValidMuUrl] = useState<boolean>(true);
-  const [newSuAddress, setNewSuAddress] = useState<string>(
-    aoNetwork.ARIO.SCHEDULER,
-  );
+
+  const { state, actions } = useNetworkSettings();
   const [suUrl, setSuUrl] = useState<string>();
-  const [validSuAddress, setValidSuAddress] = useState<boolean>(true);
-  const [showGatewayModal, setShowGatewayModal] = useState<boolean>(false);
-  const [registryAddress, setRegistryAddress] = useState<string>(
-    arioProcessId || '',
-  );
-  const [antRegistryAddress, setAntRegistryAddress] = useState<string>(
-    antRegistryProcessId || '',
-  );
-  const [isValidAntRegistryAddress, setIsValidAntRegistryAddress] =
-    useState<boolean>(true);
-  const [isValidAddress, setIsValidAddress] = useState<boolean>(true);
-  const [newHyperbeamUrl, setNewHyperbeamUrl] = useState<string>(
-    hyperbeamUrl || '',
-  );
-  const [validHyperbeamUrl, setValidHyperbeamUrl] = useState<boolean>(true);
-  const [newTurboPaymentUrl, setNewTurboPaymentUrl] = useState<string>(
-    turboNetwork.PAYMENT_URL,
-  );
-  const [validTurboPaymentUrl, setValidTurboPaymentUrl] =
-    useState<boolean>(true);
 
   function reset() {
-    // arns
-    setRegistryAddress(ARIO_PROCESS_ID);
-    setIsValidAddress(true);
-    // ant registry
-    setAntRegistryAddress(ANT_REGISTRY_ID);
-    setIsValidAntRegistryAddress(true);
-    // gateway
-    setNewGateway(NETWORK_DEFAULTS.ARWEAVE.HOST);
-    setValidGateway(true);
+    actions.resetToDefaults();
     updateGateway(NETWORK_DEFAULTS.ARWEAVE.HOST);
-    // ao network
-    setNewCuUrl(NETWORK_DEFAULTS.AO.ARIO.CU_URL);
-    setValidCuUrl(true);
-    setNewMuUrl(NETWORK_DEFAULTS.AO.ARIO.MU_URL);
-    setValidMuUrl(true);
-    setNewSuAddress(NETWORK_DEFAULTS.AO.ARIO.SCHEDULER);
-    setValidSuAddress(true);
     updateAoNetwork({
       CU_URL: NETWORK_DEFAULTS.AO.ARIO.CU_URL,
       MU_URL: NETWORK_DEFAULTS.AO.ARIO.MU_URL,
       SCHEDULER: NETWORK_DEFAULTS.AO.ARIO.SCHEDULER,
     });
-    // hyperbeam network
-    setNewHyperbeamUrl(NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || '');
-    setValidHyperbeamUrl(true);
     dispatchGlobalState({
       type: 'setHyperbeamUrl',
       payload: NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || undefined,
     });
-    // turbo network
-    setNewTurboPaymentUrl(NETWORK_DEFAULTS.TURBO.PAYMENT_URL);
-    setValidTurboPaymentUrl(true);
     updateTurboNetwork({
       PAYMENT_URL: NETWORK_DEFAULTS.TURBO.PAYMENT_URL,
       STRIPE_PUBLISHABLE_KEY: NETWORK_DEFAULTS.TURBO.STRIPE_PUBLISHABLE_KEY,
@@ -116,28 +69,25 @@ function NetworkSettings() {
   }
 
   useEffect(() => {
-    setNewGateway(gateway);
-    setValidGateway(true);
-  }, [gateway]);
-
-  useEffect(() => {
-    setNewCuUrl(aoNetwork.ARIO.CU_URL);
-    setValidCuUrl(true);
-    setNewMuUrl(aoNetwork.ARIO.MU_URL);
-    setValidMuUrl(true);
-    setNewSuAddress(aoNetwork.ARIO.SCHEDULER);
-    setValidSuAddress(true);
-  }, [aoNetwork]);
-
-  useEffect(() => {
-    setNewHyperbeamUrl(hyperbeamUrl || '');
-    setValidHyperbeamUrl(true);
-  }, [hyperbeamUrl]);
-
-  useEffect(() => {
-    setNewTurboPaymentUrl(turboNetwork.PAYMENT_URL);
-    setValidTurboPaymentUrl(true);
-  }, [turboNetwork]);
+    actions.syncFromGlobalState({
+      gateway,
+      cuUrl: aoNetwork.ARIO.CU_URL,
+      muUrl: aoNetwork.ARIO.MU_URL,
+      suAddress: aoNetwork.ARIO.SCHEDULER,
+      registryAddress: arioProcessId || '',
+      antRegistryAddress: antRegistryProcessId || '',
+      hyperbeamUrl: hyperbeamUrl || '',
+      turboPaymentUrl: turboNetwork.PAYMENT_URL,
+    });
+  }, [
+    gateway,
+    aoNetwork,
+    arioProcessId,
+    antRegistryProcessId,
+    hyperbeamUrl,
+    turboNetwork,
+    actions,
+  ]);
 
   useEffect(() => {
     async function updateSUUrl(suAddress: string) {
@@ -151,22 +101,20 @@ function NetworkSettings() {
         eventEmitter.emit('error', error);
       }
     }
-    if (isArweaveTransactionID(aoNetwork.ARIO.SCHEDULER)) {
-      updateSUUrl(aoNetwork.ARIO.SCHEDULER);
+    if (isArweaveTransactionID(state.values.suAddress)) {
+      updateSUUrl(state.values.suAddress);
     }
-  }, [aoNetwork]);
+  }, [state.values.suAddress]);
 
   async function updateGateway(gate: string) {
     try {
       if (!isValidGateway(gate)) {
         throw new Error('Invalid gateway: ' + gate);
       }
-      // test gateway
       await fetch(`https://${gate}/info`).catch((error) => {
         console.error(error);
         throw new Error('Gateway not available: ' + gate);
       });
-      // Always try to update gateway
       dispatchNewGateway(gate, arioContract, dispatchGlobalState);
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -174,7 +122,7 @@ function NetworkSettings() {
         name: 'Devtools',
         message: 'Invalid gateway: ' + gate,
       });
-      setNewGateway(gateway);
+      actions.setValue('gateway', gateway);
       updateGateway(gateway);
     }
   }
@@ -253,22 +201,14 @@ function NetworkSettings() {
     }
   }
 
-  // when setting testnet , set the ANT REGISTRY, ARIO CONTRACT AND TURBO PAYMENT TO USE THE TESNTET VALUES
   function setTestnetDefaults() {
-    setRegistryAddress(ARIO_TESTNET_PROCESS_ID);
-    setAntRegistryAddress(ANT_REGISTRY_TESTNET_PROCESS_ID);
-    setNewGateway('ar-io.dev');
-    setValidGateway(true);
-
-    // update the global state
+    actions.setTestnetDefaults();
     updateGateway('ar-io.dev');
     updateAoNetwork({
       CU_URL: NETWORK_DEFAULTS.AO.ARIO.CU_URL,
       MU_URL: NETWORK_DEFAULTS.AO.ARIO.MU_URL,
       SCHEDULER: NETWORK_DEFAULTS.AO.ARIO.SCHEDULER,
     });
-
-    // update the global state
     dispatchGlobalState({
       type: 'setIoProcessId',
       payload: ARIO_TESTNET_PROCESS_ID,
@@ -280,20 +220,13 @@ function NetworkSettings() {
   }
 
   function setMainnetDefaults() {
-    setRegistryAddress(ARIO_MAINNET_PROCESS_ID);
-    setAntRegistryAddress(ANT_REGISTRY_ID);
-    setNewGateway(NETWORK_DEFAULTS.ARWEAVE.HOST);
-    setValidGateway(true);
-
-    // update gateway
+    actions.setMainnetDefaults();
     updateGateway(NETWORK_DEFAULTS.ARWEAVE.HOST);
     updateAoNetwork({
       CU_URL: NETWORK_DEFAULTS.AO.ARIO.CU_URL,
       MU_URL: NETWORK_DEFAULTS.AO.ARIO.MU_URL,
       SCHEDULER: NETWORK_DEFAULTS.AO.ARIO.SCHEDULER,
     });
-
-    // update the global state
     dispatchGlobalState({
       type: 'setIoProcessId',
       payload: ARIO_MAINNET_PROCESS_ID,
@@ -304,14 +237,6 @@ function NetworkSettings() {
     });
   }
 
-  const labelClass =
-    'flex flex-row flex-1 w-full bg-background rounded-md px-4 py-1 border border-primary-thin text-md text-light-grey ';
-  const inputClass = 'bg-foreground justify-center items-center outline-none';
-  const inputContainerClass =
-    'flex flex-col gap-2 border border-primary-thin p-2 rounded-md bg-metallic-grey';
-  const setButtonClass =
-    'text-grey border-[0.5px] border-dark-grey rounded hover:border-white hover:text-white transition-all h-full flex w-fit py-1 px-3 rounded-sm text-xs font-semibold';
-  const resetIconClass = 'py-1 px-3 text-grey hover:text-white transition-all';
   return (
     <div className="flex flex-col w-full h-full p-3 text-sm">
       <div className="flex flex-col w-full h-full  gap-5 p-2 rounded-xl">
@@ -323,7 +248,7 @@ function NetworkSettings() {
           >
             <button
               className={
-                (registryAddress === ARIO_TESTNET_PROCESS_ID
+                (state.values.registryAddress === ARIO_TESTNET_PROCESS_ID
                   ? 'bg-primary text-black'
                   : ' bg-dark-grey  text-light-grey') +
                 ` flex px-3 py-2 rounded  hover:bg-primary-thin hover:text-primary transition-all`
@@ -335,7 +260,7 @@ function NetworkSettings() {
 
             <button
               className={
-                (registryAddress === ARIO_MAINNET_PROCESS_ID
+                (state.values.registryAddress === ARIO_MAINNET_PROCESS_ID
                   ? 'bg-primary text-black'
                   : ' bg-dark-grey  text-light-grey') +
                 ` flex px-3 py-2 rounded  hover:bg-primary-thin hover:text-primary transition-all`
@@ -346,345 +271,195 @@ function NetworkSettings() {
             </button>
           </div>
         </div>
-        <div className={inputContainerClass}>
-          <div
-            className="flex flex-row justify-between items-center"
-            style={{ gap: '4px' }}
-          >
-            <div className={labelClass}>
-              <span className="flex-none">AR.IO Contract: </span>
-              {registryAddress ? (
-                <ArweaveID
-                  id={new ArweaveTransactionID(registryAddress)}
-                  shouldLink
-                  type={ArweaveIdTypes.CONTRACT}
-                />
-              ) : (
-                'N/A'
-              )}
-            </div>
-          </div>
-
-          <Input
-            className={inputClass}
-            prefixCls="settings-input"
-            placeholder="Enter custom ArNS Registry Address"
-            value={registryAddress}
-            onChange={(e) => {
-              setIsValidAddress(isArweaveTransactionID(e.target.value.trim()));
-              setRegistryAddress(e.target.value.trim());
+        <TransactionIdSettingInput
+          label="AR.IO Contract"
+          value={state.values.registryAddress}
+          placeholder="Enter custom ArNS Registry Address"
+          isValid={state.validation.registryAddress}
+          onChange={(value) => {
+            actions.setValue('registryAddress', value);
+            actions.setValidation(
+              'registryAddress',
+              isArweaveTransactionID(value),
+            );
+            dispatchGlobalState({
+              type: 'setIoProcessId',
+              payload: value,
+            });
+          }}
+          onSet={() => {
+            dispatchGlobalState({
+              type: 'setIoProcessId',
+              payload: state.values.registryAddress,
+            });
+          }}
+          onReset={() => {
+            actions.setValue('registryAddress', ARIO_PROCESS_ID);
+            actions.setValidation('registryAddress', true);
+            dispatchGlobalState({
+              type: 'setIoProcessId',
+              payload: ARIO_PROCESS_ID,
+            });
+          }}
+          onPressEnter={(value) => {
+            if (isArweaveTransactionID(value)) {
               dispatchGlobalState({
                 type: 'setIoProcessId',
-                payload: e.target.value.trim(),
+                payload: value,
               });
-            }}
-            onClear={() => setRegistryAddress('')}
-            onPressEnter={() =>
-              isArweaveTransactionID(registryAddress) &&
-              setRegistryAddress(registryAddress) &&
-              dispatchGlobalState({
-                type: 'setIoProcessId',
-                payload: registryAddress,
-              })
             }
-            variant="outlined"
-            status={isValidAddress ? '' : 'error'}
-            addonAfter={
-              <div className="flex flex-row" style={{ gap: '4px' }}>
-                <button
-                  disabled={!isValidAddress}
-                  className={setButtonClass}
-                  onClick={() => {
-                    setRegistryAddress(registryAddress);
-                    dispatchGlobalState({
-                      type: 'setIoProcessId',
-                      payload: registryAddress,
-                    });
-                  }}
-                >
-                  Set
-                </button>
-                <button
-                  className={resetIconClass}
-                  onClick={() => {
-                    setRegistryAddress(ARIO_PROCESS_ID);
-                    setIsValidAddress(true);
-                    dispatchGlobalState({
-                      type: 'setIoProcessId',
-                      payload: ARIO_PROCESS_ID,
-                    });
-                  }}
-                >
-                  <RotateCcw width={'16px'} />
-                </button>
-              </div>
-            }
-          />
-          {isValidAddress === false ? (
-            <span className="text-color-error" style={{ marginBottom: '10px' }}>
-              invalid address
-            </span>
-          ) : (
-            <></>
-          )}
-        </div>
-        <div className={inputContainerClass}>
-          <div
-            className="flex flex-row justify-between items-center"
-            style={{ gap: '4px' }}
-          >
-            <div className={labelClass}>
-              <span className="flex-none">ANT Registry: </span>
-              {antRegistryAddress ? (
-                <ArweaveID
-                  id={new ArweaveTransactionID(antRegistryAddress)}
-                  shouldLink
-                  type={ArweaveIdTypes.CONTRACT}
-                />
-              ) : (
-                'N/A'
-              )}
-            </div>
-          </div>
-          <Input
-            className={inputClass}
-            prefixCls="settings-input"
-            placeholder="Enter custom ANT Registry Address"
-            value={antRegistryAddress}
-            onChange={(e) => {
-              setIsValidAntRegistryAddress(
-                isArweaveTransactionID(e.target.value.trim()),
-              );
-              setAntRegistryAddress(e.target.value.trim());
+          }}
+        />
+        <TransactionIdSettingInput
+          label="ANT Registry"
+          value={state.values.antRegistryAddress}
+          placeholder="Enter custom ANT Registry Address"
+          isValid={state.validation.antRegistryAddress}
+          onChange={(value) => {
+            actions.setValue('antRegistryAddress', value);
+            actions.setValidation(
+              'antRegistryAddress',
+              isArweaveTransactionID(value),
+            );
+            dispatchGlobalState({
+              type: 'setAntRegistryProcessId',
+              payload: value,
+            });
+          }}
+          onSet={() => {
+            dispatchGlobalState({
+              type: 'setAntRegistryProcessId',
+              payload: state.values.antRegistryAddress,
+            });
+          }}
+          onReset={() => {
+            actions.setValue('antRegistryAddress', ANT_REGISTRY_ID);
+            actions.setValidation('antRegistryAddress', true);
+            dispatchGlobalState({
+              type: 'setAntRegistryProcessId',
+              payload: ANT_REGISTRY_ID,
+            });
+          }}
+          onPressEnter={(value) => {
+            if (isArweaveTransactionID(value)) {
               dispatchGlobalState({
                 type: 'setAntRegistryProcessId',
-                payload: e.target.value.trim(),
+                payload: value,
               });
-            }}
-            onClear={() => setAntRegistryAddress('')}
-            onPressEnter={() =>
-              isArweaveTransactionID(antRegistryAddress) &&
-              setAntRegistryAddress(antRegistryAddress) &&
-              dispatchGlobalState({
-                type: 'setAntRegistryProcessId',
-                payload: antRegistryAddress,
-              })
             }
-            variant="outlined"
-            status={isValidAntRegistryAddress ? '' : 'error'}
-            addonAfter={
-              <div className="flex flex-row" style={{ gap: '4px' }}>
-                <button
-                  disabled={!isValidAntRegistryAddress}
-                  className={setButtonClass}
-                  onClick={() => {
-                    setAntRegistryAddress(antRegistryAddress);
-                    dispatchGlobalState({
-                      type: 'setAntRegistryProcessId',
-                      payload: antRegistryAddress,
-                    });
-                  }}
-                >
-                  Set
-                </button>
-                <button
-                  className={resetIconClass}
-                  onClick={() => {
-                    setAntRegistryAddress(ANT_REGISTRY_ID);
-                    setIsValidAntRegistryAddress(true);
-                    dispatchGlobalState({
-                      type: 'setAntRegistryProcessId',
-                      payload: ANT_REGISTRY_ID,
-                    });
-                  }}
-                >
-                  <RotateCcw width={'16px'} />
-                </button>
-              </div>
-            }
-          />
-        </div>
+          }}
+        />
 
-        <div className={inputContainerClass}>
-          <div className="flex-row justify-between items-center text-white gap-2">
-            <span className={labelClass}>
-              Current Gateway:{' '}
-              <span className="text-grey pl-2">{newGateway}</span>
-            </span>
+        <SettingInput
+          label="Current Gateway"
+          value={state.values.gateway}
+          placeholder="Enter custom gateway"
+          isValid={state.validation.gateway}
+          onChange={(value) => {
+            actions.setValue('gateway', value);
+            actions.setValidation('gateway', isValidGateway(value));
+          }}
+          onSet={() => updateGateway(state.values.gateway)}
+          onReset={() => {
+            actions.setValue('gateway', NETWORK_DEFAULTS.ARWEAVE.HOST);
+            actions.setValidation('gateway', true);
+            updateGateway(NETWORK_DEFAULTS.ARWEAVE.HOST);
+          }}
+          onPressEnter={updateGateway}
+          additionalContent={
             <button
               className="border border-dark-grey flex flex-row bg-metallic-grey max-w-fit p-1 rounded-md text-white font-semibold hover:scale-105 transition-all text-sm p-2"
-              onClick={() => setShowGatewayModal(true)}
+              onClick={() => actions.setValue('showGatewayModal', true)}
               style={{ gap: '4px' }}
             >
-              <List width={'18px'} height={'18px'} className="fill-white" />{' '}
+              <List width={'18px'} height={'18px'} className="fill-white" />
               Choose AR.IO Gateway
             </button>
-          </div>
+          }
+        />
+        <SelectGatewayModal
+          show={state.values.showGatewayModal}
+          setShow={(show) => actions.setValue('showGatewayModal', show)}
+          setGateway={(g: string) => {
+            actions.setValue('gateway', g);
+            actions.setValidation('gateway', true);
+            updateGateway(g);
+            actions.setValue('showGatewayModal', false);
+          }}
+        />
 
-          <Input
-            className={inputClass}
-            prefixCls="settings-input"
-            placeholder="Enter custom gateway"
-            value={newGateway}
-            onChange={(e) => {
-              setValidGateway(isValidGateway(e.target.value));
-              setNewGateway(new URL(e.target.value).toString());
-            }}
-            onClear={() => setNewGateway('')}
-            onPressEnter={(e) => updateGateway(e.currentTarget.value)}
-            variant="outlined"
-            status={validGateway ? '' : 'error'}
-            addonAfter={
-              <div className="flex flex-row" style={{ gap: '4px' }}>
-                <button
-                  disabled={!validGateway}
-                  className={setButtonClass}
-                  onClick={() => updateGateway(newGateway)}
-                >
-                  Set
-                </button>
-                <button
-                  className={resetIconClass}
-                  onClick={() => {
-                    setNewGateway(
-                      new URL(
-                        `https://${NETWORK_DEFAULTS.ARWEAVE.HOST}`,
-                      ).toString(),
-                    );
-                    setValidGateway(true);
-                    updateGateway(NETWORK_DEFAULTS.ARWEAVE.HOST);
-                  }}
-                >
-                  <RotateCcw width={'16px'} />
-                </button>
-
-                <SelectGatewayModal
-                  show={showGatewayModal}
-                  setShow={setShowGatewayModal}
-                  setGateway={(g: string) => {
-                    setNewGateway(g);
-                    setValidGateway(true);
-                    updateGateway(g);
-                    setShowGatewayModal(false);
-                  }}
-                />
-              </div>
-            }
-          />
-        </div>
-
-        <div className={inputContainerClass}>
-          <span className={labelClass}>
-            Current CU URL:{' '}
+        <SettingInput
+          label="Current CU URL"
+          value={state.values.cuUrl}
+          placeholder="Enter custom CU url"
+          isValid={state.validation.cuUrl}
+          displayValue={
             <span className="text-grey pl-2">{aoNetwork.ARIO.CU_URL}</span>
-          </span>
-          <Input
-            className={inputClass}
-            prefixCls="settings-input"
-            placeholder="Enter custom CU url"
-            value={newCuUrl}
-            onChange={(e) => {
-              setValidCuUrl(isValidURL(e.target.value.trim()));
-              setNewCuUrl(e.target.value.trim());
-            }}
-            onClear={() => setNewCuUrl('')}
-            onPressEnter={(e) =>
-              updateAoNetwork({
-                CU_URL: e.currentTarget.value.trim(),
-              })
-            }
-            variant="outlined"
-            status={validCuUrl ? '' : 'error'}
-            addonAfter={
-              <div className="flex flex-row" style={{ gap: '4px' }}>
-                <button
-                  disabled={!validCuUrl}
-                  className={setButtonClass}
-                  onClick={() => updateAoNetwork({ CU_URL: newCuUrl.trim() })}
-                >
-                  Set
-                </button>
-                <button
-                  className={resetIconClass}
-                  onClick={() => {
-                    setNewCuUrl(NETWORK_DEFAULTS.AO.ARIO.CU_URL);
-                    setValidCuUrl(true);
-                    updateAoNetwork({
-                      CU_URL: NETWORK_DEFAULTS.AO.ARIO.CU_URL,
-                    });
-                  }}
-                >
-                  <RotateCcw width={'16px'} />
-                </button>
-              </div>
-            }
-          />
-        </div>
+          }
+          onChange={(value) => {
+            actions.setValue('cuUrl', value);
+            actions.setValidation('cuUrl', isValidURL(value));
+          }}
+          onSet={() => updateAoNetwork({ CU_URL: state.values.cuUrl })}
+          onReset={() => {
+            actions.setValue('cuUrl', NETWORK_DEFAULTS.AO.ARIO.CU_URL);
+            actions.setValidation('cuUrl', true);
+            updateAoNetwork({ CU_URL: NETWORK_DEFAULTS.AO.ARIO.CU_URL });
+          }}
+          onPressEnter={(value) => updateAoNetwork({ CU_URL: value })}
+        />
 
-        <div className={inputContainerClass}>
-          <span className={labelClass}>
-            Current MU URL:{' '}
+        <SettingInput
+          label="Current MU URL"
+          value={state.values.muUrl}
+          placeholder="Enter custom MU url"
+          isValid={state.validation.muUrl}
+          displayValue={
             <span className="text-grey pl-2">{aoNetwork.ARIO.MU_URL}</span>
-          </span>
-          <Input
-            className={inputClass}
-            prefixCls="settings-input"
-            placeholder="Enter custom MU url"
-            value={newMuUrl}
-            onChange={(e) => {
-              setValidMuUrl(isValidURL(e.target.value.trim()));
-              setNewMuUrl(e.target.value.trim());
-            }}
-            onClear={() => setNewMuUrl('')}
-            onPressEnter={(e) =>
-              updateAoNetwork({
-                MU_URL: e.currentTarget.value.trim(),
-              })
-            }
-            variant="outlined"
-            status={validMuUrl ? '' : 'error'}
-            addonAfter={
-              <div className="flex flex-row" style={{ gap: '4px' }}>
-                <button
-                  disabled={!validMuUrl}
-                  className={setButtonClass}
-                  onClick={() => updateAoNetwork({ MU_URL: newMuUrl.trim() })}
-                >
-                  Set
-                </button>
-                <button
-                  className={resetIconClass}
-                  onClick={() => {
-                    setNewMuUrl(NETWORK_DEFAULTS.AO.ARIO.MU_URL);
-                    setValidMuUrl(true);
-                    updateAoNetwork({
-                      MU_URL: NETWORK_DEFAULTS.AO.ARIO.MU_URL,
-                    });
-                  }}
-                >
-                  <RotateCcw width={'16px'} />
-                </button>
-              </div>
-            }
-          />
-        </div>
+          }
+          onChange={(value) => {
+            actions.setValue('muUrl', value);
+            actions.setValidation('muUrl', isValidURL(value));
+          }}
+          onSet={() => updateAoNetwork({ MU_URL: state.values.muUrl })}
+          onReset={() => {
+            actions.setValue('muUrl', NETWORK_DEFAULTS.AO.ARIO.MU_URL);
+            actions.setValidation('muUrl', true);
+            updateAoNetwork({ MU_URL: NETWORK_DEFAULTS.AO.ARIO.MU_URL });
+          }}
+          onPressEnter={(value) => updateAoNetwork({ MU_URL: value })}
+        />
 
-        <div className={inputContainerClass}>
-          <div className="flex flex-row gap-2">
-            <span className={labelClass}>
-              Current SU Address:{' '}
-              <span className="text-grey pl-2">
-                <ArweaveID
-                  id={new ArweaveTransactionID(aoNetwork.ARIO.SCHEDULER)}
-                  shouldLink
-                  type={ArweaveIdTypes.ADDRESS}
-                  characterCount={16}
-                />
-              </span>
-            </span>{' '}
-            {suUrl ? (
-              <span className={labelClass}>
-                SU URL :&nbsp;
+        <SettingInput
+          label="Current SU Address"
+          value={state.values.suAddress}
+          placeholder="Enter custom SU address"
+          isValid={state.validation.suAddress}
+          displayValue={
+            <span className="text-grey pl-2">
+              <ArweaveID
+                id={new ArweaveTransactionID(aoNetwork.ARIO.SCHEDULER)}
+                shouldLink
+                type={ArweaveIdTypes.ADDRESS}
+                characterCount={16}
+              />
+            </span>
+          }
+          onChange={(value) => {
+            actions.setValue('suAddress', value);
+            actions.setValidation('suAddress', isArweaveTransactionID(value));
+          }}
+          onSet={() => updateAoNetwork({ SCHEDULER: state.values.suAddress })}
+          onReset={() => {
+            actions.setValue('suAddress', NETWORK_DEFAULTS.AO.ARIO.SCHEDULER);
+            actions.setValidation('suAddress', true);
+            updateAoNetwork({ SCHEDULER: NETWORK_DEFAULTS.AO.ARIO.SCHEDULER });
+          }}
+          onPressEnter={(value) => updateAoNetwork({ SCHEDULER: value })}
+          additionalContent={
+            suUrl ? (
+              <span className="flex flex-row flex-1 w-full bg-background rounded-md px-4 py-1 border border-primary-thin text-md text-light-grey">
+                SU URL:&nbsp;
                 <Link
                   to={suUrl}
                   className="link"
@@ -696,168 +471,87 @@ function NetworkSettings() {
               </span>
             ) : (
               <Loader size={20} />
-            )}
-          </div>
-          <Input
-            className={inputClass}
-            prefixCls="settings-input"
-            placeholder="Enter custom SU address"
-            value={newSuAddress}
-            onChange={(e) => {
-              setValidSuAddress(isArweaveTransactionID(e.target.value.trim()));
-              setNewSuAddress(e.target.value.trim());
-            }}
-            onClear={() => setNewSuAddress('')}
-            onPressEnter={(e) =>
-              updateAoNetwork({
-                SCHEDULER: e.currentTarget.value.trim(),
-              })
-            }
-            variant="outlined"
-            status={validSuAddress ? '' : 'error'}
-            addonAfter={
-              <div className="flex flex-row" style={{ gap: '4px' }}>
-                <button
-                  disabled={!validSuAddress}
-                  className={setButtonClass}
-                  onClick={() => updateAoNetwork({ SCHEDULER: newSuAddress })}
-                >
-                  Set
-                </button>
-                <button
-                  className={resetIconClass}
-                  onClick={() => {
-                    setNewSuAddress(NETWORK_DEFAULTS.AO.ARIO.SCHEDULER);
-                    setValidSuAddress(true);
-                    updateAoNetwork({
-                      SCHEDULER: NETWORK_DEFAULTS.AO.ARIO.SCHEDULER,
-                    });
-                  }}
-                >
-                  <RotateCcw width={'16px'} />
-                </button>
-              </div>
-            }
-          />
-        </div>
-        <div className={inputContainerClass}>
-          <span className={labelClass}>
-            Current Hyperbeam URL:{' '}
-            <span className="text-grey pl-2">{hyperbeamUrl || ''}</span>
-            {!hyperbeamUrl && (
-              <span className="text-red-500 font-bold pl-2">DISABLED</span>
-            )}
-          </span>
-          <Input
-            className={inputClass}
-            prefixCls="settings-input"
-            placeholder="https://hyperbeam.ario.permaweb.services"
-            value={newHyperbeamUrl}
-            onChange={(e) => {
-              setValidHyperbeamUrl(isValidURL(e.target.value.trim()));
-              setNewHyperbeamUrl(e.target.value);
-            }}
-            onClear={() => setNewHyperbeamUrl('')}
-            onPressEnter={(e) =>
-              dispatchGlobalState({
-                type: 'setHyperbeamUrl',
-                payload: e.currentTarget.value.trim(),
-              })
-            }
-            variant="outlined"
-            status={validHyperbeamUrl ? '' : 'error'}
-            addonAfter={
-              <div className="flex flex-row" style={{ gap: '4px' }}>
-                <button
-                  disabled={!validHyperbeamUrl}
-                  className={setButtonClass}
-                  onClick={() =>
-                    dispatchGlobalState({
-                      type: 'setHyperbeamUrl',
-                      payload: newHyperbeamUrl.trim(),
-                    })
-                  }
-                >
-                  Set
-                </button>
-                <button
-                  className={resetIconClass}
-                  onClick={() => {
-                    setNewHyperbeamUrl(
-                      NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || '',
-                    );
-                    setValidHyperbeamUrl(true);
-                    dispatchGlobalState({
-                      type: 'setHyperbeamUrl',
-                      payload:
-                        NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || undefined,
-                    });
-                  }}
-                >
-                  <RotateCcw width={'16px'} />
-                </button>
-              </div>
-            }
-          />
-        </div>
-
-        <div className={inputContainerClass}>
-          <div className="flex flex-row gap-2">
-            <span className={labelClass}>
-              Current Turbo Payment URL:{' '}
-              <span className="text-grey pl-2">{newTurboPaymentUrl}</span>
+            )
+          }
+        />
+        <SettingInput
+          label="Current Hyperbeam URL"
+          value={state.values.hyperbeamUrl}
+          placeholder="https://hyperbeam.ario.permaweb.services"
+          isValid={state.validation.hyperbeamUrl}
+          displayValue={
+            <span className="text-grey pl-2">
+              {hyperbeamUrl || ''}
+              {!hyperbeamUrl && (
+                <span className="text-red-500 font-bold pl-2">DISABLED</span>
+              )}
             </span>
-          </div>
+          }
+          onChange={(value) => {
+            actions.setValue('hyperbeamUrl', value);
+            actions.setValidation('hyperbeamUrl', isValidURL(value));
+          }}
+          onSet={() =>
+            dispatchGlobalState({
+              type: 'setHyperbeamUrl',
+              payload: state.values.hyperbeamUrl.trim(),
+            })
+          }
+          onReset={() => {
+            actions.setValue(
+              'hyperbeamUrl',
+              NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || '',
+            );
+            actions.setValidation('hyperbeamUrl', true);
+            dispatchGlobalState({
+              type: 'setHyperbeamUrl',
+              payload: NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || undefined,
+            });
+          }}
+          onPressEnter={(value) =>
+            dispatchGlobalState({
+              type: 'setHyperbeamUrl',
+              payload: value,
+            })
+          }
+        />
 
-          <Input
-            className={inputClass}
-            prefixCls="settings-input"
-            placeholder="https://payment.ar.io"
-            value={newTurboPaymentUrl}
-            onChange={(e) => {
-              setValidTurboPaymentUrl(isValidURL(e.target.value.trim()));
-              setNewTurboPaymentUrl(e.target.value);
-            }}
-            onClear={() => setNewTurboPaymentUrl('')}
-            onPressEnter={(e) =>
-              updateTurboNetwork({
-                PAYMENT_URL: e.currentTarget.value.trim(),
-              })
-            }
-            variant="outlined"
-            status={validTurboPaymentUrl ? '' : 'error'}
-            addonAfter={
-              <div className="flex flex-row" style={{ gap: '4px' }}>
-                <button
-                  disabled={!validTurboPaymentUrl}
-                  className={setButtonClass}
-                  onClick={() =>
-                    updateTurboNetwork({
-                      PAYMENT_URL: newTurboPaymentUrl.trim(),
-                    })
-                  }
-                >
-                  Set
-                </button>
-                <button
-                  className={resetIconClass}
-                  onClick={() => {
-                    setNewTurboPaymentUrl(NETWORK_DEFAULTS.TURBO.PAYMENT_URL);
-                    setValidTurboPaymentUrl(true);
-                    updateTurboNetwork({
-                      PAYMENT_URL: NETWORK_DEFAULTS.TURBO.PAYMENT_URL,
-                      STRIPE_PUBLISHABLE_KEY:
-                        NETWORK_DEFAULTS.TURBO.STRIPE_PUBLISHABLE_KEY,
-                    });
-                  }}
-                >
-                  <RotateCcw width={'16px'} />
-                </button>
-              </div>
-            }
-          />
-        </div>
-        <div className="flex flex-col p-2 w-wfull h-full justify-end items-end">
+        <SettingInput
+          label="Current Turbo Payment URL"
+          value={state.values.turboPaymentUrl}
+          placeholder="https://payment.ar.io"
+          isValid={state.validation.turboPaymentUrl}
+          displayValue={
+            <span className="text-grey pl-2">{turboNetwork.PAYMENT_URL}</span>
+          }
+          onChange={(value) => {
+            actions.setValue('turboPaymentUrl', value);
+            actions.setValidation('turboPaymentUrl', isValidURL(value));
+          }}
+          onSet={() =>
+            updateTurboNetwork({
+              PAYMENT_URL: state.values.turboPaymentUrl,
+            })
+          }
+          onReset={() => {
+            actions.setValue(
+              'turboPaymentUrl',
+              NETWORK_DEFAULTS.TURBO.PAYMENT_URL,
+            );
+            actions.setValidation('turboPaymentUrl', true);
+            updateTurboNetwork({
+              PAYMENT_URL: NETWORK_DEFAULTS.TURBO.PAYMENT_URL,
+              STRIPE_PUBLISHABLE_KEY:
+                NETWORK_DEFAULTS.TURBO.STRIPE_PUBLISHABLE_KEY,
+            });
+          }}
+          onPressEnter={(value) =>
+            updateTurboNetwork({
+              PAYMENT_URL: value,
+            })
+          }
+        />
+        <div className="flex flex-col p-2 w-full h-full justify-end items-end">
           <div className="flex flex-row gap-3 items-end w-full justify-end">
             <button
               className="whitespace-nowrap flex flex-nowrap justify-center items-center gap-2 py-2 px-3 w-fit text-white border border-primary-thin hover:bg-primary hover:text-black bg-metallic-grey rounded-md transition-all"
