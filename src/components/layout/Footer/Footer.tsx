@@ -10,7 +10,6 @@ import changeLog from '../../../../CHANGELOG.md?raw';
 import { ARIO_DISCORD_LINK } from '../../../utils/constants';
 import { APP_VERSION } from '../../../utils/constants';
 import { BrandLogo } from '../../icons';
-import './styles.css';
 
 const FORMATTED_CHANGELOG = changeLog
   .substring(changeLog.indexOf('## [Unreleased]') + 16)
@@ -22,14 +21,17 @@ function Footer() {
 
   return (
     <div
-      className={'flex-row app-footer'}
+      className={
+        'flex-row w-full p-2 md:p-8 md:px-0 border-t border-dark-grey '
+      }
       style={{
-        borderTop: '1px solid var(--text-faded)',
-        boxSizing: 'border-box',
+        gap: '0rem',
       }}
     >
-      <div className={'flex-row flex-left'} style={{ width: 'fit-content' }}>
-        <BrandLogo width={'30px'} height={'30px'} fill={'var(--text-grey)'} />
+      <div className={'flex-row flex-center md:flex-left p-2 md:p-0'}>
+        <span className="hidden md:block">
+          <BrandLogo width={'30px'} height={'30px'} fill={'var(--text-grey)'} />
+        </span>
         <Link
           className="grey text hover:text-white"
           to={'https://ar.io/legal/terms-of-service-and-privacy-policy'}
@@ -41,15 +43,9 @@ function Footer() {
       </div>
 
       <div
-        className="flex-space-between"
-        style={{
-          width: '100%',
-        }}
-      ></div>
-
-      <div
-        className="flex-row flex-right w-fit"
-        style={{ width: 'fit-content' }}
+        className={
+          'flex-row text-center md:text-right md:flex-right p-2 md:p-0'
+        }
       >
         <Tooltip
           title="Show Changelog"
@@ -65,6 +61,9 @@ function Footer() {
             v{APP_VERSION}-{import.meta.env.VITE_GITHUB_HASH?.slice(0, 6)}
           </button>
         </Tooltip>
+      </div>
+
+      <div className="flex-row flex-center md:flex-right p-2 md:p-0">
         <Tooltip
           title="Github"
           placement={'top'}

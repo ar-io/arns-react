@@ -805,6 +805,10 @@ thead > tr > td[class~='assets-table-header'] {
   padding: 6px 8px !important;
 }
 
+.ant-tooltip-inner {
+  width: 100% !important;
+}
+
 .popup-title {
   font-size: 13px;
   color: var(--text-subtle);

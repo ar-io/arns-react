@@ -75,6 +75,11 @@ const UndernamesTable = ({
   const isOwner = walletAddress
     ? state?.Owner === walletAddress.toString()
     : false;
+  const isController = walletAddress
+    ? state?.Controllers.includes(walletAddress.toString())
+    : false;
+  const isAuthorized = (isOwner || isController) ?? false;
+
   const [, dispatchTransactionState] = useTransactionState();
   const [, dispatchModalState] = useModalState();
   const { data: primaryNameData } = usePrimaryName();
@@ -428,7 +433,8 @@ const UndernamesTable = ({
           return '';
         }}
         addOnAfterTable={
-          isOwner ? (
+          // controllers and owners can add undernames
+          isAuthorized ? (
             <div className="w-full flex flex-row text-primary font-semibold border-t-[1px] border-dark-grey text-sm">
               <button
                 className="flex flex-row w-full items-center p-3 bg-background hover:bg-primary-gradient text-primary hover:text-primary fill-primary hover:fill-black transition-all"
@@ -477,7 +483,10 @@ const UndernamesTable = ({
           }}
         />
       )}
-      {arnsRecord.processId && transactionData && interactionType && isOwner ? (
+      {arnsRecord.processId &&
+      transactionData &&
+      interactionType &&
+      isAuthorized ? (
         <ConfirmTransactionModal
           interactionType={interactionType}
           confirm={() =>

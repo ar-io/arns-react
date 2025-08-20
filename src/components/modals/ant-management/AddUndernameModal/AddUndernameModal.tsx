@@ -14,8 +14,8 @@ import {
 import {
   ARNS_TX_ID_ENTRY_REGEX,
   LANDING_PAGE_TXID,
+  MAX_FULL_ARNS_NAME_LENGTH,
   MAX_TTL_SECONDS,
-  MAX_UNDERNAME_LENGTH,
   MIN_TTL_SECONDS,
   UNDERNAME_REGEX,
 } from '../../../../utils/constants';
@@ -40,7 +40,7 @@ function AddUndernameModal({
     LANDING_PAGE_TXID.toString(),
   );
   const [ttlSeconds, setTtlSeconds] = useState<number>(MIN_TTL_SECONDS);
-  const maxUndernameLength = MAX_UNDERNAME_LENGTH - name.length - 1;
+  const maxUndernameLength = MAX_FULL_ARNS_NAME_LENGTH - name.length - 1;
 
   function handlePayloadCallback() {
     payloadCallback({
@@ -124,8 +124,8 @@ function AddUndernameModal({
                         <Tooltip
                           message={
                             <span>
-                              The full ArNS name (undername + base name) can be
-                              up to {MAX_UNDERNAME_LENGTH} characters. For base
+                              An ArNS name (undername + base name) can be up to{' '}
+                              {MAX_FULL_ARNS_NAME_LENGTH} characters. For base
                               names longer than {maxUndernameLength} characters,
                               this undername will not resolve on AR.IO gateways.
                             </span>

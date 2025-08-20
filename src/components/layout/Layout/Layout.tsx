@@ -58,21 +58,11 @@ function Layout() {
         <div className="p-[4px]" />
       )}
 
-      <div className="body">
+      <div className="flex flex-col flex-1 w-full h-fit">
         <Outlet />
         <Notifications />
       </div>
-      <div
-        className="flex flex-row"
-        style={{
-          boxSizing: 'border-box',
-          justifyContent: 'flex-end',
-          alignItems: 'flex-end',
-          height: '100%',
-        }}
-      >
-        <Footer />
-      </div>
+      <Footer />
     </div>
   );
 }
