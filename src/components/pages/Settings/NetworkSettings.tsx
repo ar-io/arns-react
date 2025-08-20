@@ -19,7 +19,11 @@ import {
   useGlobalState,
 } from '@src/state';
 import { isArweaveTransactionID, isValidGateway, isValidURL } from '@src/utils';
-import { ARIO_PROCESS_ID, NETWORK_DEFAULTS } from '@src/utils/constants';
+import {
+  ANT_REGISTRY_TESTNET_PROCESS_ID,
+  ARIO_PROCESS_ID,
+  NETWORK_DEFAULTS,
+} from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Input } from 'antd';
 import { List, RotateCcw } from 'lucide-react';
@@ -27,10 +31,6 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import './styles.css';
-
-// known testnet ANT reigstry
-const ANT_REGISTRY_TESTNET_PROCESS_ID =
-  'RR0vheYqtsKuJCWh6xj0beE35tjaEug5cejMw9n2aa8';
 
 function NetworkSettings() {
   const [

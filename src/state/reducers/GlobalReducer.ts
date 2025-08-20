@@ -111,6 +111,11 @@ export const reducer = (
         ...state,
         arioProcessId: action.payload,
       };
+    case 'setAntRegistryProcessId':
+      return {
+        ...state,
+        antRegistryProcessId: action.payload,
+      };
     case 'setHyperbeamUrl':
       return {
         ...state,
