@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### [1.22.3] - 2025-08-20
+
+- Allow controllers to submit transactions
+
 ### [1.22.2] - 2025-08-20
 
 - Allow controllers to add undernames

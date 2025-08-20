@@ -483,7 +483,10 @@ const UndernamesTable = ({
           }}
         />
       )}
-      {arnsRecord.processId && transactionData && interactionType && isOwner ? (
+      {arnsRecord.processId &&
+      transactionData &&
+      interactionType &&
+      isAuthorized ? (
         <ConfirmTransactionModal
           interactionType={interactionType}
           confirm={() =>
