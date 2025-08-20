@@ -8,7 +8,74 @@ import {
   ARIO_PROCESS_ID,
   NETWORK_DEFAULTS,
 } from '@src/utils/constants';
-import { useReducer } from 'react';
+import { useCallback, useMemo, useReducer } from 'react';
+
+export function useNetworkSettings() {
+  const [state, dispatch] = useReducer(settingsReducer, {
+    ...initialState,
+    validation: initialValidation,
+  });
+
+  // Stable action creators
+  const setValue = useCallback(
+    (field: keyof NetworkSettingsState, value: string | boolean) =>
+      dispatch({ type: 'SET_VALUE', field, value }),
+    [],
+  );
+  const setValidation = useCallback(
+    (field: keyof NetworkSettingsValidation, isValid: boolean) =>
+      dispatch({ type: 'SET_VALIDATION', field, isValid }),
+    [],
+  );
+  const resetToDefaults = useCallback(
+    () => dispatch({ type: 'RESET_TO_DEFAULTS' }),
+    [],
+  );
+  const setTestnetDefaults = useCallback(
+    () => dispatch({ type: 'SET_TESTNET_DEFAULTS' }),
+    [],
+  );
+  const setMainnetDefaults = useCallback(
+    () => dispatch({ type: 'SET_MAINNET_DEFAULTS' }),
+    [],
+  );
+  const syncFromGlobalState = useCallback(
+    (payload: Partial<NetworkSettingsState>) =>
+      dispatch({ type: 'SYNC_FROM_GLOBAL_STATE', payload }),
+    [],
+  );
+
+  const actions = useMemo(
+    () => ({
+      setValue,
+      setValidation,
+      resetToDefaults,
+      setTestnetDefaults,
+      setMainnetDefaults,
+      syncFromGlobalState,
+    }),
+    [
+      setValue,
+      setValidation,
+      resetToDefaults,
+      setTestnetDefaults,
+      setMainnetDefaults,
+      syncFromGlobalState,
+    ],
+  );
+
+  return {
+    state: {
+      values: {
+        gateway: state.gateway,
+        cuUrl: state.cuUrl,
+        muUrl: state.muUrl,
+      },
+      validation: state.validation,
+    },
+    actions,
+  };
+}
 
 import {
   NetworkSettingsAction,
