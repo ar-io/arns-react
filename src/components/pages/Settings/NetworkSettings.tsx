@@ -19,12 +19,7 @@ import {
   useGlobalState,
 } from '@src/state';
 import { isArweaveTransactionID, isValidGateway, isValidURL } from '@src/utils';
-import {
-  ARIO_PROCESS_ID,
-  NETWORK_DEFAULTS,
-  devPaymentServiceFqdn,
-  prodPaymentServiceFqdn,
-} from '@src/utils/constants';
+import { ARIO_PROCESS_ID, NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Input } from 'antd';
 import { List, RotateCcw } from 'lucide-react';
@@ -262,35 +257,50 @@ function NetworkSettings() {
   function setTestnetDefaults() {
     setRegistryAddress(ARIO_TESTNET_PROCESS_ID);
     setAntRegistryAddress(ANT_REGISTRY_TESTNET_PROCESS_ID);
-    setNewTurboPaymentUrl(devPaymentServiceFqdn);
     setNewGateway('ar-io.dev');
     setValidGateway(true);
-    setValidTurboPaymentUrl(true);
 
     // update the global state
     updateGateway('ar-io.dev');
-    updateTurboNetwork({
-      PAYMENT_URL: devPaymentServiceFqdn,
-    });
     updateAoNetwork({
       CU_URL: NETWORK_DEFAULTS.AO.ARIO.CU_URL,
       MU_URL: NETWORK_DEFAULTS.AO.ARIO.MU_URL,
       SCHEDULER: NETWORK_DEFAULTS.AO.ARIO.SCHEDULER,
+    });
+
+    // update the global state
+    dispatchGlobalState({
+      type: 'setIoProcessId',
+      payload: ARIO_TESTNET_PROCESS_ID,
+    });
+    dispatchGlobalState({
+      type: 'setAntRegistryProcessId',
+      payload: ANT_REGISTRY_TESTNET_PROCESS_ID,
     });
   }
 
   function setMainnetDefaults() {
     setRegistryAddress(ARIO_MAINNET_PROCESS_ID);
     setAntRegistryAddress(ANT_REGISTRY_ID);
-    setNewTurboPaymentUrl(prodPaymentServiceFqdn);
     setNewGateway(NETWORK_DEFAULTS.ARWEAVE.HOST);
     setValidGateway(true);
-    setValidTurboPaymentUrl(true);
 
     // update gateway
     updateGateway(NETWORK_DEFAULTS.ARWEAVE.HOST);
-    updateTurboNetwork({
-      PAYMENT_URL: prodPaymentServiceFqdn,
+    updateAoNetwork({
+      CU_URL: NETWORK_DEFAULTS.AO.ARIO.CU_URL,
+      MU_URL: NETWORK_DEFAULTS.AO.ARIO.MU_URL,
+      SCHEDULER: NETWORK_DEFAULTS.AO.ARIO.SCHEDULER,
+    });
+
+    // update the global state
+    dispatchGlobalState({
+      type: 'setIoProcessId',
+      payload: ARIO_MAINNET_PROCESS_ID,
+    });
+    dispatchGlobalState({
+      type: 'setAntRegistryProcessId',
+      payload: ANT_REGISTRY_ID,
     });
   }
 
@@ -589,7 +599,7 @@ function NetworkSettings() {
               setValidMuUrl(isValidURL(e.target.value.trim()));
               setNewMuUrl(e.target.value.trim());
             }}
-            onClear={() => setNewCuUrl('')}
+            onClear={() => setNewMuUrl('')}
             onPressEnter={(e) =>
               updateAoNetwork({
                 MU_URL: e.currentTarget.value.trim(),
@@ -625,7 +635,6 @@ function NetworkSettings() {
 
         <div className={inputContainerClass}>
           <div className="flex flex-row gap-2">
-            {' '}
             <span className={labelClass}>
               Current SU Address:{' '}
               <span className="text-grey pl-2">
@@ -695,8 +704,6 @@ function NetworkSettings() {
             }
           />
         </div>
-
-        {/* TODO: add turbo payment url */}
         <div className={inputContainerClass}>
           <span className={labelClass}>
             Current Hyperbeam URL:{' '}
