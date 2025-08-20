@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### [1.22.4] - 2025-08-20
+
+- Fix undername validation regex
+
 ### [1.22.3] - 2025-08-20
 
 - Allow controllers to submit transactions
