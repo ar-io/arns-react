@@ -221,7 +221,7 @@ function NetworkSettings() {
 
       dispatchArIOContract({
         contract: ARIO.init({
-          paymentUrl: newTurboPaymentUrl,
+          paymentUrl: turboNetwork.PAYMENT_URL,
           process: new AOProcess({
             processId: arioProcessId,
             ao,
@@ -373,11 +373,19 @@ function NetworkSettings() {
             onChange={(e) => {
               setIsValidAddress(isArweaveTransactionID(e.target.value.trim()));
               setRegistryAddress(e.target.value.trim());
+              dispatchGlobalState({
+                type: 'setIoProcessId',
+                payload: e.target.value.trim(),
+              });
             }}
             onClear={() => setRegistryAddress('')}
             onPressEnter={() =>
               isArweaveTransactionID(registryAddress) &&
-              setRegistryAddress(registryAddress)
+              setRegistryAddress(registryAddress) &&
+              dispatchGlobalState({
+                type: 'setIoProcessId',
+                payload: registryAddress,
+              })
             }
             variant="outlined"
             status={isValidAddress ? '' : 'error'}
@@ -386,7 +394,13 @@ function NetworkSettings() {
                 <button
                   disabled={!isValidAddress}
                   className={setButtonClass}
-                  onClick={() => setRegistryAddress(registryAddress)}
+                  onClick={() => {
+                    setRegistryAddress(registryAddress);
+                    dispatchGlobalState({
+                      type: 'setIoProcessId',
+                      payload: registryAddress,
+                    });
+                  }}
                 >
                   Set
                 </button>
@@ -395,6 +409,10 @@ function NetworkSettings() {
                   onClick={() => {
                     setRegistryAddress(ARIO_PROCESS_ID);
                     setIsValidAddress(true);
+                    dispatchGlobalState({
+                      type: 'setIoProcessId',
+                      payload: ARIO_PROCESS_ID,
+                    });
                   }}
                 >
                   <RotateCcw width={'16px'} />
@@ -438,11 +456,19 @@ function NetworkSettings() {
                 isArweaveTransactionID(e.target.value.trim()),
               );
               setAntRegistryAddress(e.target.value.trim());
+              dispatchGlobalState({
+                type: 'setAntRegistryProcessId',
+                payload: e.target.value.trim(),
+              });
             }}
             onClear={() => setAntRegistryAddress('')}
             onPressEnter={() =>
               isArweaveTransactionID(antRegistryAddress) &&
-              setAntRegistryAddress(antRegistryAddress)
+              setAntRegistryAddress(antRegistryAddress) &&
+              dispatchGlobalState({
+                type: 'setAntRegistryProcessId',
+                payload: antRegistryAddress,
+              })
             }
             variant="outlined"
             status={isValidAntRegistryAddress ? '' : 'error'}
@@ -451,7 +477,13 @@ function NetworkSettings() {
                 <button
                   disabled={!isValidAntRegistryAddress}
                   className={setButtonClass}
-                  onClick={() => setAntRegistryAddress(antRegistryAddress)}
+                  onClick={() => {
+                    setAntRegistryAddress(antRegistryAddress);
+                    dispatchGlobalState({
+                      type: 'setAntRegistryProcessId',
+                      payload: antRegistryAddress,
+                    });
+                  }}
                 >
                   Set
                 </button>
@@ -460,6 +492,10 @@ function NetworkSettings() {
                   onClick={() => {
                     setAntRegistryAddress(ANT_REGISTRY_ID);
                     setIsValidAntRegistryAddress(true);
+                    dispatchGlobalState({
+                      type: 'setAntRegistryProcessId',
+                      payload: ANT_REGISTRY_ID,
+                    });
                   }}
                 >
                   <RotateCcw width={'16px'} />
