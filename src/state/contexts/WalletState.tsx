@@ -1,5 +1,6 @@
-import { AOProcess, ARIO } from '@ar.io/sdk/web';
+import { AOProcess, ARIO, mARIOToken } from '@ar.io/sdk/web';
 import { ArweaveAppError, BeaconError } from '@src/utils/errors';
+import Arweave from 'arweave';
 import React, {
   Dispatch,
   createContext,
@@ -64,12 +65,13 @@ export function WalletStateProvider({
 
   const [
     {
-      arweaveDataProvider,
       blockHeight,
       arioTicker,
       arioProcessId,
       aoClient,
       turboNetwork,
+      gateway,
+      arioContract,
     },
     dispatchGlobalState,
   ] = useGlobalState();
@@ -169,10 +171,15 @@ export function WalletStateProvider({
 
   async function updateBalances(address: AoAddress, arioTicker: string) {
     try {
+      const arweave = new Arweave({ host: gateway, protocol: 'https' });
       const [arioBalance, arBalance] = await Promise.all([
-        arweaveDataProvider.getTokenBalance(address),
+        arioContract
+          .getBalance({ address: address.toString() })
+          .then((b) => new mARIOToken(b).toARIO().valueOf()),
         address instanceof ArweaveTransactionID
-          ? arweaveDataProvider.getArBalance(address)
+          ? arweave.wallets
+              .getBalance(address.toString())
+              .then((b) => +arweave.ar.winstonToAr(b))
           : Promise.resolve(0),
       ]);
 

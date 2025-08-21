@@ -82,7 +82,6 @@ function ConnectWalletModal(): JSX.Element {
     try {
       setConnecting(true);
       await walletConnector.connect();
-
       const address = await walletConnector.getWalletAddress();
       dispatchWalletState({
         type: 'setWalletAddress',

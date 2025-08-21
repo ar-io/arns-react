@@ -29,6 +29,7 @@ import {
   formatARIOWithCommas,
   formatDate,
   isArweaveTransactionID,
+  validateArweaveId,
 } from '../../../utils';
 import {
   MAX_LEASE_DURATION,
@@ -45,15 +46,8 @@ import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function RegisterNameForm() {
-  const [
-    {
-      arweaveDataProvider,
-      arioTicker,
-      arioProcessId,
-      antAoClient,
-      hyperbeamUrl,
-    },
-  ] = useGlobalState();
+  const [{ arioTicker, arioProcessId, antAoClient, hyperbeamUrl }] =
+    useGlobalState();
   const [
     { domain, leaseDuration, registrationType, antID, targetId },
     dispatchRegisterState,
@@ -468,8 +462,9 @@ function RegisterNameForm() {
                     placeholder={'Arweave Transaction ID (Target ID)'}
                     validationPredicates={{
                       [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                        fn: (id: string) =>
-                          arweaveDataProvider.validateArweaveId(id),
+                        fn: async (id: string) => {
+                          return validateArweaveId(id);
+                        },
                       },
                     }}
                     showValidationChecklist={false}

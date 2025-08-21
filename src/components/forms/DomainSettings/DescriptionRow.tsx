@@ -1,11 +1,11 @@
 import ValidationInput from '@src/components/inputs/text/ValidationInput/ValidationInput';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
-import { useGlobalState } from '@src/state/contexts/GlobalState';
 import {
   ANT_INTERACTION_TYPES,
   ContractInteraction,
   VALIDATION_INPUT_TYPES,
 } from '@src/types';
+import { validateArweaveId } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { Skeleton } from 'antd';
 import { useEffect, useState } from 'react';
@@ -25,7 +25,6 @@ export default function DescriptionRow({
   const [newDescription, setNewDescription] = useState<string>(
     description ?? '',
   );
-  const [{ arweaveDataProvider }] = useGlobalState();
   const [showModal, setShowModal] = useState<boolean>(false);
 
   useEffect(() => {
@@ -76,8 +75,9 @@ export default function DescriptionRow({
                 setValue={(e) => setNewDescription(e)}
                 validationPredicates={{
                   [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                    fn: (id: string) =>
-                      arweaveDataProvider.validateArweaveId(id),
+                    fn: async (id: string) => {
+                      return validateArweaveId(id);
+                    },
                   },
                 }}
                 maxCharLength={(str) => str.length <= 512}

@@ -36,14 +36,7 @@ import './styles.css';
 
 function NetworkSettings() {
   const [
-    {
-      gateway,
-      aoNetwork,
-      arioProcessId,
-      arioContract,
-      turboNetwork,
-      hyperbeamUrl,
-    },
+    { gateway, aoNetwork, arioProcessId, turboNetwork, hyperbeamUrl },
     dispatchGlobalState,
   ] = useGlobalState();
   const [newGateway, setNewGateway] = useState<string>(gateway);
@@ -161,7 +154,7 @@ function NetworkSettings() {
         throw new Error('Gateway not available: ' + gate);
       });
       // Always try to update gateway
-      dispatchNewGateway(gate, arioContract, dispatchGlobalState);
+      dispatchNewGateway(gate, dispatchGlobalState);
     } catch (error) {
       eventEmitter.emit('error', error);
       eventEmitter.emit('error', {
