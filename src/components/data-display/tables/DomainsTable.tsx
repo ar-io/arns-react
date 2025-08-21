@@ -45,11 +45,11 @@ import { capitalize } from 'lodash';
 import { CircleCheck, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { Tooltip } from '..';
 import TableView from './TableView';
-import UndernamesSubtable from './UndernamesSubtable';
+import UndernamesTable from './UndernamesTable';
 
 type TableData = {
   openRow: ReactNode;
@@ -118,7 +118,6 @@ const DomainsTable = ({
   setFilter: (filter: string) => void;
 }) => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [{ walletAddress }] = useWalletState();
   const [{ arioProcessId, aoNetwork, hyperbeamUrl }] = useGlobalState();
   const [{ loading: loadingArnsState }, dispatchArNSState] = useArNSState();
@@ -129,17 +128,11 @@ const DomainsTable = ({
   const { data: primaryNameData } = usePrimaryName();
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<TableData[]>([]);
-  const [sortBy, setSortBy] = useState(searchParams.get('sortBy') ?? 'name');
-
   const [showUpgradeDomainModal, setShowUpgradeDomainModal] =
     useState<boolean>(false);
   const [domainToUpgrade, setDomainToUpgrade] = useState<string | undefined>(
     undefined,
   );
-
-  useEffect(() => {
-    setSortBy(searchParams.get('sortBy') ?? 'name');
-  }, [searchParams]);
 
   useEffect(() => {
     if (domainData) {
@@ -222,6 +215,7 @@ const DomainsTable = ({
     columnHelper.accessor(key as keyof TableData, {
       id: key,
       size: key == 'action' || key == 'openRow' ? 20 : undefined,
+      enableSorting: key !== 'action' && key !== 'openRow',
       header:
         key == 'action' || key == 'openRow'
           ? ''
@@ -396,21 +390,19 @@ const DomainsTable = ({
                 }}
                 message={
                   used >= supported ? (
-                    <span className="flex flex-column" style={{ gap: '8px' }}>
-                      <span className="w-fit items-center text-center">
-                        You&apos;ve exceeded your undername support by{' '}
-                        {used - supported} undername
-                        {used - supported > 1 ? 's' : ''}.{' '}
-                      </span>
+                    <div className="w-50 text-white text-center">
+                      The first {supported} undernames for this name (ordered by
+                      priority) will resolve on AR.IO gateways. Click{' '}
                       <Link
-                        className="w-full whitespace-nowrap bg-primary rounded-md text-black hover:text-black center hover px-2"
+                        className="text-primary"
                         to={`/manage/names/${row.getValue(
                           'name',
                         )}/upgrade-undernames`}
                       >
-                        Increase your undername support.
-                      </Link>
-                    </span>
+                        here
+                      </Link>{' '}
+                      to increase the undername limit.
+                    </div>
                   ) : (
                     <span className="justify-center items-center whitespace-nowrap flex flex-col">
                       <span className="w-fit">
@@ -612,27 +604,28 @@ const DomainsTable = ({
                 <div className="flex flex-row center" style={{ gap: '16px' }}>
                   <Link
                     to="/"
-                    className="bg-primary rounded-md text-black center hover px-4 py-3 text-sm"
+                    className="bg-primary rounded-md text-black center hover px-4 py-3 text-sm hover:scale-105"
                   >
-                    Search for a Name
+                    Register a Name
                   </Link>
                 </div>
               </div>
             )
           }
-          defaultSortingState={{
-            id: sortBy,
-            desc: false, // sort by ascending by default
-          }}
+          defaultSortingState={{ id: 'name', desc: false }}
           renderSubComponent={({ row }) => (
-            <UndernamesSubtable
+            <UndernamesTable
+              isLoading={false}
               undernames={
                 domainData.ants?.[row.getValue('processId') as string]?.state
                   ?.Records ?? {}
               }
-              arnsDomain={row.getValue('name')}
-              antId={row.getValue('processId')}
-              version={row.original.version}
+              arnsRecord={{
+                name: row.getValue('name'),
+                version: row.original.version,
+                undernameLimit: row.original.undernames.supported,
+                processId: row.getValue('processId'),
+              }}
               state={
                 domainData.ants?.[row.getValue('processId') as string]?.state
               }

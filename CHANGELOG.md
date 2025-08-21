@@ -8,6 +8,100 @@ and this project adheres to
 
 ## [Unreleased]
 
+### [1.22.5] - 2025-08-20
+
+- Improve mobile view of `Manage` page
+
+### [1.22.4] - 2025-08-20
+
+- Fix undername validation regex
+
+### [1.22.3] - 2025-08-20
+
+- Allow controllers to submit transactions
+
+### [1.22.2] - 2025-08-20
+
+- Allow controllers to add undernames
+
+## [1.22.1] - 2025-08-18
+
+### Changed
+
+- Updated plausible analytics to track arns.ar.io
+
+## [1.22.0] - 2025-08-14
+
+### Changed
+
+- Update `@ar.io/sdk` to 3.18.0.
+- Use updated `onSigningProgress` callbacks with `ANT.spawn` and
+  `ARIO.setPrimaryName`.
+- Add `Register Name` button to `Manage` page.
+- Support using shared credits when paying with Turbo Credits.
+
+### Fixed
+
+- Remove unnecessary network calls on `Manage Name` page.
+
+## [1.21.2] - 2025-08-14
+
+### Fixed
+
+- Fixed links on undernames table
+
+## [1.21.1] - 2025-08-13
+
+### Fixed
+
+- Fixed redirect issue when registering a name.
+
+## [1.21.0] - 2025-08-13
+
+### Changed
+
+- Improved search functionality.
+
+## [1.20.0] - 2025-08-12
+
+### Changed
+
+- Undernames subtable and undernames table are now the same component.
+
+## [1.19.0] - 2025-08-11
+
+### Changed
+
+- Asset resolution now uses processId filter to get exactly the ArNS names
+  needed instead of all ArNS names.
+
+- ANT Changelog uses releaseTimestamp from the ANT Registry
+
+## [1.18.1] - 2025-08-10
+
+### Changed
+
+- Updated `@ar.io/sdk` to 3.17.2.
+
+## [1.18.0] - 2025-08-06
+
+### Changed
+
+- Add `priority` column to undername table.
+
+## [1.17.0] - 2025-08-05
+
+### Changed
+
+- Pull ANT changelog from ANTRegistry.
+- Updated `@ar.io/wayfinder-react` to 1.1.0.
+
+## [1.16.0] - 2025-08-04
+
+### Changed
+
+- Allow managing '@' record in undername table of Manage page.
+
 ## [1.15.4] - 2025-08-04
 
 ### Fixed

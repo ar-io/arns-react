@@ -77,14 +77,16 @@ const TableView = <T, S>({
     columns,
     data,
     autoResetPageIndex: false,
+    enableSorting: true,
+    enableSortingRemoval: false, // Prevent going to "unsorted" state
     getCoreRowModel: getCoreRowModel<T>(),
     getSortedRowModel: getSortedRowModel(), //provide a sorting row model
     getExpandedRowModel: getExpandedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
     state: { sorting, expanded, pagination },
-    onSortingChange: setSorting,
     enableExpanding: true,
+    onSortingChange: setSorting,
     onExpandedChange: (getState: any) => {
       const state = getState();
       const isSame = Object.keys(state)[0] == Object.keys(expanded)[0];
@@ -123,18 +125,8 @@ const TableView = <T, S>({
                     >
                       <button
                         className="flex items-center gap-1 text-left"
-                        onClick={() => {
-                          setSorting([
-                            {
-                              id: header.column.id,
-                              desc: sortState
-                                ? sortState === 'desc'
-                                  ? false
-                                  : true
-                                : header.column.columnDef.sortDescFirst ?? true,
-                            },
-                          ]);
-                        }}
+                        onClick={header.column.getToggleSortingHandler()}
+                        disabled={header.column.getCanSort() === false}
                       >
                         {flexRender(
                           header.column.columnDef.header,
@@ -177,7 +169,6 @@ const TableView = <T, S>({
                     onClick={
                       onRowClick
                         ? (e) => {
-                            console.log(e.target);
                             // Prevent row click if a button inside the row was clicked
                             if (
                               e.target instanceof HTMLElement &&

@@ -8,7 +8,7 @@ import { useCostDetails } from '@src/hooks/useCostDetails';
 import { ValidationError } from '@src/utils/errors';
 import emojiRegex from 'emoji-regex';
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { useIsFocused, useRegistrationStatus } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
@@ -73,16 +73,15 @@ function RegisterNameForm() {
     )} ${arioTicker} )`;
   }, [fiatPrice, costDetails]);
 
-  const [{ walletAddress, balances }] = useWalletState();
+  const [{ walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const { name } = useParams();
-  const { loading: isValidatingRegistration } = useRegistrationStatus(
+  const { isLoading: isValidatingRegistration } = useRegistrationStatus(
     name ?? domain,
   );
   const [newTargetId, setNewTargetId] = useState<string>();
   const targetIdFocused = useIsFocused('target-id-input');
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [hasValidationErrors, setHasValidationErrors] =
     useState<boolean>(false);
   const [validatingNext, setValidatingNext] = useState<boolean>(false);
@@ -93,16 +92,6 @@ function RegisterNameForm() {
     refetch: refetchAntVersion,
   } = useLatestANTVersion();
   const antModuleId = useMemo(() => antVersion?.moduleId, [antVersion]);
-
-  useEffect(() => {
-    const redirect = searchParams.get('redirect');
-    if (redirect && name) {
-      if (!balances[arioTicker]) return;
-      setSearchParams();
-      handleNext();
-      return;
-    }
-  }, [balances]);
 
   useEffect(() => {
     if (name && domain !== name) {
@@ -144,10 +133,9 @@ function RegisterNameForm() {
     try {
       // validate transaction cost, return if insufficient balance and emit validation message
       if (!walletAddress) {
-        const redirectParams = new URLSearchParams({ redirect: 'true' });
         navigate('/connect', {
           state: {
-            to: `/register/${domain}?${redirectParams.toString()}`,
+            to: `/register/${domain}`,
             from: `/register/${domain}`,
           },
         });
@@ -182,7 +170,7 @@ function RegisterNameForm() {
         : domain;
     const buyRecordPayload: BuyRecordPayload = {
       name,
-      processId: antID?.toString() ?? 'atomic',
+      processId: antID?.toString(),
       // TODO: move this to a helper function
       years:
         registrationType === TRANSACTION_TYPES.LEASE
@@ -205,9 +193,6 @@ function RegisterNameForm() {
     dispatchTransactionState({
       type: 'setInteractionType',
       payload: ARNS_INTERACTION_TYPES.BUY_RECORD,
-    });
-    dispatchRegisterState({
-      type: 'reset',
     });
     dispatchTransactionState({
       type: 'setWorkflowName',
@@ -515,7 +500,13 @@ function RegisterNameForm() {
                 nextText="Next"
                 backText="Back"
                 onNext={validatingNext ? undefined : handleNext}
-                onBack={() => navigate('/', { state: `/register/${domain}` })}
+                onBack={() => {
+                  // reset the state when going back to the home page
+                  dispatchRegisterState({
+                    type: 'reset',
+                  });
+                  navigate('/', { state: `/register/${domain}` });
+                }}
                 customBackStyle={{ fontSize: '.875rem', padding: '.625rem' }}
                 customNextStyle={{
                   width: '100px',

@@ -1,4 +1,5 @@
-import { AoANTRecord, AoANTState } from '@ar.io/sdk/web';
+import { AoANTRecord, AoANTState, sortANTRecords } from '@ar.io/sdk';
+import { Tooltip } from '@src/components/data-display';
 import { ExternalLinkIcon, PencilIcon, TrashIcon } from '@src/components/icons';
 import ArweaveID, {
   ArweaveIdTypes,
@@ -36,9 +37,8 @@ import Lottie from 'lottie-react';
 import { Plus, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
-import { Tooltip } from '..';
 import arioLoading from '../../icons/ario-spinner.json';
 import TableView from './TableView';
 
@@ -46,74 +46,45 @@ interface TableData {
   undername: string;
   targetId: string;
   ttlSeconds: number;
+  priority: number;
   action: ReactNode;
 }
 
 const columnHelper = createColumnHelper<TableData>();
 
-function filterTableData(filter: string, data: TableData[]): TableData[] {
-  const results: TableData[] = [];
-
-  data.forEach((d) => {
-    let matchFound = false;
-
-    Object.entries(d).forEach(([, v]) => {
-      if (typeof v === 'object' && v !== null) {
-        // Recurse into nested objects
-        const nestedResults = filterTableData(filter, [v]);
-        if (nestedResults.length > 0) {
-          matchFound = true;
-        }
-      } else if (v?.toString()?.toLowerCase()?.includes(filter.toLowerCase())) {
-        matchFound = true;
-      }
-    });
-
-    if (matchFound) {
-      results.push(d);
-    }
-  });
-
-  return results;
-}
-
 const UndernamesTable = ({
   undernames,
-  arnsDomain,
-  antId,
-  ownershipStatus,
-  filter,
-  refresh,
-  isLoading,
-  version,
+  arnsRecord,
   state,
+  isLoading = false,
 }: {
-  state: AoANTState | null;
-  version: number;
   undernames: Record<string, AoANTRecord>;
-  isLoading?: boolean;
-  arnsDomain?: string;
-  antId?: string;
-  ownershipStatus?: 'owner' | 'controller';
-  filter?: string;
-  refresh?: () => void;
+  arnsRecord: {
+    name: string;
+    version: number;
+    undernameLimit: number;
+    processId: string;
+  };
+  state?: AoANTState | null;
+  isLoading: boolean;
 }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
   const [{ arioProcessId, antAoClient, hyperbeamUrl }] = useGlobalState();
+  const [, dispatchArNSState] = useArNSState();
+
   const [{ wallet, walletAddress }] = useWalletState();
   const isOwner = walletAddress
     ? state?.Owner === walletAddress.toString()
     : false;
+  const isController = walletAddress
+    ? state?.Controllers.includes(walletAddress.toString())
+    : false;
+  const isAuthorized = (isOwner || isController) ?? false;
+
   const [, dispatchTransactionState] = useTransactionState();
-  const [, dispatchArNSState] = useArNSState();
   const [, dispatchModalState] = useModalState();
   const { data: primaryNameData } = usePrimaryName();
-
   const [tableData, setTableData] = useState<Array<TableData>>([]);
-  const [filteredTableData, setFilteredTableData] = useState<Array<TableData>>(
-    [],
-  );
-  // modal state
+
   const [action, setAction] = useState<
     UndernameTableInteractionTypes | undefined
   >();
@@ -172,7 +143,8 @@ const UndernamesTable = ({
           </span>
         ),
       });
-      refresh && refresh();
+      // refresh the row
+      setTableData(tableData);
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {
@@ -185,91 +157,99 @@ const UndernamesTable = ({
     if (undernames) {
       const newTableData: TableData[] = [];
 
-      Object.entries(undernames)
-        .filter(([u]) => u !== '@')
-        .map(([undername, record]: any) => {
-          const data = {
-            undername,
-            targetId: record.transactionId,
-            ttlSeconds: record.ttlSeconds,
-            action: (
-              <span
-                className="flex flex-row justify-end pr-3 gap-3"
-                style={{ gap: '15px' }}
-              >
-                {isOwner && (
-                  <Tooltip
-                    message={
-                      !arnsDomain
-                        ? 'Loading...'
-                        : version < MIN_ANT_VERSION
-                        ? 'Update ANT to access Primary Names workflow'
-                        : primaryNameData?.name ===
-                          encodePrimaryName(undername + '_' + arnsDomain)
-                        ? 'Remove Primary Name'
-                        : 'Set Primary Name'
-                    }
-                    icon={
-                      <button
-                        disabled={version < MIN_ANT_VERSION}
-                        onClick={() => {
-                          if (!arnsDomain || !antId) return;
-                          const targetName = encodePrimaryName(
-                            undername + '_' + arnsDomain,
-                          );
-                          if (primaryNameData?.name === targetName) {
-                            // remove primary name payload
-                            dispatchTransactionState({
-                              type: 'setTransactionData',
-                              payload: {
-                                names: [targetName],
-                                arioProcessId,
-                                assetId: antId,
-                                functionName: 'removePrimaryNames',
-                              },
-                            });
-                          } else {
-                            dispatchTransactionState({
-                              type: 'setTransactionData',
-                              payload: {
-                                name: targetName,
-                                arioProcessId,
-                                assetId: arioProcessId,
-                                functionName: 'primaryNameRequest',
-                              },
-                            });
-                          }
-
-                          dispatchModalState({
-                            type: 'setModalOpen',
-                            payload: { showPrimaryNameModal: true },
+      // sort undernames by priority
+      const sortedRecords = sortANTRecords(undernames);
+      Object.entries(sortedRecords).map(([undername, record]) => {
+        const data = {
+          undername,
+          targetId: record.transactionId,
+          ttlSeconds: record.ttlSeconds,
+          priority: record.index,
+          action: (
+            <span className="flex justify-end pr-3 gap-3">
+              {isOwner && (
+                <Tooltip
+                  message={
+                    !arnsRecord
+                      ? 'Loading...'
+                      : arnsRecord.version < MIN_ANT_VERSION
+                      ? 'Update ANT to access Primary Names workflow'
+                      : primaryNameData?.name ===
+                        encodePrimaryName(
+                          undername === '@'
+                            ? arnsRecord.name
+                            : undername + '_' + arnsRecord.name,
+                        )
+                      ? 'Remove Primary Name'
+                      : 'Set Primary Name'
+                  }
+                  icon={
+                    <button
+                      disabled={arnsRecord.version < MIN_ANT_VERSION}
+                      onClick={() => {
+                        if (!arnsRecord || !arnsRecord.processId) return;
+                        const targetName = encodePrimaryName(
+                          undername === '@'
+                            ? arnsRecord.name
+                            : undername + '_' + arnsRecord.name,
+                        );
+                        if (primaryNameData?.name === targetName) {
+                          // remove primary name payload
+                          dispatchTransactionState({
+                            type: 'setTransactionData',
+                            payload: {
+                              names: [targetName],
+                              arioProcessId,
+                              assetId: arnsRecord.processId,
+                              functionName: 'removePrimaryNames',
+                            },
                           });
-                        }}
-                      >
-                        <Star
-                          className={
-                            (encodePrimaryName(undername + '_' + arnsDomain) ==
-                            primaryNameData?.name
-                              ? 'text-primary fill-primary'
-                              : 'text-grey') +
-                            ` 
+                        } else {
+                          dispatchTransactionState({
+                            type: 'setTransactionData',
+                            payload: {
+                              name: targetName,
+                              arioProcessId,
+                              assetId: arioProcessId,
+                              functionName: 'primaryNameRequest',
+                            },
+                          });
+                        }
+
+                        dispatchModalState({
+                          type: 'setModalOpen',
+                          payload: { showPrimaryNameModal: true },
+                        });
+                      }}
+                    >
+                      <Star
+                        className={
+                          (encodePrimaryName(
+                            undername === '@'
+                              ? arnsRecord.name
+                              : undername + '_' + arnsRecord.name,
+                          ) == primaryNameData?.name
+                            ? 'text-primary fill-primary'
+                            : 'text-grey') +
+                          ` 
                     w-[18px]
                     `
-                          }
-                        />
-                      </button>
-                    }
-                  />
-                )}
-                <button
-                  className="fill-grey hover:fill-white"
-                  onClick={() => {
-                    setSelectedUndername(undername);
-                    setAction(UNDERNAME_TABLE_ACTIONS.EDIT);
-                  }}
-                >
-                  <PencilIcon width={'16px'} height={'16px'} fill="inherit" />
-                </button>
+                        }
+                      />
+                    </button>
+                  }
+                />
+              )}
+              <button
+                className="fill-grey hover:fill-white"
+                onClick={() => {
+                  setSelectedUndername(undername);
+                  setAction(UNDERNAME_TABLE_ACTIONS.EDIT);
+                }}
+              >
+                <PencilIcon width={'18px'} height={'18px'} fill="inherit" />
+              </button>
+              {undername !== '@' ? (
                 <button
                   className="fill-grey hover:fill-white"
                   onClick={() => {
@@ -285,35 +265,27 @@ const UndernamesTable = ({
                     });
                   }}
                 >
-                  <TrashIcon width={'16px'} height={'16px'} fill="inherit" />
+                  <TrashIcon width={'18px'} height={'18px'} fill="inherit" />
                 </button>
-              </span>
-            ),
-          };
-          newTableData.push(data as TableData);
-        });
+              ) : (
+                <></>
+              )}
+            </span>
+          ),
+        };
+        newTableData.push(data as TableData);
+      });
 
       setTableData(newTableData as TableData[]);
     }
-
-    if (!undernames || !Object.keys(undernames).length) {
-      setTableData([]);
-    }
   }, [undernames, primaryNameData]);
-
-  useEffect(() => {
-    if (filter) {
-      setFilteredTableData(filterTableData(filter, tableData));
-    } else {
-      setFilteredTableData([]);
-    }
-  }, [filter, tableData, primaryNameData]);
 
   // Define columns for the table
   const columns: ColumnDef<TableData, any>[] = [
     'undername',
     'targetId',
     'ttlSeconds',
+    'priority',
     'action',
   ].map((key) =>
     columnHelper.accessor(key as keyof TableData, {
@@ -326,13 +298,12 @@ const UndernamesTable = ({
           : key == 'ttlSeconds'
           ? 'TTL Seconds'
           : camelToReadable(key),
-      sortDescFirst: true,
+      sortDescFirst: false,
       cell: ({ row }) => {
         const rowValue = row.getValue(key) as any;
-        if (!rowValue) {
+        if (rowValue === undefined) {
           return '';
         }
-
         switch (key) {
           case 'undername': {
             return (
@@ -349,9 +320,9 @@ const UndernamesTable = ({
                 icon={
                   <Link
                     className="link gap-2 items-center w-fit"
-                    to={`https://${encodeDomainToASCII(
-                      rowValue,
-                    )}_${encodeDomainToASCII(arnsDomain ?? '')}.${
+                    to={`https://${
+                      rowValue === '@' ? '' : `${rowValue}_`
+                    }${encodeDomainToASCII(arnsRecord.name)}.${
                       NETWORK_DEFAULTS.ARNS.HOST
                     }`}
                     target="_blank"
@@ -378,6 +349,44 @@ const UndernamesTable = ({
               />
             );
           }
+          case 'priority': {
+            // with tool tip explaining that priority indicates which names will resolve based on the limit
+            return (
+              <Tooltip
+                tooltipOverrides={{
+                  overlayClassName: 'w-fit',
+                  overlayInnerStyle: { width: 'fit-content' },
+                }}
+                message={
+                  <div className="w-50 text-white text-center">
+                    The first {arnsRecord.undernameLimit} undernames for this
+                    name (ordered by priority) will resolve on AR.IO gateways.
+                    Click{' '}
+                    <Link
+                      className="text-primary"
+                      to={`/manage/names/${arnsRecord.name}/upgrade-undernames`}
+                    >
+                      here
+                    </Link>{' '}
+                    to increase the undername limit.
+                  </div>
+                }
+                icon={
+                  <div className="flex flex-row items-center gap-2">
+                    <span
+                      className={`w-fit whitespace-nowrap ${
+                        rowValue <= arnsRecord.undernameLimit
+                          ? 'text-white'
+                          : 'text-primary'
+                      }`}
+                    >
+                      {rowValue}
+                    </span>
+                  </div>
+                }
+              />
+            );
+          }
           default: {
             return rowValue;
           }
@@ -387,18 +396,10 @@ const UndernamesTable = ({
   );
 
   return (
-    <div>
+    <>
       <TableView
         columns={columns}
-        data={
-          isLoading
-            ? []
-            : filteredTableData.length
-            ? filteredTableData
-            : tableData.length
-            ? tableData
-            : []
-        }
+        data={tableData}
         isLoading={false}
         noDataFoundText={
           isLoading ? (
@@ -416,29 +417,27 @@ const UndernamesTable = ({
             </span>
           )
         }
-        defaultSortingState={{ id: 'undername', desc: true }}
-        tableClass="bg-background border-[1px] border-dark-grey rounded border-collapse"
+        defaultSortingState={{ id: 'priority', desc: false }}
+        tableClass="bg-metallic-grey"
         rowClass={(props) => {
-          const pad = '*:pl-4';
+          const pad = '*:pl-[60px]';
           if (props?.row !== undefined) {
-            return (
-              'hover:bg-primary-thin border-b-[1px] border-dark-grey ' + pad
-            );
+            const expanded = props.row.getIsExpanded();
+            return expanded ? '' : 'hover:bg-primary-thin ' + pad;
           }
 
           if (props?.headerGroup !== undefined) {
-            return pad + ' border-b-[1px] border-dark-grey';
+            return pad;
           }
 
-          return 'border-t-[1px] border-dark-grey ' + pad;
+          return '';
         }}
         addOnAfterTable={
-          ownershipStatus === undefined ? (
-            <></>
-          ) : (
-            <div className="w-full flex flex-row text-primary font-semibold rounded-b-md border-b-[1px] border-x-[1px] border-dark-grey text-sm">
+          // controllers and owners can add undernames
+          isAuthorized ? (
+            <div className="w-full flex flex-row text-primary font-semibold border-t-[1px] border-dark-grey text-sm">
               <button
-                className="flex flex-row w-full justify-start items-center p-3 rounded-b-md bg-background hover:bg-primary-gradient text-primary hover:text-primary fill-primary hover:fill-black transition-all"
+                className="flex flex-row w-full items-center p-3 bg-background hover:bg-primary-gradient text-primary hover:text-primary fill-primary hover:fill-black transition-all"
                 style={{ gap: '10px' }}
                 onClick={() => setAction(UNDERNAME_TABLE_ACTIONS.CREATE)}
               >
@@ -446,16 +445,15 @@ const UndernamesTable = ({
                 Add Undername
               </button>
             </div>
+          ) : (
+            <></>
           )
         }
-        paginationConfig={{
-          pageSize: 8,
-        }}
       />
-      {action == UNDERNAME_TABLE_ACTIONS.CREATE && antId && ownershipStatus ? (
+      {action === UNDERNAME_TABLE_ACTIONS.CREATE && (
         <AddUndernameModal
+          name={arnsRecord.name}
           closeModal={() => {
-            setSearchParams({ ...searchParams, modal: undefined });
             setAction(undefined);
           }}
           payloadCallback={(payload: SetRecordPayload) => {
@@ -467,41 +465,35 @@ const UndernamesTable = ({
             });
             setAction(undefined);
           }}
-          antId={antId}
         />
-      ) : (
-        <> </>
       )}
-      {action === UNDERNAME_TABLE_ACTIONS.EDIT &&
-        selectedUndername &&
-        ownershipStatus && (
-          <EditUndernameModal
-            antId={new ArweaveTransactionID(antId)}
-            undername={selectedUndername}
-            closeModal={() => {
-              setSelectedUndername(undefined);
-              setAction(undefined);
-            }}
-            payloadCallback={(p) => {
-              setTransactionData(p);
-              setInteractionType(ANT_INTERACTION_TYPES.EDIT_RECORD);
-              dispatchTransactionState({
-                type: 'setWorkflowName',
-                payload: ANT_INTERACTION_TYPES.EDIT_RECORD,
-              });
-              setSelectedUndername(undefined);
-              setAction(undefined);
-            }}
-          />
-        )}
-      {antId && transactionData && interactionType && ownershipStatus ? (
+      {action === UNDERNAME_TABLE_ACTIONS.EDIT && selectedUndername && (
+        <EditUndernameModal
+          antId={new ArweaveTransactionID(arnsRecord.processId)}
+          undername={selectedUndername}
+          closeModal={() => setAction(undefined)}
+          payloadCallback={(p) => {
+            setTransactionData(p);
+            setInteractionType(ANT_INTERACTION_TYPES.EDIT_RECORD);
+            dispatchTransactionState({
+              type: 'setWorkflowName',
+              payload: ANT_INTERACTION_TYPES.EDIT_RECORD,
+            });
+            setAction(undefined);
+          }}
+        />
+      )}
+      {arnsRecord.processId &&
+      transactionData &&
+      interactionType &&
+      isAuthorized ? (
         <ConfirmTransactionModal
           interactionType={interactionType}
           confirm={() =>
             handleInteraction({
               payload: transactionData,
               workflowName: interactionType,
-              processId: antId!,
+              processId: arnsRecord.processId,
             })
           }
           cancel={() => {
@@ -513,7 +505,7 @@ const UndernamesTable = ({
       ) : (
         <></>
       )}
-    </div>
+    </>
   );
 };
 

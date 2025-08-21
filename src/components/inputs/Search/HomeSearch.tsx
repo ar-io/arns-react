@@ -4,8 +4,6 @@ import DomainDetailsTip from '@src/components/Tooltips/DomainDetailsTip';
 import { Tooltip } from '@src/components/data-display';
 import { RNPChart } from '@src/components/data-display/charts/RNPChart';
 import { CircleCheckFilled, SearchIcon } from '@src/components/icons';
-import useDebounce from '@src/hooks/useDebounce';
-import { useReturnedNames } from '@src/hooks/useReturnedNames';
 import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import Lottie from 'lottie-react';
@@ -33,22 +31,15 @@ const defaultValidations = {
 function HomeSearch() {
   const navigate = useNavigate();
   const [isSearching, setIsSearching] = useState(false);
-  const { data: returnedNames } = useReturnedNames();
   const [isAvailable, setIsAvailable] = useState(false);
   const [validations, setValidations] =
     useState<typeof defaultValidations>(defaultValidations);
   const [validationError, setValidationError] = useState('');
   const [isValidDomain, setIsValidDomain] = useState(false);
-  const [query, setDomainQuery] = useState('');
-  const domainQuery = useDebounce(query ?? '', query.length <= 1 ? 0 : 800);
+  const [domainQuery, setDomainQuery] = useState('');
   const [domainRecord, setDomainRecord] = useState<AoArNSNameData>();
   const [showResults, setShowResults] = useState(true);
-
-  const isReturnedName = returnedNames
-    ? !!returnedNames.items.find(
-        (item) => item.name === lowerCaseDomain(domainQuery),
-      )
-    : false;
+  const [isReturnedName, setIsReturnedName] = useState(false);
 
   useEffect(() => {
     validateDomain(domainQuery);
@@ -61,7 +52,6 @@ function HomeSearch() {
       return;
     }
     const safeDomain = lowerCaseDomain(domain.trim());
-
     const validations: typeof defaultValidations = {
       [maxCharValidation]: safeDomain.length <= 51,
       [noSpecialCharsValidation]: /^[a-zA-Z0-9-]*$/.test(safeDomain),
@@ -147,17 +137,14 @@ function HomeSearch() {
             >
               Invalid ArNS domain, {validationError}
             </div>
-          ) : isSearching ||
-            query !== domainQuery ||
-            domainQuery.length == 0 ||
-            !isAvailable ? (
+          ) : isSearching || domainQuery.length == 0 || !isAvailable ? (
             <div
               className="min-h-[50px]"
               data-testid="home-search-spacer-header"
             />
           ) : (
             <div
-              className="flex flex-row min-h-[50px] pb-2 text-2xl font-semibold text-white justify-center items-center"
+              className="flex flex-row min-h-[50px] pb-2 text-2xl font-semibold text-white justify-center items-center flex-wrap"
               style={{ gap: 0 }}
               data-testid="home-search-available-header"
             >
@@ -174,7 +161,7 @@ function HomeSearch() {
             className={`flex flex-col w-full rounded-[4px] bg-foreground border-[1px] ${getBorderStyle(
               {
                 availability: isAvailable,
-                searching: isSearching || query !== domainQuery,
+                searching: isSearching,
                 domain: domainQuery,
                 validDomain: isValidDomain,
               },
@@ -184,6 +171,7 @@ function HomeSearch() {
             buttonClass={`flex flex-row items-center justify-center absolute right-0 top-0 h-full max-w-[65px]`}
             setIsSearching={(v) => setIsSearching(v)}
             setIsAvailable={(v) => setIsAvailable(v)}
+            setIsReturnedName={(v) => setIsReturnedName(v)}
             setDomainQuery={(v) => setDomainQuery(v)}
             setDomainRecord={(v) => setDomainRecord(v)}
             onClickOutside={() => {
@@ -217,7 +205,7 @@ function HomeSearch() {
               >
                 <div className="flex flew-row w-full justify-between">
                   <span className="text-grey text-sm">
-                    {isSearching || query !== domainQuery ? (
+                    {isSearching ? (
                       <span>Searching...</span>
                     ) : isAvailable ? (
                       !isValidDomain ? (
@@ -273,7 +261,7 @@ function HomeSearch() {
                     <DomainPiceList domain={domainQuery} />
                   )}
                 </div>
-                {isSearching || query !== domainQuery ? (
+                {isSearching ? (
                   <Lottie
                     animationData={arioLoading}
                     loop={true}

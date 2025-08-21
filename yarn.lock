@@ -93,24 +93,6 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@3.14.1-alpha.2":
-  version "3.14.1-alpha.2"
-  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-3.14.1-alpha.2.tgz#0345c8d1866a4518e23bbf99725ed2439dba6532"
-  integrity sha512-Y3vgUKIyV+xcvReGFEhBwigazwZjYs9LiVOL5A4Mp38igmNhXi0AS1en3Y5tMmSPBWORthKwrFHRtkO9MGczPw==
-  dependencies:
-    "@dha-team/arbundles" "^1.0.1"
-    "@permaweb/aoconnect" "0.0.68"
-    arweave "1.15.5"
-    axios "1.8.4"
-    axios-retry "^4.3.0"
-    commander "^12.1.0"
-    eventemitter3 "^5.0.1"
-    plimit-lit "^3.0.1"
-    prompts "^2.4.2"
-    uuid "^11.1.0"
-    winston "^3.13.0"
-    zod "^3.23.8"
-
 "@ar.io/sdk@^3.10.1":
   version "3.14.0"
   resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-3.14.0.tgz#aadfd03ca157d017265df39b12c8f57633303ee5"
@@ -129,7 +111,43 @@
     winston "^3.13.0"
     zod "^3.23.8"
 
-"@ar.io/wayfinder-core@1.0.4", "@ar.io/wayfinder-core@^1.0.4":
+"@ar.io/sdk@^3.18.0":
+  version "3.18.0"
+  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-3.18.0.tgz#e84e1dc3c4d4e0a9442d7121767af87fd0374d1d"
+  integrity sha512-EvjiqlhUSZHLElRvysTvLPKX0VIfHs/+mjRG6/eO+xHCsOahIrY7x4vxYKQQbzX9vQXuAn+VbvUdaMsb51jBUg==
+  dependencies:
+    "@dha-team/arbundles" "^1.0.1"
+    "@permaweb/aoconnect" "0.0.68"
+    arweave "1.15.5"
+    axios "1.8.4"
+    axios-retry "^4.3.0"
+    commander "^12.1.0"
+    eventemitter3 "^5.0.1"
+    plimit-lit "^3.0.1"
+    prompts "^2.4.2"
+    uuid "^11.1.0"
+    winston "^3.13.0"
+    zod "^3.23.8"
+
+"@ar.io/wayfinder-core@1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@ar.io/wayfinder-core/-/wayfinder-core-1.2.0.tgz#c119c80f468fd09a4e0a2e157a0850cc92cad507"
+  integrity sha512-Ka+p5JCipy6yNoEYI7zWR1R+SzxUmhT051XKdH+jPZerfcMXxVooWu01/CoDQRscLD/YCKTj0vIPylt9iErX6A==
+  dependencies:
+    "@dha-team/arbundles" "^1.0.3"
+    "@opentelemetry/api" "^1.9.0"
+    "@opentelemetry/context-zone" "^2.0.1"
+    "@opentelemetry/exporter-trace-otlp-http" "^0.202.0"
+    "@opentelemetry/sdk-trace-base" "^2.0.1"
+    "@opentelemetry/sdk-trace-node" "^2.0.1"
+    "@opentelemetry/sdk-trace-web" "^2.0.1"
+    arweave "^1.14.0"
+    eventemitter3 "^5.0.1"
+    plimit-lit "^3.0.1"
+    rfc4648 "^1.5.4"
+    zone.js "^0.15.1"
+
+"@ar.io/wayfinder-core@^1.0.4":
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/@ar.io/wayfinder-core/-/wayfinder-core-1.0.4.tgz#ffb2a35d07568feb357f751ea055873ca8c8c828"
   integrity sha512-VOjZ7jaFBgyI4DDqWhciXn78gHruI2bnXGjfKsbghZjoNO8lfxuksJQv3LdB60k/3LwGWTfUG5GFV9Zqeary/w==
@@ -147,12 +165,12 @@
     rfc4648 "^1.5.4"
     zone.js "^0.15.1"
 
-"@ar.io/wayfinder-react@^1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@ar.io/wayfinder-react/-/wayfinder-react-1.0.6.tgz#e52d1ad4481fd2cca422bcb3ea461d1e5d05a0fa"
-  integrity sha512-1J1NU+oz8w0L0sB/SfTA2wHZwuXhJt4uRWcGAFEZJUe/OTIIIkgMJt4ioRyr61AInrbNrYuG8bniMaGeVUTcjA==
+"@ar.io/wayfinder-react@^1.0.11":
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/@ar.io/wayfinder-react/-/wayfinder-react-1.0.11.tgz#13bf0d57daf76201f7c5cd288ae9781dde5915c8"
+  integrity sha512-xQTtdTK4x8Vxx4HdXHjMMNGsKSJ7YXH8oDVkzBxU86OxMvrgUuIVALitTD7grqyurtUCudd2DPaTmnidSwiAUg==
   dependencies:
-    "@ar.io/wayfinder-core" "1.0.4"
+    "@ar.io/wayfinder-core" "1.2.0"
     react "^18.2.0"
     react-dom "^18.2.0"
 
@@ -11600,9 +11618,9 @@ jsonc-parser@^3.2.0:
   integrity sha512-HUgH65KyejrUFPvHFPbqOY0rsFip3Bo5wb4ngvdi1EpCYWUQDC5V+Y7mZws+DLkr4M//zQJoanu1SP+87Dv1oQ==
 
 jsonfile@^6.0.1, jsonfile@^6.1.0:
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/jsonfile/-/jsonfile-6.1.0.tgz#bc55b2634793c679ec6403094eb13698a6ec0aae"
-  integrity sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/jsonfile/-/jsonfile-6.2.0.tgz#7c265bd1b65de6977478300087c99f1c84383f62"
+  integrity sha512-FGuPw30AdOIUTRMC2OMRtQV+jkVj2cfPqSeWXv1NEAJ1qZ5zb1X6z1mFhbfOB/iy3ssJCD+3KuZ8r8C3uVFlAg==
   dependencies:
     universalify "^2.0.0"
   optionalDependencies:
@@ -13000,14 +13018,15 @@ pbkdf2@^3.0.3, pbkdf2@^3.1.2:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
-permaweb-deploy@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npmjs.org/permaweb-deploy/-/permaweb-deploy-2.0.0.tgz#11557872cef9f76875bf57b64e7f16cab64c0c5f"
-  integrity sha512-o/lESVEhKjb4Hfqdxad21GM/ruxZlYXkNiuHUSn3Wj/DWKKIL3vUXHs8NQkOJeBi1kHeWHH7H69mT6mWWwJkmQ==
+permaweb-deploy@^2.4.0:
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/permaweb-deploy/-/permaweb-deploy-2.5.1.tgz#5568b6dc2b4d43b6d65fc9cc3039e3b00815ee10"
+  integrity sha512-2EMBhPTOyQkSfbICIcBJ9b2lZOasa7BJP0+dMe+NB251cqP4jHuCE/xA0hhOuiozZ/hrWL5td84c4tNhKm8amg==
   dependencies:
     "@ar.io/sdk" "^3.10.1"
-    "@ardrive/turbo-sdk" "^1.17.0"
-    mime-types "^2.1.35"
+    "@ardrive/turbo-sdk" "^1.28.2"
+    "@permaweb/aoconnect" "^0.0.85"
+    mime-types "^3.0.1"
     yargs "17.7.2"
 
 picocolors@^1.0.0, picocolors@^1.1.0, picocolors@^1.1.1:

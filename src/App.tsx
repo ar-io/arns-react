@@ -15,7 +15,6 @@ import { Layout } from './components/layout';
 import { ANT_FLAG } from './components/layout/Breadcrumbs/Breadcrumbs';
 import PageLoader from './components/layout/progress/PageLoader/PageLoader';
 import Checkout from './components/pages/Register/Checkout';
-import ArNSSettings from './components/pages/Settings/ArNSSettings';
 import NetworkSettings from './components/pages/Settings/NetworkSettings';
 import DevTools from './components/pages/Settings/devtools/DevTools';
 import useSyncSettings from './hooks/useSyncSettings/useSyncSettings';
@@ -387,8 +386,7 @@ function App() {
             </Suspense>
           }
         >
-          <Route index element={<Navigate to="arns" replace />} />
-          <Route path="arns" element={<ArNSSettings />} />
+          <Route index element={<Navigate to="network" replace />} />
           <Route path="network" element={<NetworkSettings />} />
           <Route path="devtools" element={<DevTools />} />
         </Route>

@@ -226,18 +226,18 @@ export default function useDomainInfo({
   return {
     ...query,
     refetch: () => {
-      queryClient.resetQueries({
-        queryKey: ['ant', antId],
+      // invalidate all the queries that are related to the current domain or antId
+      const keyNames = ['ant', 'ant-info', 'domainInfo'];
+      const keyVals = [antId, domain];
+      // match key name AND key value
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          keyNames.some((name) => query.queryKey.includes(name)) &&
+          keyVals.some((value) => query.queryKey.includes(value)),
       });
-      queryClient.resetQueries({
-        queryKey: ['ant-info', antId],
-      });
-      queryClient.resetQueries({
-        queryKey: ['domainInfo', antId],
-      });
-      queryClient.resetQueries({
-        queryKey: ['domainInfo', domain],
-      });
+
+      // force the refresh to trigger rerendering of depending components
+      return query.refetch();
     },
   };
 }

@@ -1,18 +1,20 @@
-import { AoArNSNameData } from '@ar.io/sdk/web';
 import { useGlobalState } from '@src/state';
-import { lowerCaseDomain } from '@src/utils';
+import { isARNSDomainNameValid } from '@src/utils';
 import { useQuery } from '@tanstack/react-query';
 
-export function useArNSRecord(domain?: string) {
-  const [{ arioContract, arioProcessId }] = useGlobalState();
+export function useArNSRecord({ name }: { name: string | undefined }) {
+  const [{ arioContract }] = useGlobalState();
 
-  return useQuery<AoArNSNameData | undefined>({
-    queryKey: ['arns-record', domain, arioProcessId.toString()],
+  return useQuery({
+    queryKey: ['arns-record', name, arioContract.process.processId],
     queryFn: async () => {
-      if (!domain) return undefined;
-      return arioContract.getArNSRecord({ name: lowerCaseDomain(domain) });
+      if (!isARNSDomainNameValid({ name }) || name === undefined)
+        throw new Error('Invalid ArNS name');
+
+      const record = await arioContract.getArNSRecord({ name });
+      return record ?? null; // null is serializable, undefined is not
     },
-    enabled: !!domain,
-    staleTime: Infinity,
+    enabled: isARNSDomainNameValid({ name }),
+    staleTime: 4 * 60 * 60 * 1000, // 4 hours
   });
 }

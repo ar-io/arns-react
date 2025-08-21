@@ -5,10 +5,7 @@ import {
   AoARIOWrite,
   AoClient,
 } from '@ar.io/sdk/web';
-import {
-  NetworkGatewaysProvider,
-  RandomRoutingStrategy,
-} from '@ar.io/wayfinder-core';
+import { NetworkGatewaysProvider } from '@ar.io/wayfinder-core';
 import {
   LocalStorageGatewaysProvider,
   WayfinderProvider,
@@ -169,13 +166,11 @@ export function GlobalStateProvider({
             }),
           })
         }
-        routingSettings={{
-          strategy: new RandomRoutingStrategy(),
-        }}
         telemetrySettings={{
           enabled: true,
           clientName: 'arns-app',
           clientVersion: APP_VERSION,
+          sampleRate: 1,
         }}
       >
         {children}

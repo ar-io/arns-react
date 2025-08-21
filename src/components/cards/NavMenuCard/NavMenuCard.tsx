@@ -245,7 +245,7 @@ function NavMenuCard() {
                             className="whitespace-nowrap"
                             style={{ fontWeight: 400 }}
                           >
-                            {key} Balance:
+                            {key}:
                           </span>
                           {value ? (
                             <span className="white">{value}</span>
@@ -256,17 +256,15 @@ function NavMenuCard() {
                             />
                           )}
                           {key === 'Turbo Credits' && (
-                            <div className="relative w-[50px] h-[20px]">
-                              <button
-                                className="absolute bottom-0 left-0 text-xs text-white hover:text-black bg-foreground hover:bg-white border border-dark-grey rounded px-2 py-[2px] transition-all duration-200"
-                                onClick={() => {
-                                  setTurboTopUpModalOpen(true);
-                                  setShowMenu(false);
-                                }}
-                              >
-                                Add
-                              </button>
-                            </div>
+                            <button
+                              className="text-xs text-white hover:text-black bg-foreground hover:bg-white border border-dark-grey rounded px-2 py-[2px] transition-all duration-200"
+                              onClick={() => {
+                                setTurboTopUpModalOpen(true);
+                                setShowMenu(false);
+                              }}
+                            >
+                              Add
+                            </button>
                           )}
                         </span>
                       );

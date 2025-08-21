@@ -37,7 +37,7 @@ export type TransactionTag = {
 export type ARNSMapping = {
   domain: string;
   record?: AoArNSNameData;
-  processId: ArweaveTransactionID | 'atomic';
+  processId?: ArweaveTransactionID;
   overrides?: { [x: string]: JSX.Element | string | number };
   disabledKeys?: string[];
   compact?: boolean;
@@ -314,7 +314,7 @@ export type TransactionDataBasePayload = {
 // registry transaction payload types
 export type BuyRecordPayload = {
   name: string;
-  processId: string;
+  processId?: string;
   years?: number;
   type: TRANSACTION_TYPES;
   qty?: number; // the cost displayed to the user when buying a record
