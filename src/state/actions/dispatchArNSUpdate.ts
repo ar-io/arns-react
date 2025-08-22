@@ -18,12 +18,14 @@ export async function dispatchArNSUpdate({
   dispatch,
   walletAddress,
   arioProcessId,
+  antRegistryProcessId,
   aoNetworkSettings,
   hyperbeamUrl,
 }: {
   dispatch: Dispatch<ArNSAction>;
   walletAddress: AoAddress;
   arioProcessId: string;
+  antRegistryProcessId: string;
   aoNetworkSettings: typeof NETWORK_DEFAULTS.AO;
   hyperbeamUrl?: string;
 }) {
@@ -63,6 +65,7 @@ export async function dispatchArNSUpdate({
         address: walletAddress.toString(),
         limit: 1000,
         cursor,
+        antRegistryProcessId,
       });
       res.items.forEach((record) => {
         userDomains[record.name] = record;

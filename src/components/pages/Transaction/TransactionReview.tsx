@@ -33,8 +33,16 @@ import { getTransactionHeader } from './transaction-headers';
 // on completion routes to transaction/complete
 function TransactionReview() {
   const navigate = useNavigate();
-  const [{ arioContract, arioProcessId, aoNetwork, aoClient, hyperbeamUrl }] =
-    useGlobalState();
+  const [
+    {
+      arioContract,
+      arioProcessId,
+      aoNetwork,
+      aoClient,
+      hyperbeamUrl,
+      antRegistryProcessId,
+    },
+  ] = useGlobalState();
   const [, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
   const [
@@ -138,6 +146,7 @@ function TransactionReview() {
         dispatchArNSUpdate({
           dispatch: dispatchArNSState,
           arioProcessId,
+          antRegistryProcessId,
           walletAddress,
           aoNetworkSettings: aoNetwork,
           hyperbeamUrl,

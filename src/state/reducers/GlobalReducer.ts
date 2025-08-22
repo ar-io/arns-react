@@ -33,6 +33,10 @@ export type GlobalAction =
       payload: string;
     }
   | {
+      type: 'setAntRegistryProcessId';
+      payload: string;
+    }
+  | {
       type: 'setBlockHeight';
       payload: number;
     }
@@ -106,6 +110,11 @@ export const reducer = (
       return {
         ...state,
         arioProcessId: action.payload,
+      };
+    case 'setAntRegistryProcessId':
+      return {
+        ...state,
+        antRegistryProcessId: action.payload,
       };
     case 'setHyperbeamUrl':
       return {
