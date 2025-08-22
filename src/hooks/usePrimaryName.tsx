@@ -1,22 +1,21 @@
+import { AoPrimaryName } from '@ar.io/sdk/web';
 import { useGlobalState, useWalletState } from '@src/state';
+import { queryKeys } from '@src/utils/queryKeys';
 import { useQuery } from '@tanstack/react-query';
 
 export function usePrimaryName() {
   const [{ walletAddress }] = useWalletState();
   const [{ arioContract, arioProcessId }] = useGlobalState();
-  return useQuery({
-    queryKey: [
-      'primary-name',
+  return useQuery<AoPrimaryName | null>({
+    queryKey: queryKeys.primaryName(
       walletAddress?.toString(),
-      arioProcessId.toString(),
-    ],
+      arioProcessId?.toString(),
+    ),
     queryFn: async () => {
       if (!walletAddress)
         throw new Error('Must be connected to retrieve primary name');
-      const primaryNameData = await arioContract
-        .getPrimaryName({
-          address: walletAddress?.toString(),
-        })
+      const primaryNameData = await arioContract!
+        .getPrimaryName({ address: walletAddress })
         .catch(() => {
           // no name returned, return null
           return null;
