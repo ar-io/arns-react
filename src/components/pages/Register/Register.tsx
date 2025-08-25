@@ -213,7 +213,7 @@ function RegisterNameForm() {
   }
 
   return (
-    <div className="page center">
+    <div className="page">
       <PageLoader
         message={'Loading Domain info, please wait.'}
         loading={

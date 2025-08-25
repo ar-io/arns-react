@@ -35,6 +35,9 @@ export function useArNSIntentPrice({
       if (!turbo) {
         throw new Error('Turbo client or address is not available');
       }
+      if (!name) {
+        throw new Error('Name is required');
+      }
       return turbo.getPriceForArNSIntent({
         address: userAddress?.toString(),
         name,
@@ -45,7 +48,7 @@ export function useArNSIntentPrice({
         promoCode,
       });
     },
-    enabled: !!turbo,
+    enabled: !!turbo && !!name,
     staleTime: 1000 * 60 * 5,
   });
 }
