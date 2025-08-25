@@ -34,6 +34,7 @@ export default async function dispatchANTInteraction({
   dispatchArNSState,
   ao,
   hyperbeamUrl,
+  antRegistryProcessId,
   // this can allow for waiting on promise resolution for UI input on individual steps
   stepCallback,
 }: {
@@ -42,6 +43,7 @@ export default async function dispatchANTInteraction({
   signer: ContractSigner;
   owner: string;
   processId: string;
+  antRegistryProcessId: string;
   dispatchTransactionState: Dispatch<TransactionAction>;
   dispatchArNSState: Dispatch<ArNSAction>;
   ao: AoClient;
@@ -317,6 +319,7 @@ export default async function dispatchANTInteraction({
             antId: processId,
             aoNetwork: NETWORK_DEFAULTS.AO,
             hyperbeamUrl,
+            antRegistryProcessId,
           }),
         );
 
@@ -386,6 +389,7 @@ export default async function dispatchANTInteraction({
               antId: newAntId,
               aoNetwork: NETWORK_DEFAULTS.AO,
               hyperbeamUrl,
+              antRegistryProcessId,
             }),
           )
           .catch((e) => console.error(e));

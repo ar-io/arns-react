@@ -1,4 +1,4 @@
-import { AoArNSNameData, ArNSEventEmitter } from '@ar.io/sdk/web';
+import { AoArNSNameData } from '@ar.io/sdk/web';
 import { AoAddress } from '@src/types';
 
 import {
@@ -8,7 +8,6 @@ import {
 } from '../contexts/ArNSState';
 
 export type ArNSAction =
-  | { type: 'setArNSEmitter'; payload: ArNSEventEmitter }
   | { type: 'setDomains'; payload: Record<string, AoArNSNameData> }
   | { type: 'addDomains'; payload: Record<string, AoArNSNameData> }
   | {
@@ -39,11 +38,6 @@ export const arnsReducer = (
       return {
         ...state,
         domains: action.payload,
-      };
-    case 'setArNSEmitter':
-      return {
-        ...state,
-        arnsEmitter: action.payload,
       };
     case 'addDomains':
       return {
@@ -113,10 +107,6 @@ export const arnsReducer = (
       return initialArNSState;
     }
     case 'refresh': {
-      state.arnsEmitter.fetchProcessesOwnedByWallet({
-        address: action.payload.toString(),
-      });
-
       return {
         ...state,
         loading: true,

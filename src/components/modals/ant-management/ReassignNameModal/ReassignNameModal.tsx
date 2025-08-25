@@ -136,6 +136,7 @@ export function ReassignNameModal({
         workflowName: ANT_INTERACTION_TYPES.REASSIGN_NAME,
         dispatchTransactionState,
         dispatchArNSState,
+        antRegistryProcessId,
         owner: walletAddress.toString(),
         ao: aoClient,
         hyperbeamUrl,

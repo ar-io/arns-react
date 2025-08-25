@@ -59,11 +59,13 @@ export function buildDomainInfoQuery({
   aoNetwork,
   wallet,
   hyperbeamUrl,
+  antRegistryProcessId,
 }: {
   domain?: string;
   antId?: string;
   arioContract?: AoARIORead;
   arioProcessId?: string;
+  antRegistryProcessId: string;
   aoNetwork: typeof NETWORK_DEFAULTS.AO;
   wallet?: ArNSWalletConnector;
   hyperbeamUrl?: string;
@@ -158,7 +160,7 @@ export function buildDomainInfoQuery({
       ).length;
 
       const antVersions = await queryClient.fetchQuery(
-        buildANTVersionsQuery({ aoNetwork }),
+        buildANTVersionsQuery({ aoNetwork, antRegistryProcessId }),
       );
 
       const moduleId =
@@ -206,8 +208,15 @@ export default function useDomainInfo({
   domain?: string;
   antId?: string;
 }) {
-  const [{ arioContract, arioProcessId, aoNetwork, hyperbeamUrl }] =
-    useGlobalState();
+  const [
+    {
+      arioContract,
+      arioProcessId,
+      aoNetwork,
+      hyperbeamUrl,
+      antRegistryProcessId,
+    },
+  ] = useGlobalState();
   const [{ wallet }] = useWalletState();
 
   // TODO: this should be modified or removed
@@ -218,6 +227,7 @@ export default function useDomainInfo({
       aoNetwork,
       arioContract,
       arioProcessId,
+      antRegistryProcessId,
       hyperbeamUrl,
       wallet,
     }),

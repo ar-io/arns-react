@@ -38,7 +38,14 @@ function UpgradeDomainModal({
 }) {
   const queryClient = useQueryClient();
   const [
-    { antAoClient, aoNetwork, arioContract, arioProcessId, hyperbeamUrl },
+    {
+      antAoClient,
+      aoNetwork,
+      arioContract,
+      arioProcessId,
+      hyperbeamUrl,
+      antRegistryProcessId,
+    },
   ] = useGlobalState();
   const [, dispatchArNSState] = useArNSState();
   const [{ wallet, walletAddress }] = useWalletState();
@@ -74,6 +81,7 @@ function UpgradeDomainModal({
           domain,
           arioContract,
           arioProcessId,
+          antRegistryProcessId,
           aoNetwork,
           hyperbeamUrl,
           wallet,
@@ -107,6 +115,7 @@ function UpgradeDomainModal({
         processId: domainData.processId,
         owner: walletAddress.toString(),
         ao: antAoClient,
+        antRegistryProcessId,
         signer,
         dispatchTransactionState,
         dispatchArNSState,

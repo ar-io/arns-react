@@ -69,6 +69,7 @@ export function ReturnNameModal({
         owner: walletAddress.toString(),
         ao: antAoClient,
         hyperbeamUrl,
+        antRegistryProcessId,
       });
       eventEmitter.emit('success', {
         message: (
