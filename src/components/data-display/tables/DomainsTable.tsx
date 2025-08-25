@@ -119,7 +119,8 @@ const DomainsTable = ({
 }) => {
   const navigate = useNavigate();
   const [{ walletAddress }] = useWalletState();
-  const [{ arioProcessId, aoNetwork, hyperbeamUrl }] = useGlobalState();
+  const [{ arioProcessId, aoNetwork, hyperbeamUrl, antRegistryProcessId }] =
+    useGlobalState();
   const [{ loading: loadingArnsState }, dispatchArNSState] = useArNSState();
   const { data: antVersion } = useLatestANTVersion();
   const antModuleId = antVersion?.moduleId ?? null;
@@ -348,6 +349,7 @@ const DomainsTable = ({
                       walletAddress,
                       hyperbeamUrl,
                       dispatch: dispatchArNSState,
+                      antRegistryProcessId,
                     });
                   }}
                 >
