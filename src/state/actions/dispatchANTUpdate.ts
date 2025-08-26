@@ -14,11 +14,13 @@ export async function dispatchANTUpdate({
   dispatch,
   aoNetwork,
   hyperbeamUrl,
+  antRegistryProcessId,
 }: {
   queryClient: QueryClient;
   domain?: string;
   processId: string;
   walletAddress: AoAddress;
+  antRegistryProcessId: string;
   dispatch: Dispatch<ArNSAction>;
   aoNetwork: typeof NETWORK_DEFAULTS.AO;
   hyperbeamUrl?: string;
@@ -47,6 +49,7 @@ export async function dispatchANTUpdate({
           antId: processId,
           aoNetwork,
           hyperbeamUrl,
+          antRegistryProcessId,
         }),
       )
       .catch((e) => console.error(e));

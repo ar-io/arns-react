@@ -1,5 +1,6 @@
 import {
   ANT_LUA_ID,
+  ANT_REGISTRY_ID,
   ARIO_TESTNET_PROCESS_ID,
   DEFAULT_SCHEDULER_ID,
 } from '@ar.io/sdk/web';
@@ -93,6 +94,14 @@ export const URL_REGEX = new RegExp(
 );
 export const ARIO_PROCESS_ID =
   import.meta.env.VITE_ARIO_PROCESS_ID || ARIO_TESTNET_PROCESS_ID;
+
+// TODO: export this from the sdk
+export const ANT_REGISTRY_TESTNET_PROCESS_ID =
+  'RR0vheYqtsKuJCWh6xj0beE35tjaEug5cejMw9n2aa8';
+export const ANT_REGISTRY_PROCESS_ID =
+  import.meta.env.VITE_NODE_ENV == 'production'
+    ? ANT_REGISTRY_ID
+    : ANT_REGISTRY_TESTNET_PROCESS_ID;
 
 export const DEFAULT_ANT_LUA_ID = ANT_LUA_ID;
 

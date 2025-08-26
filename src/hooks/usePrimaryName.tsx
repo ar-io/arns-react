@@ -3,12 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 
 export function usePrimaryName() {
   const [{ walletAddress }] = useWalletState();
-  const [{ arioContract, arioProcessId }] = useGlobalState();
+  const [{ arioContract }] = useGlobalState();
   return useQuery({
     queryKey: [
       'primary-name',
       walletAddress?.toString(),
-      arioProcessId.toString(),
+      arioContract?.process.processId,
     ],
     queryFn: async () => {
       if (!walletAddress)

@@ -51,6 +51,7 @@ function RegisterNameForm() {
       arioTicker,
       arioProcessId,
       antAoClient,
+      antRegistryProcessId,
       hyperbeamUrl,
     },
   ] = useGlobalState();
@@ -185,6 +186,7 @@ function RegisterNameForm() {
       type: registrationType,
       targetId,
       antModuleId,
+      antRegistryId: antRegistryProcessId,
     };
 
     dispatchTransactionState({
@@ -211,7 +213,7 @@ function RegisterNameForm() {
   }
 
   return (
-    <div className="page center">
+    <div className="page">
       <PageLoader
         message={'Loading Domain info, please wait.'}
         loading={

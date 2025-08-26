@@ -18,9 +18,9 @@ function NavBar() {
   const [, dispatchRegisterState] = useRegistrationState();
 
   const bannerText = useMemo(() => {
-    if (arioProcessId == ARIO_DEVNET_PROCESS_ID) {
+    if (arioProcessId === ARIO_DEVNET_PROCESS_ID) {
       return `Devnet`;
-    } else if (arioProcessId == ARIO_TESTNET_PROCESS_ID) {
+    } else if (arioProcessId === ARIO_TESTNET_PROCESS_ID) {
       return `Testnet`;
     }
     return undefined;

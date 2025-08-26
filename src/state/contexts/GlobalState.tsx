@@ -1,4 +1,5 @@
 import {
+  ANT_REGISTRY_ID,
   AOProcess,
   ARIO,
   AoARIORead,
@@ -39,6 +40,7 @@ function loadSettingsFromStorage(): {
   aoNetwork: typeof NETWORK_DEFAULTS.AO;
   turboNetwork: typeof NETWORK_DEFAULTS.TURBO;
   arioProcessId: string;
+  antRegistryProcessId: string;
   hyperbeamUrl?: string;
 } | null {
   try {
@@ -57,6 +59,8 @@ function loadSettingsFromStorage(): {
         aoNetwork: settings.network?.aoNetwork || NETWORK_DEFAULTS.AO,
         turboNetwork: settings.network?.turboNetwork || NETWORK_DEFAULTS.TURBO,
         arioProcessId: settings.arns?.arioProcessId || ARIO_PROCESS_ID,
+        antRegistryProcessId:
+          settings.arns?.antRegistryProcessId || ANT_REGISTRY_ID,
         hyperbeamUrl: settings.network?.hyperbeamUrl,
       };
     }
@@ -76,6 +80,8 @@ const initialAoNetwork = savedSettings?.aoNetwork || NETWORK_DEFAULTS.AO;
 const initialTurboNetwork =
   savedSettings?.turboNetwork || NETWORK_DEFAULTS.TURBO;
 const initialArioProcessId = savedSettings?.arioProcessId || ARIO_PROCESS_ID;
+const initialAntRegistryProcessId =
+  savedSettings?.antRegistryProcessId || ANT_REGISTRY_ID;
 const initialHyperbeamUrl = savedSettings?.hyperbeamUrl;
 
 export const defaultArIO = ARIO.init({
@@ -97,6 +103,7 @@ export type GlobalState = {
   aoClient: AoClient;
   antAoClient: AoClient;
   arioProcessId: string;
+  antRegistryProcessId: string;
   blockHeight?: number;
   lastBlockUpdateTimestamp?: number;
   arweaveDataProvider: ArweaveCompositeDataProvider;
@@ -106,6 +113,7 @@ export type GlobalState = {
 
 const initialState: GlobalState = {
   arioProcessId: initialArioProcessId,
+  antRegistryProcessId: initialAntRegistryProcessId,
   arioTicker: 'ARIO',
   gateway: initialGateway,
   aoNetwork: initialAoNetwork,

@@ -1,4 +1,4 @@
-import { AOProcess, ARIO, AoARIORead, AoArNSNameData } from '@ar.io/sdk/web';
+import { AOProcess, ARIO, AoArNSNameData } from '@ar.io/sdk/web';
 import { connect } from '@permaweb/aoconnect';
 import { captureException } from '@sentry/react';
 import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
@@ -18,12 +18,14 @@ export async function dispatchArNSUpdate({
   dispatch,
   walletAddress,
   arioProcessId,
+  antRegistryProcessId,
   aoNetworkSettings,
   hyperbeamUrl,
 }: {
   dispatch: Dispatch<ArNSAction>;
   walletAddress: AoAddress;
   arioProcessId: string;
+  antRegistryProcessId: string;
   aoNetworkSettings: typeof NETWORK_DEFAULTS.AO;
   hyperbeamUrl?: string;
 }) {
@@ -53,7 +55,7 @@ export async function dispatchArNSUpdate({
     // TODO: move all of these async calls to unique hooks and remove the need for the dispatchArNSUpdate action
     const arioContract = ARIO.init({
       process: new AOProcess({ processId: arioProcessId, ao }),
-    }) as AoARIORead;
+    });
 
     const userDomains: Record<string, AoArNSNameData> = {};
     let cursor: string | undefined = undefined;
@@ -63,6 +65,7 @@ export async function dispatchArNSUpdate({
         address: walletAddress.toString(),
         limit: 1000,
         cursor,
+        antRegistryProcessId,
       });
       res.items.forEach((record) => {
         userDomains[record.name] = record;
@@ -75,6 +78,7 @@ export async function dispatchArNSUpdate({
     const registeredUserAnts = Array.from(
       new Set(Object.values(userDomains).map((record) => record.processId)),
     );
+
     // Fetch ANT Process meta from graphql
     const antMetas = (await queryClient
       .fetchQuery<TransactionEdge['node'][] | null>(
@@ -127,6 +131,7 @@ export async function dispatchArNSUpdate({
             antId: id,
             aoNetwork: aoNetworkSettings,
             hyperbeamUrl,
+            antRegistryProcessId,
           }),
         );
         // if the user is not associated with the ant, do not load it

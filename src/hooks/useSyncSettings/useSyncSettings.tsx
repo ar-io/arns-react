@@ -32,6 +32,7 @@ interface NetworkSettings {
 
 interface ArNSSettings {
   arioProcessId: string;
+  antRegistryProcessId: string;
 }
 
 interface Settings {
@@ -40,8 +41,16 @@ interface Settings {
 }
 
 function useSyncSettings() {
-  const [{ gateway, hyperbeamUrl, aoNetwork, turboNetwork, arioProcessId }] =
-    useGlobalState();
+  const [
+    {
+      gateway,
+      hyperbeamUrl,
+      aoNetwork,
+      turboNetwork,
+      arioProcessId,
+      antRegistryProcessId,
+    },
+  ] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const isInitialLoad = useRef(true);
 
@@ -62,6 +71,7 @@ function useSyncSettings() {
       },
       arns: {
         arioProcessId,
+        antRegistryProcessId,
       },
     };
 
@@ -82,6 +92,7 @@ function useSyncSettings() {
     aoNetwork,
     turboNetwork,
     arioProcessId,
+    antRegistryProcessId,
   ]);
 
   return null;

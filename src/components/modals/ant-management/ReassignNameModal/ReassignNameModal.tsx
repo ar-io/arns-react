@@ -55,8 +55,9 @@ export function ReassignNameModal({
   name: string;
 }) {
   const queryClient = useQueryClient();
-  const [{ arioProcessId, aoClient, aoNetwork, hyperbeamUrl }] =
-    useGlobalState();
+  const [
+    { arioProcessId, aoClient, aoNetwork, hyperbeamUrl, antRegistryProcessId },
+  ] = useGlobalState();
   const [, dispatchArNSState] = useArNSState();
   const { data: antVersion } = useLatestANTVersion();
   const antModuleId = antVersion?.moduleId ?? null;
@@ -135,6 +136,7 @@ export function ReassignNameModal({
         workflowName: ANT_INTERACTION_TYPES.REASSIGN_NAME,
         dispatchTransactionState,
         dispatchArNSState,
+        antRegistryProcessId,
         owner: walletAddress.toString(),
         ao: aoClient,
         hyperbeamUrl,
@@ -166,6 +168,7 @@ export function ReassignNameModal({
       dispatchArNSUpdate({
         walletAddress: walletAddress,
         arioProcessId,
+        antRegistryProcessId,
         dispatch: dispatchArNSState,
         aoNetworkSettings: aoNetwork,
         hyperbeamUrl,

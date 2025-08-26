@@ -68,7 +68,8 @@ const UndernamesTable = ({
   state?: AoANTState | null;
   isLoading: boolean;
 }) => {
-  const [{ arioProcessId, antAoClient, hyperbeamUrl }] = useGlobalState();
+  const [{ arioProcessId, antAoClient, hyperbeamUrl, antRegistryProcessId }] =
+    useGlobalState();
   const [, dispatchArNSState] = useArNSState();
 
   const [{ wallet, walletAddress }] = useWalletState();
@@ -125,6 +126,7 @@ const UndernamesTable = ({
         dispatchArNSState,
         ao: antAoClient,
         hyperbeamUrl,
+        antRegistryProcessId,
       });
       eventEmitter.emit('success', {
         name: 'Manage Undernames',

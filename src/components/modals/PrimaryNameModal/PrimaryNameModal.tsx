@@ -75,8 +75,16 @@ function PrimaryNameModal({
   setVisible: (visible: boolean) => void;
 }) {
   const queryClient = useQueryClient();
-  const [{ arioProcessId, arioContract, aoClient, aoNetwork, hyperbeamUrl }] =
-    useGlobalState();
+  const [
+    {
+      arioProcessId,
+      arioContract,
+      aoClient,
+      aoNetwork,
+      hyperbeamUrl,
+      antRegistryProcessId,
+    },
+  ] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const { data: primaryNameData, isLoading: isLoadingPrimaryNameData } =
     usePrimaryName();
@@ -200,6 +208,7 @@ function PrimaryNameModal({
             dispatchArNSState,
             ao: aoClient,
             hyperbeamUrl,
+            antRegistryProcessId,
           });
           queryClient.resetQueries({
             queryKey: ['primary-name'],
@@ -240,6 +249,7 @@ function PrimaryNameModal({
         walletAddress,
         queryClient,
         hyperbeamUrl,
+        antRegistryProcessId,
       });
 
       closeModal();

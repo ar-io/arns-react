@@ -58,7 +58,7 @@ export function TransactionStateProvider({
   );
 
   const queryClient = useQueryClient();
-  const [{ aoNetwork, hyperbeamUrl }] = useGlobalState();
+  const [{ aoNetwork, hyperbeamUrl, antRegistryProcessId }] = useGlobalState();
   const [walletState] = useWalletState();
   const [, dispatchArNSState] = useArNSState();
 
@@ -108,6 +108,7 @@ export function TransactionStateProvider({
         dispatch: dispatchArNSState,
         aoNetwork,
         hyperbeamUrl,
+        antRegistryProcessId,
       });
     }
   }, [state.interactionResult, queryClient, walletState]);

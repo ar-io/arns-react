@@ -47,6 +47,7 @@ function Checkout() {
       aoClient,
       arioTicker,
       hyperbeamUrl,
+      antRegistryProcessId,
     },
   ] = useGlobalState();
   const turbo = useTurboArNSClient();
@@ -343,6 +344,7 @@ function Checkout() {
         dispatchArNSUpdate({
           dispatch: dispatchArNSState,
           arioProcessId,
+          antRegistryProcessId,
           walletAddress,
           aoNetworkSettings: aoNetwork,
           hyperbeamUrl,

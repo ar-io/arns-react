@@ -10,7 +10,6 @@ function SelectGatewayModal({
 }: {
   show: boolean;
   setShow: (show: boolean) => void;
-
   setGateway: (gateway: string) => void;
 }) {
   const { data: gateways, isLoading: loadingArIOGateways } = useGateways();
