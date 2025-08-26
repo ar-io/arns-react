@@ -43,7 +43,7 @@ export default function NicknameRow({
   return (
     <>
       <DomainSettingsRow
-        label="Nickname:"
+        label="Nickname"
         value={
           <ValidationInput
             catchInvalidInput={true}

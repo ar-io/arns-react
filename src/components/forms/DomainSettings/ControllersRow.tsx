@@ -73,7 +73,10 @@ export default function ControllersRow({
   return (
     <>
       <DomainSettingsRow
-        label="Controller(s):"
+        label="Controllers"
+        labelTooltip={`
+          Controllers are the addresses that can manage the ANT and all associated names. They can add or remove controllers and update undernames.
+        `}
         value={
           <div className="flex flex-row w-fit">
             {controllers.map((c, index) => {
@@ -84,7 +87,7 @@ export default function ControllersRow({
                     id={isEthAddress(c) ? c : new ArweaveTransactionID(c)}
                     shouldLink={isArweaveTransactionID(c)}
                     type={ArweaveIdTypes.ADDRESS}
-                    characterCount={8}
+                    characterCount={16}
                     wrapperStyle={{
                       width: 'fit-content',
                       whiteSpace: 'nowrap',

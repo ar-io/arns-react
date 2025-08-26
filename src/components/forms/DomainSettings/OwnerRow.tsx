@@ -1,4 +1,5 @@
 import { ANTCard } from '@src/components/cards';
+import { Tooltip } from '@src/components/data-display';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
@@ -51,13 +52,14 @@ export default function OwnerRow({
   return (
     <>
       <DomainSettingsRow
-        label="Owner:"
+        label="Owner"
         value={
           owner ? (
             isArweaveTransactionID(owner) ? (
               <ArweaveID
                 id={new ArweaveTransactionID(owner)}
                 shouldLink
+                characterCount={16}
                 type={ArweaveIdTypes.ADDRESS}
               />
             ) : (
@@ -69,13 +71,19 @@ export default function OwnerRow({
         }
         editable={editable}
         action={[
-          <button
+          <Tooltip
             key={1}
-            onClick={() => setShowTransferANTModal(true)}
-            className="p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all"
-          >
-            Transfer
-          </button>,
+            message="Transfers control of the ANT and all associated names to a new owner"
+            icon={
+              <button
+                key={1}
+                onClick={() => setShowTransferANTModal(true)}
+                className="p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all hover:scale-105"
+              >
+                Transfer
+              </button>
+            }
+          />,
         ]}
       />
       {showTransferANTModal && (

@@ -46,7 +46,7 @@ export default function DescriptionRow({
   return (
     <>
       <DomainSettingsRow
-        label="Description:"
+        label="Description"
         editable={editable}
         value={
           typeof description == 'string' ? (

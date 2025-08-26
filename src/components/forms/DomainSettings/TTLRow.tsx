@@ -46,7 +46,13 @@ export default function TTLRow({
   return (
     <>
       <DomainSettingsRow
-        label="TTL Seconds:"
+        label="TTL (seconds)"
+        labelTooltip={`
+              TTL (Time To Live) determines how long this record is cached by
+              browsers and ar.io gateways. Lower values mean changes propagate
+              faster, but may increase load. Higher values improve performance
+              but delay updates.
+            `}
         value={
           ttlSeconds ? (
             <ValidationInput
