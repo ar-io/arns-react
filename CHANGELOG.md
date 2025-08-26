@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.23.1] - 2025-08-26
+
+### Changed
+
+- Added Prices page to navbar.
+
 ## [1.23.0] - 2025-08-26
 
 ### Changed
