@@ -8,6 +8,13 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.23.0] - 2025-08-26
+
+### Changed
+
+- Added USD values on `/prices` page.
+- Updated `/settings` page.
+
 ### [1.22.5] - 2025-08-20
 
 - Improve mobile view of `Manage` page
