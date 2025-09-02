@@ -5,19 +5,13 @@ import {
   AoClient,
   AoMessageResult,
   ContractSigner,
+  UpgradeAntProgressEvent,
   createAoSigner,
-  evolveANT,
 } from '@ar.io/sdk/web';
-import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
-import { buildGraphQLQuery } from '@src/hooks/useGraphQL';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import { lowerCaseDomain, sleep } from '@src/utils';
-import {
-  MIN_ANT_VERSION,
-  NETWORK_DEFAULTS,
-  WRITE_OPTIONS,
-} from '@src/utils/constants';
+import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
 import { Dispatch } from 'react';
@@ -31,13 +25,13 @@ export default async function dispatchANTInteraction({
   signer,
   owner,
   dispatchTransactionState,
-  dispatchArNSState,
   ao,
   hyperbeamUrl,
   antRegistryProcessId,
   // this can allow for waiting on promise resolution for UI input on individual steps
   stepCallback,
 }: {
+  // TODO: this should be typed with specific ANT payloads vs. open ended, it's impossible to understand what is expected or exists here
   payload: Record<string, any>;
   workflowName: ANT_INTERACTION_TYPES;
   signer: ContractSigner;
@@ -60,12 +54,6 @@ export default async function dispatchANTInteraction({
   };
 
   let result: AoMessageResult | undefined = undefined;
-  const aoCongestedTimeout = setTimeout(
-    () => {
-      eventEmitter.emit('network:ao:congested', true);
-    }, // if it is taking longer than 10 seconds, consider the network congested
-    1000 * 10,
-  );
   const antProcess = ANT.init({
     hyperbeamUrl,
     process: new AOProcess({ processId, ao }),
@@ -286,146 +274,46 @@ export default async function dispatchANTInteraction({
         break;
 
       case ANT_INTERACTION_TYPES.UPGRADE_ANT: {
-        await stepCallback('Upgrading ANT, please wait...');
-        const state = payload.state;
-        // spawn new ANT with previous state
-        const newAntId = await ANT.spawn({
-          signer: createAoSigner(signer),
-          module: payload.antModuleId,
-          ao,
-          state,
-          stateContractTxId: processId,
+        const nameReassignment = await antProcess.upgrade({
+          names: [payload.name],
+          arioProcessId: payload.arioProcessId,
+          antRegistryId: antRegistryProcessId,
+          onSigningProgress: (
+            step: keyof UpgradeAntProgressEvent,
+            stepPayload: UpgradeAntProgressEvent[keyof UpgradeAntProgressEvent],
+          ) => {
+            if (step === 'fetching-affiliated-names') {
+              stepCallback('Fetching affiliated names');
+            } else if (step === 'checking-version') {
+              stepCallback('Checking version of existing ANT');
+            } else if (step === 'spawning-ant') {
+              stepCallback('Spawning new ANT with latest version');
+            } else if (step === 'verifying-state') {
+              stepCallback('Validating state of new ANT');
+            } else if (step === 'registering-ant') {
+              stepCallback('Registering new ANT to the registry');
+            } else if (step === 'reassigning-name') {
+              const reassigningNamePayload =
+                stepPayload as UpgradeAntProgressEvent['reassigning-name'];
+              stepCallback(`Reassigning name ${reassigningNamePayload.name}`);
+            }
+          },
         });
-        await stepCallback('Validating state migration...');
-        // validate new ANT is a valid ANT
-        const newAnt = ANT.init({
-          hyperbeamUrl,
-          process: new AOProcess({
-            processId: newAntId,
-            ao,
-          }),
-          signer,
-        });
-        await sleep(3000); // allow some time for the spawn to propagate
-        // This will verify that the ANT is compatible with the ANT registry, so even if other features don't work, its fixable and will appear in the assets
-        const newAntState = await newAnt
-          .getState({ strict: true })
-          .catch((e) => {
-            throw new Error(`State migration unsuccessful: ${e.message}`);
-          });
-        // reassign name to new ant
-        const preEvolveInfo = await queryClient.fetchQuery(
-          buildDomainInfoQuery({
-            antId: processId,
-            aoNetwork: NETWORK_DEFAULTS.AO,
-            hyperbeamUrl,
-            antRegistryProcessId,
-          }),
+        // TODO: if any failed, retry them with the new process id
+        result = { id: nameReassignment.forkedProcessId };
+
+        // invalidate all the domainInfo queries for the reassigned names
+        await Promise.all(
+          nameReassignment.reassignedNames.map((name) =>
+            queryClient.invalidateQueries({
+              predicate: ({ queryKey }) =>
+                queryKey.includes('domainInfo') && queryKey[1] === name,
+              exact: false,
+            }),
+          ),
         );
 
-        // TODO: we should just remove support for this and refer them to some manual process to upgrade/fork their ant
-        if (preEvolveInfo.version < MIN_ANT_VERSION) {
-          await stepCallback('Migrating ANT to support Reassign-Name...');
-          await evolveANT({
-            processId,
-            signer: createAoSigner(signer),
-            ao,
-            luaCodeTxId: payload.luaCodeTxId,
-          });
-          const evolvedInfo = await antProcess.getInfo();
-
-          if (!evolvedInfo.Handlers?.includes('reassignName')) {
-            throw new Error('Failed to evolve ANT');
-          }
-        }
-        await stepCallback('Reassigning ArNS Name...');
-
-        const reassignRes = await antProcess.reassignName(
-          {
-            name: payload.name,
-            arioProcessId: payload.arioProcessId,
-            antProcessId: newAntId,
-          },
-          WRITE_OPTIONS,
-        );
-        // verify outputs
-        const ario = ARIO.init({
-          process: new AOProcess({
-            processId: payload.arioProcessId,
-            ao,
-          }),
-        });
-        // poll for update on registry to update record
-        let record = undefined;
-        let retries = 0;
-        const maxRetries = 10;
-        while (record?.processId !== newAntId && retries < maxRetries) {
-          record = await ario
-            .getArNSRecord({ name: payload.name })
-            .catch((e) => {
-              console.error(e);
-            });
-          retries++;
-          await sleep(5000);
-        }
-
-        if (record?.processId !== newAntId)
-          throw new Error(`Failed to reassign name to upgraded ANT process`);
-        // finally, set result as the reassignment result
-        result = reassignRes;
-        // handle state mutations
-        await queryClient.invalidateQueries({
-          predicate({ queryKey }) {
-            return (
-              (queryKey.includes('domainInfo') &&
-                queryKey.includes(payload.name)) ||
-              queryKey.includes(processId)
-            );
-          },
-        });
-        const domainInfo = await queryClient
-          .fetchQuery(
-            buildDomainInfoQuery({
-              antId: newAntId,
-              aoNetwork: NETWORK_DEFAULTS.AO,
-              hyperbeamUrl,
-              antRegistryProcessId,
-            }),
-          )
-          .catch((e) => console.error(e));
-        if (!domainInfo) throw new Error('Unable to fetch domain info');
-        const processMeta = await queryClient
-          .fetchQuery(
-            buildGraphQLQuery(NETWORK_DEFAULTS.AO.ANT.GRAPHQL_URL, {
-              ids: [newAntId],
-            }),
-          )
-          .then((res) => res?.transactions.edges[0].node)
-          .catch((e) => {
-            console.error(e);
-            return null;
-          });
-        // overwrite the existing domain with the updated record (only the process id should have changed)
-        dispatchArNSState({
-          type: 'addDomains',
-          payload: { [payload.name]: record },
-        });
-        // add the new ANT to the state
-        dispatchArNSState({
-          type: 'addAnts',
-          payload: {
-            [newAntId]: {
-              state: newAntState,
-              version: domainInfo.version,
-              processMeta: (processMeta as any) ?? null,
-            },
-          },
-        });
-        dispatchArNSState({
-          type: 'removeAnts',
-          payload: [processId],
-        });
-
+        // TODO: this does not reset the UI correctly on the manage domains table, but setting a bunch of stuff in state does not seem like the best solution either
         break;
       }
       default:
@@ -435,7 +323,6 @@ export default async function dispatchANTInteraction({
     eventEmitter.emit('error', error);
   } finally {
     await stepCallback(undefined);
-    clearTimeout(aoCongestedTimeout);
   }
   if (!result) {
     throw new Error('Failed to dispatch ANT interaction');
