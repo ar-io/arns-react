@@ -208,7 +208,13 @@ export default function KeywordsRow({
               </div>
             )
           ) : (
-            <Skeleton.Input active />
+            <Skeleton.Input
+              active
+              style={{
+                backgroundColor: 'var(--card-bg)',
+                height: '16px',
+              }}
+            />
           )
         }
         editing={editing}

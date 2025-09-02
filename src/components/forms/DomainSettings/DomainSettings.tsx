@@ -147,7 +147,7 @@ function DomainSettings({
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mt-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full mt-3">
         {Object.entries({
           // TODO: this should go on a name section, not the ant section
           [DomainSettingsRowTypes.EXPIRY_DATE]: (
@@ -156,7 +156,13 @@ function DomainSettings({
               key={DomainSettingsRowTypes.EXPIRY_DATE}
               value={
                 isLoading ? (
-                  <Skeleton.Input active />
+                  <Skeleton.Input
+                    active
+                    style={{
+                      backgroundColor: 'var(--card-bg)',
+                      height: '16px',
+                    }}
+                  />
                 ) : data?.arnsRecord && isLeasedArNSRecord(data?.arnsRecord) ? (
                   formatExpiryDate(data?.arnsRecord?.endTimestamp)
                 ) : (
@@ -222,7 +228,13 @@ function DomainSettings({
               }
               value={
                 isLoading ? (
-                  <Skeleton.Input active />
+                  <Skeleton.Input
+                    active
+                    style={{
+                      backgroundColor: 'var(--card-bg)',
+                      height: '16px',
+                    }}
+                  />
                 ) : (
                   <LeaseDuration
                     startTimestamp={data?.arnsRecord?.startTimestamp}
@@ -246,7 +258,13 @@ function DomainSettings({
                     .map((d) => decodeDomainToASCII(d))
                     .join(', ') ?? 'N/A'
                 ) : (
-                  <Skeleton.Input active />
+                  <Skeleton.Input
+                    active
+                    style={{
+                      backgroundColor: 'var(--card-bg)',
+                      height: '16px',
+                    }}
+                  />
                 )
               }
               key={DomainSettingsRowTypes.ASSOCIATED_NAMES}
@@ -320,7 +338,13 @@ function DomainSettings({
                     type={ArweaveIdTypes.CONTRACT}
                   />
                 ) : (
-                  <Skeleton.Input active />
+                  <Skeleton.Input
+                    active
+                    style={{
+                      backgroundColor: 'var(--card-bg)',
+                      height: '16px',
+                    }}
+                  />
                 )
               }
               editable={isOwner}

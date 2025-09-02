@@ -66,7 +66,13 @@ export default function OwnerRow({
               <div>{owner}</div>
             )
           ) : (
-            <Skeleton.Input active />
+            <Skeleton.Input
+              active
+              style={{
+                backgroundColor: 'var(--card-bg)',
+                height: '16px',
+              }}
+            />
           )
         }
         editable={editable}

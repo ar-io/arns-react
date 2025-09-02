@@ -2,7 +2,6 @@ import { Tooltip } from '@src/components/data-display';
 import { AntLogoIcon } from '@src/components/data-display/AntLogoIcon';
 import UndernamesTable from '@src/components/data-display/tables/UndernamesTable';
 import DomainSettings from '@src/components/forms/DomainSettings/DomainSettings';
-import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
@@ -25,7 +24,7 @@ function ManageDomain() {
   const [, dispatchTransactionState] = useTransactionState();
   const [, dispatchModalState] = useModalState();
   const { data: primaryNameData } = usePrimaryName();
-  const { data: domainData, isLoading: isLoadingDomainInfo } = useDomainInfo({
+  const { data: domainData } = useDomainInfo({
     domain: name,
   });
   const [{ walletAddress }] = useWalletState();
@@ -46,18 +45,14 @@ function ManageDomain() {
     };
   }, [name]);
 
-  if (isLoadingDomainInfo) {
-    return <Loader />;
-  }
-
   return (
     <>
       <div
-        className="page"
-        style={{ gap: '0px', paddingTop: '10px', paddingBottom: '10px' }}
+        className="page gap-3"
+        style={{ paddingTop: '10px', paddingBottom: '10px' }}
       >
         <div
-          className="flex flex-row"
+          className="flex flex-row border-b border-dark-grey pb-2"
           style={{
             justifyContent: 'space-between',
             width: '100%',
@@ -65,14 +60,32 @@ function ManageDomain() {
         >
           <h2 className="flex white center" style={{ gap: '16px' }}>
             <AntLogoIcon id={logoId} />
-            {decodeDomainToASCII(name!)}
-            <Star
-              className={
-                (name == primaryNameData?.name
-                  ? 'text-primary fill-primary'
-                  : 'text-grey') + ` w-[18px]`
-              }
-            />
+
+            <div className="flex flex-col items-start justify-center">
+              <div className="flex items-center gap-2">
+                {decodeDomainToASCII(name!)}
+                <Star
+                  className={
+                    (name == primaryNameData?.name
+                      ? 'text-primary fill-primary'
+                      : 'text-grey') + ` w-[18px]`
+                  }
+                />
+              </div>
+              {domainData?.processId && (
+                <div className="text-sm flex items-center gap-1">
+                  <span className="whitespace-nowrap text-sm text-grey">
+                    Process ID:{' '}
+                  </span>
+                  <ArweaveID
+                    id={domainData.processId as AoAddress}
+                    shouldLink={true}
+                    characterCount={16}
+                    type={ArweaveIdTypes.CONTRACT}
+                  />
+                </div>
+              )}{' '}
+            </div>
           </h2>
           {isOwner && (
             <Tooltip
@@ -126,33 +139,21 @@ function ManageDomain() {
             />
           )}
         </div>
-        <div className="w-full my-8">
-          <h3 className="text-xl font-semibold text-white mb-5 flex items-center gap-2">
-            ANT Configuration{' '}
-            {domainData?.processId && (
-              <span className="text-sm">
-                <ArweaveID
-                  id={domainData.processId as AoAddress}
-                  shouldLink={true}
-                  characterCount={8}
-                  type={ArweaveIdTypes.CONTRACT}
-                />
-              </span>
-            )}
-          </h3>
+        <div className="w-full ">
           <DomainSettings
             domain={name}
             setLogo={(id?: string) => setLogoId(id)}
           />
         </div>
 
-        {name && domainData?.processId && (
-          <div className="w-full my-8">
-            <h3 className="text-xl font-semibold text-white mb-5 flex items-center gap-2">
-              Undernames
-            </h3>
+        <div className="w-full border-t border-dark-grey pt-4 mt-4">
+          <h3 className="text-xl font-semibold text-white mb-5 flex items-center gap-2">
+            Undernames
+          </h3>
+          <div className="border border-dark-grey rounded">
             <UndernamesTable
               undernames={domainData?.records || {}}
+              state={domainData?.state}
               arnsRecord={{
                 name: domainData?.name || '',
                 version: 0,
@@ -162,7 +163,7 @@ function ManageDomain() {
               isLoading={false}
             />
           </div>
-        )}
+        </div>
       </div>
     </>
   );

@@ -374,7 +374,7 @@ export default async function dispatchANTInteraction({
         // finally, set result as the reassignment result
         result = reassignRes;
         // handle state mutations
-        await queryClient.resetQueries({
+        await queryClient.invalidateQueries({
           predicate({ queryKey }) {
             return (
               (queryKey.includes('domainInfo') &&

@@ -68,7 +68,8 @@ export default function TargetIDRow({
                 catchInvalidInput={true}
                 showValidationIcon={editing}
                 onPressEnter={() => setShowModal(true)}
-                inputClassName={'domain-settings-input'}
+                wrapperClassName="flex w-full"
+                inputClassName={'domain-settings-input flex w-full'}
                 inputCustomStyle={
                   editing
                     ? {
@@ -96,7 +97,13 @@ export default function TargetIDRow({
               />
             )
           ) : (
-            <Skeleton.Input active />
+            <Skeleton.Input
+              active
+              style={{
+                backgroundColor: 'var(--card-bg)',
+                height: '16px',
+              }}
+            />
           )
         }
         editing={editing}

@@ -21,11 +21,13 @@ export default function IOCompatibleRow({
         label="AR.IO Compatible"
         editable={true}
         value={
-          !requiresUpdate ? (
-            <CircleCheck className="text-success w-[16px]" />
-          ) : (
-            <CircleX className="text-error w-[16px]" />
-          )
+          <span className="relative overflow-visible flex items-center">
+            {!requiresUpdate ? (
+              <CircleCheck className="text-success w-[16px] absolute" />
+            ) : (
+              <CircleX className="text-error w-[16px] absolute" />
+            )}
+          </span>
         }
         action={
           // editable controls if user has permission to upgrade

@@ -29,11 +29,23 @@ export default function UndernamesRow({
         >
           {`${
             undernameLimit ?? (
-              <Skeleton.Input active style={{ width: '100%' }} />
+              <Skeleton.Input
+                active
+                style={{
+                  backgroundColor: 'var(--card-bg)',
+                  height: '16px',
+                }}
+              />
             )
           } / ${
             undernameSupport.toLocaleString() ?? (
-              <Skeleton.Input active style={{ width: '100%' }} />
+              <Skeleton.Input
+                active
+                style={{
+                  backgroundColor: 'var(--card-bg)',
+                  height: '16px',
+                }}
+              />
             )
           }`}
           <NewspaperIcon

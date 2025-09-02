@@ -27,7 +27,7 @@ export default function DomainSettingsRow({
 }) {
   return (
     <div
-      className="flex flex-row gap-2 items-start rounded px-4 py-2 overflow-hidden min-h-[40px]"
+      className="flex flex-row relative items-start justify-center rounded px-4 py-2 overflow-hidden min-h-[40px]"
       style={{
         border: '1px solid var(--disabled-grey)',
         borderColor: editing ? 'var(--text-grey)' : 'var(--disabled-grey)',
@@ -35,30 +35,32 @@ export default function DomainSettingsRow({
         ...customStyle,
       }}
     >
-      {/* Label section */}
-      <div className="flex text-xs overflow-hidden gap-2 text-grey w-1/5">
-        <div className="flex gap-1 items-start">
-          {label}
-          {labelTooltip && (
-            <Tooltip
-              message={labelTooltip}
-              icon={<InfoIcon className="w-4 h-4 fill-grey" />}
-            />
-          )}
+      <div className="flex flex-col w-full gap-2">
+        {/* Label section */}
+        <div className="flex text-xs overflow-hidden gap-2 text-grey w-fit items-center">
+          <div className="flex gap-1 items-start whitespace-nowrap">
+            {label}
+            {labelTooltip && (
+              <Tooltip
+                message={labelTooltip}
+                icon={<InfoIcon className="w-4 h-4 fill-grey" />}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Value section */}
+        <div
+          className={`flex text-xs h-full mr-[120px] mx-[5px] items-center whitespace-nowrap ${
+            value ? 'text-white' : 'text-grey'
+          }`}
+        >
+          {value || 'None'}
         </div>
       </div>
 
-      {/* Value section */}
-      <div
-        className={`flex-1 text-xs ml-2 overflow-scroll ${
-          value ? 'text-white' : 'text-grey'
-        }`}
-      >
-        {value || 'None'}
-      </div>
-
       {/* Actions section */}
-      <div className="flex items-center gap-2 ml-4">
+      <div className="flex items-center gap-1 ml-1 absolute right-5 ">
         {/* Custom action */}
         {Array.isArray(action)
           ? action.map((act, idx) => <div key={idx}>{act}</div>)
@@ -88,7 +90,7 @@ export default function DomainSettingsRow({
                     Cancel
                   </button>
                   <button
-                    className="px-2 py-1 text-xs rounded transition-colors hover:opacity-80 hover:scale-105 bg-primary text-primary"
+                    className="px-2 py-1 text-xs rounded transition-colors hover:opacity-80 hover:scale-105 bg-primary text-black"
                     onClick={onSave}
                   >
                     Save
