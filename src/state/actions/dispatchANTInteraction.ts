@@ -274,6 +274,10 @@ export default async function dispatchANTInteraction({
         break;
 
       case ANT_INTERACTION_TYPES.UPGRADE_ANT: {
+        /**
+         * For now, we will reassign just the single name, but in the future we will reassign all names affiliated with the process id
+         * using reassignAllAffiliatedNames = true on this call.
+         */
         const nameReassignment = await antProcess.upgrade({
           names: [payload.name],
           arioProcessId: payload.arioProcessId,
@@ -299,7 +303,7 @@ export default async function dispatchANTInteraction({
             }
           },
         });
-        // TODO: if any failed, retry them with the new process id
+
         result = { id: nameReassignment.forkedProcessId };
 
         // invalidate all the domainInfo queries for the reassigned names
@@ -312,8 +316,6 @@ export default async function dispatchANTInteraction({
             }),
           ),
         );
-
-        // TODO: this does not reset the UI correctly on the manage domains table, but setting a bunch of stuff in state does not seem like the best solution either
         break;
       }
       default:

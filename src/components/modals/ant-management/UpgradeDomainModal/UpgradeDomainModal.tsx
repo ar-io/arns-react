@@ -68,6 +68,7 @@ function UpgradeDomainModal({
       setUpgrading(true);
       const signer = createAoSigner(wallet?.contractSigner as ContractSigner);
       const failedUpgrades = [];
+      // TODO: replace with a useMutation hook that handles the proper state updates and query resets
       await dispatchANTInteraction({
         payload: {
           // TODO: payload does not make sense to me here, it should be a union typed of specific event payloads instead of an open ended record
