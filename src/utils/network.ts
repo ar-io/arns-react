@@ -3,14 +3,13 @@ import {
   AOProcess,
   AoANTState,
   AoARIORead,
-  AoArNSNameData,
+  AoArNSNameDataWithName,
   AoClient,
-  fetchAllArNSRecords,
   mARIOToken,
 } from '@ar.io/sdk/web';
 import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
 import { AoAddress } from '@src/types';
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, useQuery } from '@tanstack/react-query';
 import {
   PersistedClient,
   Persister,
@@ -74,6 +73,36 @@ export function buildAntStateQuery({
   };
 }
 
+export function buildAntVersionQuery({
+  processId,
+  ao,
+  hyperbeamUrl,
+  graphqlUrl,
+  antRegistryId,
+}: {
+  processId: string;
+  ao: AoClient;
+  hyperbeamUrl?: string;
+  graphqlUrl?: string;
+  antRegistryId: string;
+}): {
+  queryKey: ['ant-version', string] | string[];
+  queryFn: () => Promise<string>;
+  staleTime: number;
+} {
+  return {
+    queryKey: ['ant-version', processId],
+    queryFn: () => {
+      const ant = ANT.init({
+        process: new AOProcess({ processId, ao }),
+        hyperbeamUrl,
+      });
+      return ant.getVersion({ graphqlUrl, antRegistryId });
+    },
+    staleTime: Infinity,
+  };
+}
+
 export function buildIOBalanceQuery({
   arioContract,
   address,
@@ -126,24 +155,38 @@ export function buildARBalanceQuery({
 
 export function buildArNSRecordsQuery({
   arioContract,
-  meta,
+  filters,
 }: {
   arioContract: AoARIORead;
-  meta?: string[];
-}): {
-  queryKey: ['arns-records'] | string[];
-  queryFn: () => Promise<Record<string, AoArNSNameData>>;
-  staleTime: number;
-} {
+  filters?: Partial<
+    Record<
+      keyof AoArNSNameDataWithName,
+      string | number | boolean | string[] | number[] | boolean[]
+    >
+  >;
+}): Parameters<typeof useQuery<AoArNSNameDataWithName[]>>[0] {
   return {
-    queryKey: ['arns-records', ...(meta || [])],
-    queryFn: () => {
-      // TODO: we should add the last cursor retrieved and only fetch new records to avoid loading all of them on reload
-      return fetchAllArNSRecords({
-        contract: arioContract,
-        pageSize: 1000,
-      });
+    queryKey: ['arns-records', arioContract.process.processId, filters],
+    queryFn: async () => {
+      let hasMore = true;
+      let cursor = undefined;
+      const records = [];
+      while (hasMore) {
+        const {
+          items,
+          hasMore: more,
+          nextCursor,
+        } = await arioContract.getArNSRecords({
+          filters,
+          cursor,
+          limit: 1000,
+        });
+        hasMore = more;
+        cursor = nextCursor;
+        records.push(...items);
+      }
+      return records;
     },
-    staleTime: Infinity,
+    staleTime: 4 * 60 * 60 * 1000, // 1 hour
   };
 }
