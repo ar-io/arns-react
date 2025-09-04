@@ -122,18 +122,23 @@ const DomainsTable = ({
   const [{ arioProcessId, aoNetwork, hyperbeamUrl, antRegistryProcessId }] =
     useGlobalState();
   const [{ loading: loadingArnsState }, dispatchArNSState] = useArNSState();
-  const { data: antVersion } = useLatestANTVersion();
-  const antModuleId = antVersion?.moduleId ?? null;
   const [, dispatchModalState] = useModalState();
   const [, dispatchTransactionState] = useTransactionState();
+  const {
+    data: { moduleId: antModuleId },
+  } = useLatestANTVersion();
   const { data: primaryNameData } = usePrimaryName();
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<TableData[]>([]);
   const [showUpgradeDomainModal, setShowUpgradeDomainModal] =
     useState<boolean>(false);
-  const [domainToUpgrade, setDomainToUpgrade] = useState<string | undefined>(
-    undefined,
-  );
+  const [domainToUpgrade, setDomainToUpgrade] = useState<
+    | {
+        domain: string;
+        processId: string;
+      }
+    | undefined
+  >(undefined);
 
   useEffect(() => {
     if (domainData) {
@@ -368,7 +373,10 @@ const DomainsTable = ({
                 icon={
                   <button
                     onClick={() => {
-                      setDomainToUpgrade(lowerCaseDomain(row.original.name));
+                      setDomainToUpgrade({
+                        domain: lowerCaseDomain(row.original.name),
+                        processId: row.original.processId,
+                      });
                       setShowUpgradeDomainModal(true);
                     }}
                     className="p-[4px] px-[8px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap"
@@ -655,7 +663,8 @@ const DomainsTable = ({
       </div>
       {domainToUpgrade && (
         <UpgradeDomainModal
-          domain={domainToUpgrade}
+          domain={domainToUpgrade.domain}
+          processId={domainToUpgrade.processId}
           visible={showUpgradeDomainModal}
           setVisible={(b: boolean) => {
             setShowUpgradeDomainModal(b);

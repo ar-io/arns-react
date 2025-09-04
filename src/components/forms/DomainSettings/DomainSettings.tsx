@@ -264,8 +264,10 @@ function DomainSettings({
           [DomainSettingsRowTypes.IO_COMPATIBLE]: (
             <IOCompatibleRow
               domain={domain}
+              processId={data?.processId ?? ''}
               editable={data?.state ? isAuthorized : true}
               requiresUpdate={
+                // TODO: use latest `getVersion` API on ANT
                 data?.processId && data?.state && walletAddress
                   ? doAntsRequireUpdate({
                       ants: {
