@@ -122,10 +122,11 @@ const DomainsTable = ({
   const [{ arioProcessId, aoNetwork, hyperbeamUrl, antRegistryProcessId }] =
     useGlobalState();
   const [{ loading: loadingArnsState }, dispatchArNSState] = useArNSState();
-  const { data: antVersion } = useLatestANTVersion();
-  const antModuleId = antVersion?.moduleId ?? null;
   const [, dispatchModalState] = useModalState();
   const [, dispatchTransactionState] = useTransactionState();
+  const {
+    data: { moduleId: antModuleId },
+  } = useLatestANTVersion();
   const { data: primaryNameData } = usePrimaryName();
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<TableData[]>([]);

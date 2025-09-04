@@ -1,4 +1,4 @@
-import { ContractSigner, SpawnANTState, createAoSigner } from '@ar.io/sdk/web';
+import { ContractSigner, createAoSigner } from '@ar.io/sdk/web';
 import AntChangelog from '@src/components/cards/AntChangelog';
 import { Tooltip } from '@src/components/data-display';
 import { CloseIcon } from '@src/components/icons';
@@ -23,7 +23,6 @@ import {
   lowerCaseDomain,
   sleep,
 } from '@src/utils';
-import { DEFAULT_ANT_LOGO } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
 import { Checkbox } from 'antd';
@@ -106,54 +105,28 @@ function UpgradeDomainsModal({
         domainsToUpgrade.map((domain) =>
           throttle(async () => {
             try {
-              const domainData = await queryClient.fetchQuery(
+              const domainInfo = await queryClient.fetchQuery(
                 buildDomainInfoQuery({
-                  domain,
                   arioContract,
-                  arioProcessId,
+                  domain,
                   aoNetwork,
-                  antRegistryProcessId,
                   hyperbeamUrl,
-                  wallet,
+                  antRegistryProcessId,
                 }),
               );
-              if (!domainData.state) {
-                throw new Error('No state found for domain');
-              }
-              const previousState: SpawnANTState = {
-                controllers: domainData.state.Controllers,
-                records: domainData.state.Records,
-                owner: walletAddress.toString(),
-                ticker: domainData.state.Ticker,
-                name: domainData.state.Name,
-                // We default to values to allow for upgrades to domains that didn't support description or keywords
-                description: domainData.state.Description ?? '',
-                keywords: domainData.state.Keywords ?? [],
-                balances: domainData.state.Balances ?? {},
-                logo: domainData.logo ?? DEFAULT_ANT_LOGO,
-              };
-
               await dispatchANTInteraction({
                 payload: {
                   arioProcessId,
-                  state: previousState,
                   name: lowerCaseDomain(domain),
-                  antModuleId,
-                  luaCodeTxId: luaSourceId,
                 },
                 workflowName: ANT_INTERACTION_TYPES.UPGRADE_ANT,
-                processId: domainData.processId,
+                processId: domainInfo.processId,
                 owner: walletAddress.toString(),
                 ao: antAoClient,
                 antRegistryProcessId,
                 signer,
                 dispatchTransactionState,
                 dispatchArNSState,
-                stepCallback: async (
-                  step?: string | Record<string, string>,
-                ) => {
-                  console.debug(step, domainData);
-                },
               });
             } catch (error) {
               failedUpgrades.push(domain);
