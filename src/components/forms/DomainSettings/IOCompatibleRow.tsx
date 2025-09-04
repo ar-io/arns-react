@@ -21,11 +21,11 @@ export default function IOCompatibleRow({
         label="AR.IO Compatible"
         editable={true}
         value={
-          <span className="relative overflow-visible flex items-center">
+          <span className="flex items-center overflow-visible max-h-[16px]">
             {!requiresUpdate ? (
-              <CircleCheck className="text-success w-[16px] absolute" />
+              <CircleCheck className="text-success w-[16px]" />
             ) : (
-              <CircleX className="text-error w-[16px] absolute" />
+              <CircleX className="text-error w-[16px]" />
             )}
           </span>
         }

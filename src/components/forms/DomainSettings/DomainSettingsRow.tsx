@@ -35,9 +35,9 @@ export default function DomainSettingsRow({
         ...customStyle,
       }}
     >
-      <div className="flex flex-col w-full gap-2">
+      <div className="flex flex-col xl:flex-row w-full mr-[120px] gap-2">
         {/* Label section */}
-        <div className="flex text-xs overflow-hidden gap-2 text-grey w-fit items-center">
+        <div className="flex text-xs gap-2 text-grey w-[30%] items-center">
           <div className="flex gap-1 items-start whitespace-nowrap">
             {label}
             {labelTooltip && (
@@ -51,7 +51,7 @@ export default function DomainSettingsRow({
 
         {/* Value section */}
         <div
-          className={`flex text-xs h-full mr-[120px] mx-[5px] items-center whitespace-nowrap ${
+          className={`flex text-xs h-full w-full mx-[5px] items-center whitespace-nowrap ${
             value ? 'text-white' : 'text-grey'
           }`}
         >
