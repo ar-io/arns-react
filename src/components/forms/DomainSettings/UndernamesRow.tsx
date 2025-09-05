@@ -1,13 +1,9 @@
 import { NewspaperIcon } from '@src/components/icons';
-import { lowerCaseDomain } from '@src/utils';
 import { Skeleton } from 'antd';
-import { useNavigate } from 'react-router-dom';
 
 import DomainSettingsRow from './DomainSettingsRow';
 
 export default function UndernamesRow({
-  domain,
-  antId,
   undernameLimit,
   undernameSupport,
 }: {
@@ -16,10 +12,12 @@ export default function UndernamesRow({
   undernameLimit: number;
   undernameSupport: number;
 }) {
-  const navigate = useNavigate();
   return (
     <DomainSettingsRow
-      label="Undernames:"
+      label="Undernames"
+      labelTooltip={`
+        Adding undernames to this ANT will affect resolution for all associated names.
+      `}
       editable={true}
       value={
         <span
@@ -31,11 +29,23 @@ export default function UndernamesRow({
         >
           {`${
             undernameLimit ?? (
-              <Skeleton.Input active style={{ width: '100%' }} />
+              <Skeleton.Input
+                active
+                style={{
+                  backgroundColor: 'var(--card-bg)',
+                  height: '16px',
+                }}
+              />
             )
           } / ${
             undernameSupport.toLocaleString() ?? (
-              <Skeleton.Input active style={{ width: '100%' }} />
+              <Skeleton.Input
+                active
+                style={{
+                  backgroundColor: 'var(--card-bg)',
+                  height: '16px',
+                }}
+              />
             )
           }`}
           <NewspaperIcon
@@ -45,21 +55,6 @@ export default function UndernamesRow({
           />
         </span>
       }
-      action={[
-        <button
-          key={1}
-          className="p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all"
-          onClick={() =>
-            navigate(
-              `/manage/names/${
-                domain ? lowerCaseDomain(domain) : antId
-              }/undernames`,
-            )
-          }
-        >
-          Manage
-        </button>,
-      ]}
     />
   );
 }

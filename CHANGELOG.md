@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.24.0] - 2025-09-05
+
+### Changed
+
+- Redesigned Manage Domain page
+
 ## [1.23.1] - 2025-08-26
 
 ### Changed

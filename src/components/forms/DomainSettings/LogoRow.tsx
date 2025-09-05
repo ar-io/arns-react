@@ -50,14 +50,16 @@ export default function LogoRow({
   return (
     <>
       <DomainSettingsRow
-        label="Logo TX ID:"
+        label="Logo"
         editable={editable}
         value={
           typeof logoTxId == 'string' ? (
             !editing && isArweaveTransactionID(logoTxId) ? (
+              // TODO: render the logo in a tooltip
               <ArweaveID
                 id={new ArweaveTransactionID(logoTxId)}
                 shouldLink
+                characterCount={16}
                 type={ArweaveIdTypes.TRANSACTION}
               />
             ) : (
@@ -66,7 +68,8 @@ export default function LogoRow({
                 catchInvalidInput={true}
                 showValidationIcon={editing}
                 onPressEnter={() => setShowModal(true)}
-                inputClassName={'domain-settings-input'}
+                wrapperClassName="flex w-full"
+                inputClassName={'domain-settings-input flex w-full'}
                 inputCustomStyle={
                   editing
                     ? {
@@ -94,7 +97,13 @@ export default function LogoRow({
               />
             )
           ) : (
-            <Skeleton.Input active />
+            <Skeleton.Input
+              active
+              style={{
+                backgroundColor: 'var(--card-bg)',
+                height: '16px',
+              }}
+            />
           )
         }
         editing={editing}

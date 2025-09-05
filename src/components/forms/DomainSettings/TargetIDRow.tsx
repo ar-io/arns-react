@@ -50,7 +50,8 @@ export default function TargetIDRow({
   return (
     <>
       <DomainSettingsRow
-        label="Target ID:"
+        label="Target ID"
+        labelTooltip={`This is the transaction id of the '@' record of the ANT. All associated names will point to this transaction id.`}
         editable={editable}
         value={
           typeof targetId == 'string' ? (
@@ -58,6 +59,7 @@ export default function TargetIDRow({
               <ArweaveID
                 id={new ArweaveTransactionID(targetId)}
                 shouldLink
+                characterCount={16}
                 type={ArweaveIdTypes.TRANSACTION}
               />
             ) : (
@@ -66,7 +68,8 @@ export default function TargetIDRow({
                 catchInvalidInput={true}
                 showValidationIcon={editing}
                 onPressEnter={() => setShowModal(true)}
-                inputClassName={'domain-settings-input'}
+                wrapperClassName="flex w-full"
+                inputClassName={'domain-settings-input flex w-full'}
                 inputCustomStyle={
                   editing
                     ? {
@@ -94,7 +97,13 @@ export default function TargetIDRow({
               />
             )
           ) : (
-            <Skeleton.Input active />
+            <Skeleton.Input
+              active
+              style={{
+                backgroundColor: 'var(--card-bg)',
+                height: '16px',
+              }}
+            />
           )
         }
         editing={editing}

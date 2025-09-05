@@ -38,14 +38,15 @@ export default function TickerRow({
   return (
     <>
       <DomainSettingsRow
-        label="Ticker:"
+        label="Ticker"
         value={
           typeof ticker === 'string' ? (
             <ValidationInput
               catchInvalidInput={true}
               showValidationIcon={editing}
               onPressEnter={() => setShowModal(true)}
-              inputClassName={'domain-settings-input'}
+              wrapperClassName="flex w-full"
+              inputClassName={'domain-settings-input flex w-full'}
               inputCustomStyle={
                 editing
                   ? {
@@ -67,7 +68,13 @@ export default function TickerRow({
               maxCharLength={(str) => str.length <= 100}
             />
           ) : (
-            <Skeleton.Input active={true} />
+            <Skeleton.Input
+              active
+              style={{
+                backgroundColor: 'var(--card-bg)',
+                height: '16px',
+              }}
+            />
           )
         }
         editable={editable}
