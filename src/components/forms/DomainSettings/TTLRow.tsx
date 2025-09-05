@@ -46,14 +46,21 @@ export default function TTLRow({
   return (
     <>
       <DomainSettingsRow
-        label="TTL Seconds:"
+        label="TTL (seconds)"
+        labelTooltip={`
+              TTL (Time To Live) determines how long this record is cached by
+              browsers and ar.io gateways. Lower values mean changes propagate
+              faster, but may increase load. Higher values improve performance
+              but delay updates.
+            `}
         value={
           ttlSeconds ? (
             <ValidationInput
               catchInvalidInput={true}
               showValidationIcon={editing}
               onPressEnter={() => setShowModal(true)}
-              inputClassName={'domain-settings-input'}
+              wrapperClassName="flex w-full"
+              inputClassName={'domain-settings-input flex w-full'}
               inputType="number"
               inputCustomStyle={
                 editing
@@ -82,7 +89,13 @@ export default function TTLRow({
               }
             />
           ) : (
-            <Skeleton.Input active={true} />
+            <Skeleton.Input
+              active
+              style={{
+                backgroundColor: 'var(--card-bg)',
+                height: '16px',
+              }}
+            />
           )
         }
         editable={editable}

@@ -73,9 +73,12 @@ export default function ControllersRow({
   return (
     <>
       <DomainSettingsRow
-        label="Controller(s):"
+        label="Controllers"
+        labelTooltip={`
+          Controllers are the addresses that can manage the ANT and all associated names. They can add or remove controllers and update undernames.
+        `}
         value={
-          <div className="flex flex-row w-fit">
+          <div className="flex flex-row w-fit overflow-hidden mr-10">
             {controllers.map((c, index) => {
               if (isValidAoAddress(c)) {
                 return (
@@ -113,7 +116,7 @@ export default function ControllersRow({
             overlayStyle={{ width: 'fit-content' }}
             trigger={'click'}
             title={
-              <div className="flex-column flex" style={{ gap: '10px' }}>
+              <div className="flex-col flex" style={{ gap: '10px' }}>
                 <button
                   className="flex flex-right white pointer button"
                   onClick={() => {

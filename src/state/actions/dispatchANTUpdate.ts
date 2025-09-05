@@ -31,7 +31,7 @@ export async function dispatchANTUpdate({
       payload: true,
     });
 
-    await queryClient.resetQueries({
+    await queryClient.refetchQueries({
       predicate({ queryKey }) {
         return (
           ((queryKey.includes('ant') ||
