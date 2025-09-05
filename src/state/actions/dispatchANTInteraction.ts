@@ -306,16 +306,20 @@ export default async function dispatchANTInteraction({
 
         result = { id: nameReassignment.forkedProcessId };
 
-        // invalidate all the domainInfo queries for the reassigned names
+        // invalidate all the queries for the names, processId, and forkedProcessId
         await Promise.all(
-          nameReassignment.reassignedNames.map((name) =>
+          [
+            ...Object.keys(nameReassignment.reassignedNames),
+            nameReassignment.forkedProcessId,
+            processId,
+          ].map((name) =>
             queryClient.invalidateQueries({
-              predicate: ({ queryKey }) =>
-                queryKey.includes('domainInfo') && queryKey[1] === name,
-              exact: false,
+              predicate: ({ queryKey }) => queryKey.includes(name),
+              refetchType: 'all',
             }),
           ),
         );
+
         break;
       }
       default:
