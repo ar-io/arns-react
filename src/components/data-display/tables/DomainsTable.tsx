@@ -124,9 +124,7 @@ const DomainsTable = ({
   const [{ loading: loadingArnsState }, dispatchArNSState] = useArNSState();
   const [, dispatchModalState] = useModalState();
   const [, dispatchTransactionState] = useTransactionState();
-  const {
-    data: { moduleId: antModuleId },
-  } = useLatestANTVersion();
+  const { data: latestAntVersion } = useLatestANTVersion();
   const { data: primaryNameData } = usePrimaryName();
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<TableData[]>([]);
@@ -158,7 +156,7 @@ const DomainsTable = ({
                   },
                 },
                 userAddress: walletAddress.toString(),
-                currentModuleId: antModuleId,
+                currentModuleId: latestAntVersion?.moduleId ?? null,
               })
             : false);
 
