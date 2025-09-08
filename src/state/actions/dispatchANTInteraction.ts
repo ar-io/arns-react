@@ -2,18 +2,25 @@ import {
   ANT,
   AOProcess,
   ARIO,
+  AoANTState,
+  AoArNSNameData,
   AoClient,
   AoMessageResult,
   ContractSigner,
   UpgradeAntProgressEvent,
   createAoSigner,
 } from '@ar.io/sdk/web';
+import { buildArNSRecordQuery } from '@src/hooks/useArNSRecord';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import { lowerCaseDomain, sleep } from '@src/utils';
 import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
-import { queryClient } from '@src/utils/network';
+import {
+  buildAntStateQuery,
+  buildAntVersionQuery,
+  queryClient,
+} from '@src/utils/network';
 import { Dispatch } from 'react';
 
 import { ArNSAction } from '../reducers';
@@ -25,6 +32,7 @@ export default async function dispatchANTInteraction({
   signer,
   owner,
   dispatchTransactionState,
+  dispatchArNSState,
   ao,
   hyperbeamUrl,
   antRegistryProcessId,
@@ -319,6 +327,66 @@ export default async function dispatchANTInteraction({
             }),
           ),
         );
+
+        /**
+         * Just some thoughts about this pattern:
+         *
+         * We are storing ant metadata and domain information in global state, while also trying to leverage tanstack query to efficiently cache, expire and keep it in sync.
+         *
+         * Ensuring the actual data and the cached data are in sync is brutal to understand and maintain, and a pattern we should move away from.
+         *
+         * To do so, we should look into leveraging `useMutation` for each interaction to properly send messages, handle retries and callback on success or failure
+         * and remove storing any state related to ArNS (records AND ants) in global state entirely. Let tanstack manage the caching of those values, and use all components that require it should
+         * leverage the `useQuery` hook to fetch the data they need.
+         *
+         */
+
+        const [record, newAntState, newAntVersion] = await Promise.all([
+          queryClient.fetchQuery<AoArNSNameData>(
+            buildArNSRecordQuery({
+              name: payload.name,
+              arioContract: ARIO.init({ processId: payload.arioProcessId }),
+            }),
+          ),
+          queryClient.fetchQuery<AoANTState>(
+            buildAntStateQuery({
+              processId: nameReassignment.forkedProcessId,
+              ao: ao,
+              hyperbeamUrl,
+            }),
+          ),
+          queryClient.fetchQuery(
+            buildAntVersionQuery({
+              processId: nameReassignment.forkedProcessId,
+              ao: ao,
+              hyperbeamUrl,
+              antRegistryId: antRegistryProcessId,
+            }),
+          ),
+        ]);
+        // override the old domain with the new one in global state
+        dispatchArNSState({
+          type: 'addDomains',
+          payload: { [payload.name]: record },
+        });
+
+        // override the old ant with the new one in global state
+        dispatchArNSState({
+          type: 'addAnts',
+          payload: {
+            [nameReassignment.forkedProcessId]: {
+              state: newAntState,
+              version: parseInt(newAntVersion),
+              processMeta: null, // TODO: remove this once we have a better way to handle this
+            },
+          },
+        });
+
+        // remove the old ant from global state - again this is brutal
+        dispatchArNSState({
+          type: 'removeAnts',
+          payload: [processId],
+        });
 
         break;
       }

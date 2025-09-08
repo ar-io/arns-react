@@ -52,11 +52,7 @@ export function buildAntStateQuery({
   processId: string;
   ao: AoClient;
   hyperbeamUrl?: string;
-}): {
-  queryKey: ['ant', string] | string[];
-  queryFn: () => Promise<AoANTState | null>;
-  staleTime: number;
-} {
+}): Parameters<typeof useQuery<AoANTState>>[0] {
   return {
     queryKey: ['ant', processId],
     queryFn: async () => {
@@ -85,11 +81,7 @@ export function buildAntVersionQuery({
   hyperbeamUrl?: string;
   graphqlUrl?: string;
   antRegistryId: string;
-}): {
-  queryKey: ['ant-version', string] | string[];
-  queryFn: () => Promise<string>;
-  staleTime: number;
-} {
+}): Parameters<typeof useQuery<string>>[0] {
   return {
     queryKey: ['ant-version', processId],
     queryFn: () => {
@@ -111,11 +103,7 @@ export function buildIOBalanceQuery({
   arioContract: AoARIORead;
   address: string;
   meta?: string[];
-}): {
-  queryKey: ['io-balance', string] | string[];
-  queryFn: () => Promise<number>;
-  staleTime: number;
-} {
+}): Parameters<typeof useQuery<number>>[0] {
   return {
     queryKey: ['io-balance', address, ...(meta || [])],
     queryFn: async () => {
