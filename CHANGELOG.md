@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.24.1] - 2025-09-08
+
+### Fixed
+
+- Hide undernames table actions for non-authorized users
+
 ## [1.24.0] - 2025-09-05
 
 ### Changed
