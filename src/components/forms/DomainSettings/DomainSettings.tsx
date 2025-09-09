@@ -205,7 +205,7 @@ function DomainSettings({
                         </button>
                       }
                     />
-                  ) : (
+                  ) : data?.arnsRecord?.type == 'lease' ? (
                     <Tooltip
                       message={'Extend lease'}
                       icon={
@@ -223,7 +223,7 @@ function DomainSettings({
                         </button>
                       }
                     />
-                  )}
+                  ) : null}
                 </div>
               }
               value={
@@ -349,27 +349,29 @@ function DomainSettings({
               }
               editable={isOwner}
               action={
-                <Tooltip
-                  message={
-                    data?.version && data.version < MIN_ANT_VERSION
-                      ? 'Update Domain to access Reassign Name workflow'
-                      : data?.isInGracePeriod
-                      ? 'Lease must be extended before ANT can be Reassigned'
-                      : 'Reassigns what ANT is registered to the ArNS Name'
-                  }
-                  icon={
-                    <button
-                      disabled={
-                        (data?.version && data.version < MIN_ANT_VERSION) ||
-                        data?.isInGracePeriod
-                      }
-                      onClick={() => setShowReassignNameModal(true)}
-                      className={`flex flex-row text-[12px] rounded-[4px] p-[6px] px-[10px] border border-error bg-error-thin text-error whitespace-nowrap hover:scale-105 transition-all`}
-                    >
-                      Reassign
-                    </button>
-                  }
-                />
+                isOwner ? (
+                  <Tooltip
+                    message={
+                      data?.version && data.version < MIN_ANT_VERSION
+                        ? 'Update Domain to access Reassign Name workflow'
+                        : data?.isInGracePeriod
+                        ? 'Lease must be extended before ANT can be Reassigned'
+                        : 'Reassigns what ANT is registered to the ArNS Name'
+                    }
+                    icon={
+                      <button
+                        disabled={
+                          (data?.version && data.version < MIN_ANT_VERSION) ||
+                          data?.isInGracePeriod
+                        }
+                        onClick={() => setShowReassignNameModal(true)}
+                        className={`flex flex-row text-[12px] rounded-[4px] p-[6px] px-[10px] border border-error bg-error-thin text-error whitespace-nowrap hover:scale-105 transition-all`}
+                      >
+                        Reassign
+                      </button>
+                    }
+                  />
+                ) : null
               }
             />
           ),

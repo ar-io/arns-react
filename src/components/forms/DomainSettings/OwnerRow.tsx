@@ -77,19 +77,21 @@ export default function OwnerRow({
         }
         editable={editable}
         action={[
-          <Tooltip
-            key={1}
-            message="Transfers control of the ANT and all associated names to a new owner"
-            icon={
-              <button
-                key={1}
-                onClick={() => setShowTransferANTModal(true)}
-                className="p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all hover:scale-105"
-              >
-                Transfer
-              </button>
-            }
-          />,
+          editable ? (
+            <Tooltip
+              key={1}
+              message="Transfers control of the ANT and all associated names to a new owner"
+              icon={
+                <button
+                  key={1}
+                  onClick={() => setShowTransferANTModal(true)}
+                  className="p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all hover:scale-105"
+                >
+                  Transfer
+                </button>
+              }
+            />
+          ) : null,
         ]}
       />
       {showTransferANTModal && (
