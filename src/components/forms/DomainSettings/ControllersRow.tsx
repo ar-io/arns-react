@@ -100,51 +100,53 @@ export default function ControllersRow({
         }
         editable={editable}
         action={[
-          <Tooltip
-            key={1}
-            open={showTooltip}
-            onOpenChange={setShowTooltip}
-            placement="bottomRight"
-            color="var(--card-bg)"
-            autoAdjustOverflow
-            arrow={false}
-            overlayInnerStyle={{
-              width: 'fit-content',
-              border: '1px solid var(--text-faded)',
-              padding: '9px 12px',
-            }}
-            overlayStyle={{ width: 'fit-content' }}
-            trigger={'click'}
-            title={
-              <div className="flex-col flex" style={{ gap: '10px' }}>
-                <button
-                  className="flex flex-right white pointer button"
-                  onClick={() => {
-                    setShowAddModal(true);
-                    setShowTooltip(false);
-                  }}
-                >
-                  Add Controller
-                </button>
-                <button
-                  className="flex flex-right white pointer button"
-                  onClick={() => {
-                    setShowRemoveModal(true);
-                    setShowTooltip(false);
-                  }}
-                >
-                  Remove Controller
-                </button>
-              </div>
-            }
-          >
-            <VerticalDotMenuIcon
-              width={'18px'}
-              height={'18px'}
-              fill="var(--text-grey)"
-              className="pointer"
-            />
-          </Tooltip>,
+          editable ? (
+            <Tooltip
+              key={1}
+              open={showTooltip}
+              onOpenChange={setShowTooltip}
+              placement="bottomRight"
+              color="var(--card-bg)"
+              autoAdjustOverflow
+              arrow={false}
+              overlayInnerStyle={{
+                width: 'fit-content',
+                border: '1px solid var(--text-faded)',
+                padding: '9px 12px',
+              }}
+              overlayStyle={{ width: 'fit-content' }}
+              trigger={'click'}
+              title={
+                <div className="flex-col flex" style={{ gap: '10px' }}>
+                  <button
+                    className="flex flex-right white pointer button"
+                    onClick={() => {
+                      setShowAddModal(true);
+                      setShowTooltip(false);
+                    }}
+                  >
+                    Add Controller
+                  </button>
+                  <button
+                    className="flex flex-right white pointer button"
+                    onClick={() => {
+                      setShowRemoveModal(true);
+                      setShowTooltip(false);
+                    }}
+                  >
+                    Remove Controller
+                  </button>
+                </div>
+              }
+            >
+              <VerticalDotMenuIcon
+                width={'18px'}
+                height={'18px'}
+                fill="var(--text-grey)"
+                className="pointer"
+              />
+            </Tooltip>
+          ) : null,
         ]}
       />
       {showAddModal && processId && (

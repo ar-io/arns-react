@@ -167,7 +167,7 @@ const UndernamesTable = ({
           targetId: record.transactionId,
           ttlSeconds: record.ttlSeconds,
           priority: record.index,
-          action: (
+          action: isAuthorized ? (
             <span className="flex justify-end pr-3 gap-3">
               {isOwner && (
                 <Tooltip
@@ -242,6 +242,7 @@ const UndernamesTable = ({
                   }
                 />
               )}
+              (
               <button
                 className="fill-grey hover:fill-white"
                 onClick={() => {
@@ -273,7 +274,7 @@ const UndernamesTable = ({
                 <></>
               )}
             </span>
-          ),
+          ) : null,
         };
         newTableData.push(data as TableData);
       });
