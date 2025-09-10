@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.24.2] - 2025-09-10
+
+### Fixed
+
+- Remove `(` from undername actions in undernames table
+
 ## [1.24.1] - 2025-09-08
 
 ### Fixed
