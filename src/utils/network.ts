@@ -84,12 +84,15 @@ export function buildAntVersionQuery({
 }): Parameters<typeof useQuery<string>>[0] {
   return {
     queryKey: ['ant-version', processId],
-    queryFn: () => {
+    queryFn: async () => {
+      if (!processId || !isArweaveTransactionID(processId))
+        throw new Error('Must provide a valid process id');
+
       const ant = ANT.init({
         process: new AOProcess({ processId, ao }),
         hyperbeamUrl,
       });
-      return ant.getVersion({ graphqlUrl, antRegistryId });
+      return await ant.getVersion({ graphqlUrl, antRegistryId });
     },
     staleTime: Infinity,
   };

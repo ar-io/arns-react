@@ -65,6 +65,9 @@ function UpgradeDomainModal({
       if (!antModuleId) {
         throw new Error('No ANT Module available, try again later');
       }
+      if (!processId) {
+        throw new Error('No ANT Process ID found for this domain');
+      }
       setUpgrading(true);
       const signer = createAoSigner(wallet?.contractSigner as ContractSigner);
       const failedUpgrades = [];

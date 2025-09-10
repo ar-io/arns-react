@@ -108,6 +108,7 @@ function UpgradeDomainsModal({
               const domainInfo = await queryClient.fetchQuery(
                 buildDomainInfoQuery({
                   arioContract,
+                  arioProcessId,
                   domain,
                   aoNetwork,
                   hyperbeamUrl,
