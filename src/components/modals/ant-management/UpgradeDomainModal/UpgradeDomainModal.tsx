@@ -1,4 +1,4 @@
-import { ContractSigner, SpawnANTState, createAoSigner } from '@ar.io/sdk/web';
+import { ContractSigner, createAoSigner } from '@ar.io/sdk/web';
 import AntChangelog from '@src/components/cards/AntChangelog';
 import { Tooltip } from '@src/components/data-display';
 import { CloseIcon } from '@src/components/icons';
@@ -6,7 +6,6 @@ import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import { useLatestANTVersion } from '@src/hooks/useANTVersions';
-import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import {
   useArNSState,
@@ -17,9 +16,7 @@ import {
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { ANT_INTERACTION_TYPES } from '@src/types';
 import { formatForMaxCharCount, lowerCaseDomain, sleep } from '@src/utils';
-import { DEFAULT_ANT_LOGO } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
-import { useQueryClient } from '@tanstack/react-query';
 import { Checkbox } from 'antd';
 import Lottie from 'lottie-react';
 import { useState } from 'react';
@@ -28,6 +25,7 @@ import arioLoading from '../../../icons/ario-spinner.json';
 import './styles.css';
 
 function UpgradeDomainModal({
+  processId,
   visible,
   setVisible,
   domain,
@@ -35,18 +33,10 @@ function UpgradeDomainModal({
   visible: boolean;
   setVisible: (visible: boolean) => void;
   domain: string;
+  processId: string;
 }) {
-  const queryClient = useQueryClient();
-  const [
-    {
-      antAoClient,
-      aoNetwork,
-      arioContract,
-      arioProcessId,
-      hyperbeamUrl,
-      antRegistryProcessId,
-    },
-  ] = useGlobalState();
+  const [{ antAoClient, arioProcessId, antRegistryProcessId }] =
+    useGlobalState();
   const [, dispatchArNSState] = useArNSState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
@@ -64,6 +54,8 @@ function UpgradeDomainModal({
     setUpgrading(false);
   }
 
+  // TODO: add option to reassign all names affiliated with the process id associated to the selected domain
+
   async function upgradeDomain() {
     try {
       if (!wallet?.contractSigner || !walletAddress) {
@@ -73,46 +65,21 @@ function UpgradeDomainModal({
       if (!antModuleId) {
         throw new Error('No ANT Module available, try again later');
       }
+      if (!processId) {
+        throw new Error('No ANT Process ID found for this domain');
+      }
       setUpgrading(true);
       const signer = createAoSigner(wallet?.contractSigner as ContractSigner);
       const failedUpgrades = [];
-      const domainData = await queryClient.fetchQuery(
-        buildDomainInfoQuery({
-          domain,
-          arioContract,
-          arioProcessId,
-          antRegistryProcessId,
-          aoNetwork,
-          hyperbeamUrl,
-          wallet,
-        }),
-      );
-      if (!domainData.state) {
-        throw new Error('No state found for domain');
-      }
-      const previousState: SpawnANTState = {
-        controllers: domainData.state.Controllers,
-        records: domainData.state.Records,
-        owner: walletAddress.toString(),
-        ticker: domainData.state.Ticker,
-        name: domainData.state.Name,
-        // We default to values to allow for upgrades to domains that didn't support description or keywords
-        description: domainData.state.Description ?? '',
-        keywords: domainData.state.Keywords ?? [],
-        balances: domainData.state.Balances ?? {},
-        logo: domainData.logo ?? DEFAULT_ANT_LOGO,
-      };
-
+      // TODO: replace with a useMutation hook that handles the proper state updates and query resets
       await dispatchANTInteraction({
         payload: {
+          // TODO: payload does not make sense to me here, it should be a union typed of specific event payloads instead of an open ended record
           arioProcessId,
-          state: previousState,
           name: lowerCaseDomain(domain),
-          antModuleId,
-          luaCodeTxId: luaSourceId,
         },
         workflowName: ANT_INTERACTION_TYPES.UPGRADE_ANT,
-        processId: domainData.processId,
+        processId: processId,
         owner: walletAddress.toString(),
         ao: antAoClient,
         antRegistryProcessId,
@@ -120,12 +87,13 @@ function UpgradeDomainModal({
         dispatchTransactionState,
         dispatchArNSState,
         stepCallback: async (step?: string | Record<string, string>) => {
+          // this could probably be just return setSigningMessage
           if (typeof step === 'string') {
             setSigningMessage(`${step}`);
           }
         },
       }).catch(() => {
-        failedUpgrades.push(domainData.processId);
+        failedUpgrades.push(processId);
       });
 
       if (failedUpgrades.length) {
