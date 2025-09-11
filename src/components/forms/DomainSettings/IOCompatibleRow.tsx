@@ -9,10 +9,12 @@ export default function IOCompatibleRow({
   editable,
   domain,
   requiresUpdate,
+  processId,
 }: {
   domain?: string;
   requiresUpdate: boolean;
   editable: boolean;
+  processId: string;
 }) {
   const [showUpgradeDomainModal, setShowUpgradeDomainModal] = useState(false);
   return (
@@ -54,6 +56,7 @@ export default function IOCompatibleRow({
       {domain && (
         <UpgradeDomainModal
           domain={domain}
+          processId={processId}
           visible={showUpgradeDomainModal}
           setVisible={(b: boolean) => setShowUpgradeDomainModal(b)}
         />

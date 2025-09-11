@@ -89,7 +89,9 @@ export function buildDomainInfoQuery({
           ? await queryClient.fetchQuery(
               buildArNSRecordsQuery({
                 arioContract,
-                meta: [arioProcessId, aoNetwork.ARIO.CU_URL],
+                filters: {
+                  processId: arioProcessId,
+                },
               }),
             )
           : undefined;
@@ -98,7 +100,7 @@ export function buildDomainInfoQuery({
         throw new Error('No domain or antId provided');
       }
 
-      const record = domain && arnsRecords ? arnsRecords[domain] : undefined;
+      const record = arnsRecords?.find((r) => r.name === domain);
 
       if (!antId && !record?.processId) {
         throw new Error('No ANT id or record found');

@@ -1,11 +1,16 @@
+import { AoARIORead, AoArNSNameData } from '@ar.io/sdk/web';
 import { useGlobalState } from '@src/state';
 import { isARNSDomainNameValid } from '@src/utils';
 import { useQuery } from '@tanstack/react-query';
 
-export function useArNSRecord({ name }: { name: string | undefined }) {
-  const [{ arioContract }] = useGlobalState();
-
-  return useQuery({
+export function buildArNSRecordQuery({
+  name,
+  arioContract,
+}: {
+  name: string | undefined;
+  arioContract: AoARIORead;
+}): Parameters<typeof useQuery<AoArNSNameData>>[0] {
+  return {
     queryKey: ['arns-record', name, arioContract.process.processId],
     queryFn: async () => {
       if (!isARNSDomainNameValid({ name }) || name === undefined)
@@ -14,7 +19,10 @@ export function useArNSRecord({ name }: { name: string | undefined }) {
       const record = await arioContract.getArNSRecord({ name });
       return record ?? null; // null is serializable, undefined is not
     },
-    enabled: isARNSDomainNameValid({ name }),
-    staleTime: 4 * 60 * 60 * 1000, // 4 hours
-  });
+  };
+}
+
+export function useArNSRecord({ name }: { name: string | undefined }) {
+  const [{ arioContract }] = useGlobalState();
+  return useQuery(buildArNSRecordQuery({ name, arioContract }));
 }
