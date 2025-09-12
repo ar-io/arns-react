@@ -4,6 +4,7 @@ import DomainDetailsTip from '@src/components/Tooltips/DomainDetailsTip';
 import { Tooltip } from '@src/components/data-display';
 import { RNPChart } from '@src/components/data-display/charts/RNPChart';
 import { CircleCheckFilled, SearchIcon } from '@src/components/icons';
+import { useGlobalState } from '@src/state';
 import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
 import Lottie from 'lottie-react';
 import { ChevronRight, CircleAlert, XIcon } from 'lucide-react';
