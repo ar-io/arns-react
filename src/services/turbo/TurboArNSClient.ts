@@ -161,8 +161,8 @@ export class TurboArNSClient {
       token: isArweaveTransactionID(this.walletAddress)
         ? 'arweave'
         : isEthAddress(this.walletAddress ?? '')
-        ? 'ethereum'
-        : undefined,
+          ? 'ethereum'
+          : undefined,
     });
     this.arioProcessId =
       this.paymentUrl === devPaymentServiceFqdn
@@ -403,7 +403,7 @@ export class TurboArNSClient {
         : '';
     const response = await fetch(url.concat(queryString));
 
-    if (response.status == 404) {
+    if (response.status === 404) {
       return {
         winc: '0',
         adjustments: [],

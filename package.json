@@ -6,13 +6,14 @@
   "scripts": {
     "build": "yarn clean && tsc --build tsconfig.json && NODE_OPTIONS=--max-old-space-size=32768 vite build",
     "storybook": "storybook dev -p 6006",
+    "lint": "biome check",
+    "lint:fix": "biome check --write --unsafe",
+    "format:fix": "biome format --write",
+    "format:check": "biome format",
     "build-storybook": "storybook build",
     "publish:arweave": "yarn build && permaweb-deploy --arns-name $VITE_ARNS_NAME ",
     "clean": "rimraf dist",
     "dev": "NODE_ENV=prod VITE_GITHUB_HASH=local vite",
-    "format": "prettier --write .",
-    "lint:fix": "eslint --fix .",
-    "lint:check": "eslint .",
     "preview": "vite preview",
     "test": "NODE_ENV=test jest",
     "test:updateSnapshot": "NODE_ENV=test jest --updateSnapshot",
@@ -109,6 +110,7 @@
     "@typescript-eslint/parser": "^6.19.0",
     "@vitejs/plugin-react": "^4.0.0",
     "autoprefixer": "^10.4.20",
+    "@biomejs/biome": "^1.9.4",
     "core-js": "^3.26.1",
     "eslint": "^8.27.0",
     "eslint-config-prettier": "^8.5.0",
@@ -153,17 +155,9 @@
     "vite-plugin-svgr": "^2.2.2"
   },
   "lint-staged": {
-    "src/**/*.{ts,tsx}": [
-      "eslint ."
-    ],
-    "**/*.{ts,tsx,js,md,json}": [
-      "prettier --write ."
+    "**/*.{ts,tsx,js,jsx,json}": [
+      "biome check --write --files-ignore-unknown=true --no-errors-on-unmatched"
     ]
   },
-  "packageManager": "yarn@1.22.22",
-  "eslintConfig": {
-    "extends": [
-      "plugin:storybook/recommended"
-    ]
-  }
+  "packageManager": "yarn@1.22.22"
 }

@@ -1,14 +1,36 @@
 {
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.defaultFormatter": "biomejs.biome",
   "editor.formatOnSave": true,
   "editor.formatOnPaste": true,
   "editor.formatOnSaveMode": "file",
-  "prettier.configPath": ".prettierrc",
-  "prettier.prettierPath": "./node_modules/prettier/index.js",
+  "editor.codeActionsOnSave": {
+    "quickfix.biome": "explicit",
+    "source.organizeImports.biome": "explicit"
+  },
+  "biome.lspBin": "biome",
+  "biome.rename": true,
   "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.formatOnSave": true
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.formatOnSave": true
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.formatOnSave": true
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.formatOnSave": true
+  },
+  "[json]": {
+    "editor.defaultFormatter": "biomejs.biome",
     "editor.formatOnSave": true
   },
   "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true
   },
   "search.exclude": {

@@ -82,11 +82,11 @@ export const SelectDropdown = ({
         aria-label={label}
       >
         {value ? (
-          renderValue?.(
+          (renderValue?.(
             <Select.Value aria-label={value}>
               {options?.find((o) => o.value === value)?.label}
             </Select.Value>,
-          ) ?? <Select.Value aria-label={value}>{placeholder}</Select.Value>
+          ) ?? <Select.Value aria-label={value}>{placeholder}</Select.Value>)
         ) : (
           <Select.Value aria-label={value}>
             {options?.find((o) => o.value === value)?.label}

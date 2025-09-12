@@ -155,7 +155,7 @@ function UpgradeDomainsModal({
                   console.debug(step, domainData);
                 },
               });
-            } catch (error) {
+            } catch {
               failedUpgrades.push(domain);
             }
             setProgress((prev) =>
@@ -305,8 +305,8 @@ function UpgradeDomainsModal({
             {!accepted && progress < 0
               ? 'Verify you understand before proceeding'
               : progress >= 0
-              ? 'Updating, please wait...'
-              : 'Upgrade'}
+                ? 'Updating, please wait...'
+                : 'Upgrade'}
           </button>
         </div>
       </div>

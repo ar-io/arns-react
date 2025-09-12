@@ -54,7 +54,7 @@ export default function TargetIDRow({
         labelTooltip={`This is the transaction id of the '@' record of the ANT. All associated names will point to this transaction id.`}
         editable={editable}
         value={
-          typeof targetId == 'string' ? (
+          typeof targetId === 'string' ? (
             !editing && isArweaveTransactionID(targetId) ? (
               <ArweaveID
                 id={new ArweaveTransactionID(targetId)}

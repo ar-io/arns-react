@@ -42,20 +42,20 @@ function ValidationList({
             }}
           >
             {validationItem.status
-              ? customSuccessIcon ?? (
+              ? (customSuccessIcon ?? (
                   <CircleCheck
                     width={20}
                     height={20}
                     fill={'var(--success-green)'}
                   />
-                )
-              : customErrorIcon ?? (
+                ))
+              : (customErrorIcon ?? (
                   <CircleXIcon
                     width={20}
                     height={20}
                     fill={'var(--error-red)'}
                   />
-                )}
+                ))}
             {validationItem.name}
           </span>
           {validationItem.error ? (

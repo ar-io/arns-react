@@ -143,7 +143,7 @@ export function buildDomainInfoQuery({
 
       const associatedNames = arnsRecords
         ? Object.entries(arnsRecords)
-            .filter(([, r]) => r.processId == processId.toString())
+            .filter(([, r]) => r.processId === processId.toString())
             .map(([d]) => d)
         : [];
 

@@ -53,7 +53,7 @@ export default function LogoRow({
         label="Logo"
         editable={editable}
         value={
-          typeof logoTxId == 'string' ? (
+          typeof logoTxId === 'string' ? (
             !editing && isArweaveTransactionID(logoTxId) ? (
               // TODO: render the logo in a tooltip
               <ArweaveID

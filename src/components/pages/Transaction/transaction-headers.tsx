@@ -2,7 +2,6 @@ import { ANT_INTERACTION_TYPES, ARNS_INTERACTION_TYPES } from '@src/types';
 
 export function getTransactionHeader({
   workflowName,
-  ...params // eslint-disable-line @typescript-eslint/no-unused-vars
 }: {
   workflowName: ARNS_INTERACTION_TYPES | ANT_INTERACTION_TYPES;
 } & Record<string, any>) {

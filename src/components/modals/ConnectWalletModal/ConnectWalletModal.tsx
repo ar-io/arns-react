@@ -108,7 +108,7 @@ function ConnectWalletModal(): JSX.Element {
   }
 
   return (
-    // eslint-disable-next-line
+    // biome-ignore lint/a11y/useKeyWithClickEvents: Modal backdrop click handler
     <div
       className="modal-container"
       ref={modalRef}

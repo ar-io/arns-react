@@ -70,8 +70,8 @@ function TransactionCost({
                 {ioFee !== undefined && ioFee >= 0
                   ? `${ioFee.toLocaleString()} ${arioTicker} `
                   : ioRequired
-                  ? `Calculating ${arioTicker}  `
-                  : ''}
+                    ? `Calculating ${arioTicker}  `
+                    : ''}
                 {/* <ArPrice dataSize={SMARTWEAVE_TAG_SIZE} /> */}
               </>
             )}

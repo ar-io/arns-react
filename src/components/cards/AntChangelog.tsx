@@ -56,7 +56,7 @@ function AntChangelog({ className }: { className?: string }) {
           h1: ({ children }) => {
             return (
               <div>
-                {children == 'Change Log' ? (
+                {children === 'Change Log' ? (
                   <></>
                 ) : (
                   <h1 className="pb-4 text-2xl whitespace-nowrap">
@@ -70,7 +70,7 @@ function AntChangelog({ className }: { className?: string }) {
             const [version, id, releaseDate] = (children[0] as string)
               .trim()
               .split(' - ');
-            const isFirstHeader = index == 0;
+            const isFirstHeader = index === 0;
 
             if (!isArweaveTransactionID(id)) {
               return <></>;

@@ -248,13 +248,13 @@ const ReturnedNamesTable = ({
   ].map((key) =>
     columnHelper.accessor(key as keyof TableData, {
       id: key,
-      size: key == 'action' || key == 'openRow' ? 20 : undefined,
+      size: key === 'action' || key === 'openRow' ? 20 : undefined,
       header:
-        key == 'action' || key == 'openRow'
+        key === 'action' || key === 'openRow'
           ? ''
-          : key == 'leasePrice'
-          ? 'Price for 1 Year'
-          : camelToReadable(key),
+          : key === 'leasePrice'
+            ? 'Price for 1 Year'
+            : camelToReadable(key),
       sortDescFirst: true,
       sortingFn: 'alphanumeric',
       cell: ({ row }) => {
@@ -428,8 +428,8 @@ const ReturnedNamesTable = ({
             filteredTableData.length
               ? filteredTableData
               : tableData.length
-              ? tableData
-              : []
+                ? tableData
+                : []
           }
           isLoading={false}
           noDataFoundText={
@@ -458,7 +458,7 @@ const ReturnedNamesTable = ({
           }
           defaultSortingState={{
             id: sortBy,
-            desc: sortBy == 'closingData' ? false : true,
+            desc: sortBy === 'closingData' ? false : true,
           }}
           renderSubComponent={({ row }) => <RNPChartSubComponent row={row} />}
           tableClass="overflow-hidden rounded"

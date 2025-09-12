@@ -38,7 +38,7 @@ function SettingsLayout() {
                   key={route.path}
                   to={route.path}
                   className={`${
-                    location?.pathname?.split('/')?.at(-1) == route.path
+                    location?.pathname?.split('/')?.at(-1) === route.path
                       ? 'bg-[#222224] text-white fill-white'
                       : ' text-white fill-white  opacity-[0.4]'
                   } flex flex-row py-1.5 px-4 items-center justify-start whitespace-nowrap rounded-md hover:opacity-100 transition-all text-sm`}

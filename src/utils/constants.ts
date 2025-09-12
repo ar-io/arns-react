@@ -99,7 +99,7 @@ export const ARIO_PROCESS_ID =
 export const ANT_REGISTRY_TESTNET_PROCESS_ID =
   'RR0vheYqtsKuJCWh6xj0beE35tjaEug5cejMw9n2aa8';
 export const ANT_REGISTRY_PROCESS_ID =
-  import.meta.env.VITE_NODE_ENV == 'production'
+  import.meta.env.VITE_NODE_ENV === 'production'
     ? ANT_REGISTRY_ID
     : ANT_REGISTRY_TESTNET_PROCESS_ID;
 
@@ -116,7 +116,7 @@ export const devPaymentServiceFqdn = 'payment.ardrive.dev';
 export const prodPaymentServiceFqdn = 'payment.ardrive.io';
 
 export const PAYMENT_SERVICE_FQDN =
-  import.meta.env.VITE_NODE_ENV == 'production'
+  import.meta.env.VITE_NODE_ENV === 'production'
     ? prodPaymentServiceFqdn
     : devPaymentServiceFqdn;
 
@@ -128,7 +128,7 @@ export const prodStripePublishableKey =
   'pk_live_51JUAtwC8apPOWkDLMQqNF9sPpfneNSPnwX8YZ8y1FNDl6v94hZIwzgFSYl27bWE4Oos8CLquunUswKrKcaDhDO6m002Yj9AeKj';
 
 export const STRIPE_PUBLISHABLE_KEY =
-  import.meta.env.VITE_NODE_ENV == 'production'
+  import.meta.env.VITE_NODE_ENV === 'production'
     ? prodStripePublishableKey
     : devStripePublishableKey;
 

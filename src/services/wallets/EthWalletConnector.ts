@@ -110,7 +110,7 @@ export class EthWalletConnector implements ArNSWalletConnector {
       }
 
       await connect(this.config, { connector: this.connector });
-    } catch (error) {
+    } catch {
       localStorage.removeItem('walletType');
       throw new MetamaskError('User cancelled authentication.');
     }
