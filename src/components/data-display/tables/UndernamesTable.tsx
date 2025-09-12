@@ -30,7 +30,7 @@ import {
   encodePrimaryName,
   formatForMaxCharCount,
 } from '@src/utils';
-import { MIN_ANT_VERSION, NETWORK_DEFAULTS } from '@src/utils/constants';
+import { MIN_ANT_VERSION } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import Lottie from 'lottie-react';
@@ -68,8 +68,9 @@ const UndernamesTable = ({
   state?: AoANTState | null;
   isLoading: boolean;
 }) => {
-  const [{ arioProcessId, antAoClient, hyperbeamUrl, antRegistryProcessId }] =
-    useGlobalState();
+  const [
+    { arioProcessId, antAoClient, hyperbeamUrl, antRegistryProcessId, gateway },
+  ] = useGlobalState();
   const [, dispatchArNSState] = useArNSState();
 
   const [{ wallet, walletAddress }] = useWalletState();
@@ -324,9 +325,7 @@ const UndernamesTable = ({
                     className="link gap-2 items-center w-fit"
                     to={`https://${
                       rowValue === '@' ? '' : `${rowValue}_`
-                    }${encodeDomainToASCII(arnsRecord.name)}.${
-                      NETWORK_DEFAULTS.ARNS.HOST
-                    }`}
+                    }${encodeDomainToASCII(arnsRecord.name)}.${gateway}`}
                     target="_blank"
                   >
                     {formatForMaxCharCount(decodeDomainToASCII(rowValue), 30)}{' '}
