@@ -306,6 +306,7 @@ function HomeSearch() {
                 ) : (
                   <div className="flex flex-row w-full justify-between mt-4">
                     <span className="text-xl text-grey">
+                      {/* this should use global state gateway, but don't want to introduce global state to this component */}
                       {decodeDomainToASCII(domainQuery)}.
                       {NETWORK_DEFAULTS.ARNS.HOST}
                     </span>

@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Use global state gateway for domain table and returned names table links
+
 ## [1.24.2] - 2025-09-10
 
 ### Fixed
