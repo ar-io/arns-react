@@ -119,6 +119,7 @@ export default async function dispatchArIOInteraction({
             paymentMethodId,
             email,
             intent: 'Buy-Record',
+            promoCode,
           });
           result = buyRecordResult;
         } else {
@@ -153,6 +154,7 @@ export default async function dispatchArIOInteraction({
             intent: 'Extend-Lease',
             paymentMethodId: payload.paymentMethodId,
             email: payload.email,
+            promoCode: payload.promoCode,
           });
         } else {
           result = await arioContract.extendLease(
@@ -179,6 +181,7 @@ export default async function dispatchArIOInteraction({
             intent: 'Increase-Undername-Limit',
             paymentMethodId: payload.paymentMethodId,
             email: payload.email,
+            promoCode,
           });
         } else {
           result = await arioContract.increaseUndernameLimit(
