@@ -336,6 +336,7 @@ function Checkout() {
         ),
         turboArNSClient: turbo,
         hyperbeamUrl,
+        promoCode,
       });
     } catch (error) {
       eventEmitter.emit('error', error);
