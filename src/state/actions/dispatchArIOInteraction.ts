@@ -38,6 +38,7 @@ export default async function dispatchArIOInteraction({
   fundFrom,
   turboArNSClient,
   paidBy,
+  promoCode,
 }: {
   payload: Record<string, any>;
   workflowName: ARNS_INTERACTION_TYPES;
@@ -52,6 +53,7 @@ export default async function dispatchArIOInteraction({
   fundFrom?: FundFrom | 'fiat';
   turboArNSClient?: TurboArNSClient;
   paidBy?: string[];
+  promoCode?: string;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult<MessageResult | unknown> | undefined = undefined;
   try {
@@ -269,6 +271,7 @@ export default async function dispatchArIOInteraction({
             intent: 'Upgrade-Name',
             paymentMethodId: payload.paymentMethodId,
             email: payload.email,
+            promoCode,
           });
         } else {
           result = await arioContract.upgradeRecord(
