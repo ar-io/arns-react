@@ -8,6 +8,14 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.25.0] - 2025-09-24
+
+### Changed
+
+- Use `.upgrade` for from `ar.io/sdk@3.19.0` for upgrade domains workflow
+- Improve UpgradeDomainsModal to ensure ANTs and names are loaded before showing
+- Add individual domain progress tracking with real-time status updates
+
 ## [1.24.3] - 2025-09-12
 
 ### Fixed
