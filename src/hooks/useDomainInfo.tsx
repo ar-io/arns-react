@@ -90,7 +90,7 @@ export function buildDomainInfoQuery({
               buildArNSRecordsQuery({
                 arioContract,
                 filters: {
-                  processId: arioProcessId,
+                  processId: antId,
                 },
               }),
             )

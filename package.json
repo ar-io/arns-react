@@ -1,7 +1,7 @@
 {
   "name": "arns-vite-react",
   "private": true,
-  "version": "1.24.2",
+  "version": "1.25.0",
   "homepage": ".",
   "scripts": {
     "build": "yarn clean && tsc --build tsconfig.json && NODE_OPTIONS=--max-old-space-size=32768 vite build",
@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "5.4.0",
-    "@ar.io/sdk": "^3.19.0-alpha.10",
+    "@ar.io/sdk": "^3.19.0",
     "@ar.io/wayfinder-core": "^1.0.4",
     "@ar.io/wayfinder-react": "^1.0.11",
     "@ardrive/turbo-sdk": "^1.23.1",

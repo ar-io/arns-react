@@ -282,6 +282,7 @@ export default async function dispatchANTInteraction({
         break;
 
       case ANT_INTERACTION_TYPES.UPGRADE_ANT: {
+        console.log('UPGRADE_ANT', antProcess);
         /**
          * For now, we will reassign just the single name, but in the future we will reassign all names affiliated with the process id
          * using reassignAllAffiliatedNames = true on this call.
