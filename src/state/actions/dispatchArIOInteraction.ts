@@ -38,6 +38,7 @@ export default async function dispatchArIOInteraction({
   fundFrom,
   turboArNSClient,
   paidBy,
+  promoCode,
 }: {
   payload: Record<string, any>;
   workflowName: ARNS_INTERACTION_TYPES;
@@ -52,6 +53,7 @@ export default async function dispatchArIOInteraction({
   fundFrom?: FundFrom | 'fiat';
   turboArNSClient?: TurboArNSClient;
   paidBy?: string[];
+  promoCode?: string;
 }): Promise<ContractInteraction> {
   let result: AoMessageResult<MessageResult | unknown> | undefined = undefined;
   try {
@@ -117,6 +119,7 @@ export default async function dispatchArIOInteraction({
             paymentMethodId,
             email,
             intent: 'Buy-Record',
+            promoCode,
           });
           result = buyRecordResult;
         } else {
@@ -151,6 +154,7 @@ export default async function dispatchArIOInteraction({
             intent: 'Extend-Lease',
             paymentMethodId: payload.paymentMethodId,
             email: payload.email,
+            promoCode: payload.promoCode,
           });
         } else {
           result = await arioContract.extendLease(
@@ -177,6 +181,7 @@ export default async function dispatchArIOInteraction({
             intent: 'Increase-Undername-Limit',
             paymentMethodId: payload.paymentMethodId,
             email: payload.email,
+            promoCode,
           });
         } else {
           result = await arioContract.increaseUndernameLimit(
@@ -269,6 +274,7 @@ export default async function dispatchArIOInteraction({
             intent: 'Upgrade-Name',
             paymentMethodId: payload.paymentMethodId,
             email: payload.email,
+            promoCode,
           });
         } else {
           result = await arioContract.upgradeRecord(

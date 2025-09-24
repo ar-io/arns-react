@@ -9,13 +9,19 @@ import ArweaveID, { ArweaveIdTypes } from '../layout/ArweaveID/ArweaveID';
 function AntChangelog({ className }: { className?: string }) {
   const { data: versions, isLoading, refetch, error } = useANTVersions();
   if (isLoading) {
-    return <Loader size={80} />;
+    return (
+      <div className="flex justify-center items-center h-full">
+        <Loader size={80} />
+      </div>
+    );
   }
   if (!versions || Object.keys(versions).length === 0 || error) {
     return (
-      <div className="text-grey">
+      <div className="flex flex-col justify-center items-center h-full text-grey">
         No versions found
-        <button onClick={() => refetch()}>Refresh</button>
+        <button className="button-secondary" onClick={() => refetch()}>
+          Refresh
+        </button>
       </div>
     );
   }
