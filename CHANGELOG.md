@@ -10,11 +10,17 @@ and this project adheres to
 
 ## [1.25.0] - 2025-09-24
 
-### Fixed
+### Changed
 
 - Use `.upgrade` for from `ar.io/sdk@3.19.0` for upgrade domains workflow
 - Improve UpgradeDomainsModal to ensure ANTs and names are loaded before showing
 - Add individual domain progress tracking with real-time status updates
+
+## [1.24.3] - 2025-09-12
+
+### Fixed
+
+- Use global state gateway for domain table and returned names table links
 
 ## [1.24.2] - 2025-09-10
 

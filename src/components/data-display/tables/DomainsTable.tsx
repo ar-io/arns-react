@@ -35,7 +35,6 @@ import {
 } from '@src/utils';
 import {
   MIN_ANT_VERSION,
-  NETWORK_DEFAULTS,
   PERMANENT_DOMAIN_MESSAGE,
 } from '@src/utils/constants';
 import { ANTStateError } from '@src/utils/errors';
@@ -119,8 +118,9 @@ const DomainsTable = ({
 }) => {
   const navigate = useNavigate();
   const [{ walletAddress }] = useWalletState();
-  const [{ arioProcessId, aoNetwork, hyperbeamUrl, antRegistryProcessId }] =
-    useGlobalState();
+  const [
+    { arioProcessId, aoNetwork, hyperbeamUrl, antRegistryProcessId, gateway },
+  ] = useGlobalState();
   const [{ loading: loadingArnsState }, dispatchArNSState] = useArNSState();
   const [, dispatchModalState] = useModalState();
   const [, dispatchTransactionState] = useTransactionState();
@@ -293,9 +293,9 @@ const DomainsTable = ({
                 icon={
                   <Link
                     className="link gap-2 w-fit whitespace-nowrap items-center"
-                    to={`https://${encodeDomainToASCII(row.getValue('name'))}.${
-                      NETWORK_DEFAULTS.ARNS.HOST
-                    }`}
+                    to={`https://${encodeDomainToASCII(
+                      row.getValue('name'),
+                    )}.${gateway}`}
                     target="_blank"
                   >
                     {formatForMaxCharCount(decodeDomainToASCII(rowValue), 20)}{' '}

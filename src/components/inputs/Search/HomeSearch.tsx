@@ -4,8 +4,8 @@ import DomainDetailsTip from '@src/components/Tooltips/DomainDetailsTip';
 import { Tooltip } from '@src/components/data-display';
 import { RNPChart } from '@src/components/data-display/charts/RNPChart';
 import { CircleCheckFilled, SearchIcon } from '@src/components/icons';
+import { useGlobalState } from '@src/state';
 import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
-import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import Lottie from 'lottie-react';
 import { ChevronRight, CircleAlert, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -40,6 +40,7 @@ function HomeSearch() {
   const [domainRecord, setDomainRecord] = useState<AoArNSNameData>();
   const [showResults, setShowResults] = useState(true);
   const [isReturnedName, setIsReturnedName] = useState(false);
+  const [{ gateway }] = useGlobalState();
 
   useEffect(() => {
     validateDomain(domainQuery);
@@ -306,8 +307,7 @@ function HomeSearch() {
                 ) : (
                   <div className="flex flex-row w-full justify-between mt-4">
                     <span className="text-xl text-grey">
-                      {decodeDomainToASCII(domainQuery)}.
-                      {NETWORK_DEFAULTS.ARNS.HOST}
+                      {decodeDomainToASCII(domainQuery)}.{gateway}
                     </span>
                     <button
                       className="text-[12px] text-white whitespace-nowrap flex items-center"
