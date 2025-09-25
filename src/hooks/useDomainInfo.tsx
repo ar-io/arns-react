@@ -148,7 +148,6 @@ export function buildDomainInfoQuery({
             .filter((r) => r.processId == processId.toString())
             .map((r) => r.name)
         : [];
-      console.log('associatedNames', associatedNames);
 
       const {
         Name: name,

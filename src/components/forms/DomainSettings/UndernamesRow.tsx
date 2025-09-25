@@ -2,7 +2,7 @@ import { Tooltip } from '@src/components/data-display';
 import { NewspaperIcon } from '@src/components/icons';
 import { lowerCaseDomain } from '@src/utils';
 import { Skeleton } from 'antd';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import DomainSettingsRow from './DomainSettingsRow';
 
@@ -16,6 +16,7 @@ export default function UndernamesRow({
   undernameLimit: number;
   undernameSupport: number;
 }) {
+  const navigate = useNavigate();
   return (
     <DomainSettingsRow
       label="Undernames"
@@ -66,14 +67,20 @@ export default function UndernamesRow({
                 key={1}
                 message={'Increase undername support'}
                 icon={
-                  <Link
-                    className={`p-2 px-[8px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap`}
-                    to={`/manage/names/${lowerCaseDomain(
-                      domain || '',
-                    )}/upgrade-undernames`}
+                  <button
+                    className={
+                      'p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap hover:scale-105'
+                    }
+                    onClick={() => {
+                      navigate(
+                        `/manage/names/${lowerCaseDomain(
+                          domain || '',
+                        )}/upgrade-undernames`,
+                      );
+                    }}
                   >
                     Increase Undernames
-                  </Link>
+                  </button>
                 }
               />,
             ]
