@@ -14,7 +14,7 @@ import { Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { decodeDomainToASCII } from '../../../utils';
+import { decodeDomainToASCII, lowerCaseDomain } from '../../../utils';
 import './styles.css';
 
 function ManageDomain() {
@@ -141,7 +141,7 @@ function ManageDomain() {
         </div>
         <div className="w-full ">
           <DomainSettings
-            domain={name}
+            domain={lowerCaseDomain(name || '')}
             setLogo={(id?: string) => setLogoId(id)}
           />
         </div>
@@ -155,7 +155,7 @@ function ManageDomain() {
               undernames={domainData?.records || {}}
               state={domainData?.state}
               arnsRecord={{
-                name: domainData?.name || '',
+                name: lowerCaseDomain(name || ''),
                 version: 0,
                 undernameLimit: domainData?.arnsRecord?.undernameLimit || 0,
                 processId: domainData?.arnsRecord?.processId || '',
