@@ -508,6 +508,7 @@ function DomainSettings({
           [DomainSettingsRowTypes.UNDERNAMES]: (
             <UndernamesRow
               key={DomainSettingsRowTypes.UNDERNAMES}
+              domain={domain}
               undernameLimit={data?.undernameCount ?? 0}
               undernameSupport={
                 data?.arnsRecord?.undernameLimit ?? DEFAULT_MAX_UNDERNAMES

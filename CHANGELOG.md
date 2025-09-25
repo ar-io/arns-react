@@ -8,6 +8,14 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.25.1] - 2025-09-25
+
+### Fixed
+
+- Link to correct undername url on Manage Domain page
+- Show Increase Undernames button on Manage Domain page
+- Update Associated Names rendering on Manage Domain page
+
 ## [1.25.0] - 2025-09-24
 
 ### Changed

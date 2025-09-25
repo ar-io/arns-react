@@ -1,24 +1,29 @@
+import { Tooltip } from '@src/components/data-display';
 import { NewspaperIcon } from '@src/components/icons';
+import { lowerCaseDomain } from '@src/utils';
 import { Skeleton } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
 import DomainSettingsRow from './DomainSettingsRow';
 
 export default function UndernamesRow({
   undernameLimit,
   undernameSupport,
+  domain,
 }: {
   domain?: string;
   antId?: string;
   undernameLimit: number;
   undernameSupport: number;
 }) {
+  const navigate = useNavigate();
   return (
     <DomainSettingsRow
       label="Undernames"
       labelTooltip={`
         Adding undernames to this ANT will affect resolution for all associated names.
       `}
-      editable={true}
+      editable={!!domain && domain.length > 0}
       value={
         <span
           className="flex center"
@@ -54,6 +59,32 @@ export default function UndernamesRow({
             fill="var(--text-grey)"
           />
         </span>
+      }
+      action={
+        domain && domain.length > 0
+          ? [
+              <Tooltip
+                key={1}
+                message={'Increase undername support'}
+                icon={
+                  <button
+                    className={
+                      'p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap hover:scale-105'
+                    }
+                    onClick={() => {
+                      navigate(
+                        `/manage/names/${lowerCaseDomain(
+                          domain || '',
+                        )}/upgrade-undernames`,
+                      );
+                    }}
+                  >
+                    Increase Undernames
+                  </button>
+                }
+              />,
+            ]
+          : []
       }
     />
   );
