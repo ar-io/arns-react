@@ -207,7 +207,12 @@ const Confirm = () => {
                   operation === 'bid' ? mutationBidListing : mutationBuyListing;
 
                 if (!price) {
-                  throw new Error('price is missing');
+                  eventEmitter.emit('error', {
+                    name: 'Validation',
+                    message: 'Price is required',
+                  });
+
+                  return;
                 }
 
                 mutation.mutate(

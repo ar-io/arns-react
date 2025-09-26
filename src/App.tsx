@@ -1,5 +1,4 @@
 import { Logger } from '@ar.io/sdk/web';
-import '@blockydevs/arns-marketplace-ui/style.css';
 import * as Sentry from '@sentry/react';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';

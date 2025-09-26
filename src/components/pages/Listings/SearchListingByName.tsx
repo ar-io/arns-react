@@ -78,7 +78,9 @@ const SearchListingByName = () => {
                 variant="primary"
                 type="button"
                 onClick={() => {
-                  navigate(`/register/${mutationSearch.variables}`);
+                  navigate(
+                    `/register/${encodeURIComponent(mutationSearch.variables)}`,
+                  );
                 }}
               >
                 Register
