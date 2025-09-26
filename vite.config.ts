@@ -39,6 +39,7 @@ export default defineConfig({
       : []),
   ],
   define: {
+    'process.env.DEBUG': false,
     __NPM_PACKAGE_VERSION__: JSON.stringify(process.env.npm_package_version),
     'process.env': {
       // DO NOT EXPOSE THE ENTIRE process.env HERE - sensitive information on CI/CD could be exposed.

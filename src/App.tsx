@@ -19,14 +19,26 @@ import NetworkSettings from './components/pages/Settings/NetworkSettings';
 import DevTools from './components/pages/Settings/devtools/DevTools';
 import useSyncSettings from './hooks/useSyncSettings/useSyncSettings';
 import useWanderEvents from './hooks/useWanderEvents/useWanderEvents';
-import './index.css';
 import { useGlobalState } from './state';
 
 // set the log level of ar-io-sdk
 Logger.default.setLogLevel('none');
 
+const MyANTs = React.lazy(() => import('./components/pages/MyANTs/MyANTs'));
+const MyANTsNewListing = React.lazy(
+  () => import('./components/pages/MyANTs/NewListing'),
+);
 const Manage = React.lazy(() => import('./components/pages/Manage/Manage'));
 const Home = React.lazy(() => import('./components/pages/Home/Home'));
+
+const Listings = React.lazy(
+  () => import('./components/pages/Listings/Listings'),
+);
+const Details = React.lazy(
+  () => import('./components/pages/Listings/Details/Details'),
+);
+const Confirm = React.lazy(() => import('./components/pages/Listings/Confirm'));
+
 const ManageANT = React.lazy(
   () => import('./components/pages/ManageANT/ManageANT'),
 );
@@ -333,6 +345,66 @@ function App() {
                 }
               >
                 <Checkout />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/listings"
+            element={
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                <Listings />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/listings/:id"
+            element={
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                <Details />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/listings/:id/confirm-purchase"
+            element={
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                <Confirm />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/my-ants"
+            element={
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                <MyANTs />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/my-ants/new-listing/:antProcessId"
+            element={
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                <MyANTsNewListing />
               </Suspense>
             }
           />

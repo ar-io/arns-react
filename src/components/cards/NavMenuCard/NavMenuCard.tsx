@@ -363,7 +363,16 @@ function NavMenuCard() {
                     >
                       What are ARIO tokens?
                     </Link>
-                  </span>{' '}
+                  </span>
+                  <span className="flex gap-2.5">
+                    <TokenIcon fill="var(--text-grey)" width={16} height={16} />
+                    <Link
+                      to="/my-ants"
+                      className="navbar-link hover gap-2.5 items-center text-white text-sm"
+                    >
+                      My ANTs
+                    </Link>
+                  </span>
                   <span className="flex flex-row" style={{ gap: '10px' }}>
                     <Settings2Icon
                       className="text-grey"
