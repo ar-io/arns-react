@@ -18,9 +18,13 @@ const FixedListingPriceSection = ({ listing }: Props) => {
     const antProcessId = listing.antProcessId;
     const currentPrice = getCurrentListingArioPrice(listing);
 
-    navigate(
-      `/listings/${orderId}/confirm-purchase?price=${currentPrice}&type=fixed&name=${name}&antProcessId=${antProcessId}`,
-    );
+    const params = new URLSearchParams({
+      price: String(currentPrice),
+      type: 'fixed',
+      name,
+      antProcessId,
+    }).toString();
+    navigate(`/listings/${orderId}/confirm-purchase?${params}`);
   };
 
   return (

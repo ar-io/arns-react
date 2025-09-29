@@ -18,9 +18,13 @@ const DutchListingPriceSection = ({ listing }: Props) => {
     const antProcessId = listing.antProcessId;
     const currentPrice = getCurrentListingArioPrice(listing);
 
-    navigate(
-      `/listings/${orderId}/confirm-purchase?price=${currentPrice}&type=dutch&name=${name}&antProcessId=${antProcessId}`,
-    );
+    const params = new URLSearchParams({
+      price: String(currentPrice),
+      type: 'dutch',
+      name,
+      antProcessId,
+    }).toString();
+    navigate(`/listings/${orderId}/confirm-purchase?${params}`);
   };
 
   return (
