@@ -1,6 +1,13 @@
+import MyANTs from '@src/components/pages/MyANTs/MyANTs';
 import Prices from '@src/components/pages/Prices/Prices';
 import RNPPage from '@src/components/pages/RNPPage/RNPPage';
-import { Bolt, CalendarRange, CircleDollarSignIcon, Gavel } from 'lucide-react';
+import {
+  AppWindow,
+  Bolt,
+  CalendarRange,
+  CircleDollarSignIcon,
+  Gavel,
+} from 'lucide-react';
 
 import { Home, Listings, Manage } from '../components/pages';
 
@@ -23,6 +30,12 @@ const WrappedCalendarRangeIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
   props,
 ) => {
   return <CalendarRange {...props} />;
+};
+
+const WrappedAppWindowIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
+  props,
+) => {
+  return <AppWindow {...props} />;
 };
 
 export type Route = {
@@ -56,6 +69,14 @@ export const ROUTES: { [x: string]: Route } = {
     icon: WrappedGavelIcon,
     path: '/returned-names',
     component: RNPPage,
+    protected: false,
+    index: false,
+  },
+  myANTs: {
+    text: 'My Ants',
+    icon: WrappedAppWindowIcon,
+    path: '/my-ants',
+    component: MyANTs,
     protected: false,
     index: false,
   },
