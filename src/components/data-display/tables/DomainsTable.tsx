@@ -41,7 +41,7 @@ import { ANTStateError } from '@src/utils/errors';
 import { queryClient } from '@src/utils/network';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { capitalize } from 'lodash';
-import { CircleCheck, Star } from 'lucide-react';
+import { BookCopy, CircleCheck, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link, useNavigate } from 'react-router-dom';
@@ -470,7 +470,7 @@ const DomainsTable = ({
           case 'action': {
             return (
               <div className="flex justify-end w-full">
-                <span className="flex  pr-3 w-fit gap-3">
+                <span className="flex pr-3 w-fit gap-3">
                   {row.getValue('role') === 'owner' ? (
                     <Tooltip
                       message={
@@ -529,6 +529,25 @@ const DomainsTable = ({
                     />
                   ) : (
                     <></>
+                  )}
+                  {row.getValue('role') === 'owner' && (
+                    <Tooltip
+                      message="Sell"
+                      icon={
+                        <button
+                          disabled={row.original.version < MIN_ANT_VERSION}
+                          onClick={() =>
+                            navigate(
+                              `/my-ants/new-listing/${
+                                row.original.processId
+                              }?name=${lowerCaseDomain(row.original.name)}`,
+                            )
+                          }
+                        >
+                          <BookCopy className="w-[18px] text-grey" />
+                        </button>
+                      }
+                    />
                   )}
                   <ManageAssetButtons
                     id={lowerCaseDomain(row.getValue('name') as string)}

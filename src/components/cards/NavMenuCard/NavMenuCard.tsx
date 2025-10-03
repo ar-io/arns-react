@@ -363,7 +363,7 @@ function NavMenuCard() {
                     >
                       What are ARIO tokens?
                     </Link>
-                  </span>{' '}
+                  </span>
                   <span className="flex flex-row" style={{ gap: '10px' }}>
                     <Settings2Icon
                       className="text-grey"

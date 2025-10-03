@@ -54,7 +54,6 @@ function NavGroup() {
     <div className="flex-right flex size-fit gap-4 items-center">
       {!isMobile ? (
         <>
-          {' '}
           <NotificationMenu />
           {links}
           {!wallet || !walletAddress ? <ConnectButton /> : <NavMenuCard />}

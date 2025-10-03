@@ -1,3 +1,5 @@
+import '@blockydevs/arns-marketplace-ui/style.css';
+import '@src/index.css';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider } from 'antd';
 import React from 'react';
@@ -7,7 +9,6 @@ import { mainnet } from 'wagmi/chains';
 import { metaMask } from 'wagmi/connectors';
 
 import App from './App';
-import './index.css';
 import {
   ArNSStateProvider,
   GlobalStateProvider,
