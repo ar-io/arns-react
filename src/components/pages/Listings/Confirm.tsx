@@ -1,5 +1,3 @@
-import { createAoSigner } from '@ar.io/sdk';
-import { bidListing, buyListing } from '@blockydevs/arns-marketplace-data';
 import {
   Button,
   Card,
@@ -8,14 +6,12 @@ import {
   Row,
   Spinner,
 } from '@blockydevs/arns-marketplace-ui';
-import { useGlobalState, useWalletState } from '@src/state';
+import { useBidListing } from '@src/hooks/listings/useBidListing';
+import { useBuyListing } from '@src/hooks/listings/useBuyListing';
+import { useWalletState } from '@src/state';
 import eventEmitter from '@src/utils/events';
-import {
-  BLOCKYDEVS_MARKETPLACE_PROCESS_ID,
-  BLOCKYDEVS_SWAP_TOKEN_ID,
-  marketplaceQueryKeys,
-} from '@src/utils/marketplace';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { marketplaceQueryKeys } from '@src/utils/marketplace';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 const Confirm = () => {
@@ -24,80 +20,15 @@ const Confirm = () => {
   const navigate = useNavigate();
 
   const queryClient = useQueryClient();
-  const [{ antAoClient }] = useGlobalState();
-  const [{ wallet, walletAddress }] = useWalletState();
+  const [{ walletAddress }] = useWalletState();
 
   const name = searchParams[0].get('name') ?? '-';
   const antProcessId = searchParams[0].get('antProcessId');
   const price = searchParams[0].get('price');
   const type = searchParams[0].get('type');
 
-  const mutationBuyListing = useMutation({
-    mutationFn: async ({ price }: { price: string }) => {
-      if (!wallet || !walletAddress) {
-        throw new Error('No wallet connected');
-      }
-
-      if (!wallet.contractSigner) {
-        throw new Error('No wallet signer available');
-      }
-
-      if (!antProcessId) {
-        throw new Error('antProcessId is missing');
-      }
-
-      if (!listingId) {
-        throw new Error('listingId is missing');
-      }
-
-      if (type !== 'fixed' && type !== 'dutch') {
-        throw new Error(`invalid listing type for buy: ${type}`);
-      }
-
-      return await buyListing({
-        ao: antAoClient,
-        orderId: listingId,
-        price,
-        marketplaceProcessId: BLOCKYDEVS_MARKETPLACE_PROCESS_ID,
-        antTokenId: antProcessId,
-        swapTokenId: BLOCKYDEVS_SWAP_TOKEN_ID,
-        walletAddress: walletAddress.toString(),
-        signer: createAoSigner(wallet.contractSigner),
-        orderType: type,
-      });
-    },
-  });
-
-  const mutationBidListing = useMutation({
-    mutationFn: async ({ price }: { price: string }) => {
-      if (!wallet || !walletAddress) {
-        throw new Error('No wallet connected');
-      }
-
-      if (!wallet.contractSigner) {
-        throw new Error('No wallet signer available');
-      }
-
-      if (!antProcessId) {
-        throw new Error('antProcessId is missing');
-      }
-
-      if (!listingId) {
-        throw new Error('listingId is missing');
-      }
-
-      return await bidListing({
-        ao: antAoClient,
-        orderId: listingId,
-        bidPrice: price,
-        marketplaceProcessId: BLOCKYDEVS_MARKETPLACE_PROCESS_ID,
-        antTokenId: antProcessId,
-        swapTokenId: BLOCKYDEVS_SWAP_TOKEN_ID,
-        walletAddress: walletAddress.toString(),
-        signer: createAoSigner(wallet.contractSigner),
-      });
-    },
-  });
+  const mutationBuyListing = useBuyListing(antProcessId, listingId, type);
+  const mutationBidListing = useBidListing(antProcessId, listingId);
 
   const isMutationPending =
     mutationBidListing.isPending || mutationBuyListing.isPending;
