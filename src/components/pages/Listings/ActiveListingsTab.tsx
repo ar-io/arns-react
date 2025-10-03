@@ -28,6 +28,7 @@ const ActiveListingsTab = () => {
     queryKey: marketplaceQueryKeys.listings.list('active', {
       page: pagination.page,
       pageSize: pagination.pageSize,
+      cursor: pagination.cursor,
     }),
     queryFn: () => {
       return fetchActiveListings({

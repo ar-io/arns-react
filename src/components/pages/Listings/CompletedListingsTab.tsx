@@ -28,6 +28,7 @@ const CompletedListingsTab = () => {
     queryKey: marketplaceQueryKeys.listings.list('completed', {
       page: pagination.page,
       pageSize: pagination.pageSize,
+      cursor: pagination.cursor,
     }),
     queryFn: () => {
       return fetchCompletedListings({

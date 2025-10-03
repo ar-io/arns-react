@@ -538,9 +538,9 @@ const DomainsTable = ({
                           disabled={row.original.version < MIN_ANT_VERSION}
                           onClick={() =>
                             navigate(
-                              `/my-ants/new-listing/${row.original.processId.toString()}?name=${
-                                row.original.name
-                              }`,
+                              `/my-ants/new-listing/${
+                                row.original.processId
+                              }?name=${lowerCaseDomain(row.original.name)}`,
                             )
                           }
                         >

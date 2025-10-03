@@ -5,6 +5,7 @@ import {
   SearchInput,
 } from '@blockydevs/arns-marketplace-ui';
 import { useGlobalState } from '@src/state';
+import { lowerCaseDomain } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { BLOCKYDEVS_ACTIVITY_PROCESS_ID } from '@src/utils/marketplace';
 import { useMutation } from '@tanstack/react-query';
@@ -18,7 +19,7 @@ const SearchListingByName = () => {
   const mutationSearch = useMutation({
     mutationFn: async (name: string) => {
       return searchANT({
-        name,
+        name: lowerCaseDomain(name),
         ao: aoClient,
         networkProcessId: arioProcessId,
         activityProcessId: BLOCKYDEVS_ACTIVITY_PROCESS_ID,
