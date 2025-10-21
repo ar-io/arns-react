@@ -39,6 +39,7 @@ export default async function dispatchArIOInteraction({
   turboArNSClient,
   paidBy,
   promoCode,
+  hyperbeamUrl,
 }: {
   payload: Record<string, any>;
   workflowName: ARNS_INTERACTION_TYPES;
@@ -87,6 +88,7 @@ export default async function dispatchArIOInteraction({
             scheduler: scheduler,
             module: payload.antModuleId,
             antRegistryId: payload.antRegistryId,
+            hyperbeamUrl: hyperbeamUrl,
             onSigningProgress: (step: keyof SpawnAntProgressEvent) => {
               if (step === 'spawning-ant') {
                 dispatch({

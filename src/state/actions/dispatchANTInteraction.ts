@@ -63,7 +63,7 @@ export default async function dispatchANTInteraction({
 
   let result: AoMessageResult | undefined = undefined;
   const antProcess = ANT.init({
-    hyperbeamUrl,
+    hyperbeamUrl: hyperbeamUrl,
     process: new AOProcess({ processId, ao }),
     signer,
   });
@@ -183,7 +183,13 @@ export default async function dispatchANTInteraction({
 
       case ANT_INTERACTION_TYPES.RELEASE_NAME: {
         await stepCallback('Releasing ArNS Name, please wait...');
-        const arioContract = ARIO.init({ processId: payload.arioProcessId });
+        const arioContract = ARIO.init({
+          process: new AOProcess({
+            processId: payload.arioProcessId,
+            ao,
+          }),
+          hyperbeamUrl: hyperbeamUrl,
+        });
 
         result = await antProcess.releaseName(
           {
@@ -213,6 +219,7 @@ export default async function dispatchANTInteraction({
             state: payload.previousState,
             luaCodeTxId: payload.luaCodeTxId,
             module: payload.antModuleId,
+            hyperbeamUrl: hyperbeamUrl,
           });
         }
         await stepCallback(
@@ -296,19 +303,19 @@ export default async function dispatchANTInteraction({
             stepPayload: UpgradeAntProgressEvent[keyof UpgradeAntProgressEvent],
           ) => {
             if (step === 'fetching-affiliated-names') {
-              stepCallback('Fetching affiliated names');
+              stepCallback?.('Fetching affiliated names');
             } else if (step === 'checking-version') {
-              stepCallback('Checking version of existing ANT');
+              stepCallback?.('Checking version of existing ANT');
             } else if (step === 'spawning-ant') {
-              stepCallback('Spawning new ANT with latest version');
+              stepCallback?.('Spawning new ANT with latest version');
             } else if (step === 'verifying-state') {
-              stepCallback('Validating state of new ANT');
+              stepCallback?.('Validating state of new ANT');
             } else if (step === 'registering-ant') {
-              stepCallback('Registering new ANT to the registry');
+              stepCallback?.('Registering new ANT to the registry');
             } else if (step === 'reassigning-name') {
               const reassigningNamePayload =
                 stepPayload as UpgradeAntProgressEvent['reassigning-name'];
-              stepCallback(`Reassigning name ${reassigningNamePayload.name}`);
+              stepCallback?.(`Reassigning name ${reassigningNamePayload.name}`);
             }
           },
         });
@@ -346,7 +353,13 @@ export default async function dispatchANTInteraction({
           queryClient.fetchQuery<AoArNSNameData>(
             buildArNSRecordQuery({
               name: payload.name,
-              arioContract: ARIO.init({ processId: payload.arioProcessId }),
+              arioContract: ARIO.init({
+                process: new AOProcess({
+                  processId: payload.arioProcessId,
+                  ao,
+                }),
+                hyperbeamUrl: hyperbeamUrl,
+              }),
             }),
           ),
           queryClient.fetchQuery<AoANTState>(
