@@ -302,20 +302,21 @@ export default async function dispatchANTInteraction({
             step: keyof UpgradeAntProgressEvent,
             stepPayload: UpgradeAntProgressEvent[keyof UpgradeAntProgressEvent],
           ) => {
+            if (!stepCallback) return;
             if (step === 'fetching-affiliated-names') {
-              stepCallback?.('Fetching affiliated names');
+              stepCallback('Fetching affiliated names');
             } else if (step === 'checking-version') {
-              stepCallback?.('Checking version of existing ANT');
+              stepCallback('Checking version of existing ANT');
             } else if (step === 'spawning-ant') {
-              stepCallback?.('Spawning new ANT with latest version');
+              stepCallback('Spawning new ANT with latest version');
             } else if (step === 'verifying-state') {
-              stepCallback?.('Validating state of new ANT');
+              stepCallback('Validating state of new ANT');
             } else if (step === 'registering-ant') {
-              stepCallback?.('Registering new ANT to the registry');
+              stepCallback('Registering new ANT to the registry');
             } else if (step === 'reassigning-name') {
               const reassigningNamePayload =
                 stepPayload as UpgradeAntProgressEvent['reassigning-name'];
-              stepCallback?.(`Reassigning name ${reassigningNamePayload.name}`);
+              stepCallback(`Reassigning name ${reassigningNamePayload.name}`);
             }
           },
         });
