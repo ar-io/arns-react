@@ -63,7 +63,7 @@ export default async function dispatchANTInteraction({
 
   let result: AoMessageResult | undefined = undefined;
   const antProcess = ANT.init({
-    hyperbeamUrl: hyperbeamUrl,
+    hyperbeamUrl,
     process: new AOProcess({ processId, ao }),
     signer,
   });
@@ -188,7 +188,7 @@ export default async function dispatchANTInteraction({
             processId: payload.arioProcessId,
             ao,
           }),
-          hyperbeamUrl: hyperbeamUrl,
+          hyperbeamUrl,
         });
 
         result = await antProcess.releaseName(
@@ -219,7 +219,7 @@ export default async function dispatchANTInteraction({
             state: payload.previousState,
             luaCodeTxId: payload.luaCodeTxId,
             module: payload.antModuleId,
-            hyperbeamUrl: hyperbeamUrl,
+            hyperbeamUrl,
           });
         }
         await stepCallback(
@@ -358,7 +358,7 @@ export default async function dispatchANTInteraction({
                   processId: payload.arioProcessId,
                   ao,
                 }),
-                hyperbeamUrl: hyperbeamUrl,
+                hyperbeamUrl,
               }),
             }),
           ),
