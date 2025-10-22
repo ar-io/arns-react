@@ -220,6 +220,7 @@ export default async function dispatchANTInteraction({
             luaCodeTxId: payload.luaCodeTxId,
             module: payload.antModuleId,
             hyperbeamUrl,
+            antRegistryId: antRegistryProcessId,
           });
         }
         await stepCallback(
