@@ -94,7 +94,11 @@ function NavMenuCard() {
       buildIOBalanceQuery({
         address: walletAddress.toString(),
         arioContract,
-        meta: [arioProcessId, aoNetwork.ARIO.CU_URL],
+        meta: [
+          arioProcessId,
+          aoNetwork.ARIO.CU_URL,
+          aoNetwork.ARIO.HYPERBEAM_URL,
+        ],
       }),
     );
     // const arBalance = await queryClient.fetchQuery(
