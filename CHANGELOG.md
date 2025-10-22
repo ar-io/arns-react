@@ -8,6 +8,14 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.25.2] - 2025-10-22
+
+### Fixed
+
+- Fixed Settings page crash on ARIO process ID edit.
+- Add Hyperbeam URL to missing areas.
+- Fix saved settings loader for loading Hyperbeam URL correctly.
+
 ## [1.25.1] - 2025-09-25
 
 ### Fixed

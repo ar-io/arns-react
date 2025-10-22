@@ -183,7 +183,13 @@ export default async function dispatchANTInteraction({
 
       case ANT_INTERACTION_TYPES.RELEASE_NAME: {
         await stepCallback('Releasing ArNS Name, please wait...');
-        const arioContract = ARIO.init({ processId: payload.arioProcessId });
+        const arioContract = ARIO.init({
+          process: new AOProcess({
+            processId: payload.arioProcessId,
+            ao,
+          }),
+          hyperbeamUrl,
+        });
 
         result = await antProcess.releaseName(
           {
@@ -213,6 +219,8 @@ export default async function dispatchANTInteraction({
             state: payload.previousState,
             luaCodeTxId: payload.luaCodeTxId,
             module: payload.antModuleId,
+            hyperbeamUrl,
+            antRegistryId: antRegistryProcessId,
           });
         }
         await stepCallback(
@@ -295,6 +303,7 @@ export default async function dispatchANTInteraction({
             step: keyof UpgradeAntProgressEvent,
             stepPayload: UpgradeAntProgressEvent[keyof UpgradeAntProgressEvent],
           ) => {
+            if (!stepCallback) return;
             if (step === 'fetching-affiliated-names') {
               stepCallback('Fetching affiliated names');
             } else if (step === 'checking-version') {
@@ -346,7 +355,13 @@ export default async function dispatchANTInteraction({
           queryClient.fetchQuery<AoArNSNameData>(
             buildArNSRecordQuery({
               name: payload.name,
-              arioContract: ARIO.init({ processId: payload.arioProcessId }),
+              arioContract: ARIO.init({
+                process: new AOProcess({
+                  processId: payload.arioProcessId,
+                  ao,
+                }),
+                hyperbeamUrl,
+              }),
             }),
           ),
           queryClient.fetchQuery<AoANTState>(

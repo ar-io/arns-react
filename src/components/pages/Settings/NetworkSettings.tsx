@@ -476,7 +476,7 @@ function NetworkSettings() {
         />
         <SettingInput
           label="Current Hyperbeam URL"
-          value={state.values.hyperbeamUrl}
+          value={state.values.hyperbeamUrl || ''}
           placeholder="https://hyperbeam.ario.permaweb.services"
           isValid={state.validation.hyperbeamUrl}
           displayValue={
@@ -494,7 +494,7 @@ function NetworkSettings() {
           onSet={() =>
             dispatchGlobalState({
               type: 'setHyperbeamUrl',
-              payload: state.values.hyperbeamUrl.trim(),
+              payload: state.values.hyperbeamUrl?.trim() || undefined,
             })
           }
           onReset={() => {

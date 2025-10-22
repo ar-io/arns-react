@@ -84,7 +84,6 @@ function NavMenuCard() {
   function resetWalletDetails() {
     setWalletDetails({
       [arioTicker]: undefined,
-      // AR: undefined,
       'Turbo Credits': undefined,
     });
   }
@@ -94,23 +93,15 @@ function NavMenuCard() {
       buildIOBalanceQuery({
         address: walletAddress.toString(),
         arioContract,
-        meta: [arioProcessId, aoNetwork.ARIO.CU_URL],
+        meta: [
+          arioProcessId,
+          aoNetwork.ARIO.CU_URL,
+          aoNetwork.ARIO.HYPERBEAM_URL,
+        ],
       }),
     );
-    // const arBalance = await queryClient.fetchQuery(
-    //   buildARBalanceQuery({
-    //     address: walletAddress,
-    //     provider: arweaveDataProvider,
-    //     meta: [gateway],
-    //   }),
-    // );
-    const [
-      //formattedBalance,
-      formattedIOBalance,
-    ] = [
-      //arBalance,
-      ioBalance,
-    ].map((balance: string | number) =>
+
+    const [formattedIOBalance] = [ioBalance].map((balance: string | number) =>
       Intl.NumberFormat('en-US', {
         notation: 'compact',
         maximumFractionDigits: 2,
@@ -118,7 +109,6 @@ function NavMenuCard() {
       }).format(+balance),
     );
     setWalletDetails({
-      //  AR: formattedBalance,
       [arioTicker]: formattedIOBalance,
       'Turbo Credits': turboCreditBalance,
     });
