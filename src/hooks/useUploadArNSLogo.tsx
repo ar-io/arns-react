@@ -5,7 +5,7 @@ import {
 } from '@ardrive/turbo-sdk/web';
 import { useWalletState } from '@src/state';
 import { WALLET_TYPES } from '@src/types';
-import { NETWORK_DEFAULTS } from '@src/utils/constants';
+import { NETWORK_DEFAULTS, WRITE_OPTIONS } from '@src/utils/constants';
 import { ethers } from 'ethers';
 import { useCallback } from 'react';
 
@@ -69,6 +69,7 @@ export function useUploadArNSLogo(image: File | null) {
               name: 'Image-Name',
               value: image.name,
             },
+            ...WRITE_OPTIONS.tags,
           ],
         },
       });
