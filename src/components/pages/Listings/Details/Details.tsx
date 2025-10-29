@@ -5,9 +5,10 @@ import ListingBuyerSection from '@src/components/pages/Listings/Details/ListingB
 import ListingExpiredSection from '@src/components/pages/Listings/Details/ListingExpiredSection';
 import ListingMetadata from '@src/components/pages/Listings/Details/ListingMetadata';
 import ListingPriceSection from '@src/components/pages/Listings/Details/ListingPriceSection';
+import { useAntsMetadata } from '@src/hooks/listings/useAntsMetadata';
 import { useGlobalState, useWalletState } from '@src/state';
 import {
-  BLOCKYDEVS_ACTIVITY_PROCESS_ID,
+  BLOCKYDEVS_MARKETPLACE_PROCESS_ID,
   getCurrentListingArioPrice,
   getStatusVariantFromListing,
   marketplaceQueryKeys,
@@ -19,6 +20,7 @@ const Details = () => {
   const { id } = useParams();
   const [{ aoClient }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
+  const queryAntsMetadata = useAntsMetadata();
   const queryDetails = useQuery({
     enabled: !!id,
     refetchInterval: 15 * 1000,
@@ -28,13 +30,13 @@ const Details = () => {
 
       return fetchListingDetails({
         ao: aoClient,
-        activityProcessId: BLOCKYDEVS_ACTIVITY_PROCESS_ID,
+        marketplaceProcessId: BLOCKYDEVS_MARKETPLACE_PROCESS_ID,
         orderId: id,
       });
     },
   });
 
-  if (queryDetails.isPending) {
+  if (queryDetails.isPending || queryAntsMetadata.isPending) {
     return (
       <div className="flex justify-center grow items-center">
         <Spinner className="text-primary size-8" />

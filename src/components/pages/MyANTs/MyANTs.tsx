@@ -9,7 +9,7 @@ import {
 } from '@blockydevs/arns-marketplace-ui';
 import { useGlobalState, useWalletState } from '@src/state';
 import {
-  BLOCKYDEVS_ACTIVITY_PROCESS_ID,
+  BLOCKYDEVS_MARKETPLACE_PROCESS_ID,
   marketplaceQueryKeys,
 } from '@src/utils/marketplace';
 import { useQuery } from '@tanstack/react-query';
@@ -17,7 +17,7 @@ import { useNavigate } from 'react-router-dom';
 
 const MyANTs = () => {
   const navigate = useNavigate();
-  const [{ aoClient, aoNetwork, arioProcessId }] = useGlobalState();
+  const [{ aoClient, arioProcessId }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const queryMyANTs = useQuery({
     enabled: !!walletAddress,
@@ -29,9 +29,8 @@ const MyANTs = () => {
       return fetchMyANTs({
         walletAddress: walletAddress.toString(),
         ao: aoClient,
-        networkProcessId: arioProcessId,
-        activityProcessId: BLOCKYDEVS_ACTIVITY_PROCESS_ID,
-        graphqlUrl: aoNetwork.ANT.GRAPHQL_URL,
+        arioProcessId,
+        marketplaceProcessId: BLOCKYDEVS_MARKETPLACE_PROCESS_ID,
       });
     },
     select: (data) => {

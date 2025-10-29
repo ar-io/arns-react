@@ -2,26 +2,25 @@ import { fetchActiveListings } from '@blockydevs/arns-marketplace-data';
 import {
   ActiveListingTable,
   Card,
-  type Domain,
   Pagination,
   useCursorPagination,
 } from '@blockydevs/arns-marketplace-ui';
+import { useAntsMetadata } from '@src/hooks/listings/useAntsMetadata';
+import { usePrepareListings } from '@src/hooks/listings/usePrepareListings';
 import { useGlobalState } from '@src/state';
 import {
-  BLOCKYDEVS_ACTIVITY_PROCESS_ID,
-  getCurrentListingArioPrice,
+  BLOCKYDEVS_MARKETPLACE_PROCESS_ID,
   marketplaceQueryKeys,
 } from '@src/utils/marketplace';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const PAGE_SIZE = 20;
 
 const ActiveListingsTab = () => {
-  const navigate = useNavigate();
   const [{ aoClient }] = useGlobalState();
   const pagination = useCursorPagination(PAGE_SIZE);
-
+  const queryAntsMetadata = useAntsMetadata();
   const queryActiveListings = useQuery({
     refetchInterval: 15 * 1000,
     structuralSharing: false,
@@ -33,51 +32,34 @@ const ActiveListingsTab = () => {
     queryFn: () => {
       return fetchActiveListings({
         ao: aoClient,
-        activityProcessId: BLOCKYDEVS_ACTIVITY_PROCESS_ID,
+        marketplaceProcessId: BLOCKYDEVS_MARKETPLACE_PROCESS_ID,
         limit: pagination.pageSize,
         cursor: pagination.cursor,
       });
     },
-    select: (data) => {
-      pagination.storeNextCursor(data.nextCursor, !!data.hasMore);
-
-      return {
-        ...data,
-        items: data.items.map((item): Domain => {
-          const currentPrice = getCurrentListingArioPrice(item);
-
-          return {
-            name: item.name,
-            endDate: item.expiresAt ?? undefined,
-            ownershipType: item.ownershipType,
-            price: {
-              type: item.type === 'english' ? 'bid' : 'buyout',
-              symbol: 'ARIO',
-              value: Number(currentPrice),
-            },
-            type: {
-              value: item.type,
-            },
-            action: () => {
-              navigate(`/listings/${item.orderId}`);
-            },
-          };
-        }),
-      };
-    },
   });
 
+  const preparedItems = usePrepareListings(queryActiveListings.data);
   const { totalItems } = queryActiveListings.data ?? {};
   const totalPages = pagination.getTotalPages(totalItems);
+  const isPending =
+    queryActiveListings.isPending || queryAntsMetadata.isPending;
+
+  useEffect(() => {
+    if (!queryActiveListings.data) return;
+
+    const { nextCursor, hasMore } = queryActiveListings.data;
+    pagination.storeNextCursor(nextCursor, !!hasMore);
+  }, [queryActiveListings.data, pagination.storeNextCursor]);
 
   return (
     <Card className="flex flex-col gap-8">
       <ActiveListingTable
-        data={queryActiveListings.data?.items ?? []}
-        isPending={queryActiveListings.isPending}
+        data={preparedItems}
+        isPending={isPending}
         error={queryActiveListings.error?.message}
       />
-      {!queryActiveListings.isPending && (
+      {!isPending && (
         <Pagination
           totalPages={totalPages}
           activeIndex={pagination.page}

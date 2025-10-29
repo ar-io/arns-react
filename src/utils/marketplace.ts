@@ -12,7 +12,6 @@ export type DecreaseInterval =
   (typeof dutchDecreaseIntervalOptions)[number]['value'];
 
 export const englishDurationOptions = [
-  { label: '1 hour', value: '1h' }, // FIXME: remove test code
   { label: '1 day', value: '1d' },
   { label: '7 days', value: '7d' },
   { label: '30 days', value: '30d' },
@@ -20,7 +19,6 @@ export const englishDurationOptions = [
 ] as const;
 
 export const dutchDurationOptions = [
-  { label: '1 hour', value: '1h' }, // FIXME: remove test code
   { label: '1 day', value: '1d' },
   { label: '5 days', value: '5d' },
   { label: '7 days', value: '7d' },
@@ -29,7 +27,6 @@ export const dutchDurationOptions = [
 ] as const;
 
 export const dutchDecreaseIntervalOptions = [
-  { label: '5 minutes', value: '5m' }, // FIXME: remove test code
   { label: '4 hours', value: '4h' },
   { label: '8 hours', value: '8h' },
   { label: '12 hours', value: '12h' },
@@ -54,9 +51,6 @@ export const mergeDateAndTime = (
 
 export const getMsFromInterval = (interval: DecreaseInterval | undefined) => {
   switch (interval) {
-    case '5m': {
-      return 5 * 60 * 1000;
-    }
     case '4h': {
       return 4 * oneHourMs;
     }
@@ -81,9 +75,6 @@ export const getMsFromDuration = (
   time?: string,
 ) => {
   switch (duration) {
-    case '1h': {
-      return oneHourMs;
-    }
     case '1d': {
       return 1 * 24 * oneHourMs;
     }
@@ -158,14 +149,15 @@ export const openAoLinkExplorer = (address: string) => {
   );
 };
 
-export const BLOCKYDEVS_ACTIVITY_PROCESS_ID =
-  'Jj8LhgFLmCE_BAMys_zoTDRx8eYXsSl3-BMBIov8n9E';
+export const BLOCKYDEVS_MARKETPLACE_METADATA_STORAGE_KEY =
+  'marketplace-ants-metadata';
 export const BLOCKYDEVS_MARKETPLACE_PROCESS_ID =
-  'a3jqBgXGAqefY4EHqkMwXhkBSFxZfzVdLU1oMUTQ-1M';
-export const BLOCKYDEVS_SWAP_TOKEN_ID =
-  'agYcCFJtrMG6cqMuZfskIkFTGvUPddICmtQSBIoPdiA';
+  'iFLRI3mfcFMrhIAjmXAwhoF65bsKy32e47hd0MGW45M';
 export const AO_LINK_EXPLORER_URL = 'https://ao.link/#/entity';
 export const marketplaceQueryKeys = {
+  metadata: {
+    all: 'marketplace-metadata',
+  },
   myANTs: {
     all: 'my-ants',
     list: (walletAddress: string | undefined) => [

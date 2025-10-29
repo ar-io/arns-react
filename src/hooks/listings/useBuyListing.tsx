@@ -1,10 +1,7 @@
 import { createAoSigner } from '@ar.io/sdk';
 import { buyListing } from '@blockydevs/arns-marketplace-data';
 import { useGlobalState, useWalletState } from '@src/state';
-import {
-  BLOCKYDEVS_MARKETPLACE_PROCESS_ID,
-  BLOCKYDEVS_SWAP_TOKEN_ID,
-} from '@src/utils/marketplace';
+import { BLOCKYDEVS_MARKETPLACE_PROCESS_ID } from '@src/utils/marketplace';
 import { useMutation } from '@tanstack/react-query';
 
 export const useBuyListing = (
@@ -13,7 +10,7 @@ export const useBuyListing = (
   type: string | null,
 ) => {
   const [{ wallet, walletAddress }] = useWalletState();
-  const [{ antAoClient }] = useGlobalState();
+  const [{ antAoClient, arioProcessId }] = useGlobalState();
 
   return useMutation({
     mutationFn: async ({ price }: { price: string }) => {
@@ -42,8 +39,8 @@ export const useBuyListing = (
         orderId: listingId,
         price,
         marketplaceProcessId: BLOCKYDEVS_MARKETPLACE_PROCESS_ID,
+        arioProcessId,
         antTokenId: antProcessId,
-        swapTokenId: BLOCKYDEVS_SWAP_TOKEN_ID,
         walletAddress: walletAddress.toString(),
         signer: createAoSigner(wallet.contractSigner),
         orderType: type,
