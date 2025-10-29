@@ -1,7 +1,9 @@
 import { ListingFixedDetails } from '@blockydevs/arns-marketplace-data';
 import { Button } from '@blockydevs/arns-marketplace-ui';
+import { useAntsMetadata } from '@src/hooks/listings/useAntsMetadata';
 import { useWalletState } from '@src/state';
 import { getCurrentListingArioPrice } from '@src/utils/marketplace';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface Props {
@@ -11,10 +13,21 @@ interface Props {
 const FixedListingPriceSection = ({ listing }: Props) => {
   const navigate = useNavigate();
   const [{ walletAddress }] = useWalletState();
+  const queryAntsMetadata = useAntsMetadata();
+
+  const antMeta = queryAntsMetadata.data?.[listing.antProcessId];
+
+  const getLabel = () => {
+    if (!walletAddress) return 'No wallet';
+    if (!antMeta) return 'No metadata';
+    return antMeta.ownershipType === 'lease' ? 'Lease now' : 'Buy now';
+  };
 
   const navigateToConfirmPurchase = () => {
+    if (!antMeta) return;
+
     const orderId = listing.orderId;
-    const name = listing.name;
+    const name = antMeta.name;
     const antProcessId = listing.antProcessId;
     const currentPrice = getCurrentListingArioPrice(listing);
 
@@ -27,16 +40,22 @@ const FixedListingPriceSection = ({ listing }: Props) => {
     navigate(`/listings/${orderId}/confirm-purchase?${params}`);
   };
 
+  useEffect(() => {
+    if (antMeta) return;
+
+    queryAntsMetadata.refetch();
+  }, [antMeta, queryAntsMetadata]);
+
   return (
     <Button
       variant="primary"
       className="w-full"
-      disabled={!walletAddress}
+      disabled={!walletAddress || !antMeta}
       onClick={() => {
         navigateToConfirmPurchase();
       }}
     >
-      {!walletAddress ? 'No wallet' : 'Buy now'}
+      {getLabel()}
     </Button>
   );
 };

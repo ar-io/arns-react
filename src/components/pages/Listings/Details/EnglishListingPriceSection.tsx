@@ -1,8 +1,9 @@
 import { ListingEnglishDetails } from '@blockydevs/arns-marketplace-data';
 import { Button, Input } from '@blockydevs/arns-marketplace-ui';
+import { useAntsMetadata } from '@src/hooks/listings/useAntsMetadata';
 import { useWalletState } from '@src/state';
 import { getCurrentListingArioPrice } from '@src/utils/marketplace';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface Props {
@@ -13,7 +14,9 @@ const EnglishListingPriceSection = ({ listing }: Props) => {
   const [bidPrice, setBidPrice] = useState<string>('');
   const navigate = useNavigate();
   const [{ walletAddress }] = useWalletState();
+  const queryAntsMetadata = useAntsMetadata();
 
+  const antMeta = queryAntsMetadata.data?.[listing.antProcessId];
   const currentPrice = getCurrentListingArioPrice(listing);
   const minBid = listing.highestBid
     ? Number(currentPrice) + 1
@@ -22,13 +25,19 @@ const EnglishListingPriceSection = ({ listing }: Props) => {
 
   const navigateToConfirmPurchase = () => {
     const orderId = listing.orderId;
-    const name = listing.name;
+    const name = antMeta.name;
     const antProcessId = listing.antProcessId;
 
     navigate(
       `/listings/${orderId}/confirm-purchase?price=${bidPrice}&type=english&name=${name}&antProcessId=${antProcessId}`,
     );
   };
+
+  useEffect(() => {
+    if (antMeta) return;
+
+    queryAntsMetadata.refetch();
+  }, [antMeta, queryAntsMetadata]);
 
   return (
     <>
@@ -47,6 +56,7 @@ const EnglishListingPriceSection = ({ listing }: Props) => {
         className="w-full"
         disabled={
           !walletAddress ||
+          !antMeta ||
           bidPrice === undefined ||
           // if highest bid exists, bid must be strictly greater than it
           // if no bids yet, bid must be at least equal to starting price

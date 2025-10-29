@@ -1,5 +1,6 @@
 import { Logger } from '@ar.io/sdk/web';
 import * as Sentry from '@sentry/react';
+import { usePrefetchMarketplaceData } from '@src/hooks/listings/usePrefetchMarketplaceData';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import React, { Suspense, useMemo } from 'react';
@@ -84,6 +85,7 @@ const sentryCreateBrowserRouter =
 function App() {
   useWanderEvents();
   useSyncSettings();
+  usePrefetchMarketplaceData();
   const [{ turboNetwork }] = useGlobalState();
 
   const stripePromise = useMemo(() => {

@@ -11,14 +11,20 @@ import {
   getDutchListingSchedule,
   shortenAddress,
 } from '@blockydevs/arns-marketplace-ui';
+import { useAntsMetadata } from '@src/hooks/listings/useAntsMetadata';
 import { openAoLinkExplorer } from '@src/utils/marketplace';
 import { ExternalLink } from 'lucide-react';
+import { useEffect } from 'react';
 
 interface Props {
   listing: ListingDetails;
 }
 
 const ListingMetadata = ({ listing }: Props) => {
+  const queryAntsMetadata = useAntsMetadata();
+
+  const antMeta = queryAntsMetadata.data?.[listing.antProcessId];
+
   const dutchPriceSchedule: Schedule[] =
     listing.type === 'dutch'
       ? getDutchListingSchedule({
@@ -36,17 +42,27 @@ const ListingMetadata = ({ listing }: Props) => {
         }))
       : [];
 
+  useEffect(() => {
+    if (!antMeta) {
+      queryAntsMetadata.refetch();
+    }
+  }, [antMeta, queryAntsMetadata]);
+
+  if (!antMeta) {
+    return null;
+  }
+
   return (
     <div className="flex flex-col gap-4 lg:col-span-3">
       <Card>
         <Header size="h1" className="break-all">
-          {listing.name}
+          {antMeta.name}
         </Header>
       </Card>
-      {listing.ownershipType === 'lease' && !!listing.leaseEndsAt && (
+      {antMeta.ownershipType === 'lease' && !!antMeta.leaseEndsAt && (
         <Card>
           <Row label="Lease expiration">
-            <Paragraph>{formatDate(listing.leaseEndsAt)}</Paragraph>
+            <Paragraph>{formatDate(antMeta.leaseEndsAt)}</Paragraph>
           </Row>
         </Card>
       )}

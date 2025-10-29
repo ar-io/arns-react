@@ -16,9 +16,7 @@ import { useGlobalState, useWalletState } from '@src/state';
 import eventEmitter from '@src/utils/events';
 import '@src/utils/marketplace';
 import {
-  BLOCKYDEVS_ACTIVITY_PROCESS_ID,
   BLOCKYDEVS_MARKETPLACE_PROCESS_ID,
-  BLOCKYDEVS_SWAP_TOKEN_ID,
   DecreaseInterval,
   Duration,
   dutchDecreaseIntervalOptions,
@@ -62,7 +60,7 @@ function MyANTsNewListing() {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const { antProcessId } = useParams();
   const [searchParams] = useSearchParams();
-  const [{ antAoClient }] = useGlobalState();
+  const [{ antAoClient, arioProcessId }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const now = new Date();
   const [form, setForm] = useState<FormState>({
@@ -110,9 +108,8 @@ function MyANTsNewListing() {
       return await createListing({
         ao: antAoClient,
         antProcessId,
-        activityProcessId: BLOCKYDEVS_ACTIVITY_PROCESS_ID,
         marketplaceProcessId: BLOCKYDEVS_MARKETPLACE_PROCESS_ID,
-        swapTokenId: BLOCKYDEVS_SWAP_TOKEN_ID,
+        arioProcessId,
         waitForConfirmation: false,
         config: (() => {
           switch (form.type) {
