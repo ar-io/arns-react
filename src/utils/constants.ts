@@ -57,9 +57,9 @@ export const MAX_ARNS_NAME_LENGTH = 51;
 export const MAX_FULL_ARNS_NAME_LENGTH = 61;
 export const MAX_UNDERNAME_LENGTH = MAX_FULL_ARNS_NAME_LENGTH - 2; // a_ is the shortest base name with _
 export const ARNS_NAME_REGEX = new RegExp(
-  `^([a-zA-Z0-9][a-zA-Z0-9-]{0,${
+  `^(([a-zA-Z0-9][a-zA-Z0-9-]{0,40}[a-zA-Z0-9])|([a-zA-Z0-9][a-zA-Z0-9-]{42,${
     MAX_ARNS_NAME_LENGTH - 2
-  }}[a-zA-Z0-9]|[a-zA-Z0-9]{1})$`,
+  }}[a-zA-Z0-9])|[a-zA-Z0-9]{1})$`,
 );
 export const ARNS_NAME_REGEX_PARTIAL = new RegExp(
   `^[a-zA-Z0-9-]{0,${MAX_ARNS_NAME_LENGTH}}$`,

@@ -30,3 +30,18 @@ Object.defineProperty(global, 'crypto', {
     },
   },
 });
+
+// Mock import.meta for tests
+global.import = {
+  meta: {
+    env: {
+      VITE_ARWEAVE_HOST: 'arweave.net',
+      VITE_ARWEAVE_GRAPHQL_URL: 'https://arweave.net/graphql',
+      VITE_HYPERBEAM_URL: undefined,
+      VITE_ARIO_PROCESS_ID: undefined,
+      VITE_NODE_ENV: 'test',
+      VITE_ARIO_AO_CU_URL: 'https://cu.ardrive.io',
+      VITE_ANT_AO_CU_URL: 'https://cu.ardrive.io',
+    },
+  },
+};
