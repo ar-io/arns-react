@@ -4,10 +4,11 @@
   "version": "1.25.2",
   "homepage": ".",
   "scripts": {
-    "build": "yarn clean && tsc --build tsconfig.json && NODE_OPTIONS=--max-old-space-size=32768 vite build",
+    "build": "yarn clean && NODE_OPTIONS=--max-old-space-size=32768 vite build",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "publish:arweave": "yarn build && permaweb-deploy --arns-name $VITE_ARNS_NAME ",
+    "deploy:arweave": "permaweb-deploy --arns-name $VITE_ARNS_NAME ",
     "clean": "rimraf dist",
     "dev": "NODE_ENV=prod VITE_GITHUB_HASH=local vite",
     "format": "prettier --write .",
