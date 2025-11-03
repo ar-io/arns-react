@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.25.3] - 2025-11-03
+
+### Fixed
+
+- Disallow purchasing 43 character ARNS names
+
 ## [1.25.2] - 2025-10-22
 
 ### Fixed

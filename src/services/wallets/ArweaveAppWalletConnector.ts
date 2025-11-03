@@ -2,7 +2,6 @@ import { TurboArNSSigner } from '@ar.io/sdk/web';
 import { TokenType } from '@ardrive/turbo-sdk';
 import { ARWEAVE_APP_API } from '@src/utils/constants';
 import { ArweaveAppError } from '@src/utils/errors';
-import { ReactiveConnector } from 'node_modules/arweave-wallet-connector/lib/browser/Reactive';
 
 import { WANDER_UNRESPONSIVE_ERROR } from '../../components/layout/Notifications/Notifications';
 import { ArNSWalletConnector, WALLET_TYPES } from '../../types';
@@ -11,7 +10,9 @@ import { ArweaveTransactionID } from '../arweave/ArweaveTransactionID';
 
 export class ArweaveAppWalletConnector implements ArNSWalletConnector {
   tokenType: TokenType = 'arweave';
-  private _wallet: ReactiveConnector & { namespaces: any };
+  // NOTE: this is intended to be ReactiveConnector from arweave-web-wallet but their exports don't export these directl
+  // previously: private _wallet: ReactiveConnector & { namespaces: any };
+  private _wallet: any;
   contractSigner?: Window['arweaveWallet'];
   turboSigner: TurboArNSSigner;
 
@@ -60,7 +61,7 @@ export class ArweaveAppWalletConnector implements ArNSWalletConnector {
     try {
       localStorage.setItem('walletType', WALLET_TYPES.ARWEAVE_APP);
 
-      await this._wallet.connect({
+      await this._wallet.namespaces.arweaveWallet.connect({
         name: 'ARNS - ar.io',
       });
     } catch (error) {
@@ -71,7 +72,7 @@ export class ArweaveAppWalletConnector implements ArNSWalletConnector {
 
   async disconnect(): Promise<void> {
     localStorage.removeItem('walletType');
-    return this._wallet.disconnect();
+    return this._wallet.namespaces.arweaveWallet.disconnect();
   }
 
   async getWalletAddress(): Promise<ArweaveTransactionID> {

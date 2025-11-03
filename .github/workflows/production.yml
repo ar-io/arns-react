@@ -7,11 +7,8 @@ on:
       - main
 
 jobs:
-  build:
+  lint_and_test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        step: ['lint:check', 'build']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -19,26 +16,23 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'yarn'
       - run: yarn --frozen-lockfile
-      - run: yarn ${{ matrix.step }}
+      - run: yarn lint:check
+      # - run: yarn test
 
-  deploy-to-firebase:
+  build_for_production:
     runs-on: ubuntu-latest
-    needs: build
+    needs: lint_and_test
     environment: production
     steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           cache: 'yarn'
-
-      - name: Install and Build 🔧
-        run: |
-          yarn --frozen-lockfile
-          yarn build
+      - run: yarn --frozen-lockfile
+      - name: Build
+        run: yarn build
         env:
-          # FOR BUILD
           VITE_NODE_ENV: production
           VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           VITE_SENTRY_RELEASE: ${{ github.sha }}
@@ -55,6 +49,29 @@ jobs:
           VITE_ARIO_AO_CU_URL: ${{ vars.VITE_ARIO_AO_CU_URL }}
           VITE_ANT_AO_CU_URL: ${{ vars.VITE_ANT_AO_CU_URL }}
 
+      # Upload build artifacts to share with deploy jobs
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-production
+          path: dist/
+          retention-days: 1
+
+  deploy-to-firebase:
+    runs-on: ubuntu-latest
+    needs: build_for_production
+    environment: production
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      # Download build artifacts instead of rebuilding
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-production
+          path: dist/
+
       # Disribute to Firebase
       - name: Deploy 🚀
         uses: FirebaseExtended/action-hosting-deploy@v0
@@ -62,8 +79,9 @@ jobs:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_CI_SERVICE_ACCOUNT }}'
           channelId: live
+
   publish:
-    needs: build
+    needs: build_for_production
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -71,8 +89,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
+
+      # Download build artifacts instead of rebuilding
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-production
+          path: dist/
+
       - run: yarn --frozen-lockfile
-      - run: yarn publish:arweave
+      - run: yarn deploy:arweave
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
           VITE_ARNS_NAME: ${{ secrets.ARNS_NAME }}
