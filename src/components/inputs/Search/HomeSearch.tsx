@@ -21,11 +21,13 @@ const maxCharValidation = 'Max. 51 characters';
 const noSpecialCharsValidation = 'No special characters';
 const dashesValidation = 'Dashes cannot be leading or trailing';
 const wwwValidation = 'Cannot be www';
+const arweaveAddressLength = 'Not an Arweave address';
 const defaultValidations = {
   [maxCharValidation]: false,
   [noSpecialCharsValidation]: false,
   [dashesValidation]: false,
   [wwwValidation]: false,
+  [arweaveAddressLength]: false,
 };
 
 function HomeSearch() {
@@ -58,6 +60,7 @@ function HomeSearch() {
       [noSpecialCharsValidation]: /^[a-zA-Z0-9-]*$/.test(safeDomain),
       [dashesValidation]: !/^-|-$/g.test(safeDomain),
       [wwwValidation]: safeDomain !== 'www',
+      [arweaveAddressLength]: safeDomain.length !== 43,
     };
     let validDomain = true;
     Object.entries(validations).forEach(([name, isValid]) => {
@@ -81,7 +84,18 @@ function HomeSearch() {
             validDomain = false;
             setValidationError('cannot be www');
           }
-
+          return;
+        case 'Not an Arweave address':
+          if (!isValid) {
+            validDomain = false;
+            setValidationError('cannot be length of an Arweave address');
+          }
+          return;
+        case 'Max. 51 characters':
+          if (!isValid && validDomain) {
+            validDomain = false;
+            setValidationError('exceeds maximum length of 51 characters');
+          }
           return;
         default:
           break;
@@ -329,16 +343,13 @@ function HomeSearch() {
             )}
           </DomainSearch>
           {/* validation notes */}
-          <div
-            className="flex flex-row w-full mt-2 justify-center items-center max-w-[775px] min-w-full"
-            style={{ rowGap: '4px' }}
-          >
+          <div className="flex flex-wrap justify-center gap-2 w-full mt-2">
             {domainQuery.length ? (
               Object.entries(validations).map(([name, isValid], index) => (
                 <span
                   key={index}
                   className={
-                    `flex flex-row justify-center items-center whitespace-nowrap text-sm ` +
+                    `inline-flex items-center justify-center shrink-0 basis-auto w-auto whitespace-nowrap text-sm ` +
                     (isValid ? 'text-grey' : 'animate-pulse text-grey')
                   }
                   style={{ gap: '5px' }}

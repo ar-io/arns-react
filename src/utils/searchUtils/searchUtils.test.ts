@@ -77,6 +77,7 @@ describe('isARNSDomainNameValid', () => {
     'namewithcharacter.init',
     'name with space',
     'namelongerthanthirtytwocharactersddddddddddddddddddddddddddddddddd',
+    ''.padEnd(43, 'a'), // 43 characters
   ];
 
   test.each(invalidNames)(
@@ -99,6 +100,8 @@ describe('isARNSDomainNameValid', () => {
     ''.padEnd(MAX_UNDERNAME_LENGTH, 'a'),
     '1-'.padEnd(MAX_UNDERNAME_LENGTH, 'a'),
     '1_'.padEnd(MAX_UNDERNAME_LENGTH, 'a'),
+    ''.padEnd(42, 'a'),
+    ''.padEnd(44, 'a'),
   ])('should return true if undername is valid', (name) => {
     expect(isUndernameValid(name)).toBe(true);
   });
