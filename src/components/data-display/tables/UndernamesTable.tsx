@@ -176,15 +176,15 @@ const UndernamesTable = ({
                     !arnsRecord
                       ? 'Loading...'
                       : arnsRecord.version < MIN_ANT_VERSION
-                      ? 'Update ANT to access Primary Names workflow'
-                      : primaryNameData?.name ===
-                        encodePrimaryName(
-                          undername === '@'
-                            ? arnsRecord.name
-                            : undername + '_' + arnsRecord.name,
-                        )
-                      ? 'Remove Primary Name'
-                      : 'Set Primary Name'
+                        ? 'Update ANT to access Primary Names workflow'
+                        : primaryNameData?.name ===
+                            encodePrimaryName(
+                              undername === '@'
+                                ? arnsRecord.name
+                                : undername + '_' + arnsRecord.name,
+                            )
+                          ? 'Remove Primary Name'
+                          : 'Set Primary Name'
                   }
                   icon={
                     <button
@@ -231,7 +231,7 @@ const UndernamesTable = ({
                             undername === '@'
                               ? arnsRecord.name
                               : undername + '_' + arnsRecord.name,
-                          ) == primaryNameData?.name
+                          ) === primaryNameData?.name
                             ? 'text-primary fill-primary'
                             : 'text-grey') +
                           ` 
@@ -294,13 +294,13 @@ const UndernamesTable = ({
     columnHelper.accessor(key as keyof TableData, {
       id: key,
       header:
-        key == 'action'
+        key === 'action'
           ? ''
-          : key == 'targetId'
-          ? 'Target ID'
-          : key == 'ttlSeconds'
-          ? 'TTL Seconds'
-          : camelToReadable(key),
+          : key === 'targetId'
+            ? 'Target ID'
+            : key === 'ttlSeconds'
+              ? 'TTL Seconds'
+              : camelToReadable(key),
       sortDescFirst: false,
       cell: ({ row }) => {
         const rowValue = row.getValue(key) as any;

@@ -51,7 +51,7 @@ function Counter({
         <div className="counter">
           <button
             className={`counter-button ${minValue === value ? '' : 'hover'}`}
-            disabled={value == minValue}
+            disabled={value === minValue}
             onClick={decHandleOnClick}
             onMouseDown={decHandleOnMouseDown}
             onMouseUp={decHandleOnMouseUp}
@@ -115,7 +115,7 @@ function Counter({
           </div>
           <button
             className={`counter-button ${maxValue === value ? '' : 'hover'}`}
-            disabled={value == maxValue}
+            disabled={value === maxValue}
             onClick={incHandleOnClick}
             onMouseDown={incHandleOnMouseDown}
             onMouseUp={incHandleOnMouseUp}

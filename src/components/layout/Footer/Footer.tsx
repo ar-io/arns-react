@@ -14,7 +14,7 @@ import { BrandLogo } from '../../icons';
 const FORMATTED_CHANGELOG = changeLog
   .substring(changeLog.indexOf('## [Unreleased]') + 16)
   .trim()
-  .replace(/\[([\w.]+)\]/g, (match, text) => `v${text}`);
+  .replace(/\[([\w.]+)\]/g, (_match, text) => `v${text}`);
 
 function Footer() {
   const [showChangeLogModal, setShowChangeLogModal] = useState(false);

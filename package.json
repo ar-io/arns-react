@@ -11,9 +11,10 @@
     "deploy:arweave": "permaweb-deploy --arns-name $VITE_ARNS_NAME ",
     "clean": "rimraf dist",
     "dev": "NODE_ENV=prod VITE_GITHUB_HASH=local vite",
-    "format": "prettier --write .",
-    "lint:fix": "eslint --fix .",
-    "lint:check": "eslint .",
+    "lint:fix": "biome check --write --unsafe",
+    "lint:check": "biome check --unsafe",
+    "format:fix": "biome format --write",
+    "format:check": "biome format",
     "preview": "vite preview",
     "test": "NODE_ENV=test jest",
     "test:updateSnapshot": "NODE_ENV=test jest --updateSnapshot",
@@ -75,6 +76,7 @@
     "@babel/preset-env": "^7.19.4",
     "@babel/preset-react": "^7.18.6",
     "@babel/preset-typescript": "^7.18.6",
+    "@biomejs/biome": "1.9.4",
     "@chromatic-com/storybook": "^3.2.2",
     "@commitlint/cli": "^17.6.7",
     "@commitlint/config-conventional": "^17.6.7",
@@ -94,9 +96,7 @@
     "@testing-library/jest-dom": "^6.1.5",
     "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.5.1",
-    "@trivago/prettier-plugin-sort-imports": "^3.4.0",
     "@types/chartjs-plugin-annotation": "^0.5.2",
-    "@types/eslint": "^8.4.10",
     "@types/jest": "^29.5.10",
     "@types/lodash": "^4.14.188",
     "@types/match-media-mock": "^0.1.6",
@@ -106,21 +106,9 @@
     "@types/rimraf": "^3.0.2",
     "@types/uuid": "^9.0.0",
     "@types/validator": "^13.12.3",
-    "@typescript-eslint/eslint-plugin": "^5.42.1",
-    "@typescript-eslint/parser": "^6.19.0",
     "@vitejs/plugin-react": "^4.0.0",
     "autoprefixer": "^10.4.20",
     "core-js": "^3.26.1",
-    "eslint": "^8.27.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-jest-formatting": "^3.1.0",
-    "eslint-plugin-jsx-a11y": "^6.6.1",
-    "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-react": "^7.31.10",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-simple-import-sort": "^8.0.0",
-    "eslint-plugin-storybook": "^0.11.1",
     "fake-indexeddb": "^6.0.0",
     "http-server": "^14.1.1",
     "husky": "^8.0.0",
@@ -134,7 +122,6 @@
     "nyc": "^15.1.0",
     "permaweb-deploy": "^2.4.0",
     "postcss": "^8.4.41",
-    "prettier": "^2.7.1",
     "react-hooks": "^1.0.1",
     "react-test-renderer": "^18.2.0",
     "rimraf": "^3.0.2",
@@ -154,17 +141,10 @@
     "vite-plugin-svgr": "^2.2.2"
   },
   "lint-staged": {
-    "src/**/*.{ts,tsx}": [
-      "eslint ."
-    ],
     "**/*.{ts,tsx,js,md,json}": [
-      "prettier --write ."
+      "biome check --write --unsafe",
+      "biome format --write"
     ]
   },
-  "packageManager": "yarn@1.22.22",
-  "eslintConfig": {
-    "extends": [
-      "plugin:storybook/recommended"
-    ]
-  }
+  "packageManager": "yarn@1.22.22"
 }

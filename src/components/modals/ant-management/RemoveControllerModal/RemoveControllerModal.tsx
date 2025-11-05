@@ -122,7 +122,7 @@ function RemoveControllersModal({
                           width: '5%',
                           className: 'grey whitespace-no-wrap',
                           // eslint-disable-next-line
-                          render: (value: string, row: any) => (
+                          render: (_value: string, row: any) => (
                             <Checkbox
                               key={row.controller}
                               prefixCls="remove-controller-checkbox"

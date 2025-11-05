@@ -216,7 +216,7 @@ export class SimpleArweaveDataProvider implements ArweaveDataProvider {
         throw new Error(`Address has no transactions`);
       }
       return true;
-    } catch (error) {
+    } catch (_error) {
       throw new Error(`Unable to verify this is an arweave address.`);
     }
   }

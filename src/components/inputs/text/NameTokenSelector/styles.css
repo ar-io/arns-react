@@ -1,5 +1,5 @@
 .custom-next-pagination {
-  display: 'flex';
+  display: "flex";
   justify-content: space-between;
   width: 100%;
 }
@@ -69,11 +69,11 @@ ul::before {
   justify-content: flex-start;
   background: var(--card-bg);
   border-radius: var(--corner-radius);
-  font-family: 'Rubik';
+  font-family: "Rubik";
   font-weight: 500;
   font-size: 16px;
   outline: none;
-  color: 'unset';
+  color: "unset";
   border: none;
 }
 .name-token-input::placeholder {
@@ -87,11 +87,11 @@ ul::before {
   justify-content: flex-start;
   background: var(--card-bg);
   border-radius: var(--corner-radius);
-  font-family: 'Rubik';
+  font-family: "Rubik";
   font-weight: 500;
   font-size: 16px;
   outline: none;
-  color: 'unset';
+  color: "unset";
   border: none;
 }
 .name-token-input-selected::placeholder {
