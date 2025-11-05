@@ -5,10 +5,10 @@ import 'core-js';
 import { indexedDB } from 'fake-indexeddb';
 import 'jest-canvas-mock';
 import 'jest-location-mock';
+import { TextDecoder, TextEncoder } from 'util';
 // was needed for github actions environment
 import matchMediaMock from 'match-media-mock';
 import React from 'react';
-import { TextDecoder, TextEncoder } from 'util';
 
 window.matchMedia ??= matchMediaMock.create(); // required for rendering ant design components, specifically at time of addition, the steps component.
 

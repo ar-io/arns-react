@@ -53,17 +53,17 @@ enum PRIMARY_NAME_WORKFLOWS {
 function isPrimaryNameRequest(
   payload: any,
 ): payload is PrimaryNameRequestPayload {
-  return typeof payload?.name == 'string';
+  return typeof payload?.name === 'string';
 }
 
 function isRemovePrimaryNamesPayload(
   payload: any,
 ): payload is RemovePrimaryNamesPayload {
   return (
-    typeof payload?.names == 'object' &&
+    typeof payload?.names === 'object' &&
     Array.isArray(payload.names) &&
     payload.names.every((s: unknown) => typeof s === 'string') &&
-    typeof payload?.arioProcessId == 'string'
+    typeof payload?.arioProcessId === 'string'
   );
 }
 
@@ -110,8 +110,8 @@ function PrimaryNameModal({
   const targetName = isRemovePrimaryNamesPayload(transactionData)
     ? transactionData.names[0]
     : isPrimaryNameRequest(transactionData)
-    ? transactionData.name
-    : undefined;
+      ? transactionData.name
+      : undefined;
 
   // if undername, pop the base name, else target name is ArNS name and can be used for querying domain info
   const baseName = targetName?.includes('_')
@@ -129,7 +129,10 @@ function PrimaryNameModal({
   >();
 
   useEffect(() => {
-    if (isPrimaryNameRequest(transactionData) && primaryNameData == undefined) {
+    if (
+      isPrimaryNameRequest(transactionData) &&
+      primaryNameData === undefined
+    ) {
       setWorkflow(PRIMARY_NAME_WORKFLOWS.REQUEST);
     } else if (
       isPrimaryNameRequest(transactionData) &&
@@ -150,7 +153,7 @@ function PrimaryNameModal({
 
   async function confirm() {
     try {
-      if (isLoadingPrimaryNameData == true)
+      if (isLoadingPrimaryNameData === true)
         throw new Error(
           'Wait for primary name data to load before using primary name workflow',
         );
@@ -268,8 +271,8 @@ function PrimaryNameModal({
             {isRemovePrimaryNamesPayload(transactionData)
               ? 'Remove'
               : isPrimaryNameRequest(transactionData) && primaryNameData?.name
-              ? 'Change'
-              : 'Set'}{' '}
+                ? 'Change'
+                : 'Set'}{' '}
             Primary Name
           </h2>
         }

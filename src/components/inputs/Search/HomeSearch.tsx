@@ -134,14 +134,14 @@ function HomeSearch() {
   return (
     <div
       className={
-        domainQuery.length == 0 || !showResults
+        domainQuery.length === 0 || !showResults
           ? ``
           : `modal-container relative`
       }
     >
       <div
         className={`flex flex-col w-full max-w-[800px] min-h-fit ${
-          domainQuery.length == 0 ? `` : `absolute mx-0 top-[240px]`
+          domainQuery.length === 0 ? `` : `absolute mx-0 top-[240px]`
         }`}
       >
         <div className="flex flex-col w-full h-full">
@@ -152,7 +152,7 @@ function HomeSearch() {
             >
               Invalid ArNS domain, {validationError}
             </div>
-          ) : isSearching || domainQuery.length == 0 || !isAvailable ? (
+          ) : isSearching || domainQuery.length === 0 || !isAvailable ? (
             <div
               className="min-h-[50px]"
               data-testid="home-search-spacer-header"

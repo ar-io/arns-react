@@ -49,7 +49,7 @@ export default function DescriptionRow({
         label="Description"
         editable={editable}
         value={
-          typeof description == 'string' ? (
+          typeof description === 'string' ? (
             !editing ? (
               description
             ) : (

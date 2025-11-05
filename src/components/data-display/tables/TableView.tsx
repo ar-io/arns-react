@@ -89,7 +89,7 @@ const TableView = <T, S>({
     onSortingChange: setSorting,
     onExpandedChange: (getState: any) => {
       const state = getState();
-      const isSame = Object.keys(state)[0] == Object.keys(expanded)[0];
+      const isSame = Object.keys(state)[0] === Object.keys(expanded)[0];
       setExpanded(isSame ? {} : state);
     },
     getSubRows,
