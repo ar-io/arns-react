@@ -66,7 +66,7 @@ function ManageDomain() {
                 {decodeDomainToASCII(name!)}
                 <Star
                   className={
-                    (name == primaryNameData?.name
+                    (name === primaryNameData?.name
                       ? 'text-primary fill-primary'
                       : 'text-grey') + ` w-[18px]`
                   }
@@ -90,7 +90,7 @@ function ManageDomain() {
           {isOwner && (
             <Tooltip
               message={
-                name == primaryNameData?.name
+                name === primaryNameData?.name
                   ? 'Remove this name from being the primary name for this wallet address'
                   : 'Set this name as this wallet addresses primary name'
               }
@@ -131,7 +131,7 @@ function ManageDomain() {
                   }}
                 >
                   <Star className={`w-[16px]`} />{' '}
-                  {name == primaryNameData?.name
+                  {name === primaryNameData?.name
                     ? 'Remove Primary'
                     : 'Set as Primary'}
                 </button>

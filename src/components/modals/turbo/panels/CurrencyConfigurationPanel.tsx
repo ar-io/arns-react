@@ -157,13 +157,13 @@ function CurrencyConfigurationPanel({
       buttonSelected !== undefined
         ? buttonValues[buttonSelected]
         : customValue
-        ? +customValue
-        : 0;
+          ? +customValue
+          : 0;
 
     if (
       numValue !== undefined &&
       !isNaN(numValue) &&
-      (currency == 'crypto' || numValue >= 5)
+      (currency === 'crypto' || numValue >= 5)
     ) {
       setTopupValue(numValue);
     } else {
@@ -172,7 +172,7 @@ function CurrencyConfigurationPanel({
       }
       setValueString(
         `${
-          currency == 'crypto'
+          currency === 'crypto'
             ? `0 ${currencyLabels[wallet.tokenType]} \u{02248} `
             : ''
         }${valueStringDefault}`,
@@ -199,15 +199,15 @@ function CurrencyConfigurationPanel({
       buttonSelected !== undefined
         ? buttonValues[buttonSelected]
         : customValue
-        ? +customValue
-        : 0;
+          ? +customValue
+          : 0;
 
     if (
       numValue !== undefined &&
       !isNaN(numValue) &&
-      (currency == 'crypto' || numValue >= 5)
+      (currency === 'crypto' || numValue >= 5)
     ) {
-      if (currency == 'fiat') {
+      if (currency === 'fiat') {
         const fiatCost = numValue;
         updateValueStringFiat({
           fiatCost,
@@ -231,7 +231,7 @@ function CurrencyConfigurationPanel({
       }
       setValueString(
         `${
-          currency == 'crypto'
+          currency === 'crypto'
             ? `0 ${currencyLabels[wallet.tokenType]} \u{02248} `
             : ''
         }${valueStringDefault}`,
@@ -250,14 +250,14 @@ function CurrencyConfigurationPanel({
   ]);
 
   const isValidCustomFormat = (val: string) => {
-    if (currency == 'fiat') {
-      return val.length == 0 || isNumeric(val, { no_symbols: true });
+    if (currency === 'fiat') {
+      return val.length === 0 || isNumeric(val, { no_symbols: true });
     }
-    return val.length == 0 || Number(val) >= 0;
+    return val.length === 0 || Number(val) >= 0;
   };
 
   const isValidCustomAmount = (val: string) => {
-    if (currency == 'fiat') {
+    if (currency === 'fiat') {
       return (val.length > 0 && Number(val) < MIN_FIAT_TOPUP) ||
         Number(val) > MAX_FIAT_TOPUP
         ? `Please enter an amount between $${MIN_FIAT_TOPUP} and $${MAX_FIAT_TOPUP}`
@@ -329,19 +329,19 @@ function CurrencyConfigurationPanel({
                   setCustomValueError(undefined);
                 }}
               >
-                {currency == 'fiat' && '$'}
+                {currency === 'fiat' && '$'}
                 {value}
               </button>
             ))}
           </div>
           <div className="flex mt-5 text-sm text-grey whitespace-nowrap">
-            Custom Amount {currency == 'fiat' && `(min $5 - max $2,000)`}
+            Custom Amount {currency === 'fiat' && `(min $5 - max $2,000)`}
           </div>
           <div>
             <input
               type="text"
               className={`flex w-full gap-2 rounded border-2 border-dark-grey bg-transparent outline-none whitespace-nowrap ${
-                currency == 'fiat' ? 'pl-8' : 'pl-4'
+                currency === 'fiat' ? 'pl-8' : 'pl-4'
               } py-2 pr-4`}
               value={customValue || ''}
               onChange={(e) => {
@@ -350,7 +350,7 @@ function CurrencyConfigurationPanel({
                 if (isValidCustomFormat(val)) {
                   const numVal = Number(val);
                   const clampedVal =
-                    currency == 'fiat'
+                    currency === 'fiat'
                       ? Math.min(numVal, MAX_FIAT_TOPUP)
                       : numVal;
                   setCustomValue(clampedVal.toString());

@@ -70,7 +70,7 @@ function Breadcrumbs() {
         const name = domainInfo?.name;
 
         const parsedCrumbs = rawCrumbs[0].map((crumb: NavItem) => {
-          if (crumb.name == ANT_FLAG) {
+          if (crumb.name === ANT_FLAG) {
             return { name: name, route: crumb.route };
           }
           return crumb;
@@ -78,7 +78,7 @@ function Breadcrumbs() {
         setCrumbs(parsedCrumbs);
       } else if (name.length && isARNSDomainNameValid({ name })) {
         const parsedCrumbs = rawCrumbs[0].map((crumb: NavItem) => {
-          if (crumb.name == ANT_FLAG) {
+          if (crumb.name === ANT_FLAG) {
             return { name: name, route: crumb.route };
           }
           return crumb;

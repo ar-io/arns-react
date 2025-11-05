@@ -6,12 +6,12 @@
   background-color: var(--bg-color);
 }
 
-th[class~='remove-controller-table-header'] {
+th[class~="remove-controller-table-header"] {
   background: var(--bg-color) !important;
   border-radius: 0px !important;
 }
 
-thead > tr > td[class~='remove-controller-table-header'] {
+thead > tr > td[class~="remove-controller-table-header"] {
   background: var(--bg-color) !important;
   justify-content: flex-start !important;
   border-radius: 0px !important;
@@ -190,7 +190,7 @@ thead > tr > td[class~='remove-controller-table-header'] {
 .remove-controller-checkbox-checked > .remove-controller-checkbox-inner::after {
   background-color: transparent;
   border: none !important;
-  content: '+';
+  content: "+";
   color: var(--error-red) !important;
   transform: rotate(45deg) !important;
   width: 10px !important;

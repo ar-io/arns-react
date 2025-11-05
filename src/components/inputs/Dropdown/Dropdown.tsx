@@ -51,7 +51,7 @@ function Dropdown(props: DropdownProps) {
               style={{ borderBottom: 'none' }}
               onClick={() => setShowOptions(!showOptions)}
             >
-              {showSelected && selected != undefined ? selected : <></>}
+              {showSelected && selected !== undefined ? selected : <></>}
               {showChevron ? (
                 <ChevronUpIcon
                   className="dropdown-chevron"
@@ -66,7 +66,7 @@ function Dropdown(props: DropdownProps) {
             <div className="active-data-dropdown">
               {header}
               {/* eslint-disable-next-line */}
-              {Object.entries(options).map(([key, value], index) => {
+              {Object.entries(options).map(([_key, value], index) => {
                 if (index === selected) {
                   return;
                 }

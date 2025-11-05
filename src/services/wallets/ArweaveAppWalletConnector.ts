@@ -64,7 +64,7 @@ export class ArweaveAppWalletConnector implements ArNSWalletConnector {
       await this._wallet.namespaces.arweaveWallet.connect({
         name: 'ARNS - ar.io',
       });
-    } catch (error) {
+    } catch (_error) {
       localStorage.removeItem('walletType');
       throw new ArweaveAppError('User cancelled authentication.');
     }
