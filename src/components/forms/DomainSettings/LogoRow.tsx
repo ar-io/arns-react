@@ -1,20 +1,13 @@
-import ValidationInput from '@src/components/inputs/text/ValidationInput/ValidationInput';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
-import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
+import LogoUploadModal from '@src/components/modals/LogoUploadModal/LogoUploadModal';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { useGlobalState } from '@src/state/contexts/GlobalState';
-import {
-  ANT_INTERACTION_TYPES,
-  ContractInteraction,
-  VALIDATION_INPUT_TYPES,
-} from '@src/types';
+import { ContractInteraction } from '@src/types';
 import { isArweaveTransactionID } from '@src/utils';
-import { ARNS_TX_ID_ENTRY_REGEX } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { Skeleton } from 'antd';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import DomainSettingsRow from './DomainSettingsRow';
 
@@ -27,24 +20,18 @@ export default function LogoRow({
   confirm: (logo: string) => Promise<ContractInteraction>;
   editable?: boolean;
 }) {
-  const [editing, setEditing] = useState<boolean>(false);
-  const [newLogoTxId, setNewLogoTxId] = useState<string>(logoTxId ?? '');
-  const [{ arweaveDataProvider }] = useGlobalState();
-  const [showModal, setShowModal] = useState<boolean>(false);
+  const [showUpdateModal, setShowUpdateModal] = useState<boolean>(false);
 
-  useEffect(() => {
-    setNewLogoTxId(logoTxId ?? '');
-  }, [logoTxId]);
-
-  async function handleSave(transactionId: string) {
+  async function handleUpdateSuccess(txId: string) {
+    setShowUpdateModal(false);
     try {
-      await confirm(transactionId);
+      await confirm(txId);
+      eventEmitter.emit('success', {
+        name: 'Logo Updated',
+        message: `Logo updated successfully with ID: ${txId}`,
+      });
     } catch (error) {
       eventEmitter.emit('error', error);
-    } finally {
-      setEditing(false);
-      setNewLogoTxId(logoTxId ?? '');
-      setShowModal(false);
     }
   }
   return (
@@ -52,9 +39,19 @@ export default function LogoRow({
       <DomainSettingsRow
         label="Logo"
         editable={editable}
+        action={
+          editable ? (
+            <button
+              className="p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap hover:scale-105"
+              onClick={() => setShowUpdateModal(true)}
+            >
+              Update Logo
+            </button>
+          ) : null
+        }
         value={
           typeof logoTxId == 'string' ? (
-            !editing && isArweaveTransactionID(logoTxId) ? (
+            isArweaveTransactionID(logoTxId) ? (
               // TODO: render the logo in a tooltip
               <ArweaveID
                 id={new ArweaveTransactionID(logoTxId)}
@@ -63,38 +60,7 @@ export default function LogoRow({
                 type={ArweaveIdTypes.TRANSACTION}
               />
             ) : (
-              <ValidationInput
-                customPattern={ARNS_TX_ID_ENTRY_REGEX}
-                catchInvalidInput={true}
-                showValidationIcon={editing}
-                onPressEnter={() => setShowModal(true)}
-                wrapperClassName="flex w-full"
-                inputClassName={'domain-settings-input flex w-full'}
-                inputCustomStyle={
-                  editing
-                    ? {
-                        background: 'var(--card-bg)',
-                        borderRadius: 'var(--corner-radius)',
-                        border: '1px solid var(--text-faded)',
-                        padding: '3px',
-                      }
-                    : {
-                        border: 'none',
-                        background: 'transparent',
-                      }
-                }
-                disabled={!editing}
-                placeholder={editing ? `Enter a Logo ID` : logoTxId}
-                value={newLogoTxId}
-                setValue={(e) => setNewLogoTxId(e)}
-                validationPredicates={{
-                  [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                    fn: (id: string) =>
-                      arweaveDataProvider.validateArweaveId(id),
-                  },
-                }}
-                maxCharLength={(str) => str.length <= 43}
-              />
+              <span className="text-grey">No logo set</span>
             )
           ) : (
             <Skeleton.Input
@@ -106,42 +72,13 @@ export default function LogoRow({
             />
           )
         }
-        editing={editing}
-        setEditing={() => setEditing(true)}
-        onSave={() => {
-          if (!isArweaveTransactionID(newLogoTxId)) {
-            eventEmitter.emit('error', {
-              name: 'Set Logo',
-              message: 'Logo must be an arweave transaction ID',
-            });
-            return;
-          }
-          setShowModal(true);
-        }}
-        onCancel={() => {
-          setEditing(false);
-          setNewLogoTxId(logoTxId ?? '');
-        }}
       />
-      {showModal && (
-        <ConfirmTransactionModal
-          cancel={() => setShowModal(false)}
-          confirm={() => handleSave(newLogoTxId)}
-          interactionType={ANT_INTERACTION_TYPES.SET_LOGO}
-          content={
-            <>
-              <span>
-                By completing this action, you are going to change the Logo TX
-                ID of this token to <br />
-                <span className="text-color-warning">
-                  {`"${newLogoTxId}"`}.
-                </span>
-              </span>
-              <span>Are you sure you want to continue?</span>
-            </>
-          }
-        />
-      )}
+      <LogoUploadModal
+        show={showUpdateModal}
+        onClose={() => setShowUpdateModal(false)}
+        onUpdateSuccess={handleUpdateSuccess}
+        currentLogoTxId={logoTxId}
+      />
     </>
   );
 }

@@ -18,6 +18,15 @@ global.TextDecoder = TextDecoder;
 global.performance.markResourceTiming = jest.fn();
 global.fetch = require('node-fetch');
 global.indexedDB = indexedDB;
+
+// Mock URL.createObjectURL and revokeObjectURL for image preview tests
+let blobCounter = 0;
+global.URL.createObjectURL = jest.fn(() => {
+  blobCounter++;
+  return `blob:http://localhost:3000/mock-blob-url-${blobCounter}`;
+});
+global.URL.revokeObjectURL = jest.fn();
+
 // forcefully mock crypto
 Object.defineProperty(global, 'crypto', {
   value: {
