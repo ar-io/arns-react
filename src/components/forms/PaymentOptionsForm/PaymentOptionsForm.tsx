@@ -155,7 +155,7 @@ function CardPanel({
                 const cleaned = v.replace(/[^a-zA-Z\s]/g, '');
                 setName(cleaned);
                 setNameError(
-                  cleaned.length == 0 ? 'Name is required' : undefined,
+                  cleaned.length === 0 ? 'Name is required' : undefined,
                 );
               }}
             ></input>
@@ -271,7 +271,7 @@ function CardPanel({
                   const newEmail = e.target.value;
                   setEmail(newEmail);
                   setEmailError(
-                    newEmail.length == 0 || isEmail(e.target.value)
+                    newEmail.length === 0 || isEmail(e.target.value)
                       ? undefined
                       : 'Please enter a valid email address.',
                   );

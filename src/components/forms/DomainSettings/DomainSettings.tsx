@@ -182,14 +182,14 @@ function DomainSettings({
                   className="flex flex-row flex-right gap-1"
                   style={{ gap: '10px' }}
                 >
-                  {data?.arnsRecord?.type == 'permabuy' && isOwner ? (
+                  {data?.arnsRecord?.type === 'permabuy' && isOwner ? (
                     <Tooltip
                       message={
                         primaryNameData?.name === lowerCaseDomain(domain ?? '')
                           ? 'Cannot return ArNS name while set as primary name. Remove name as primary name to enable return name workflow.'
                           : data.version < MIN_ANT_VERSION
-                          ? 'Update Domain to access Release Name workflow'
-                          : 'Returns the name to the ArNS protocol'
+                            ? 'Update Domain to access Release Name workflow'
+                            : 'Returns the name to the ArNS protocol'
                       }
                       icon={
                         <button
@@ -205,7 +205,7 @@ function DomainSettings({
                         </button>
                       }
                     />
-                  ) : data?.arnsRecord?.type == 'lease' ? (
+                  ) : data?.arnsRecord?.type === 'lease' ? (
                     <Tooltip
                       message={'Extend lease'}
                       icon={
@@ -254,9 +254,9 @@ function DomainSettings({
               labelTooltip={`These names are connected to this ANT process. Any changes made to this ANT will be reflected on all associated names.`}
               value={
                 data?.associatedNames ? (
-                  data?.associatedNames
+                  (data?.associatedNames
                     .map((d) => decodeDomainToASCII(d))
-                    .join(', ') ?? 'N/A'
+                    .join(', ') ?? 'N/A')
                 ) : (
                   <Skeleton.Input
                     active
@@ -301,8 +301,8 @@ function DomainSettings({
                       currentModuleId: antModuleId,
                     })
                   : data?.processId
-                  ? true
-                  : false
+                    ? true
+                    : false
               }
             />
           ),
@@ -357,8 +357,8 @@ function DomainSettings({
                       data?.version && data.version < MIN_ANT_VERSION
                         ? 'Update Domain to access Reassign Name workflow'
                         : data?.isInGracePeriod
-                        ? 'Lease must be extended before ANT can be Reassigned'
-                        : 'Reassigns what ANT is registered to the ArNS Name'
+                          ? 'Lease must be extended before ANT can be Reassigned'
+                          : 'Reassigns what ANT is registered to the ArNS Name'
                     }
                     icon={
                       <button

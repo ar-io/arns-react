@@ -177,13 +177,13 @@ function NotificationMenu() {
                   style={{ gap: '20px' }}
                 >
                   <span>
-                    {notification.type == 'success' ? (
+                    {notification.type === 'success' ? (
                       <Circle
                         className="text-success fill-success"
                         width={'16px'}
                         height={'16px'}
                       />
-                    ) : notification.type == 'warning' ? (
+                    ) : notification.type === 'warning' ? (
                       <CircleAlert
                         className="text-primary"
                         width={'16px'}

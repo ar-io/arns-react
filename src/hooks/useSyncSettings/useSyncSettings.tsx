@@ -65,7 +65,7 @@ function useSyncSettings() {
     const settings: Settings = {
       network: {
         gateway,
-        hyperbeamUrl,
+        hyperbeamUrl: hyperbeamUrl || undefined,
         aoNetwork,
         turboNetwork,
       },

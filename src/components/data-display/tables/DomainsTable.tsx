@@ -218,34 +218,34 @@ const DomainsTable = ({
   ].map((key) =>
     columnHelper.accessor(key as keyof TableData, {
       id: key,
-      size: key == 'action' || key == 'openRow' ? 20 : undefined,
+      size: key === 'action' || key === 'openRow' ? 20 : undefined,
       enableSorting: key !== 'action' && key !== 'openRow',
       header:
-        key == 'action' || key == 'openRow'
+        key === 'action' || key === 'openRow'
           ? ''
-          : key == 'processId'
-          ? 'Process ID'
-          : key == 'targetId'
-          ? 'Target ID'
-          : key == 'ioCompatible'
-          ? 'AR.IO Compatible'
-          : camelToReadable(key),
+          : key === 'processId'
+            ? 'Process ID'
+            : key === 'targetId'
+              ? 'Target ID'
+              : key === 'ioCompatible'
+                ? 'AR.IO Compatible'
+                : camelToReadable(key),
       sortDescFirst: true,
       sortingFn:
-        key == 'undernames'
+        key === 'undernames'
           ? (rowA, rowB) => {
               return (
                 rowA.original.undernames.used - rowB.original.undernames.used
               );
             }
-          : key == 'ioCompatible'
-          ? (rowA) => {
-              return typeof rowA.original.ioCompatible === 'boolean' &&
-                rowA.original.ioCompatible === true
-                ? 1
-                : 0;
-            }
-          : 'alphanumeric',
+          : key === 'ioCompatible'
+            ? (rowA) => {
+                return typeof rowA.original.ioCompatible === 'boolean' &&
+                  rowA.original.ioCompatible === true
+                  ? 1
+                  : 0;
+              }
+            : 'alphanumeric',
       cell: ({ row }) => {
         const processId = row.original.processId;
         const rowValue = row.getValue(key) as any;
@@ -447,7 +447,7 @@ const DomainsTable = ({
             );
           }
           case 'expiryDate': {
-            if (rowValue == PERMANENT_DOMAIN_MESSAGE) {
+            if (rowValue === PERMANENT_DOMAIN_MESSAGE) {
               return (
                 <Tooltip
                   message={
@@ -477,8 +477,8 @@ const DomainsTable = ({
                         row.original.version < MIN_ANT_VERSION
                           ? 'Update ANT to access Primary Names workflow'
                           : primaryNameData?.name === row.getValue('name')
-                          ? 'Remove Primary Name'
-                          : 'Set Primary Name'
+                            ? 'Remove Primary Name'
+                            : 'Set Primary Name'
                       }
                       icon={
                         <button
@@ -516,7 +516,7 @@ const DomainsTable = ({
                         >
                           <Star
                             className={
-                              (row.getValue('name') == primaryNameData?.name
+                              (row.getValue('name') === primaryNameData?.name
                                 ? 'text-primary fill-primary'
                                 : 'text-grey') +
                               ` 

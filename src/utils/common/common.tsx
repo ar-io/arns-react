@@ -30,7 +30,7 @@ export function formatVerboseDate(timestamp: number | string): string {
       second: 'numeric',
       timeZoneName: 'short',
     }).format(new Date(timestamp));
-  } catch (error) {
+  } catch (_error) {
     return '';
   }
 }
@@ -47,7 +47,7 @@ export function formatDateMDY(timestamp: number | string): string {
       month: 'long',
       day: 'numeric',
     }).format(new Date(timestamp));
-  } catch (error) {
+  } catch (_error) {
     return '';
   }
 }
@@ -101,11 +101,11 @@ export function getCustomPaginationButtons({
         className="flex flex-row hover center text-sm font-sans"
         style={
           pageStyle ?? {
-            color: currentPage == page ? 'white' : 'var(--text-grey)',
+            color: currentPage === page ? 'white' : 'var(--text-grey)',
             width: '32px',
             borderRadius: 'var(--corner-radius)',
             backgroundColor:
-              currentPage == page ? 'var(--text-faded)' : 'var(--bg-color)',
+              currentPage === page ? 'var(--text-faded)' : 'var(--bg-color)',
           }
         }
       >
@@ -150,7 +150,7 @@ export function formatForMaxCharCount(
 export function jsonSerialize(obj: any) {
   try {
     return JSON.parse(obj);
-  } catch (error) {
+  } catch (_error) {
     return undefined;
   }
 }
@@ -182,9 +182,9 @@ export function formatExpiryDate(endTimestamp?: number) {
         isGracePeriod
           ? 'Name is in Grace Period'
           : isExpired
-          ? 'Name is Expired'
-          : 'Enters grace period on approximately ' +
-            formatVerboseDate(endTimestamp)
+            ? 'Name is Expired'
+            : 'Enters grace period on approximately ' +
+              formatVerboseDate(endTimestamp)
       }
       icon={
         <span
@@ -193,8 +193,8 @@ export function formatExpiryDate(endTimestamp?: number) {
               endTimestamp > Date.now()
                 ? 'var(--success-green)'
                 : isGracePeriod
-                ? 'var(--accent)'
-                : 'var(--error-red)',
+                  ? 'var(--accent)'
+                  : 'var(--error-red)',
           }}
         >
           {formatDate(endTimestamp)}

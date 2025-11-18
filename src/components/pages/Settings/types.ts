@@ -5,7 +5,7 @@ export interface NetworkSettingsState {
   suAddress: string;
   registryAddress: string;
   antRegistryAddress: string;
-  hyperbeamUrl: string;
+  hyperbeamUrl?: string;
   turboPaymentUrl: string;
   showGatewayModal: boolean;
 }

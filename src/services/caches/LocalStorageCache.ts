@@ -18,7 +18,7 @@ export class LocalStorageCache implements KVCache {
     const cachedItem = window.localStorage.getItem(key) ?? '[]';
     try {
       return JSON.parse(cachedItem);
-    } catch (error) {
+    } catch (_error) {
       console.debug(`Failed to get item from cache. ${key}`);
       return [];
     }
@@ -94,7 +94,7 @@ export class LocalStorageCache implements KVCache {
         if (!parsedValues || !parsedValues.length) {
           this.del(key);
         }
-      } catch (error) {
+      } catch (_error) {
         console.debug(`Failed to clean item from cache. ${key}`);
       }
     }

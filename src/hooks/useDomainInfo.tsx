@@ -145,7 +145,7 @@ export function buildDomainInfoQuery({
 
       const associatedNames = arnsRecords
         ? arnsRecords
-            .filter((r) => r.processId == processId.toString())
+            .filter((r) => r.processId === processId.toString())
             .map((r) => r.name)
         : [];
 

@@ -67,7 +67,7 @@
   background-color: var(--bg-color);
 }
 
-th[class~='manage-assets-table-header'] {
+th[class~="manage-assets-table-header"] {
   background: var(--bg-color) !important;
   border-radius: 0px !important;
   padding: 0px 20px;
@@ -75,7 +75,7 @@ th[class~='manage-assets-table-header'] {
   font-size: 14px;
 }
 
-thead > tr > td[class~='manage-assets-table-header'] {
+thead > tr > td[class~="manage-assets-table-header"] {
   background: var(--bg-color) !important;
   justify-content: flex-start !important;
   border-radius: 0px !important;

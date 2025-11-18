@@ -22,7 +22,7 @@
   color: var(--text-white);
   justify-content: center;
   align-items: center;
-  font-family: 'Rubik';
+  font-family: "Rubik";
   font-size: 35px;
   padding: 0;
 }
@@ -43,7 +43,7 @@
   width: 50px;
 }
 
-input[type='number' i] {
+input[type="number" i] {
   padding: 0px;
   -webkit-appearance: textfield !important;
   appearance: textfield;

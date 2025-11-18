@@ -272,7 +272,7 @@ function NameTokenSelector({
       }
 
       setFilteredTokens(filteredResults);
-    } catch (error) {
+    } catch (_error) {
       setFilteredTokens(undefined);
     } finally {
       setSearching(false);
@@ -324,7 +324,7 @@ function NameTokenSelector({
         <span
           className="flex flex-row hover center"
           style={{
-            color: listPage == page ? 'white' : 'var(--text-grey)',
+            color: listPage === page ? 'white' : 'var(--text-grey)',
             width: '32px',
           }}
         >
@@ -616,8 +616,8 @@ function NameTokenSelector({
                   Object.keys(tokens).length && !filteredTokens
                     ? Object.keys(tokens).length
                     : filteredTokens
-                    ? filteredTokens.length
-                    : 0
+                      ? filteredTokens.length
+                      : 0
                 }
                 itemRender={customPreviousAndNextButtons}
                 showPrevNextJumpers={true}

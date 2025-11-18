@@ -61,7 +61,7 @@ function loadSettingsFromStorage(): {
         arioProcessId: settings.arns?.arioProcessId || ARIO_PROCESS_ID,
         antRegistryProcessId:
           settings.arns?.antRegistryProcessId || ANT_REGISTRY_ID,
-        hyperbeamUrl: settings.network?.hyperbeamUrl,
+        hyperbeamUrl: settings.network?.hyperbeamUrl || undefined,
       };
     }
   } catch (error) {
@@ -86,6 +86,7 @@ const initialHyperbeamUrl = savedSettings?.hyperbeamUrl;
 
 export const defaultArIO = ARIO.init({
   paymentUrl: initialTurboNetwork.PAYMENT_URL,
+  hyperbeamUrl: initialHyperbeamUrl,
   process: new AOProcess({
     processId: initialArioProcessId,
     ao: connect({

@@ -189,8 +189,8 @@ export function getOwnershipStatus(
   return owner === walletAddress
     ? 'owner'
     : walletAddress && controllers?.includes(walletAddress)
-    ? 'controller'
-    : undefined;
+      ? 'controller'
+      : undefined;
 }
 
 export function isValidGateway(gateway: string) {

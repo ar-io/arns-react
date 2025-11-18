@@ -96,7 +96,7 @@ const initialState: NetworkSettingsState = {
   suAddress: NETWORK_DEFAULTS.AO.ARIO.SCHEDULER,
   registryAddress: ARIO_PROCESS_ID,
   antRegistryAddress: ANT_REGISTRY_ID,
-  hyperbeamUrl: NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || '',
+  hyperbeamUrl: NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL,
   turboPaymentUrl: NETWORK_DEFAULTS.TURBO.PAYMENT_URL,
   showGatewayModal: false,
 };

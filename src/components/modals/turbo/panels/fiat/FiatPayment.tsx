@@ -61,7 +61,7 @@ const isValidPromoCode = async (
     });
     return response.adjustments.length > 0;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (e: unknown) {
+  } catch (_e: unknown) {
     return false;
   }
 };
@@ -231,7 +231,7 @@ function FiatPayment({
                 const cleaned = v.replace(/[^a-zA-Z\s]/g, '');
                 setName(cleaned);
                 setNameError(
-                  cleaned.length == 0 ? 'Name is required' : undefined,
+                  cleaned.length === 0 ? 'Name is required' : undefined,
                 );
               }}
             ></input>
@@ -278,7 +278,7 @@ function FiatPayment({
                     ({
                       label: c,
                       value: c,
-                    } as any),
+                    }) as any,
                 ) ?? []
               }
             />
@@ -414,7 +414,7 @@ function FiatPayment({
                   const newEmail = e.target.value;
                   setEmail(newEmail);
                   setEmailError(
-                    newEmail.length == 0 || isEmail(e.target.value)
+                    newEmail.length === 0 || isEmail(e.target.value)
                       ? undefined
                       : 'Please enter a valid email address.',
                   );

@@ -2,7 +2,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider } from 'antd';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { WagmiProvider, createConfig, http } from 'wagmi';
+import { http, WagmiProvider, createConfig } from 'wagmi';
 import { mainnet } from 'wagmi/chains';
 import { metaMask } from 'wagmi/connectors';
 

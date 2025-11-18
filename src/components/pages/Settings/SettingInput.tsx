@@ -2,6 +2,7 @@ import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { isArweaveTransactionID } from '@src/utils';
 import { Input } from 'antd';
 import { RotateCcw } from 'lucide-react';
 import { ReactNode } from 'react';
@@ -105,15 +106,16 @@ export function TransactionIdSettingInput({
   onPressEnter,
   disabled = false,
 }: Omit<SettingInputProps, 'displayValue'>) {
-  const displayValue = value ? (
-    <ArweaveID
-      id={new ArweaveTransactionID(value)}
-      shouldLink
-      type={ArweaveIdTypes.CONTRACT}
-    />
-  ) : (
-    'N/A'
-  );
+  const displayValue =
+    value && isArweaveTransactionID(value) ? (
+      <ArweaveID
+        id={new ArweaveTransactionID(value)}
+        shouldLink
+        type={ArweaveIdTypes.CONTRACT}
+      />
+    ) : (
+      'N/A'
+    );
 
   return (
     <SettingInput

@@ -69,7 +69,7 @@ export function useArNSDomainPriceList(domain: string) {
           prices.turboFiatLease = turboFiatLease ?? 0;
           prices.turboFiatBuy = turboFiatBuy ?? 0;
         }
-      } catch (error) {
+      } catch (_error) {
         eventEmitter.emit('error', {
           message: `Failed to fetch price for domain: ${domain}`,
           name: 'Domain Price',

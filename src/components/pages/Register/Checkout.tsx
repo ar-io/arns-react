@@ -78,8 +78,8 @@ function Checkout() {
         paymentMethod === 'crypto'
           ? fundingSource
           : paymentMethod === 'credits'
-          ? 'turbo'
-          : undefined,
+            ? 'turbo'
+            : undefined,
       quantity: (transactionData as any)?.qty,
     };
   }, [
@@ -329,8 +329,8 @@ function Checkout() {
           paymentMethod === 'card'
             ? 'fiat'
             : paymentMethod === 'credits'
-            ? 'turbo'
-            : fundingSource,
+              ? 'turbo'
+              : fundingSource,
         paidBy: creditsBalance?.receivedApprovals.map(
           (approval) => approval.payingAddress,
         ),
@@ -449,8 +449,8 @@ function Checkout() {
               {isLoadingCostDetail
                 ? 'Loading...'
                 : isInsufficientBalance
-                ? 'Insufficient balance'
-                : 'Pay now'}
+                  ? 'Insufficient balance'
+                  : 'Pay now'}
             </button>
           </div>
         </div>

@@ -21,7 +21,11 @@
  */
 import { ArconnectSigner, TurboFactory } from '@ardrive/turbo-sdk/web';
 import { useGlobalState, useWalletState } from '@src/state';
-import type { ArweaveTag, TurboUploadProgress } from '@src/types/turbo';
+import type {
+  ArweaveTag,
+  TurboUploadProgress,
+  TurboWebAuthenticatedClient,
+} from '@src/types/turbo';
 
 /**
  * Parameters for uploading a logo
@@ -82,6 +86,7 @@ export function useUploadArNSLogo(): UseUploadArNSLogoReturn {
     const signer = new ArconnectSigner(window.arweaveWallet);
 
     // Create authenticated Turbo client with proper configuration
+    // Cast to TurboWebAuthenticatedClient to access web-specific uploadFile method
     const turbo = TurboFactory.authenticated({
       signer,
       token: wallet.tokenType,
@@ -92,17 +97,17 @@ export function useUploadArNSLogo(): UseUploadArNSLogoReturn {
         url: turboNetwork.PAYMENT_URL,
       },
       gatewayUrl: turboNetwork.GATEWAY_URL,
-    });
+    }) as unknown as TurboWebAuthenticatedClient;
 
     // Upload file - pass File object directly (works in Turbo SDK web)
-    const uploadResult = await (turbo as any).uploadFile({
+    const uploadResult = await turbo.uploadFile({
       file: file,
       dataItemOpts: {
         tags,
       },
       events: {
-        onProgress: onProgress
-          ? ({ totalBytes, processedBytes }: any) => {
+        onUploadProgress: onProgress
+          ? ({ totalBytes, processedBytes }) => {
               onProgress({ totalBytes, processedBytes });
             }
           : undefined,

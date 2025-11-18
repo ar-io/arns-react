@@ -497,10 +497,10 @@ function UpgradeDomainsModal({
             {arnsLoading
               ? 'Loading domains...'
               : !accepted && progress < 0
-              ? 'Verify you understand before proceeding'
-              : progress >= 0
-              ? 'Updating, please wait...'
-              : 'Upgrade'}
+                ? 'Verify you understand before proceeding'
+                : progress >= 0
+                  ? 'Updating, please wait...'
+                  : 'Upgrade'}
           </button>
         </div>
       </div>

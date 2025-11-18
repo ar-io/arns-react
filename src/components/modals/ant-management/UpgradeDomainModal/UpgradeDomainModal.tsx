@@ -226,8 +226,8 @@ function UpgradeDomainModal({
             {!accepted
               ? 'Verify you understand before proceeding'
               : upgrading
-              ? 'Updating, please wait...'
-              : 'Upgrade'}
+                ? 'Updating, please wait...'
+                : 'Upgrade'}
           </button>
         </div>
       </div>

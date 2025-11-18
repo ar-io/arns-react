@@ -9,10 +9,13 @@ const useGateways = () => {
     queryKey: ['gateways', arioProcessId?.toString()],
     queryFn: async () => {
       const result = await arioContract.getGateways({ limit: 1000 });
-      const gateways = result.items.reduce((acc, gateway) => {
-        acc[gateway.gatewayAddress] = gateway;
-        return acc;
-      }, {} as Record<string, AoGateway>);
+      const gateways = result.items.reduce(
+        (acc, gateway) => {
+          acc[gateway.gatewayAddress] = gateway;
+          return acc;
+        },
+        {} as Record<string, AoGateway>,
+      );
 
       return gateways;
     },

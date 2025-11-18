@@ -50,7 +50,7 @@ export default function LogoRow({
           ) : null
         }
         value={
-          typeof logoTxId == 'string' ? (
+          typeof logoTxId === 'string' ? (
             isArweaveTransactionID(logoTxId) ? (
               // TODO: render the logo in a tooltip
               <ArweaveID
