@@ -26,8 +26,10 @@ import {
   type TurboUploadDataItemResponse,
   type TurboUploadEventsAndPayloads,
 } from '@ardrive/turbo-sdk/web';
+import { InjectedEthereumSigner } from '@dha-team/arbundles';
 import { useGlobalState, useWalletState } from '@src/state';
 import { ethers } from 'ethers';
+import { hashMessage, recoverPublicKey, toBytes } from 'viem';
 
 /**
  * Tag for Arweave data items
@@ -129,21 +131,43 @@ export function useUploadArNSLogo(): UseUploadArNSLogoReturn {
         gatewayUrl: turboNetwork.GATEWAY_URL,
       }) as unknown as TurboWebAuthenticatedClient;
     } else if (wallet.tokenType === 'ethereum') {
-      // For Ethereum wallets, use walletAdapter with ethers v6
+      // For Ethereum wallets, use InjectedEthereumSigner with custom message
       if (!window.ethereum) {
         throw new Error('Ethereum wallet not available');
       }
 
-      // Create ethers provider and signer from window.ethereum
+      // Create ethers provider and signer
       const ethersProvider = new ethers.BrowserProvider(window.ethereum);
       const ethersSigner = await ethersProvider.getSigner();
 
-      // Use walletAdapter pattern (NOT EthereumSigner)
+      // Create provider for InjectedEthereumSigner
+      const provider = {
+        getSigner: () => ({
+          signMessage: async (message: any) => {
+            const arg = message instanceof String ? message : { raw: message };
+            return await ethersSigner.signMessage(
+              typeof arg === 'string' ? arg : arg.raw,
+            );
+          },
+        }),
+      };
+
+      // Create InjectedEthereumSigner with custom setPublicKey message
+      const signer = new InjectedEthereumSigner(provider as any);
+      signer.setPublicKey = async () => {
+        const message = 'Authorize Arweave uploads for this session';
+        const signature = await ethersSigner.signMessage(message);
+        const hash = await hashMessage(message);
+        const recoveredKey = await recoverPublicKey({
+          hash,
+          signature: signature as `0x${string}`,
+        });
+        signer.publicKey = Buffer.from(toBytes(recoveredKey));
+      };
+
       turbo = TurboFactory.authenticated({
+        signer,
         token: wallet.tokenType,
-        walletAdapter: {
-          getSigner: () => ethersSigner as any,
-        },
         uploadServiceConfig: {
           url: turboNetwork.UPLOAD_URL,
         },
