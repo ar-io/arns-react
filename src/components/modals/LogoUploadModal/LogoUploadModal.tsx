@@ -290,7 +290,7 @@ function LogoUploadModal({
         },
         onError: (error) => {
           console.error('Upload error:', error);
-          throw error;
+          // Error propagation is handled by uploadLogo
         },
         onSuccess: () => {
           console.log('Upload success!');
@@ -313,7 +313,7 @@ function LogoUploadModal({
             ? confirmError.message
             : 'Failed to confirm logo on-chain',
         );
-        eventEmitter.emit('error', confirmError);
+        // Global error emission is handled by parent component
       }
     } catch (error) {
       console.error('Upload failed:', error);

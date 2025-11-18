@@ -23,7 +23,7 @@
 }
 
 .logo-upload-dropzone.dragging::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background-color: rgba(var(--primary-rgb), 0.1);
