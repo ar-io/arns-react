@@ -100,23 +100,32 @@ export function useUploadArNSLogo(): UseUploadArNSLogoReturn {
     }) as unknown as TurboWebAuthenticatedClient;
 
     // Upload file - pass File object directly (works in Turbo SDK web)
-    const uploadResult = await turbo.uploadFile({
-      file: file,
-      dataItemOpts: {
-        tags,
-      },
-      events: {
-        onUploadProgress: onProgress
-          ? ({ totalBytes, processedBytes }) => {
-              onProgress({ totalBytes, processedBytes });
-            }
-          : undefined,
-        onUploadError: onError,
-        onUploadSuccess: onSuccess,
-      },
-    });
+    try {
+      const uploadResult = await turbo.uploadFile({
+        file: file,
+        dataItemOpts: {
+          tags,
+        },
+        events: {
+          onUploadProgress: onProgress
+            ? ({ totalBytes, processedBytes }) => {
+                onProgress({ totalBytes, processedBytes });
+              }
+            : undefined,
+          onUploadError: onError,
+          onUploadSuccess: onSuccess,
+        },
+      });
 
-    return uploadResult.id;
+      return uploadResult.id;
+    } catch (error) {
+      // Call error callback if provided
+      if (onError && error instanceof Error) {
+        onError(error);
+      }
+      // Re-throw to allow caller to handle the error as well
+      throw error;
+    }
   };
 
   return { uploadLogo };
