@@ -38,8 +38,7 @@ export interface ImageDimensions {
 /**
  * Validates an image file for type and size requirements
  *
- * Checks if the file type is supported and provides warnings for files
- * that exceed recommended size limits.
+ * Checks if the file type is supported and rejects files that exceed the maximum size limit.
  *
  * @param file - The image file to validate
  * @returns Validation result with validity status, errors, and warnings
@@ -55,8 +54,6 @@ export interface ImageDimensions {
  * ```
  */
 export function validateImageFile(file: File): ImageValidationResult {
-  const warnings: string[] = [];
-
   // Check file type
   if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
     return {
@@ -65,10 +62,17 @@ export function validateImageFile(file: File): ImageValidationResult {
     };
   }
 
-  // Validation passed - warnings will be shown after compression if needed
+  // Check file size against maximum allowed size
+  if (file.size > MAX_LOGO_SIZE) {
+    return {
+      valid: false,
+      error: `File size exceeds maximum allowed size of ${(MAX_LOGO_SIZE / 1024).toFixed(0)} KiB. Please use a smaller image.`,
+    };
+  }
+
+  // Validation passed
   return {
     valid: true,
-    warnings: warnings.length > 0 ? warnings : undefined,
   };
 }
 

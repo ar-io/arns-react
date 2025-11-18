@@ -62,7 +62,7 @@ describe('imageUtils', () => {
       expect(result.warnings).toBeUndefined();
     });
 
-    it('should accept files exceeding max size without warnings', () => {
+    it('should reject files exceeding max size', () => {
       const veryLargeContent = new Array(MAX_LOGO_SIZE + 1024)
         .fill('a')
         .join('');
@@ -70,9 +70,9 @@ describe('imageUtils', () => {
         type: 'image/png',
       });
       const result = validateImageFile(file);
-      expect(result.valid).toBe(true);
-      // No warnings - compression is handled in the upload modal, not validation
-      expect(result.warnings).toBeUndefined();
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('exceeds maximum allowed size');
+      expect(result.error).toContain('100 KiB');
     });
 
     it('should not warn for small files', () => {

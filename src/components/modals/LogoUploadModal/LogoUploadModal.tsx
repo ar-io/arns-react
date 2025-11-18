@@ -263,8 +263,8 @@ function LogoUploadModal({
       return;
     }
 
-    if (!wallet?.turboSigner) {
-      setErrorMessage('Wallet not connected or does not support Turbo uploads');
+    if (!wallet) {
+      setErrorMessage('Wallet not connected');
       return;
     }
 
