@@ -1,32 +1,17 @@
-/**
- * Maximum allowed logo file size in bytes (100 KiB)
- * Files larger than this will be automatically compressed
- */
-export const MAX_LOGO_SIZE = 100 * 1024; // 100 KiB
+import {
+  ALLOWED_IMAGE_TYPES,
+  MAX_LOGO_SIZE,
+  RECOMMENDED_MAX_DIMENSION,
+  RECOMMENDED_MAX_SIZE,
+} from './constants';
 
-/**
- * Recommended maximum logo file size in bytes (50 KiB)
- * Files larger than this but under MAX_LOGO_SIZE will show a warning
- */
-export const RECOMMENDED_MAX_SIZE = 50 * 1024; // 50 KiB
-
-/**
- * Recommended maximum image dimension in pixels
- * Images larger than this will show a warning
- */
-export const RECOMMENDED_MAX_DIMENSION = 1000;
-
-/**
- * List of allowed MIME types for logo images
- */
-export const ALLOWED_IMAGE_TYPES = [
-  'image/png',
-  'image/jpeg',
-  'image/jpg',
-  'image/gif',
-  'image/svg+xml',
-  'image/webp',
-];
+// Re-export constants for backward compatibility
+export {
+  ALLOWED_IMAGE_TYPES,
+  MAX_LOGO_SIZE,
+  RECOMMENDED_MAX_DIMENSION,
+  RECOMMENDED_MAX_SIZE,
+};
 
 /**
  * Result of image file validation

@@ -26,10 +26,7 @@ import {
   type TurboUploadDataItemResponse,
   type TurboUploadEventsAndPayloads,
 } from '@ardrive/turbo-sdk/web';
-import { InjectedEthereumSigner } from '@dha-team/arbundles';
 import { useGlobalState, useWalletState } from '@src/state';
-import { ethers } from 'ethers';
-import React from 'react';
 
 /**
  * Tag for Arweave data items
@@ -94,9 +91,6 @@ export function useUploadArNSLogo(): UseUploadArNSLogoReturn {
   const [{ wallet }] = useWalletState();
   const [{ turboNetwork }] = useGlobalState();
 
-  // Cache the Ethereum signer to avoid re-initializing and requesting signatures multiple times
-  const ethereumSignerRef = React.useRef<InjectedEthereumSigner | null>(null);
-
   /**
    * Upload a logo file to Arweave via Turbo
    */
@@ -134,54 +128,17 @@ export function useUploadArNSLogo(): UseUploadArNSLogoReturn {
         gatewayUrl: turboNetwork.GATEWAY_URL,
       }) as unknown as TurboWebAuthenticatedClient;
     } else if (wallet.tokenType === 'ethereum') {
-      // For Ethereum wallets, use InjectedEthereumSigner with custom message
-      if (!window.ethereum) {
-        throw new Error('Ethereum wallet not available');
+      // For Ethereum wallets, reuse the turboSigner from wallet connection
+      // This avoids duplicate signature prompts and uses the same public key
+      if (!wallet.turboSigner) {
+        throw new Error('Ethereum wallet signer not available');
       }
 
-      // Reuse cached signer if available to avoid multiple signature requests
-      let signer = ethereumSignerRef.current;
+      const signer = wallet.turboSigner as any;
 
-      if (!signer) {
-        // Create ethers provider and signer
-        const ethersProvider = new ethers.BrowserProvider(window.ethereum);
-        const ethersSigner = await ethersProvider.getSigner();
-
-        // Create provider for InjectedEthereumSigner
-        const provider = {
-          getSigner: () => ({
-            signMessage: async (message: any) => {
-              const arg =
-                message instanceof String ? message : { raw: message };
-              return await ethersSigner.signMessage(
-                typeof arg === 'string' ? arg : arg.raw,
-              );
-            },
-          }),
-        };
-
-        // Create InjectedEthereumSigner with custom setPublicKey message
-        signer = new InjectedEthereumSigner(provider as any);
-        signer.setPublicKey = async () => {
-          // Only prompt once per session
-          if (!signer.publicKey) {
-            const message = 'Authorize Arweave uploads for this session';
-            const signature = await ethersSigner.signMessage(message);
-            const messageHash = ethers.hashMessage(message);
-            const recoveredPublicKey = ethers.SigningKey.recoverPublicKey(
-              messageHash,
-              signature,
-            );
-
-            // Convert hex string to Buffer (remove '0x' prefix)
-            const publicKeyHex = recoveredPublicKey.slice(2);
-            signer.publicKey = Buffer.from(publicKeyHex, 'hex');
-            console.log('✅ Session authorized for Arweave uploads');
-          }
-        };
-
-        // Cache the signer for reuse
-        ethereumSignerRef.current = signer;
+      // Ensure publicKey is set (will prompt for signature if not already set)
+      if (!signer.publicKey && signer.setPublicKey) {
+        await signer.setPublicKey();
       }
 
       turbo = TurboFactory.authenticated({
