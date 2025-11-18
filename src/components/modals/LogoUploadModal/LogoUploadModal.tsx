@@ -526,51 +526,31 @@ function LogoUploadModal({
                   Use existing Arweave transaction:
                 </span>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1">
-                    <ValidationInput
-                      customPattern={ARNS_TX_ID_ENTRY_REGEX}
-                      catchInvalidInput={true}
-                      showValidationIcon={false}
-                      onPressEnter={handleManualTxIdSubmit}
-                      wrapperClassName="flex w-full"
-                      inputClassName="flex w-full"
-                      inputCustomStyle={{
-                        background: 'var(--card-bg)',
-                        borderRadius: 'var(--corner-radius)',
-                        border: '1px solid var(--text-faded)',
-                        padding: '8px',
-                        color: 'var(--text-white)',
-                      }}
-                      placeholder="Enter transaction ID"
-                      value={manualTxId}
-                      setValue={(e) => setManualTxId(e)}
-                      validationPredicates={{
-                        [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                          fn: (id: string) =>
-                            arweaveDataProvider.validateArweaveId(id),
-                        },
-                      }}
-                      maxCharLength={(str) => str.length <= 43}
-                    />
-                  </div>
-                  {/* External validation indicator */}
-                  {manualTxId && (
-                    <div className="flex-shrink-0 w-5 h-5">
-                      {isArweaveTransactionID(manualTxId) ? (
-                        <CheckmarkIcon
-                          width="20px"
-                          height="20px"
-                          fill="var(--success)"
-                        />
-                      ) : (
-                        <CloseIcon
-                          width="20px"
-                          height="20px"
-                          fill="var(--error)"
-                        />
-                      )}
-                    </div>
-                  )}
+                  <ValidationInput
+                    customPattern={ARNS_TX_ID_ENTRY_REGEX}
+                    catchInvalidInput={true}
+                    showValidationIcon={true}
+                    onPressEnter={handleManualTxIdSubmit}
+                    wrapperClassName="flex w-full"
+                    inputClassName="flex w-full"
+                    inputCustomStyle={{
+                      background: 'var(--card-bg)',
+                      borderRadius: 'var(--corner-radius)',
+                      border: '1px solid var(--text-faded)',
+                      padding: '8px',
+                      color: 'var(--text-white)',
+                    }}
+                    placeholder="Enter transaction ID"
+                    value={manualTxId}
+                    setValue={(e) => setManualTxId(e)}
+                    validationPredicates={{
+                      [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
+                        fn: (id: string) =>
+                          arweaveDataProvider.validateArweaveId(id),
+                      },
+                    }}
+                    maxCharLength={(str) => str.length <= 43}
+                  />
                 </div>
               </div>
             )}
