@@ -3,6 +3,7 @@
  *
  * This hook provides functionality to upload logo images for ArNS domains using the Turbo upload service.
  * It handles wallet authentication and provides progress tracking through event callbacks.
+ * Supports both Arweave wallets (ArConnect, Wander, etc.) and Ethereum wallets (MetaMask, etc.).
  *
  * @returns An object containing the upload function
  *
@@ -19,13 +20,41 @@
  * });
  * ```
  */
-import { ArconnectSigner, TurboFactory } from '@ardrive/turbo-sdk/web';
+import {
+  ArconnectSigner,
+  TurboFactory,
+  type TurboUploadDataItemResponse,
+  type TurboUploadEventsAndPayloads,
+} from '@ardrive/turbo-sdk/web';
 import { useGlobalState, useWalletState } from '@src/state';
-import type {
-  ArweaveTag,
-  TurboUploadProgress,
-  TurboWebAuthenticatedClient,
-} from '@src/types/turbo';
+import { ethers } from 'ethers';
+
+/**
+ * Tag for Arweave data items
+ * Note: Using inline type from DataItemCreateOptions since Tag type is not exported by SDK
+ */
+type Tag = { name: string; value: string };
+
+/**
+ * Progress information for file upload
+ */
+type UploadProgress = TurboUploadEventsAndPayloads['upload-progress'];
+
+/**
+ * Turbo authenticated client interface with web-specific uploadFile method
+ * Note: This type is needed because the runtime signature differs from the SDK's Node.js types
+ */
+interface TurboWebAuthenticatedClient {
+  uploadFile: (params: {
+    file: File;
+    dataItemOpts?: { tags?: Tag[] };
+    events?: {
+      onUploadProgress?: (progress: UploadProgress) => void;
+      onUploadError?: (error: Error) => void;
+      onUploadSuccess?: () => void;
+    };
+  }) => Promise<TurboUploadDataItemResponse>;
+}
 
 /**
  * Parameters for uploading a logo
@@ -34,9 +63,9 @@ export interface UploadLogoParams {
   /** File to upload */
   file: File;
   /** Tags to attach to the upload */
-  tags: ArweaveTag[];
+  tags: Tag[];
   /** Progress callback */
-  onProgress?: (progress: TurboUploadProgress) => void;
+  onProgress?: (progress: UploadProgress) => void;
   /** Error callback */
   onError?: (error: Error) => void;
   /** Success callback */
@@ -77,27 +106,57 @@ export function useUploadArNSLogo(): UseUploadArNSLogoReturn {
       throw new Error('Wallet not connected');
     }
 
-    // For Arweave wallets (Wander/ArConnect), create ArconnectSigner from Turbo SDK
-    // This is the correct pattern per the Turbo gateway app
-    if (!window.arweaveWallet) {
-      throw new Error('Arweave wallet not available');
-    }
-
-    const signer = new ArconnectSigner(window.arweaveWallet);
-
-    // Create authenticated Turbo client with proper configuration
+    // Create authenticated Turbo client with proper configuration based on wallet type
     // Cast to TurboWebAuthenticatedClient to access web-specific uploadFile method
-    const turbo = TurboFactory.authenticated({
-      signer,
-      token: wallet.tokenType,
-      uploadServiceConfig: {
-        url: turboNetwork.UPLOAD_URL,
-      },
-      paymentServiceConfig: {
-        url: turboNetwork.PAYMENT_URL,
-      },
-      gatewayUrl: turboNetwork.GATEWAY_URL,
-    }) as unknown as TurboWebAuthenticatedClient;
+    let turbo: TurboWebAuthenticatedClient;
+
+    if (wallet.tokenType === 'arweave') {
+      // For Arweave wallets, use ArconnectSigner
+      if (!window.arweaveWallet) {
+        throw new Error('Arweave wallet not available');
+      }
+
+      const signer = new ArconnectSigner(window.arweaveWallet);
+      turbo = TurboFactory.authenticated({
+        signer,
+        token: wallet.tokenType,
+        uploadServiceConfig: {
+          url: turboNetwork.UPLOAD_URL,
+        },
+        paymentServiceConfig: {
+          url: turboNetwork.PAYMENT_URL,
+        },
+        gatewayUrl: turboNetwork.GATEWAY_URL,
+      }) as unknown as TurboWebAuthenticatedClient;
+    } else if (wallet.tokenType === 'ethereum') {
+      // For Ethereum wallets, use walletAdapter with ethers v6
+      if (!window.ethereum) {
+        throw new Error('Ethereum wallet not available');
+      }
+
+      // Create ethers provider and signer from window.ethereum
+      const ethersProvider = new ethers.BrowserProvider(window.ethereum);
+      const ethersSigner = await ethersProvider.getSigner();
+
+      // Use walletAdapter pattern (NOT EthereumSigner)
+      turbo = TurboFactory.authenticated({
+        token: wallet.tokenType,
+        walletAdapter: {
+          getSigner: () => ethersSigner as any,
+        },
+        uploadServiceConfig: {
+          url: turboNetwork.UPLOAD_URL,
+        },
+        paymentServiceConfig: {
+          url: turboNetwork.PAYMENT_URL,
+        },
+        gatewayUrl: turboNetwork.GATEWAY_URL,
+      }) as unknown as TurboWebAuthenticatedClient;
+    } else {
+      throw new Error(
+        `Logo uploads are not supported for ${wallet.tokenType} wallets`,
+      );
+    }
 
     // Upload file - pass File object directly (works in Turbo SDK web)
     try {
