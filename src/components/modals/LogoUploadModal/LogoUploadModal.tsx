@@ -45,6 +45,7 @@ type UploadStatus =
   | 'validating'
   | 'compressing'
   | 'uploading'
+  | 'confirming'
   | 'success'
   | 'error';
 
@@ -242,7 +243,18 @@ function LogoUploadModal({
     }
 
     setErrorMessage(null);
-    await onUpdateSuccess(manualTxId);
+    setUploadStatus('confirming');
+    try {
+      await onUpdateSuccess(manualTxId);
+      // Success - modal will be closed by parent component
+    } catch (error) {
+      setUploadStatus('error');
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : 'Failed to confirm logo update',
+      );
+    }
   };
 
   const handleUpload = async () => {
@@ -286,10 +298,23 @@ function LogoUploadModal({
       });
 
       setTxId(transactionId);
-      setUploadStatus('success');
+      setUploadStatus('confirming');
 
       // Auto-save: trigger SET_LOGO interaction
-      await onUpdateSuccess(transactionId);
+      try {
+        await onUpdateSuccess(transactionId);
+        setUploadStatus('success');
+        // Success - modal will be closed by parent component
+      } catch (confirmError) {
+        console.error('Confirmation failed:', confirmError);
+        setUploadStatus('error');
+        setErrorMessage(
+          confirmError instanceof Error
+            ? confirmError.message
+            : 'Failed to confirm logo on-chain',
+        );
+        eventEmitter.emit('error', confirmError);
+      }
     } catch (error) {
       console.error('Upload failed:', error);
       setErrorMessage(error instanceof Error ? error.message : 'Upload failed');
@@ -299,9 +324,10 @@ function LogoUploadModal({
   };
 
   const handleClose = () => {
-    if (uploadStatus === 'uploading') {
+    if (uploadStatus === 'uploading' || uploadStatus === 'confirming') {
+      const action = uploadStatus === 'uploading' ? 'Upload' : 'Confirmation';
       if (
-        window.confirm('Upload in progress. Are you sure you want to close?')
+        window.confirm(`${action} in progress. Are you sure you want to close?`)
       ) {
         onClose();
       }
@@ -566,7 +592,8 @@ function LogoUploadModal({
 
             {/* Processing States */}
             {(uploadStatus === 'validating' ||
-              uploadStatus === 'compressing') && (
+              uploadStatus === 'compressing' ||
+              uploadStatus === 'confirming') && (
               <div className="flex items-center justify-center gap-2 p-4 text-grey">
                 <div className="animate-spin">
                   <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
@@ -574,20 +601,30 @@ function LogoUploadModal({
                 <span>
                   {uploadStatus === 'validating' && 'Validating image...'}
                   {uploadStatus === 'compressing' && 'Compressing image...'}
+                  {uploadStatus === 'confirming' &&
+                    'Confirming logo on-chain...'}
                 </span>
               </div>
             )}
           </div>
         }
-        onClose={uploadStatus === 'uploading' ? undefined : handleClose}
-        onCancel={uploadStatus === 'uploading' ? undefined : handleClose}
+        onClose={
+          uploadStatus === 'uploading' || uploadStatus === 'confirming'
+            ? undefined
+            : handleClose
+        }
+        onCancel={
+          uploadStatus === 'uploading' || uploadStatus === 'confirming'
+            ? undefined
+            : handleClose
+        }
         onNext={
           uploadStatus === 'idle'
             ? selectedFile
               ? handleUpload
               : manualTxId && isArweaveTransactionID(manualTxId)
-              ? handleManualTxIdSubmit
-              : undefined
+                ? handleManualTxIdSubmit
+                : undefined
             : undefined
         }
         cancelText="Cancel"

@@ -21,17 +21,23 @@ export default function LogoRow({
   editable?: boolean;
 }) {
   const [showUpdateModal, setShowUpdateModal] = useState<boolean>(false);
+  const [isConfirming, setIsConfirming] = useState<boolean>(false);
 
   async function handleUpdateSuccess(txId: string) {
-    setShowUpdateModal(false);
+    setIsConfirming(true);
     try {
       await confirm(txId);
+      setIsConfirming(false);
+      setShowUpdateModal(false);
       eventEmitter.emit('success', {
         name: 'Logo Updated',
         message: `Logo updated successfully with ID: ${txId}`,
       });
     } catch (error) {
+      setIsConfirming(false);
       eventEmitter.emit('error', error);
+      // Keep modal open so user can retry
+      throw error; // Re-throw to let modal handle the error display
     }
   }
   return (
@@ -75,7 +81,11 @@ export default function LogoRow({
       />
       <LogoUploadModal
         show={showUpdateModal}
-        onClose={() => setShowUpdateModal(false)}
+        onClose={() => {
+          if (!isConfirming) {
+            setShowUpdateModal(false);
+          }
+        }}
         onUpdateSuccess={handleUpdateSuccess}
         currentLogoTxId={logoTxId}
       />
