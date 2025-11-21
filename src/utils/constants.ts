@@ -248,6 +248,37 @@ export const KiB = 1024;
 export const MiB = 1024 * KiB;
 export const GiB = 1024 * MiB;
 
+// Logo/Image Upload Constants
+/**
+ * Maximum allowed logo file size in bytes (100 KiB)
+ * Files larger than this will be automatically compressed
+ */
+export const MAX_LOGO_SIZE = 100 * KiB;
+
+/**
+ * Recommended maximum logo file size in bytes (50 KiB)
+ * Files larger than this but under MAX_LOGO_SIZE will show a warning
+ */
+export const RECOMMENDED_MAX_SIZE = 50 * KiB;
+
+/**
+ * Recommended maximum image dimension in pixels
+ * Images larger than this will show a warning
+ */
+export const RECOMMENDED_MAX_DIMENSION = 1000;
+
+/**
+ * List of allowed MIME types for logo images
+ */
+export const ALLOWED_IMAGE_TYPES = [
+  'image/png',
+  'image/jpeg',
+  'image/jpg',
+  'image/gif',
+  'image/svg+xml',
+  'image/webp',
+];
+
 export const currencyLabels: Partial<Record<TokenType, string>> = {
   arweave: 'AR',
   ethereum: 'ETH',
