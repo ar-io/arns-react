@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.26.0] - 2025-11-21
+
+### Added
+
+- Logo upload workflow for managing your domain
+
 ## [1.25.3] - 2025-11-03
 
 ### Fixed
