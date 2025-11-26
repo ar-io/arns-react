@@ -1,16 +1,16 @@
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import {
   BeaconWalletConnector,
   EthWalletConnector,
   WanderWalletConnector,
 } from '@src/services/wallets';
 import { ArweaveAppWalletConnector } from '@src/services/wallets/ArweaveAppWalletConnector';
-import { METAMASK_URL } from '@src/utils/constants';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useConfig } from 'wagmi';
+import { useAccount, useConfig } from 'wagmi';
 
 import { useWalletState } from '../../../state/contexts/WalletState';
-import { AoAddress, ArNSWalletConnector } from '../../../types';
+import { AoAddress, ArNSWalletConnector, WALLET_TYPES } from '../../../types';
 import eventEmitter from '../../../utils/events';
 import {
   ArweaveAppIcon,
@@ -34,6 +34,7 @@ function ConnectWalletModal(): JSX.Element {
   const [loading, setLoading] = useState(!walletStateInitialized);
 
   const config = useConfig();
+  const ethAccount = useAccount();
 
   useEffect(() => {
     if (walletStateInitialized) {
@@ -51,6 +52,44 @@ function ConnectWalletModal(): JSX.Element {
       document.body.style.overflow = 'scroll';
     };
   }, [wallet, walletAddress]);
+
+  // Handle Ethereum wallet connection from Rainbow Kit
+  useEffect(() => {
+    if (
+      ethAccount.isConnected &&
+      ethAccount.address &&
+      ethAccount.connector &&
+      !wallet
+    ) {
+      try {
+        // Set walletType in localStorage for reconnection on page refresh
+        localStorage.setItem('walletType', WALLET_TYPES.ETHEREUM);
+
+        const walletConnector = new EthWalletConnector(
+          config,
+          ethAccount.connector,
+        );
+
+        dispatchWalletState({
+          type: 'setWalletAddress',
+          payload: ethAccount.address,
+        });
+        dispatchWalletState({
+          type: 'setWallet',
+          payload: walletConnector,
+        });
+      } catch (error) {
+        console.error('Failed to create Ethereum wallet connector:', error);
+        localStorage.removeItem('walletType');
+        eventEmitter.emit('error', error);
+      }
+    }
+  }, [
+    ethAccount.isConnected,
+    ethAccount.address,
+    ethAccount.connector,
+    wallet,
+  ]);
 
   function handleClickOutside(e: any) {
     if (modalRef.current && modalRef.current === e.target) {
@@ -161,27 +200,19 @@ function ConnectWalletModal(): JSX.Element {
         </button>
 
         <p className="section-header mb-4">Connect with an Ethereum wallet</p>
-        <button
-          type="button"
-          className="wallet-connect-button text-base"
-          onClick={async () => {
-            if (!config) {
-              throw new Error(
-                'Application is not not properly configured for Metamask.',
-              );
-            }
-
-            if (!window.ethereum?.isMetaMask) {
-              window.open(METAMASK_URL, '_blank', 'noopener,noreferrer');
-              return;
-            }
-
-            connect(new EthWalletConnector(config));
-          }}
-        >
-          <MetamaskIcon className="external-icon size-12 p-3" />
-          {window?.ethereum?.isMetaMask ? 'Metamask' : 'Install Metamask'}
-        </button>
+        <ConnectButton.Custom>
+          {({ openConnectModal, mounted }) => (
+            <button
+              type="button"
+              className="wallet-connect-button text-base"
+              disabled={!mounted || connecting}
+              onClick={openConnectModal}
+            >
+              <MetamaskIcon className="external-icon size-12 p-3" />
+              Ethereum Wallets
+            </button>
+          )}
+        </ConnectButton.Custom>
 
         <span
           className="flex flex-row white flex-center text-sm"

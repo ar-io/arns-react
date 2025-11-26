@@ -206,8 +206,15 @@ export function WalletStateProvider({
           payload: connector,
         });
       } else if (walletType === WALLET_TYPES.ETHEREUM) {
-        if (ethAccount?.isConnected && ethAccount?.address) {
-          const connector = new EthWalletConnector(config);
+        if (
+          ethAccount?.isConnected &&
+          ethAccount?.address &&
+          ethAccount?.connector
+        ) {
+          const walletConnector = new EthWalletConnector(
+            config,
+            ethAccount.connector,
+          );
 
           dispatchWalletState({
             type: 'setWalletAddress',
@@ -215,7 +222,7 @@ export function WalletStateProvider({
           });
           dispatchWalletState({
             type: 'setWallet',
-            payload: connector,
+            payload: walletConnector,
           });
         }
       } else if (walletType === WALLET_TYPES.BEACON) {
@@ -263,6 +270,25 @@ export function WalletStateProvider({
       updateIfConnected();
     }
   }, [ethAccount, wallet, walletAddress]);
+
+  // Handle external Ethereum wallet disconnection (when user disconnects from wallet extension)
+  useEffect(() => {
+    if (
+      !ethAccount.isConnected &&
+      wallet instanceof EthWalletConnector &&
+      walletAddress
+    ) {
+      localStorage.removeItem('walletType');
+      dispatchWalletState({
+        type: 'setWalletAddress',
+        payload: undefined,
+      });
+      dispatchWalletState({
+        type: 'setWallet',
+        payload: undefined,
+      });
+    }
+  }, [ethAccount.isConnected, wallet, walletAddress]);
 
   return (
     <WalletStateContext.Provider value={[state, dispatchWalletState]}>

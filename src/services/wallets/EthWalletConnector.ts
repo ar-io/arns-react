@@ -6,7 +6,7 @@ import {
 } from '@ar.io/sdk/web';
 import { TokenType } from '@ardrive/turbo-sdk';
 import { createData } from '@dha-team/arbundles';
-import { MetamaskError } from '@src/utils/errors';
+import { EthereumWalletError } from '@src/utils/errors';
 import { hashMessage, parseEther, recoverPublicKey, toBytes } from 'viem';
 import { mainnet } from 'viem/chains';
 import { Config, Connector } from 'wagmi';
@@ -32,13 +32,7 @@ export class EthWalletConnector implements ArNSWalletConnector {
   connector: Connector;
   config: Config;
 
-  constructor(config: Config) {
-    const connector = config.connectors.find((c) => c.name === 'MetaMask');
-
-    if (!connector) {
-      throw new MetamaskError('MetaMask connector not found.');
-    }
-
+  constructor(config: Config, connector: Connector) {
     this.connector = connector;
 
     const provider = {
@@ -112,7 +106,7 @@ export class EthWalletConnector implements ArNSWalletConnector {
       await connect(this.config, { connector: this.connector });
     } catch (_error) {
       localStorage.removeItem('walletType');
-      throw new MetamaskError('User cancelled authentication.');
+      throw new EthereumWalletError('User cancelled authentication.');
     }
   }
 
@@ -124,7 +118,7 @@ export class EthWalletConnector implements ArNSWalletConnector {
   async getWalletAddress(): Promise<AoAddress> {
     const address = getAccount(this.config).address;
     if (!address) {
-      throw new MetamaskError('No address found');
+      throw new EthereumWalletError('No address found');
     }
     return address;
   }

@@ -36,6 +36,13 @@ export class MetamaskError extends NotificationOnlyError {
   }
 }
 
+export class EthereumWalletError extends NotificationOnlyError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'Ethereum Wallet';
+  }
+}
+
 export class BeaconError extends NotificationOnlyError {
   constructor(message: string) {
     super(message);
