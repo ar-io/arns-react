@@ -104,9 +104,26 @@ export class EthWalletConnector implements ArNSWalletConnector {
       }
 
       await connect(this.config, { connector: this.connector });
-    } catch (_error) {
+    } catch (error: unknown) {
       localStorage.removeItem('walletType');
-      throw new EthereumWalletError('User cancelled authentication.');
+
+      // Check for user rejection errors (common patterns across wallets)
+      const errorMessage =
+        error instanceof Error ? error.message.toLowerCase() : '';
+      const isUserRejection =
+        errorMessage.includes('user rejected') ||
+        errorMessage.includes('user denied') ||
+        errorMessage.includes('user cancelled') ||
+        errorMessage.includes('rejected the request');
+
+      if (isUserRejection) {
+        throw new EthereumWalletError('User cancelled authentication.');
+      }
+
+      // For other errors, preserve the original message
+      const message =
+        error instanceof Error ? error.message : 'Connection failed';
+      throw new EthereumWalletError(message);
     }
   }
 
