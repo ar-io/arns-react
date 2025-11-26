@@ -1,4 +1,4 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 import {
   BeaconWalletConnector,
   EthWalletConnector,
@@ -35,25 +35,9 @@ function ConnectWalletModal(): JSX.Element {
 
   const config = useConfig();
   const ethAccount = useAccount();
+  const { openConnectModal } = useConnectModal();
 
-  useEffect(() => {
-    if (walletStateInitialized) {
-      setLoading(false);
-    }
-  }, [walletStateInitialized]);
-
-  useEffect(() => {
-    // disable scrolling when modal is in view
-    if (wallet && walletAddress) {
-      closeModal({ next: true, address: walletAddress });
-    }
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = 'scroll';
-    };
-  }, [wallet, walletAddress]);
-
-  // Handle Ethereum wallet connection from Rainbow Kit
+  // Handle Ethereum wallet connection - detect when wagmi becomes connected
   useEffect(() => {
     if (
       ethAccount.isConnected &&
@@ -62,7 +46,6 @@ function ConnectWalletModal(): JSX.Element {
       !wallet
     ) {
       try {
-        // Set walletType in localStorage for reconnection on page refresh
         localStorage.setItem('walletType', WALLET_TYPES.ETHEREUM);
 
         const walletConnector = new EthWalletConnector(
@@ -89,7 +72,26 @@ function ConnectWalletModal(): JSX.Element {
     ethAccount.address,
     ethAccount.connector,
     wallet,
+    config,
+    dispatchWalletState,
   ]);
+
+  useEffect(() => {
+    if (walletStateInitialized) {
+      setLoading(false);
+    }
+  }, [walletStateInitialized]);
+
+  useEffect(() => {
+    // disable scrolling when modal is in view
+    if (wallet && walletAddress) {
+      closeModal({ next: true, address: walletAddress });
+    }
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'scroll';
+    };
+  }, [wallet, walletAddress]);
 
   function handleClickOutside(e: any) {
     if (modalRef.current && modalRef.current === e.target) {
@@ -200,19 +202,48 @@ function ConnectWalletModal(): JSX.Element {
         </button>
 
         <p className="section-header mb-4">Connect with an Ethereum wallet</p>
-        <ConnectButton.Custom>
-          {({ openConnectModal, mounted }) => (
-            <button
-              type="button"
-              className="wallet-connect-button text-base"
-              disabled={!mounted || connecting}
-              onClick={openConnectModal}
-            >
-              <MetamaskIcon className="external-icon size-12 p-3" />
-              Ethereum Wallets
-            </button>
-          )}
-        </ConnectButton.Custom>
+        <button
+          type="button"
+          className="wallet-connect-button text-base"
+          disabled={connecting}
+          onClick={() => {
+            // If already connected via wagmi, use that connection directly
+            if (
+              ethAccount.isConnected &&
+              ethAccount.address &&
+              ethAccount.connector
+            ) {
+              try {
+                localStorage.setItem('walletType', WALLET_TYPES.ETHEREUM);
+                const walletConnector = new EthWalletConnector(
+                  config,
+                  ethAccount.connector,
+                );
+                dispatchWalletState({
+                  type: 'setWalletAddress',
+                  payload: ethAccount.address,
+                });
+                dispatchWalletState({
+                  type: 'setWallet',
+                  payload: walletConnector,
+                });
+              } catch (error) {
+                console.error(
+                  'Failed to create Ethereum wallet connector:',
+                  error,
+                );
+                localStorage.removeItem('walletType');
+                eventEmitter.emit('error', error);
+              }
+            } else if (openConnectModal) {
+              // Not connected, open Rainbow Kit modal
+              openConnectModal();
+            }
+          }}
+        >
+          <MetamaskIcon className="external-icon size-12 p-3" />
+          Ethereum Wallets
+        </button>
 
         <span
           className="flex flex-row white flex-center text-sm"
