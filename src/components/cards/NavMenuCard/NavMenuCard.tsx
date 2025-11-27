@@ -15,6 +15,7 @@ import Ar from 'arweave/node/ar';
 import { Settings2Icon } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useDisconnect } from 'wagmi';
 
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
@@ -37,6 +38,7 @@ function NavMenuCard() {
     useGlobalState();
 
   const [{ wallet, walletAddress }, dispatchWalletState] = useWalletState();
+  const { disconnectAsync } = useDisconnect();
   const { data: primaryNameData } = usePrimaryName();
   const { data: domainDomain } = useDomainInfo({
     domain: primaryNameData?.name,
@@ -126,10 +128,34 @@ function NavMenuCard() {
 
   async function logout() {
     try {
-      // reset state
       setShowMenu(false);
+
+      // Disconnect the wallet
+      if (wallet) {
+        try {
+          await wallet.disconnect();
+        } catch {
+          // Ignore disconnect errors
+        }
+      }
+
+      // Disconnect wagmi for Ethereum wallets
+      try {
+        await disconnectAsync();
+      } catch {
+        // Ignore disconnect errors - may not be connected
+      }
+
+      // Clear localStorage
+      localStorage.removeItem('walletType');
+
+      // Clear wallet state
       dispatchWalletState({
         type: 'setWalletAddress',
+        payload: undefined,
+      });
+      dispatchWalletState({
+        type: 'setWallet',
         payload: undefined,
       });
     } catch (error: any) {
