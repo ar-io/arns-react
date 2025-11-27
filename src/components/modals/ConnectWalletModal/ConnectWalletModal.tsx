@@ -7,7 +7,7 @@ import {
 import { ArweaveAppWalletConnector } from '@src/services/wallets/ArweaveAppWalletConnector';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAccount, useConfig } from 'wagmi';
+import { useAccount, useConfig, useDisconnect } from 'wagmi';
 
 import { useWalletState } from '../../../state/contexts/WalletState';
 import { AoAddress, ArNSWalletConnector, WALLET_TYPES } from '../../../types';
@@ -36,6 +36,7 @@ function ConnectWalletModal(): JSX.Element {
   const config = useConfig();
   const ethAccount = useAccount();
   const { openConnectModal } = useConnectModal();
+  const { disconnectAsync } = useDisconnect();
 
   // Handle Ethereum wallet connection - detect when wagmi becomes connected
   useEffect(() => {
@@ -122,6 +123,25 @@ function ConnectWalletModal(): JSX.Element {
   async function connect(walletConnector: ArNSWalletConnector) {
     try {
       setConnecting(true);
+
+      // Disconnect existing wallet before connecting new one
+      if (wallet) {
+        try {
+          await wallet.disconnect();
+        } catch {
+          // Ignore disconnect errors - wallet may already be disconnected
+        }
+      }
+
+      // Disconnect wagmi if switching to a non-Ethereum wallet
+      if (ethAccount.isConnected) {
+        try {
+          await disconnectAsync();
+        } catch {
+          // Ignore disconnect errors
+        }
+      }
+
       await walletConnector.connect();
 
       const address = await walletConnector.getWalletAddress();
@@ -206,37 +226,38 @@ function ConnectWalletModal(): JSX.Element {
           type="button"
           className="wallet-connect-button text-base"
           disabled={connecting}
-          onClick={() => {
-            // If already connected via wagmi, use that connection directly
-            if (
-              ethAccount.isConnected &&
-              ethAccount.address &&
-              ethAccount.connector
-            ) {
+          onClick={async () => {
+            // If already connected via wagmi and user wants to use same wallet
+            // they can click again after Rainbow Kit shows "Already connected"
+            // For wallet switching, we disconnect first then open modal
+            if (ethAccount.isConnected) {
               try {
-                localStorage.setItem('walletType', WALLET_TYPES.ETHEREUM);
-                const walletConnector = new EthWalletConnector(
-                  config,
-                  ethAccount.connector,
-                );
+                // Disconnect existing wagmi connection to allow fresh wallet selection
+                await disconnectAsync();
+              } catch {
+                // Ignore disconnect errors
+              }
+            }
+
+            // Disconnect any existing non-Ethereum wallet
+            if (wallet && !(wallet instanceof EthWalletConnector)) {
+              try {
+                await wallet.disconnect();
                 dispatchWalletState({
                   type: 'setWalletAddress',
-                  payload: ethAccount.address,
+                  payload: undefined,
                 });
                 dispatchWalletState({
                   type: 'setWallet',
-                  payload: walletConnector,
+                  payload: undefined,
                 });
-              } catch (error) {
-                console.error(
-                  'Failed to create Ethereum wallet connector:',
-                  error,
-                );
-                localStorage.removeItem('walletType');
-                eventEmitter.emit('error', error);
+              } catch {
+                // Ignore disconnect errors
               }
-            } else if (openConnectModal) {
-              // Not connected, open Rainbow Kit modal
+            }
+
+            // Open Rainbow Kit modal for wallet selection
+            if (openConnectModal) {
               openConnectModal();
             }
           }}
