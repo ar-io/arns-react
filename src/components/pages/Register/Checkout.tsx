@@ -11,13 +11,21 @@ import PaymentOptionsForm, {
 import { StepProgressBar } from '@src/components/layout/progress';
 import { useIsMobile } from '@src/hooks';
 import { useArNSIntentPrice } from '@src/hooks/useArNSIntentPrice';
+import { useBaseTokenPrice } from '@src/hooks/useBaseTokenPrice';
 import {
   COST_DETAIL_STALE_TIME,
   useCostDetails,
 } from '@src/hooks/useCostDetails';
 import { useTurboArNSClient } from '@src/hooks/useTurboArNSClient';
 import { useTurboCreditBalance } from '@src/hooks/useTurboCreditBalance';
-import { PaymentInformation } from '@src/services/turbo/TurboArNSClient';
+import {
+  BaseTokenPurchaseStage,
+  executeBaseTokenPurchase,
+} from '@src/services/turbo/BaseTokenPurchaseService';
+import {
+  PaymentInformation,
+  TurboArNSIntent,
+} from '@src/services/turbo/TurboArNSClient';
 import { dispatchArNSUpdate, useArNSState } from '@src/state';
 import dispatchArIOInteraction from '@src/state/actions/dispatchArIOInteraction';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
@@ -30,10 +38,19 @@ import {
   TRANSACTION_TYPES,
 } from '@src/types';
 import { formatARIOWithCommas } from '@src/utils';
+import { getBaseChainId } from '@src/utils/baseNetwork';
+import {
+  BASE_TOKEN_CONFIG,
+  BASE_USDC_CONTRACT,
+  BaseTokenType,
+  CryptoPaymentToken,
+  isBaseToken,
+} from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAccount, useBalance, useConfig } from 'wagmi';
 
 // page on route transaction/review
 // on completion routes to transaction/complete
@@ -68,6 +85,29 @@ function Checkout() {
     'balance',
   );
   const [promoCode, setPromoCode] = useState<string>();
+  const [selectedCryptoToken, setSelectedCryptoToken] =
+    useState<CryptoPaymentToken>('ario');
+  const [isProcessingBaseToken, setIsProcessingBaseToken] = useState(false);
+  const [baseTokenStage, setBaseTokenStage] =
+    useState<BaseTokenPurchaseStage | null>(null);
+
+  // Wagmi hooks for Base token purchases
+  const wagmiConfig = useConfig();
+  const { connector, address: ethAddress } = useAccount();
+
+  // Fetch ETH balance on Base for pre-emptive check
+  const { data: baseEthBalance } = useBalance({
+    address: ethAddress,
+    chainId: getBaseChainId(),
+  });
+
+  // Fetch USDC balance on Base for pre-emptive check
+  const { data: baseUsdcBalance } = useBalance({
+    address: ethAddress,
+    chainId: getBaseChainId(),
+    token: BASE_USDC_CONTRACT,
+  });
+
   const costDetailsParams = useMemo(() => {
     return {
       ...((transactionData ?? {}) as any),
@@ -108,21 +148,51 @@ function Checkout() {
   });
   const isMobile = useIsMobile();
 
+  // Get Base token price for display in fees
+  const selectedBaseToken = isBaseToken(selectedCryptoToken)
+    ? (selectedCryptoToken as BaseTokenType)
+    : undefined;
+  const { data: baseTokenPrice } = useBaseTokenPrice(
+    selectedBaseToken,
+    intentPrice?.winc,
+  );
+
   const isInsufficientBalance = useMemo(() => {
     if (paymentMethod === 'card') return false;
     if (paymentMethod === 'crypto') {
+      // For Base tokens, check if user has enough balance
+      if (isBaseToken(selectedCryptoToken)) {
+        if (!baseTokenPrice) return false; // Still loading, don't block yet
+
+        if (selectedCryptoToken === 'base-eth') {
+          if (!baseEthBalance) return false; // Balance not loaded yet
+          return Number(baseEthBalance.formatted) < baseTokenPrice.tokenAmount;
+        }
+        if (selectedCryptoToken === 'base-usdc') {
+          if (!baseUsdcBalance) return false; // Balance not loaded yet
+          return Number(baseUsdcBalance.formatted) < baseTokenPrice.tokenAmount;
+        }
+        return false;
+      }
       return costDetail?.fundingPlan?.shortfall ? true : false;
     }
     if (paymentMethod === 'credits') {
-      if (!costDetail?.wincQty || !creditsBalance?.effectiveBalance) {
+      if (!intentPrice?.winc || !creditsBalance?.effectiveBalance) {
         return false;
       }
-      return (
-        Number(costDetail.wincQty) > Number(creditsBalance.effectiveBalance)
-      );
+      return Number(intentPrice.winc) > Number(creditsBalance.effectiveBalance);
     }
     return true;
-  }, [costDetail, paymentMethod, creditsBalance]);
+  }, [
+    costDetail,
+    paymentMethod,
+    creditsBalance,
+    selectedCryptoToken,
+    intentPrice,
+    baseTokenPrice,
+    baseEthBalance,
+    baseUsdcBalance,
+  ]);
 
   const fees = useMemo(() => {
     if (paymentMethod === 'card') {
@@ -149,6 +219,24 @@ function Checkout() {
       };
     }
     if (paymentMethod === 'crypto') {
+      // For Base tokens, show the crypto amount with "(via Turbo)" note
+      if (isBaseToken(selectedCryptoToken)) {
+        return {
+          'Total due:': baseTokenPrice ? (
+            <div className="flex flex-col items-end">
+              <span className="text-white text-bold text-lg">
+                ~{baseTokenPrice.displayAmount}
+              </span>
+              <span className="text-grey text-xs">(via Turbo Credits)</span>
+            </div>
+          ) : (
+            <span className="text-grey text-bold text-lg animate-pulse">
+              Loading...
+            </span>
+          ),
+        };
+      }
+
       const discount = costDetail?.discounts.reduce((acc, curr) => {
         return acc + curr.discountTotal;
       }, 0);
@@ -186,10 +274,10 @@ function Checkout() {
     if (paymentMethod === 'credits') {
       return {
         'Total due:':
-          costDetail?.wincQty && Number(costDetail?.wincQty) > 0 ? (
+          intentPrice?.winc && Number(intentPrice?.winc) > 0 ? (
             <span className="text-white text-bold text-lg">
               {formatARIOWithCommas(
-                turbo?.wincToCredits(Number(costDetail?.wincQty ?? 0)) ?? 0,
+                turbo?.wincToCredits(Number(intentPrice?.winc ?? 0)) ?? 0,
               )}{' '}
               Credits
             </span>
@@ -203,7 +291,15 @@ function Checkout() {
     return {
       '': 'Invalid payment method selected',
     };
-  }, [costDetail, paymentMethod, intentPrice, promoCode]);
+  }, [
+    costDetail,
+    paymentMethod,
+    intentPrice,
+    promoCode,
+    selectedCryptoToken,
+    turbo,
+    baseTokenPrice,
+  ]);
 
   const orderSummary = useMemo(() => {
     switch (workflowName) {
@@ -294,6 +390,32 @@ function Checkout() {
     });
   }
 
+  // Handle progress updates for Base token purchases
+  const handleBaseTokenProgress = useCallback(
+    (stage: BaseTokenPurchaseStage, _message?: string) => {
+      setBaseTokenStage(stage);
+    },
+    [],
+  );
+
+  // Get button text based on Base token purchase stage
+  const getBaseTokenButtonText = useCallback(() => {
+    switch (baseTokenStage) {
+      case 'calculating':
+        return 'Calculating...';
+      case 'switching-network':
+        return 'Switching network...';
+      case 'signing':
+        return 'Preparing...';
+      case 'topping-up':
+        return 'Processing payment...';
+      case 'purchasing':
+        return 'Purchasing name...';
+      default:
+        return 'Processing...';
+    }
+  }, [baseTokenStage]);
+
   async function handleNext() {
     try {
       if (!(arioContract instanceof ARIOWriteable)) {
@@ -310,34 +432,110 @@ function Checkout() {
       if (!turbo) {
         throw new Error('Turbo ArNS Client is not connected');
       }
-      // TODO: check that it's connected
-      await dispatchArIOInteraction({
-        arioContract: arioContract as AoARIOWrite,
-        workflowName: workflowName as ARNS_INTERACTION_TYPES,
-        payload: {
-          ...transactionData,
-          paymentMethodId: paymentInformation?.paymentMethodId,
-          email: paymentInformation?.email,
-        },
-        owner: walletAddress,
-        processId: arioProcessId,
-        dispatch: dispatchTransactionState,
-        signer: wallet?.contractSigner,
-        ao: aoClient,
-        scheduler: aoNetwork.ARIO.SCHEDULER,
-        fundFrom:
-          paymentMethod === 'card'
-            ? 'fiat'
-            : paymentMethod === 'credits'
-              ? 'turbo'
-              : fundingSource,
-        paidBy: creditsBalance?.receivedApprovals.map(
-          (approval) => approval.payingAddress,
-        ),
-        turboArNSClient: turbo,
-        hyperbeamUrl,
-        promoCode,
-      });
+
+      // Check if this is a Base token payment
+      const isBaseTokenPayment =
+        paymentMethod === 'crypto' && isBaseToken(selectedCryptoToken);
+
+      if (isBaseTokenPayment) {
+        // Handle Base token payment flow
+        if (!connector) {
+          throw new Error('Wallet connector is not available');
+        }
+
+        if (!intentPrice?.winc) {
+          throw new Error('Unable to calculate required credits');
+        }
+
+        setIsProcessingBaseToken(true);
+
+        try {
+          // Execute the Base token top-up
+          const topUpResult = await executeBaseTokenPurchase({
+            tokenType: selectedCryptoToken as BaseTokenType,
+            wincRequired: intentPrice.winc,
+            walletAddress: walletAddress.toString(),
+            wagmiConfig,
+            connector,
+            turboArNSClient: turbo,
+            turboNetwork: {
+              UPLOAD_URL: turbo.uploadUrl,
+              PAYMENT_URL: turbo.paymentUrl,
+              GATEWAY_URL: turbo.gatewayUrl,
+              WALLETS_URL: turbo.walletsUrl,
+              STRIPE_PUBLISHABLE_KEY: '', // Not needed for crypto
+            },
+            purchaseParams: {
+              name: transaction.name,
+              type: transaction.type,
+              years: transaction.years,
+              processId: transaction.processId,
+              intent: ArNSInteractionTypeToIntentMap[
+                workflowName as ARNS_INTERACTION_TYPES
+              ] as TurboArNSIntent,
+            },
+            onProgress: handleBaseTokenProgress,
+          });
+
+          if (!topUpResult.success) {
+            throw new Error(topUpResult.error || 'Top-up failed');
+          }
+
+          // Now execute the ArNS purchase with Turbo credits
+          await dispatchArIOInteraction({
+            arioContract: arioContract as AoARIOWrite,
+            workflowName: workflowName as ARNS_INTERACTION_TYPES,
+            payload: {
+              ...transactionData,
+            },
+            owner: walletAddress,
+            processId: arioProcessId,
+            dispatch: dispatchTransactionState,
+            signer: wallet?.contractSigner,
+            ao: aoClient,
+            scheduler: aoNetwork.ARIO.SCHEDULER,
+            fundFrom: 'turbo', // Use turbo credits after top-up
+            paidBy: creditsBalance?.receivedApprovals.map(
+              (approval) => approval.payingAddress,
+            ),
+            turboArNSClient: turbo,
+            hyperbeamUrl,
+            promoCode,
+          });
+        } finally {
+          setIsProcessingBaseToken(false);
+          setBaseTokenStage(null);
+        }
+      } else {
+        // Standard payment flow (ARIO, fiat, credits)
+        await dispatchArIOInteraction({
+          arioContract: arioContract as AoARIOWrite,
+          workflowName: workflowName as ARNS_INTERACTION_TYPES,
+          payload: {
+            ...transactionData,
+            paymentMethodId: paymentInformation?.paymentMethodId,
+            email: paymentInformation?.email,
+          },
+          owner: walletAddress,
+          processId: arioProcessId,
+          dispatch: dispatchTransactionState,
+          signer: wallet?.contractSigner,
+          ao: aoClient,
+          scheduler: aoNetwork.ARIO.SCHEDULER,
+          fundFrom:
+            paymentMethod === 'card'
+              ? 'fiat'
+              : paymentMethod === 'credits'
+                ? 'turbo'
+                : fundingSource,
+          paidBy: creditsBalance?.receivedApprovals.map(
+            (approval) => approval.payingAddress,
+          ),
+          turboArNSClient: turbo,
+          hyperbeamUrl,
+          promoCode,
+        });
+      }
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {
@@ -388,18 +586,7 @@ function Checkout() {
         </div>
 
         <div className="flex md:flex-row flex-col gap-6 w-full h-full">
-          <div className="md:w-1/2 w-full flex flex-col">
-            <DomainCheckoutCard
-              domain={transaction?.name}
-              antId={transaction?.processId}
-              targetId={transaction?.targetId?.toString()}
-              orderSummary={orderSummary}
-              fees={fees}
-              quoteEndTimestamp={quoteEndTimestamp}
-              refresh={handleRefresh}
-            />
-          </div>
-          <div className="md:w-1/2 w-full flex flex-col">
+          <div className="md:w-1/2 w-full flex flex-col order-1 md:order-1">
             <PaymentOptionsForm
               paymentMethod={paymentMethod}
               onPaymentMethodChange={setPaymentMethod}
@@ -408,6 +595,7 @@ function Checkout() {
               isInsufficientBalance={isInsufficientBalance}
               setIsValid={setIsValid}
               onPaymentInformationChange={setPaymentInformation}
+              onCryptoTokenChange={setSelectedCryptoToken}
               promoCode={promoCode}
               setPromoCode={async (promoCode) => {
                 const priceRes = await turbo?.getPriceForArNSIntent({
@@ -426,12 +614,24 @@ function Checkout() {
               }}
             />
           </div>
+          <div className="md:w-1/2 w-full flex flex-col order-2 md:order-2">
+            <DomainCheckoutCard
+              domain={transaction?.name}
+              antId={transaction?.processId}
+              targetId={transaction?.targetId?.toString()}
+              orderSummary={orderSummary}
+              fees={fees}
+              quoteEndTimestamp={quoteEndTimestamp}
+              refresh={handleRefresh}
+            />
+          </div>
         </div>
         <div className={`flex justify-end items-end w-full pt-6`}>
           <div className="flex gap-4 w-full justify-end text-[0.875rem]">
             <button
               className="p-[0.625rem] rounded border border-dark-grey text-grey w-[100px]"
               onClick={() => navigate(-1)}
+              disabled={isProcessingBaseToken}
             >
               Back
             </button>
@@ -441,16 +641,19 @@ function Checkout() {
                 isLoadingCostDetail ||
                 isLoadingIntentPrice ||
                 !isValid ||
-                (!paymentInformation && paymentMethod === 'card')
+                (!paymentInformation && paymentMethod === 'card') ||
+                isProcessingBaseToken
               }
               className="p-[0.625rem] bg-primary rounded w-[100px] min-w-fit disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleNext}
             >
-              {isLoadingCostDetail
-                ? 'Loading...'
-                : isInsufficientBalance
-                  ? 'Insufficient balance'
-                  : 'Pay now'}
+              {isProcessingBaseToken
+                ? getBaseTokenButtonText()
+                : isLoadingCostDetail
+                  ? 'Loading...'
+                  : isInsufficientBalance
+                    ? 'Insufficient balance'
+                    : 'Pay now'}
             </button>
           </div>
         </div>

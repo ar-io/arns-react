@@ -290,4 +290,49 @@ export const currencyLabels: Partial<Record<TokenType, string>> = {
 };
 
 export const LINK_HOW_ARE_CONVERSIONS_DETERMINED =
-  'https://help.ardrive.io/hc/en-us/articles/17043397992731';
+  'https://docs.ar.io/build/upload/turbo-credits#pricing--fees';
+
+// Base Network Configuration
+export const BASE_MAINNET_CHAIN_ID = 8453;
+export const BASE_SEPOLIA_CHAIN_ID = 84532;
+export const BASE_USDC_CONTRACT =
+  '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' as const;
+
+// Top-up buffer multiplier (2% buffer for price fluctuations)
+export const TOP_UP_BUFFER_MULTIPLIER = 1.02;
+
+// Base token types for ArNS purchases
+export type BaseTokenType = 'base-eth' | 'base-usdc';
+export type CryptoPaymentToken = 'ario' | BaseTokenType;
+
+// Base token configuration
+export const BASE_TOKEN_CONFIG: Record<
+  BaseTokenType,
+  {
+    label: string;
+    decimals: number;
+    chainId: number;
+    symbol: string;
+    networkName: string;
+  }
+> = {
+  'base-eth': {
+    label: 'ETH on Base',
+    decimals: 18,
+    chainId: BASE_MAINNET_CHAIN_ID,
+    symbol: 'ETH',
+    networkName: 'Base',
+  },
+  'base-usdc': {
+    label: 'USDC on Base',
+    decimals: 6,
+    chainId: BASE_MAINNET_CHAIN_ID,
+    symbol: 'USDC',
+    networkName: 'Base',
+  },
+};
+
+// Check if a token is a Base token
+export function isBaseToken(token: string): token is BaseTokenType {
+  return token === 'base-eth' || token === 'base-usdc';
+}

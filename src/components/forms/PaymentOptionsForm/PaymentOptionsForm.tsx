@@ -12,18 +12,33 @@ import { useTurboCreditBalance } from '@src/hooks/useTurboCreditBalance';
 import { PaymentInformation } from '@src/services/turbo/TurboArNSClient';
 import { useGlobalState, useWalletState } from '@src/state';
 import { formatARIOWithCommas } from '@src/utils';
+import { getBaseChainId } from '@src/utils/baseNetwork';
+import {
+  BASE_TOKEN_CONFIG,
+  BASE_USDC_CONTRACT,
+  BaseTokenType,
+  CryptoPaymentToken,
+  isBaseToken,
+} from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import { StripeCardElementOptions } from '@stripe/stripe-js';
 import Ar from 'arweave/node/ar';
-import { Circle, CircleCheck, CircleXIcon, CreditCard } from 'lucide-react';
+import {
+  Circle,
+  CircleCheck,
+  CircleXIcon,
+  CreditCard,
+  Info,
+} from 'lucide-react';
 import { Tabs } from 'radix-ui';
 import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
 import { isEmail } from 'validator';
+import { useAccount, useBalance } from 'wagmi';
 
 export type PaymentMethod = 'card' | 'crypto' | 'credits';
 export type ARIOCryptoOptions = 'ARIO' | 'dARIO' | 'tARIO';
-export type CryptoOptions = ARIOCryptoOptions;
+export type CryptoOptions = ARIOCryptoOptions | BaseTokenType;
 
 const FormEntry: FC<{
   name: string;
@@ -312,6 +327,7 @@ function PaymentOptionsForm({
   onFundingSourceChange,
   onPaymentMethodChange,
   onPaymentInformationChange,
+  onCryptoTokenChange,
   isInsufficientBalance,
   setIsValid,
   promoCode,
@@ -324,14 +340,39 @@ function PaymentOptionsForm({
   onFundingSourceChange: (fundingSource: FundFrom) => void;
   onPaymentMethodChange: (paymentMethod: PaymentMethod) => void;
   onPaymentInformationChange: (paymentInformation: PaymentInformation) => void;
+  onCryptoTokenChange?: (token: CryptoPaymentToken) => void;
   isInsufficientBalance: boolean;
   setIsValid: (valid: boolean) => void;
 }) {
   const [{ arioTicker }] = useGlobalState();
+  const [{ wallet }] = useWalletState();
   const formattedARIOTicker = `${arioTicker}` as CryptoOptions;
+
+  // Check if connected with an Ethereum wallet
+  const isEthereumWallet = wallet?.tokenType === 'ethereum';
+
+  // Build crypto dropdown options - include Base tokens for ETH wallets
   const cryptoDropdownOptions = useMemo(() => {
-    return [{ label: formattedARIOTicker, value: formattedARIOTicker }];
-  }, [arioTicker]);
+    const options: { label: string; value: CryptoOptions }[] = [
+      { label: formattedARIOTicker, value: formattedARIOTicker },
+    ];
+
+    if (isEthereumWallet) {
+      options.push(
+        {
+          label: BASE_TOKEN_CONFIG['base-eth'].label,
+          value: 'base-eth' as const,
+        },
+        {
+          label: BASE_TOKEN_CONFIG['base-usdc'].label,
+          value: 'base-usdc' as const,
+        },
+      );
+    }
+
+    return options;
+  }, [arioTicker, isEthereumWallet, formattedARIOTicker]);
+
   const { data: liquidBalance } = useArIOLiquidBalance();
   const { data: stakedAndVaultedBalance } = useArIOStakedAndVaultedBalance();
 
@@ -364,20 +405,71 @@ function PaymentOptionsForm({
   const [selectedCrypto, setSelectedCrypto] =
     useState<CryptoOptions>(formattedARIOTicker);
 
+  // Check if a Base token is selected
+  const selectedBaseToken = isBaseToken(selectedCrypto)
+    ? (selectedCrypto as BaseTokenType)
+    : undefined;
+
+  // Get wagmi account for Base token balance
+  const { address: ethAddress } = useAccount();
+
+  // Fetch ETH balance on Base
+  const { data: baseEthBalance } = useBalance({
+    address: ethAddress,
+    chainId: getBaseChainId(),
+  });
+
+  // Fetch USDC balance on Base
+  const { data: baseUsdcBalance } = useBalance({
+    address: ethAddress,
+    chainId: getBaseChainId(),
+    token: BASE_USDC_CONTRACT,
+  });
+
+  // Format Base token balance for display
+  const baseTokenBalance = useMemo(() => {
+    if (!selectedBaseToken) return null;
+    if (selectedBaseToken === 'base-eth' && baseEthBalance) {
+      return {
+        value: Number(baseEthBalance.formatted),
+        formatted: `${Number(baseEthBalance.formatted).toFixed(6)} ETH`,
+      };
+    }
+    if (selectedBaseToken === 'base-usdc' && baseUsdcBalance) {
+      return {
+        value: Number(baseUsdcBalance.formatted),
+        formatted: `${Number(baseUsdcBalance.formatted).toFixed(2)} USDC`,
+      };
+    }
+    return null;
+  }, [selectedBaseToken, baseEthBalance, baseUsdcBalance]);
+
   const selectedCryptoBalance = useMemo(() => {
     if (selectedCrypto === formattedARIOTicker) {
       return allArIOBalance;
     }
+    // For Base tokens, we don't show balance here (user will pay during transaction)
     return 0;
   }, [selectedCrypto, allArIOBalance, formattedARIOTicker]);
 
   const [showTopupModal, setShowTopupModal] = useState(false);
 
+  // Check if selected token is a Base token
+  const isBaseTokenSelected = isBaseToken(selectedCrypto);
+
   useEffect(() => {
-    if (paymentMethod === 'credits' || paymentMethod === 'crypto') {
+    if (paymentMethod === 'credits') {
       setIsValid(!isInsufficientBalance);
+    } else if (paymentMethod === 'crypto') {
+      // For Base tokens, we're always valid (balance check happens at transaction time)
+      // For ARIO, check the balance
+      if (isBaseTokenSelected) {
+        setIsValid(true);
+      } else {
+        setIsValid(!isInsufficientBalance);
+      }
     }
-  }, [paymentMethod, isInsufficientBalance]);
+  }, [paymentMethod, isInsufficientBalance, isBaseTokenSelected]);
 
   return (
     <>
@@ -442,85 +534,162 @@ function PaymentOptionsForm({
             {' '}
             <SelectDropdown
               value={selectedCrypto}
-              onChange={(value) => setSelectedCrypto(value as CryptoOptions)}
-              renderValue={() => (
-                <span className="text-white flex w-full">{selectedCrypto}</span>
-              )}
+              onChange={(value) => {
+                const newValue = value as CryptoOptions;
+                setSelectedCrypto(newValue);
+                // Immediately notify parent to avoid delay from useEffect
+                if (onCryptoTokenChange) {
+                  const token: CryptoPaymentToken = isBaseToken(newValue)
+                    ? (newValue as BaseTokenType)
+                    : 'ario';
+                  onCryptoTokenChange(token);
+                }
+              }}
+              position="popper"
+              side="bottom"
+              renderValue={() => {
+                // Show appropriate label for the selected option
+                const selectedOption = cryptoDropdownOptions.find(
+                  (opt) => opt.value === selectedCrypto,
+                );
+                return (
+                  <span className="text-white flex w-full">
+                    {selectedOption?.label || selectedCrypto}
+                  </span>
+                );
+              }}
               className={{
-                trigger:
-                  'flex w-full gap-2 p-3 rounded-md bg-transparent border border-[#222224] items-center pointer-events-none',
-                icon: 'text-transparent size-5',
+                trigger: `flex w-full gap-2 p-3 rounded-md bg-transparent border border-[#222224] items-center justify-between ${
+                  cryptoDropdownOptions.length > 1 ? '' : 'pointer-events-none'
+                }`,
+                icon:
+                  cryptoDropdownOptions.length > 1
+                    ? 'text-grey size-5'
+                    : 'text-transparent size-5',
+                content:
+                  'bg-foreground z-[100] rounded overflow-hidden border py-2 border-dark-grey w-[--radix-select-trigger-width]',
+                item: 'flex items-center gap-3 cursor-pointer bg-foreground hover:bg-dark-grey px-3 py-3 text-grey hover:text-white outline-none transition-all',
+                group: 'flex flex-col bg-foreground text-sm',
+                viewport: 'flex flex-col',
               }}
               options={cryptoDropdownOptions}
             />
-            <div className="flex size-full mt-4">
-              <div className="flex flex-col gap-2 items-start">
-                <span className="text-grey text-xs">
-                  Your total {selectedCrypto} balance:
-                </span>
-                <span className="text-white text-2xl font-bold">
-                  {formatARIOWithCommas(selectedCryptoBalance)} {selectedCrypto}
-                </span>
+            {/* Base Token Payment Info */}
+            {isBaseTokenSelected && selectedBaseToken && (
+              <div className="flex size-full mt-4 flex-col gap-4">
+                {/* Balance Display */}
+                <div className="flex flex-col gap-2 items-start">
+                  <span className="text-grey text-xs">
+                    Your {BASE_TOKEN_CONFIG[selectedBaseToken].symbol} balance
+                    on Base:
+                  </span>
+                  <span className="text-white text-2xl font-bold">
+                    {baseTokenBalance ? (
+                      baseTokenBalance.formatted
+                    ) : ethAddress ? (
+                      <span className="text-grey animate-pulse">
+                        Loading...
+                      </span>
+                    ) : (
+                      <span className="text-grey">--</span>
+                    )}
+                  </span>
+                </div>
+
+                <div className="flex items-start gap-2 p-3 rounded bg-foreground border border-dark-grey">
+                  <Info className="size-4 text-grey flex-shrink-0 mt-0.5" />
+                  <div className="flex flex-col gap-1 text-xs text-grey">
+                    <span>
+                      You&apos;ll pay with{' '}
+                      {BASE_TOKEN_CONFIG[selectedBaseToken].label} on the Base
+                      network.
+                    </span>
+                    <span>
+                      Your wallet will prompt you to switch networks and approve
+                      the transaction.
+                    </span>
+                    <span className="text-white/60">
+                      A 2% buffer is included to account for price fluctuations.
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
-            {selectedCrypto === formattedARIOTicker && (
-              <div className="flex flex-col gap-2 size-full items-start">
-                <span className="text-grey text-xs">
-                  Select balance method:
-                </span>
-                <Tabs.Root
-                  defaultValue={fundingSource}
-                  value={fundingSource}
-                  className="flex flex-col w-full h-full"
-                >
-                  <Tabs.List
-                    className="flex flex-col w-full gap-2 text-white text-sm"
-                    defaultValue={'balance'}
-                  >
-                    <Tabs.Trigger
-                      value="balance"
-                      className="flex w-full gap-2 p-3 rounded bg-foreground data-[state=inactive]:bg-transparent border border-dark-grey items-center"
-                      onClick={() => onFundingSourceChange('balance')}
+            )}
+            {/* ARIO Balance and Options */}
+            {!isBaseTokenSelected && (
+              <>
+                <div className="flex size-full mt-4">
+                  <div className="flex flex-col gap-2 items-start">
+                    <span className="text-grey text-xs">
+                      Your total {selectedCrypto} balance:
+                    </span>
+                    <span className="text-white text-2xl font-bold">
+                      {formatARIOWithCommas(selectedCryptoBalance)}{' '}
+                      {selectedCrypto}
+                    </span>
+                  </div>
+                </div>
+                {selectedCrypto === formattedARIOTicker && (
+                  <div className="flex flex-col gap-2 size-full items-start">
+                    <span className="text-grey text-xs">
+                      Select balance method:
+                    </span>
+                    <Tabs.Root
+                      defaultValue={fundingSource}
+                      value={fundingSource}
+                      className="flex flex-col w-full h-full"
                     >
-                      {fundingSource === 'balance' ? (
-                        <CircleCheck className="size-5 text-background fill-white" />
-                      ) : (
-                        <Circle className="size-5 text-grey" />
-                      )}
-                      <span className="font-bold">Liquid Balance</span> (
-                      {formatARIOWithCommas(liquidArIOBalance)} ARIO)
-                    </Tabs.Trigger>
-                    <Tabs.Trigger
-                      value="any"
-                      className="flex w-full gap-2 p-3 rounded bg-foreground data-[state=inactive]:bg-transparent border border-dark-grey items-center"
-                      onClick={() => onFundingSourceChange('any')}
-                    >
-                      {fundingSource === 'any' ? (
-                        <CircleCheck className="size-5 text-background fill-white" />
-                      ) : (
-                        <Circle className="size-5 text-grey" />
-                      )}
-                      <span className="font-bold">
-                        Liquid + Staked Balances
-                      </span>{' '}
-                      ({formatARIOWithCommas(allArIOBalance)} ARIO)
-                    </Tabs.Trigger>
-                    <Tabs.Trigger
-                      value="stakes"
-                      className="flex w-full gap-2 p-3 rounded bg-foreground data-[state=inactive]:bg-transparent border border-dark-grey items-center"
-                      onClick={() => onFundingSourceChange('stakes')}
-                    >
-                      {fundingSource === 'stakes' ? (
-                        <CircleCheck className="size-5 text-background fill-white" />
-                      ) : (
-                        <Circle className="size-5 text-grey" />
-                      )}{' '}
-                      <span className="font-bold">Staked Balances</span> (
-                      {formatARIOWithCommas(stakedAndVaultedArIOBalance)} ARIO)
-                    </Tabs.Trigger>
-                  </Tabs.List>
-                </Tabs.Root>
-              </div>
+                      <Tabs.List
+                        className="flex flex-col w-full gap-2 text-white text-sm"
+                        defaultValue={'balance'}
+                      >
+                        <Tabs.Trigger
+                          value="balance"
+                          className="flex w-full gap-2 p-3 rounded bg-foreground data-[state=inactive]:bg-transparent border border-dark-grey items-center"
+                          onClick={() => onFundingSourceChange('balance')}
+                        >
+                          {fundingSource === 'balance' ? (
+                            <CircleCheck className="size-5 text-background fill-white" />
+                          ) : (
+                            <Circle className="size-5 text-grey" />
+                          )}
+                          <span className="font-bold">Liquid Balance</span> (
+                          {formatARIOWithCommas(liquidArIOBalance)} ARIO)
+                        </Tabs.Trigger>
+                        <Tabs.Trigger
+                          value="any"
+                          className="flex w-full gap-2 p-3 rounded bg-foreground data-[state=inactive]:bg-transparent border border-dark-grey items-center"
+                          onClick={() => onFundingSourceChange('any')}
+                        >
+                          {fundingSource === 'any' ? (
+                            <CircleCheck className="size-5 text-background fill-white" />
+                          ) : (
+                            <Circle className="size-5 text-grey" />
+                          )}
+                          <span className="font-bold">
+                            Liquid + Staked Balances
+                          </span>{' '}
+                          ({formatARIOWithCommas(allArIOBalance)} ARIO)
+                        </Tabs.Trigger>
+                        <Tabs.Trigger
+                          value="stakes"
+                          className="flex w-full gap-2 p-3 rounded bg-foreground data-[state=inactive]:bg-transparent border border-dark-grey items-center"
+                          onClick={() => onFundingSourceChange('stakes')}
+                        >
+                          {fundingSource === 'stakes' ? (
+                            <CircleCheck className="size-5 text-background fill-white" />
+                          ) : (
+                            <Circle className="size-5 text-grey" />
+                          )}{' '}
+                          <span className="font-bold">Staked Balances</span> (
+                          {formatARIOWithCommas(stakedAndVaultedArIOBalance)}{' '}
+                          ARIO)
+                        </Tabs.Trigger>
+                      </Tabs.List>
+                    </Tabs.Root>
+                  </div>
+                )}
+              </>
             )}
           </Tabs.Content>
           <Tabs.Content

@@ -196,6 +196,30 @@ function NetworkSettings() {
         type: 'setTurboNetwork',
         payload: newConfig,
       });
+
+      // Also update the arioContract with the new payment URL
+      // The arioContract uses this URL for fundFrom: 'turbo' operations
+      if (config.PAYMENT_URL) {
+        const ao = connect({
+          GATEWAY_URL: 'https://' + gateway,
+          CU_URL: aoNetwork.ARIO.CU_URL,
+          MU_URL: aoNetwork.ARIO.MU_URL,
+          MODE: 'legacy' as const,
+        });
+
+        dispatchArIOContract({
+          contract: ARIO.init({
+            paymentUrl: config.PAYMENT_URL,
+            hyperbeamUrl: hyperbeamUrl,
+            process: new AOProcess({
+              processId: arioProcessId,
+              ao,
+            }),
+          }),
+          arioProcessId,
+          dispatch: dispatchGlobalState,
+        });
+      }
     } catch (error) {
       eventEmitter.emit('error', error);
     }
