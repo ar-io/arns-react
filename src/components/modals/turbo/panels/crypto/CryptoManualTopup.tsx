@@ -27,6 +27,8 @@ function CryptoManualTopup({
   const [{ turboNetwork }] = useGlobalState();
 
   const [turboWalletAddress, setTurboWalletAddress] = useState<string>();
+  const [walletAddressLoading, setWalletAddressLoading] = useState(true);
+  const [walletAddressError, setWalletAddressError] = useState<string>();
   const [transferResult, setTransferResult] = useState<TransferResult>();
   const [transactionSubmitted, setTransactionSubmitted] = useState(false);
   const [paymentError, setPaymentError] = useState<string>();
@@ -53,13 +55,35 @@ function CryptoManualTopup({
   // Fetch Turbo wallet address for the token type
   useEffect(() => {
     async function fetchTurboWallet() {
+      setWalletAddressLoading(true);
+      setWalletAddressError(undefined);
+
       try {
         const response = await fetch(`${turboNetwork.PAYMENT_URL}/info`);
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch: ${response.status}`);
+        }
+
         const data = await response.json();
         const address = data.addresses?.[quote.tokenType];
-        setTurboWalletAddress(address);
+
+        if (!address) {
+          setWalletAddressError(
+            `No payment address available for ${quote.tokenType}. Please try a different token or contact support.`,
+          );
+          setTurboWalletAddress(undefined);
+        } else {
+          setTurboWalletAddress(address);
+        }
       } catch (e) {
         console.error('Failed to fetch Turbo wallet address:', e);
+        setWalletAddressError(
+          'Unable to fetch payment address. Please check your connection and try again.',
+        );
+        setTurboWalletAddress(undefined);
+      } finally {
+        setWalletAddressLoading(false);
       }
     }
 
@@ -258,7 +282,19 @@ function CryptoManualTopup({
                     </a>
                     .
                   </p>
-                  {turboWalletAddress && (
+                  {walletAddressLoading && (
+                    <div className="flex items-center gap-2 mt-2 text-grey text-xs">
+                      <RefreshCw className="w-3 h-3 animate-spin" />
+                      <span>Fetching payment address...</span>
+                    </div>
+                  )}
+                  {walletAddressError && (
+                    <div className="flex items-center gap-2 mt-2 text-error text-xs">
+                      <AlertTriangle className="w-3 h-3" />
+                      <span>{walletAddressError}</span>
+                    </div>
+                  )}
+                  {turboWalletAddress && !walletAddressLoading && (
                     <div className="flex items-center gap-2 mt-2">
                       <span className="text-xs text-grey">Turbo Wallet:</span>
                       <code className="text-xs text-white bg-dark-grey px-2 py-1 rounded">
@@ -280,10 +316,18 @@ function CryptoManualTopup({
 
                 <button
                   onClick={submitNativeTransaction}
-                  disabled={!turboWalletAddress || !!signingMessage}
+                  disabled={
+                    !turboWalletAddress ||
+                    !!signingMessage ||
+                    walletAddressLoading
+                  }
                   className="w-full px-6 py-3 rounded-lg bg-primary text-black font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
                 >
-                  {signingMessage ? signingMessage : 'Send Payment'}
+                  {walletAddressLoading
+                    ? 'Loading...'
+                    : signingMessage
+                      ? signingMessage
+                      : 'Send Payment'}
                 </button>
               </div>
             ) : (

@@ -340,15 +340,29 @@ function CryptoConfirmation({
           });
 
           onComplete();
-        } else if (
-          walletType === WALLET_TYPES.ETHEREUM &&
-          walletClient &&
-          ethAddress
-        ) {
-          // ETH wallet payment
+        } else if (walletType === WALLET_TYPES.ETHEREUM) {
+          // ETH wallet payment - validate wallet is available
+          if (!walletClient || !ethAddress) {
+            setPaymentError(
+              'Ethereum wallet not available. Please reconnect your wallet and try again.',
+            );
+            setIsProcessing(false);
+            return;
+          }
+
+          // Validate window.ethereum is available for BrowserProvider
+          if (!window.ethereum) {
+            setPaymentError(
+              'No Ethereum provider found. Please ensure your wallet extension is installed and active.',
+            );
+            setIsProcessing(false);
+            return;
+          }
+
           const { BrowserProvider } = await import('ethers');
-          const provider = new BrowserProvider(walletClient as any);
-          const signer = await provider.getSigner();
+          // Use window.ethereum as EIP-1193 provider - most reliable for browser wallets
+          const provider = new BrowserProvider(window.ethereum);
+          const signer = await provider.getSigner(ethAddress);
 
           const turboClient = TurboFactory.authenticated({
             token: tokenType as any,
@@ -381,6 +395,13 @@ function CryptoConfirmation({
           });
 
           onComplete();
+        } else {
+          // canPayDirectly is true but no matching wallet type - should not happen
+          setPaymentError(
+            'Unable to process payment with current wallet. Please try manual payment.',
+          );
+          setIsProcessing(false);
+          return;
         }
       } else {
         // Manual payment flow
@@ -389,13 +410,16 @@ function CryptoConfirmation({
     } catch (error) {
       console.error('Payment error:', error);
 
+      // Safely resolve token label with fallback for error messages
+      const tokenLabel = currencyLabels[tokenType] ?? tokenType ?? 'token';
+
       if (error instanceof Error) {
         if (
           error.message.includes('insufficient funds') ||
           (error as any).code === 'INSUFFICIENT_FUNDS'
         ) {
           setPaymentError(
-            `Insufficient ${currencyLabels[tokenType]} balance. You need enough to cover both the payment amount and gas fees.`,
+            `Insufficient ${tokenLabel} balance. You need enough to cover both the payment amount and gas fees.`,
           );
         } else if (
           error.message.includes('user rejected') ||
