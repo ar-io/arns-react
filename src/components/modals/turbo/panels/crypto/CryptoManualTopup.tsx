@@ -3,7 +3,7 @@ import { CopyIcon } from '@src/components/icons';
 import { useGlobalState, useWalletState } from '@src/state';
 import { TOKEN_DISPLAY_INFO, currencyLabels } from '@src/utils/constants';
 import { AlertTriangle, CheckCircle, Copy, RefreshCw } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { CryptoTopupQuote } from './CryptoConfirmation';
 
@@ -34,6 +34,22 @@ function CryptoManualTopup({
   const [isRetrying, setIsRetrying] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Refs to track timeouts for cleanup on unmount
+  const autoCompleteTimeoutRef = useRef<NodeJS.Timeout>();
+  const copyTimeoutRef = useRef<NodeJS.Timeout>();
+
+  // Cleanup timeouts on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (autoCompleteTimeoutRef.current) {
+        clearTimeout(autoCompleteTimeoutRef.current);
+      }
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // Fetch Turbo wallet address for the token type
   useEffect(() => {
     async function fetchTurboWallet() {
@@ -54,7 +70,7 @@ function CryptoManualTopup({
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
     } catch (e) {
       console.error('Failed to copy:', e);
     }
@@ -114,7 +130,7 @@ function CryptoManualTopup({
       } else {
         setTransactionSubmitted(true);
         // Auto-complete after successful submission
-        setTimeout(() => {
+        autoCompleteTimeoutRef.current = setTimeout(() => {
           onComplete();
         }, 2000);
       }
@@ -152,7 +168,7 @@ function CryptoManualTopup({
         setPaymentError('Transaction retry failed. Please contact support.');
       } else {
         setTransactionSubmitted(true);
-        setTimeout(() => {
+        autoCompleteTimeoutRef.current = setTimeout(() => {
           onComplete();
         }, 2000);
       }

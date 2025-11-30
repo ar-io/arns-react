@@ -32,6 +32,9 @@ import { AlertCircle, RefreshCw, Wallet } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAccount, useBalance, useWalletClient } from 'wagmi';
 
+// Fallback value for winc per GiB when upload cost data is unavailable
+const WINC_PER_GIB_FALLBACK = 1e12;
+
 export interface CryptoTopupQuote {
   tokenAmount: number;
   tokenType: TokenType;
@@ -247,7 +250,9 @@ function CryptoConfirmation({
           +atomicAmount,
           tokenType,
         );
-        const wincForGiB = uploadCostGib ? Number(uploadCostGib[0].winc) : 1e12;
+        const wincForGiB = uploadCostGib
+          ? Number(uploadCostGib[0].winc)
+          : WINC_PER_GIB_FALLBACK;
         const credits = turbo.wincToCredits(+wincResult.winc);
         const gigabytes = +wincResult.winc / wincForGiB;
 
@@ -363,8 +368,8 @@ function CryptoConfirmation({
             tokenType === 'base-usdc' ||
             tokenType === 'polygon-usdc'
           ) {
-            // USDC uses 6 decimals
-            tokenAmount = (cryptoAmount * 1e6).toString();
+            // USDC uses 6 decimals - use Math.round to avoid floating-point errors
+            tokenAmount = Math.round(cryptoAmount * 1e6).toString();
           } else if (tokenType === 'ario') {
             tokenAmount = ARIOToTokenAmount(cryptoAmount);
           } else {

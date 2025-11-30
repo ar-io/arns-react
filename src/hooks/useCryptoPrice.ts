@@ -7,7 +7,7 @@ const COINGECKO_IDS: Partial<Record<TokenType, string>> = {
   ario: 'ar-io-network',
   ethereum: 'ethereum',
   'base-eth': 'ethereum', // Base ETH is still ETH
-  pol: 'matic-network',
+  pol: 'polygon-ecosystem-token',
   usdc: 'usd-coin',
   'base-usdc': 'usd-coin',
   'polygon-usdc': 'usd-coin',
