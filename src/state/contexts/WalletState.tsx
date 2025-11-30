@@ -290,6 +290,26 @@ export function WalletStateProvider({
     }
   }, [ethAccount.isConnected, wallet, walletAddress]);
 
+  // Auto-reconnect Ethereum wallet on page load when wagmi restores the session
+  // This mirrors the arweaveWalletLoaded event behavior for Arweave wallets
+  useEffect(() => {
+    const storedWalletType = window.localStorage.getItem('walletType');
+    if (
+      storedWalletType === WALLET_TYPES.ETHEREUM &&
+      ethAccount.isConnected &&
+      ethAccount.address &&
+      ethAccount.connector &&
+      !wallet
+    ) {
+      updateIfConnected();
+    }
+  }, [
+    ethAccount.isConnected,
+    ethAccount.address,
+    ethAccount.connector,
+    wallet,
+  ]);
+
   return (
     <WalletStateContext.Provider value={[state, dispatchWalletState]}>
       {children}
