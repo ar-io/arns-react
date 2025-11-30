@@ -5,7 +5,7 @@ import { ConfigProvider } from 'antd';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { WagmiProvider } from 'wagmi';
-import { base, mainnet } from 'wagmi/chains';
+import { base, mainnet, polygon } from 'wagmi/chains';
 
 import App from './App';
 import './index.css';
@@ -32,7 +32,7 @@ import './utils/sentry';
 const config = getDefaultConfig({
   appName: 'ArNS Registry',
   projectId: WALLETCONNECT_PROJECT_ID,
-  chains: [mainnet, base],
+  chains: [mainnet, base, polygon],
   ssr: false,
 });
 

@@ -54,7 +54,7 @@ export function useBaseTokenPrice(
 
       // Create an unauthenticated turbo client to get pricing
       const turbo = TurboFactory.unauthenticated({
-        token: tokenType as 'base-eth',
+        token: tokenType,
         paymentServiceConfig: {
           url: turboNetwork.PAYMENT_URL,
         },
@@ -110,7 +110,9 @@ export function useBaseTokenPrice(
       return {
         tokenAmount: roundedTokensNeeded,
         tokenAmountSmallestUnit: smallestUnitAmount,
-        wincWillReceive: wincForSample,
+        wincWillReceive: Math.floor(
+          roundedTokensNeeded * wincPerToken,
+        ).toString(),
         includesBuffer: includeBuffer,
         symbol: config.symbol,
         displayAmount,
@@ -137,7 +139,7 @@ export function useBaseTokenRate(tokenType: BaseTokenType | undefined) {
       }
 
       const turbo = TurboFactory.unauthenticated({
-        token: tokenType as 'base-eth',
+        token: tokenType,
         paymentServiceConfig: {
           url: turboNetwork.PAYMENT_URL,
         },
