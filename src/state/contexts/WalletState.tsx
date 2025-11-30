@@ -107,12 +107,11 @@ export function WalletStateProvider({
           ),
         );
         dispatchWalletState({
-          type: 'setWalletAddress',
-          payload: undefined,
-        });
-        dispatchWalletState({
-          type: 'setWallet',
-          payload: undefined,
+          type: 'setWalletAndAddress',
+          payload: {
+            wallet: undefined,
+            walletAddress: undefined,
+          },
         });
       }
     };
@@ -122,12 +121,11 @@ export function WalletStateProvider({
         localStorage.removeItem('walletType');
         eventEmitter.emit('error', new BeaconError('Beacon disconnected'));
         dispatchWalletState({
-          type: 'setWalletAddress',
-          payload: undefined,
-        });
-        dispatchWalletState({
-          type: 'setWallet',
-          payload: undefined,
+          type: 'setWalletAndAddress',
+          payload: {
+            wallet: undefined,
+            walletAddress: undefined,
+          },
         });
       }
     };
@@ -198,12 +196,11 @@ export function WalletStateProvider({
         await connector.updatePermissions();
 
         dispatchWalletState({
-          type: 'setWalletAddress',
-          payload: address,
-        });
-        dispatchWalletState({
-          type: 'setWallet',
-          payload: connector,
+          type: 'setWalletAndAddress',
+          payload: {
+            wallet: connector,
+            walletAddress: address,
+          },
         });
       } else if (walletType === WALLET_TYPES.ETHEREUM) {
         if (
@@ -217,12 +214,11 @@ export function WalletStateProvider({
           );
 
           dispatchWalletState({
-            type: 'setWalletAddress',
-            payload: ethAccount.address,
-          });
-          dispatchWalletState({
-            type: 'setWallet',
-            payload: walletConnector,
+            type: 'setWalletAndAddress',
+            payload: {
+              wallet: walletConnector,
+              walletAddress: ethAccount.address,
+            },
           });
         }
       } else if (walletType === WALLET_TYPES.BEACON) {
@@ -231,24 +227,22 @@ export function WalletStateProvider({
           localStorage.removeItem('walletType');
           eventEmitter.emit('error', new BeaconError('Beacon disconnected'));
           dispatchWalletState({
-            type: 'setWalletAddress',
-            payload: undefined,
-          });
-          dispatchWalletState({
-            type: 'setWallet',
-            payload: undefined,
+            type: 'setWalletAndAddress',
+            payload: {
+              wallet: undefined,
+              walletAddress: undefined,
+            },
           });
           return;
         }
         const address = await connector?.getWalletAddress();
 
         dispatchWalletState({
-          type: 'setWalletAddress',
-          payload: address,
-        });
-        dispatchWalletState({
-          type: 'setWallet',
-          payload: connector,
+          type: 'setWalletAndAddress',
+          payload: {
+            wallet: connector,
+            walletAddress: address,
+          },
         });
       }
     } catch (error) {
@@ -280,12 +274,11 @@ export function WalletStateProvider({
     ) {
       localStorage.removeItem('walletType');
       dispatchWalletState({
-        type: 'setWalletAddress',
-        payload: undefined,
-      });
-      dispatchWalletState({
-        type: 'setWallet',
-        payload: undefined,
+        type: 'setWalletAndAddress',
+        payload: {
+          wallet: undefined,
+          walletAddress: undefined,
+        },
       });
     }
   }, [ethAccount.isConnected, wallet, walletAddress]);

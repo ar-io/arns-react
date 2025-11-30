@@ -55,12 +55,11 @@ function ConnectWalletModal(): JSX.Element {
         );
 
         dispatchWalletState({
-          type: 'setWalletAddress',
-          payload: ethAccount.address,
-        });
-        dispatchWalletState({
-          type: 'setWallet',
-          payload: walletConnector,
+          type: 'setWalletAndAddress',
+          payload: {
+            wallet: walletConnector,
+            walletAddress: ethAccount.address,
+          },
         });
       } catch (error) {
         console.error('Failed to create Ethereum wallet connector:', error);
@@ -146,12 +145,11 @@ function ConnectWalletModal(): JSX.Element {
 
       const address = await walletConnector.getWalletAddress();
       dispatchWalletState({
-        type: 'setWalletAddress',
-        payload: address,
-      });
-      dispatchWalletState({
-        type: 'setWallet',
-        payload: walletConnector,
+        type: 'setWalletAndAddress',
+        payload: {
+          wallet: walletConnector,
+          walletAddress: address,
+        },
       });
 
       closeModal({ next: true, address });
@@ -244,12 +242,11 @@ function ConnectWalletModal(): JSX.Element {
               try {
                 await wallet.disconnect();
                 dispatchWalletState({
-                  type: 'setWalletAddress',
-                  payload: undefined,
-                });
-                dispatchWalletState({
-                  type: 'setWallet',
-                  payload: undefined,
+                  type: 'setWalletAndAddress',
+                  payload: {
+                    wallet: undefined,
+                    walletAddress: undefined,
+                  },
                 });
               } catch {
                 // Ignore disconnect errors

@@ -149,14 +149,13 @@ function NavMenuCard() {
       // Clear localStorage
       localStorage.removeItem('walletType');
 
-      // Clear wallet state
+      // Clear wallet state atomically
       dispatchWalletState({
-        type: 'setWalletAddress',
-        payload: undefined,
-      });
-      dispatchWalletState({
-        type: 'setWallet',
-        payload: undefined,
+        type: 'setWalletAndAddress',
+        payload: {
+          wallet: undefined,
+          walletAddress: undefined,
+        },
       });
     } catch (error: any) {
       eventEmitter.emit('error', error);

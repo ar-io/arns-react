@@ -10,6 +10,13 @@ export type WalletAction =
       type: 'setWallet';
       payload: ArNSWalletConnector | undefined;
     }
+  | {
+      type: 'setWalletAndAddress';
+      payload: {
+        wallet: ArNSWalletConnector | undefined;
+        walletAddress: AoAddress | undefined;
+      };
+    }
   | { type: 'setBalances'; payload: { [x: string]: number; ar: number } }
   | { type: 'setWalletStateInitialized' };
 
@@ -27,6 +34,12 @@ export const walletReducer = (
       return {
         ...state,
         wallet: action.payload,
+      };
+    case 'setWalletAndAddress':
+      return {
+        ...state,
+        wallet: action.payload.wallet,
+        walletAddress: action.payload.walletAddress,
       };
     case 'setBalances':
       return {
