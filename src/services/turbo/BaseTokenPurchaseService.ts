@@ -262,7 +262,55 @@ export async function executeBaseTokenPurchase({
         );
       }
 
-      throw new TopUpError(`Failed to top up: ${errorMessage}`);
+      // Check if this is a "submit fund transaction" error with a tx ID
+      // This happens when the blockchain tx succeeded but Turbo backend didn't receive it
+      const txIdMatch = errorMessage.match(
+        /turbo\.submitFundTransaction\([^)]*\)['"]?:\s*(\S+)/,
+      );
+      if (txIdMatch && txIdMatch[1]) {
+        const failedTxId = txIdMatch[1];
+        // Try to submit the fund transaction manually
+        onProgress?.('topping-up', 'Retrying transaction submission...');
+
+        try {
+          // Wait for blockchain confirmation
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+
+          const unauthenticatedTurbo = TurboFactory.unauthenticated({
+            paymentServiceConfig: {
+              url: turboNetwork.PAYMENT_URL,
+            },
+            token: tokenType as 'base-eth' | 'base-usdc',
+          });
+
+          const retryResponse =
+            await unauthenticatedTurbo.submitFundTransaction({
+              txId: failedTxId,
+            });
+
+          if (retryResponse.status === 'failed') {
+            throw new TopUpError(
+              `Transaction failed after retry. Transaction ID: ${failedTxId}. Please contact support.`,
+            );
+          }
+
+          // Success - create a fake topUpResult to continue the flow
+          topUpResult = {
+            id: failedTxId,
+            winc: retryResponse.winc || wincRequired,
+          };
+        } catch (retryError) {
+          const retryErrorMessage =
+            retryError instanceof Error
+              ? retryError.message
+              : String(retryError);
+          throw new TopUpError(
+            `Transaction submitted to blockchain but failed to register with Turbo. Transaction ID: ${failedTxId}. Error: ${retryErrorMessage}. Please wait a few minutes and contact support if credits don't appear.`,
+          );
+        }
+      } else {
+        throw new TopUpError(`Failed to top up: ${errorMessage}`);
+      }
     }
 
     // Wait a moment for the top-up to be processed
