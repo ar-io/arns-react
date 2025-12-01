@@ -118,6 +118,8 @@ function CryptoConfirmation({
   const [paymentError, setPaymentError] = useState<string>();
   const [quote, setQuote] = useState<CryptoTopupQuote | null>(null);
   const [isLoadingQuote, setIsLoadingQuote] = useState(true);
+  const [failedTxId, setFailedTxId] = useState<string>();
+  const [isRetrying, setIsRetrying] = useState(false);
 
   // Get the current balance for the selected token
   const currentTokenBalance = useMemo((): {
@@ -361,8 +363,101 @@ function CryptoConfirmation({
 
           const { BrowserProvider } = await import('ethers');
           // Use window.ethereum as EIP-1193 provider - most reliable for browser wallets
-          const provider = new BrowserProvider(window.ethereum);
-          const signer = await provider.getSigner(ethAddress);
+          let provider = new BrowserProvider(window.ethereum);
+          let signer = await provider.getSigner(ethAddress);
+
+          // Determine expected chain ID based on token type
+          const expectedChainId =
+            tokenType === 'ethereum' || tokenType === 'usdc'
+              ? ETH_MAINNET_CHAIN_ID
+              : tokenType === 'base-eth' || tokenType === 'base-usdc'
+                ? BASE_MAINNET_CHAIN_ID
+                : tokenType === 'pol' || tokenType === 'polygon-usdc'
+                  ? POLYGON_MAINNET_CHAIN_ID
+                  : ETH_MAINNET_CHAIN_ID;
+
+          // Get network name for error messages
+          const getNetworkName = (chainId: number) => {
+            switch (chainId) {
+              case ETH_MAINNET_CHAIN_ID:
+                return 'Ethereum Mainnet';
+              case BASE_MAINNET_CHAIN_ID:
+                return 'Base';
+              case POLYGON_MAINNET_CHAIN_ID:
+                return 'Polygon';
+              default:
+                return 'the required network';
+            }
+          };
+
+          // Network validation and auto-switching
+          const network = await provider.getNetwork();
+          if (Number(network.chainId) !== expectedChainId) {
+            try {
+              await window.ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: `0x${expectedChainId.toString(16)}` }],
+              });
+              // Wait for switch to complete
+              await new Promise((resolve) => setTimeout(resolve, 1000));
+              // Re-create provider and signer after switch
+              provider = new BrowserProvider(window.ethereum);
+              signer = await provider.getSigner(ethAddress);
+            } catch (switchError: any) {
+              // Error 4902 means the network doesn't exist - try to add it
+              if (switchError.code === 4902) {
+                const networkConfigs: Record<number, any> = {
+                  [BASE_MAINNET_CHAIN_ID]: {
+                    chainId: `0x${BASE_MAINNET_CHAIN_ID.toString(16)}`,
+                    chainName: 'Base',
+                    nativeCurrency: {
+                      name: 'Ether',
+                      symbol: 'ETH',
+                      decimals: 18,
+                    },
+                    rpcUrls: ['https://mainnet.base.org'],
+                    blockExplorerUrls: ['https://basescan.org'],
+                  },
+                  [POLYGON_MAINNET_CHAIN_ID]: {
+                    chainId: `0x${POLYGON_MAINNET_CHAIN_ID.toString(16)}`,
+                    chainName: 'Polygon Mainnet',
+                    nativeCurrency: {
+                      name: 'POL',
+                      symbol: 'POL',
+                      decimals: 18,
+                    },
+                    rpcUrls: ['https://polygon-rpc.com'],
+                    blockExplorerUrls: ['https://polygonscan.com'],
+                  },
+                };
+
+                const networkConfig = networkConfigs[expectedChainId];
+                if (networkConfig) {
+                  try {
+                    await window.ethereum.request({
+                      method: 'wallet_addEthereumChain',
+                      params: [networkConfig],
+                    });
+                    await new Promise((resolve) => setTimeout(resolve, 1000));
+                    provider = new BrowserProvider(window.ethereum);
+                    signer = await provider.getSigner(ethAddress);
+                  } catch {
+                    throw new Error(
+                      `Failed to add ${getNetworkName(expectedChainId)} to your wallet. Please add it manually.`,
+                    );
+                  }
+                } else {
+                  throw new Error(
+                    `Please switch to ${getNetworkName(expectedChainId)} in your wallet.`,
+                  );
+                }
+              } else {
+                throw new Error(
+                  `Please switch to ${getNetworkName(expectedChainId)} in your wallet to complete this payment.`,
+                );
+              }
+            }
+          }
 
           const turboClient = TurboFactory.authenticated({
             token: tokenType as any,
@@ -436,6 +531,16 @@ function CryptoConfirmation({
             'Network connection issue. Please check your connection and try again.',
           );
         } else {
+          // Try to extract transaction ID from error message for retry
+          // Pattern: turbo.submitFundTransaction(id)': 0x...
+          const txIdMatch = error.message.match(
+            /turbo\.submitFundTransaction\([^)]*\)['"]?:\s*(\S+)/,
+          );
+          if (txIdMatch && txIdMatch[1]) {
+            setFailedTxId(txIdMatch[1]);
+          } else {
+            setFailedTxId(undefined);
+          }
           setPaymentError(`Payment failed: ${error.message}`);
         }
       } else {
@@ -457,6 +562,58 @@ function CryptoConfirmation({
     onComplete,
     onManualPayment,
   ]);
+
+  // Retry failed transaction using submitFundTransaction
+  const retryTransaction = useCallback(async () => {
+    if (!failedTxId) return;
+
+    setIsRetrying(true);
+    setPaymentError('⏳ Waiting for blockchain confirmation (3 seconds)...');
+
+    // Wait for the transaction to be confirmed on-chain
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    setPaymentError('🔄 Submitting transaction to Turbo...');
+
+    try {
+      // Use unauthenticated client for submitFundTransaction
+      const turboClient = TurboFactory.unauthenticated({
+        paymentServiceConfig: {
+          url: turboNetwork.PAYMENT_URL,
+        },
+        token: tokenType as any,
+      });
+
+      console.log('Retrying submitFundTransaction with txId:', failedTxId);
+      const response = await turboClient.submitFundTransaction({
+        txId: failedTxId,
+      });
+      console.log('Retry response:', response);
+
+      if (response.status === 'failed') {
+        setPaymentError(
+          'Transaction retry failed. The blockchain transaction may not be confirmed yet. Please wait a minute and try again, or contact support if the issue persists.',
+        );
+        setIsRetrying(false);
+      } else {
+        setFailedTxId(undefined);
+        setPaymentError(undefined);
+        onComplete();
+      }
+    } catch (e: unknown) {
+      console.error('Retry error:', e);
+      const errorMessage = e instanceof Error ? e.message : String(e);
+
+      if (errorMessage.includes('404') || errorMessage.includes('not found')) {
+        setPaymentError(
+          `Transaction not found yet. The blockchain transaction (${failedTxId}) needs to be confirmed before Turbo can process it. Please wait 1-2 minutes and try again.`,
+        );
+      } else {
+        setPaymentError(`Retry failed: ${errorMessage}`);
+      }
+      setIsRetrying(false);
+    }
+  }, [failedTxId, turboNetwork.PAYMENT_URL, tokenType, onComplete]);
 
   const formatStorage = (gigabytes: number): string => {
     if (gigabytes >= 1) {
@@ -567,7 +724,23 @@ function CryptoConfirmation({
               <div className="bg-error/10 border border-error/20 rounded-lg p-3">
                 <div className="flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 text-error flex-shrink-0 mt-0.5" />
-                  <div className="text-error text-sm">{paymentError}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-error text-sm break-words">
+                      {paymentError}
+                    </div>
+                    {failedTxId && (
+                      <button
+                        onClick={retryTransaction}
+                        disabled={isRetrying}
+                        className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 bg-error text-white rounded-lg font-medium hover:bg-error/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <RefreshCw
+                          className={`w-4 h-4 ${isRetrying ? 'animate-spin' : ''}`}
+                        />
+                        {isRetrying ? 'Retrying...' : 'Retry Transaction'}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
