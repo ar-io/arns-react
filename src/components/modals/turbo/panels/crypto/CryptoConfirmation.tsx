@@ -289,16 +289,17 @@ function CryptoConfirmation({
       return tokenType === 'arweave' || tokenType === 'ario';
     }
 
-    // ETH wallets can pay with most ETH-based tokens via direct payment
+    // ETH wallets can pay with ETH-based tokens via direct payment
+    // ETH wallets can also pay with ARIO (AO-based token) using the InjectedEthereumSigner
     if (walletType === WALLET_TYPES.ETHEREUM) {
       return [
+        'ario',
         'ethereum',
         'base-eth',
         'pol',
         'usdc',
         'base-usdc',
         'polygon-usdc',
-        'ario',
       ].includes(tokenType);
     }
 
@@ -343,6 +344,40 @@ function CryptoConfirmation({
 
           onComplete();
         } else if (walletType === WALLET_TYPES.ETHEREUM) {
+          // ARIO payments for ETH wallets use the InjectedEthereumSigner (AO-based token)
+          if (tokenType === 'ario') {
+            if (!wallet?.turboSigner) {
+              setPaymentError(
+                'Wallet signer not available. Please reconnect your wallet and try again.',
+              );
+              setIsProcessing(false);
+              return;
+            }
+
+            const turboSigner = wallet.turboSigner as any;
+            // Ensure public key is set (required for AO data item signing)
+            if (!turboSigner.publicKey && turboSigner.setPublicKey) {
+              await turboSigner.setPublicKey();
+            }
+
+            const turboClient = TurboFactory.authenticated({
+              signer: turboSigner,
+              token: 'ario',
+              paymentServiceConfig: {
+                url: turboNetwork.PAYMENT_URL,
+              },
+            });
+
+            const tokenAmount = ARIOToTokenAmount(cryptoAmount);
+            await turboClient.topUpWithTokens({
+              tokenAmount,
+            });
+
+            onComplete();
+            return;
+          }
+
+          // Other ETH-based token payments
           // ETH wallet payment - validate wallet is available
           if (!walletClient || !ethAddress) {
             setPaymentError(
@@ -479,9 +514,8 @@ function CryptoConfirmation({
           ) {
             // USDC uses 6 decimals - use Math.round to avoid floating-point errors
             tokenAmount = Math.round(cryptoAmount * 1e6).toString();
-          } else if (tokenType === 'ario') {
-            tokenAmount = ARIOToTokenAmount(cryptoAmount);
           } else {
+            // ETH L1 or Base ETH
             tokenAmount = ETHToTokenAmount(cryptoAmount);
           }
 

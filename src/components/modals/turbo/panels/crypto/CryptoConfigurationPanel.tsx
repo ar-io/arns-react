@@ -64,19 +64,32 @@ function CryptoConfigurationPanel({
   // Request ID to track valid async requests - incrementing invalidates pending requests
   const requestIdRef = useRef(0);
 
-  // Get available tokens based on wallet type
-  const availableTokens = useMemo(() => {
+  // Get available tokens based on wallet type, organized into groups
+  const { nativeTokens, stableTokens } = useMemo(() => {
     if (
       walletType === WALLET_TYPES.WANDER ||
       walletType === WALLET_TYPES.ARWEAVE_APP ||
       walletType === WALLET_TYPES.BEACON
     ) {
-      return ARWEAVE_WALLET_TOKENS;
+      // Arweave wallets only have native tokens (AR, ARIO)
+      return { nativeTokens: ARWEAVE_WALLET_TOKENS, stableTokens: [] };
     }
     if (walletType === WALLET_TYPES.ETHEREUM) {
-      return ETHEREUM_WALLET_TOKENS;
+      // ETH wallets: group native tokens and stablecoins separately
+      const native: typeof ETHEREUM_WALLET_TOKENS = [
+        'ethereum',
+        'base-eth',
+        'pol',
+        'ario',
+      ];
+      const stable: typeof ETHEREUM_WALLET_TOKENS = [
+        'usdc',
+        'base-usdc',
+        'polygon-usdc',
+      ];
+      return { nativeTokens: native, stableTokens: stable };
     }
-    return [];
+    return { nativeTokens: [], stableTokens: [] };
   }, [walletType]);
 
   // Get preset amounts for selected token
@@ -244,33 +257,70 @@ function CryptoConfigurationPanel({
           <div className="flex w-fit text-sm text-high items-center">
             Select Token
           </div>
-          <div className="pt-1 grid w-full grid-cols-3 sm:grid-cols-4 gap-2">
-            {availableTokens.map((token) => {
-              const tokenInfo = TOKEN_DISPLAY_INFO[token];
-              const isSelected = selectedToken === token;
-              return (
-                <button
-                  key={token}
-                  className={`rounded py-1.5 px-2 flex flex-col items-center justify-center min-h-[2.25rem] transition-all ${
-                    isSelected
-                      ? 'bg-white text-black'
-                      : 'bg-dark-grey hover:bg-dark-grey/80'
-                  }`}
-                  onClick={() => setSelectedToken(token)}
-                >
-                  <span className="text-xs font-semibold">
-                    {tokenInfo?.name || token}
-                  </span>
-                  {tokenInfo?.network && (
-                    <span
-                      className={`text-[10px] ${isSelected ? 'text-black/60' : 'text-grey'}`}
-                    >
-                      {tokenInfo.network}
+          <div className="pt-1 flex flex-col gap-2">
+            {/* Native tokens row - uses 12-column grid for precise control */}
+            <div className="grid w-full grid-cols-12 gap-2">
+              {nativeTokens.map((token) => {
+                const tokenInfo = TOKEN_DISPLAY_INFO[token];
+                const isSelected = selectedToken === token;
+                // 4 tokens = 3 cols each, 2 tokens = 6 cols each
+                const colSpan =
+                  nativeTokens.length === 4 ? 'col-span-3' : 'col-span-6';
+                return (
+                  <button
+                    key={token}
+                    className={`${colSpan} rounded py-1.5 px-2 flex flex-col items-center justify-center min-h-[2.25rem] transition-all ${
+                      isSelected
+                        ? 'bg-white text-black'
+                        : 'bg-dark-grey hover:bg-dark-grey/80'
+                    }`}
+                    onClick={() => setSelectedToken(token)}
+                  >
+                    <span className="text-xs font-semibold">
+                      {tokenInfo?.name || token}
                     </span>
-                  )}
-                </button>
-              );
-            })}
+                    {tokenInfo?.network && (
+                      <span
+                        className={`text-[10px] ${isSelected ? 'text-black/60' : 'text-grey'}`}
+                      >
+                        {tokenInfo.network}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            {/* Stablecoins row - 3 tokens spanning full width (4 cols each) */}
+            {stableTokens.length > 0 && (
+              <div className="grid w-full grid-cols-12 gap-2">
+                {stableTokens.map((token) => {
+                  const tokenInfo = TOKEN_DISPLAY_INFO[token];
+                  const isSelected = selectedToken === token;
+                  return (
+                    <button
+                      key={token}
+                      className={`col-span-4 rounded py-1.5 px-2 flex flex-col items-center justify-center min-h-[2.25rem] transition-all ${
+                        isSelected
+                          ? 'bg-white text-black'
+                          : 'bg-dark-grey hover:bg-dark-grey/80'
+                      }`}
+                      onClick={() => setSelectedToken(token)}
+                    >
+                      <span className="text-xs font-semibold">
+                        {tokenInfo?.name || token}
+                      </span>
+                      {tokenInfo?.network && (
+                        <span
+                          className={`text-[10px] ${isSelected ? 'text-black/60' : 'text-grey'}`}
+                        >
+                          {tokenInfo.network}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 
