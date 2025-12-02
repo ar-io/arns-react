@@ -398,7 +398,7 @@ function Checkout() {
     [],
   );
 
-  // Get button text based on Base token purchase stage
+  // Get button text based on Base token top-up stage
   const getBaseTokenButtonText = useCallback(() => {
     switch (baseTokenStage) {
       case 'calculating':
@@ -409,8 +409,8 @@ function Checkout() {
         return 'Preparing...';
       case 'topping-up':
         return 'Processing payment...';
-      case 'purchasing':
-        return 'Purchasing name...';
+      case 'complete':
+        return 'Completing purchase...';
       default:
         return 'Processing...';
     }
@@ -450,7 +450,7 @@ function Checkout() {
         setIsProcessingBaseToken(true);
 
         try {
-          // Execute the Base token top-up
+          // Execute the Base token top-up (credits will be used for ArNS purchase after)
           const topUpResult = await executeBaseTokenPurchase({
             tokenType: selectedCryptoToken as BaseTokenType,
             wincRequired: intentPrice.winc,
@@ -464,15 +464,6 @@ function Checkout() {
               GATEWAY_URL: turbo.gatewayUrl,
               WALLETS_URL: turbo.walletsUrl,
               STRIPE_PUBLISHABLE_KEY: '', // Not needed for crypto
-            },
-            purchaseParams: {
-              name: transaction.name,
-              type: transaction.type,
-              years: transaction.years,
-              processId: transaction.processId,
-              intent: ArNSInteractionTypeToIntentMap[
-                workflowName as ARNS_INTERACTION_TYPES
-              ] as TurboArNSIntent,
             },
             onProgress: handleBaseTokenProgress,
           });

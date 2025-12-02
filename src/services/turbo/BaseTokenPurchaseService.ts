@@ -14,56 +14,52 @@ import {
   TOP_UP_BUFFER_MULTIPLIER,
 } from '../../utils/constants';
 import { BaseTokenError, TopUpError } from '../../utils/errors';
-import { TurboArNSClient, TurboArNSIntent } from './TurboArNSClient';
+import { TurboArNSClient } from './TurboArNSClient';
 
-export interface BaseTokenPurchaseParams {
+export interface BaseTokenTopUpParams {
   /** The type of Base token to use for payment */
   tokenType: BaseTokenType;
-  /** The amount of winc (credits) needed for the ArNS purchase */
+  /** The amount of winc (credits) needed */
   wincRequired: string;
-  /** The wallet address to credit and use for purchase */
+  /** The wallet address to credit */
   walletAddress: string;
   /** Wagmi config for wallet interactions */
   wagmiConfig: Config;
   /** The connected wallet connector */
   connector: Connector;
-  /** Turbo ArNS client for executing the purchase */
+  /** Turbo ArNS client for balance checking */
   turboArNSClient: TurboArNSClient;
   /** Turbo network configuration */
   turboNetwork: typeof NETWORK_DEFAULTS.TURBO;
-  /** ArNS purchase parameters */
-  purchaseParams: {
-    name: string;
-    type?: 'lease' | 'permabuy';
-    years?: number;
-    processId?: string;
-    intent: TurboArNSIntent;
-    increaseQty?: number;
-  };
   /** Progress callback */
-  onProgress?: (stage: BaseTokenPurchaseStage, message?: string) => void;
+  onProgress?: (stage: BaseTokenTopUpStage, message?: string) => void;
 }
 
-export type BaseTokenPurchaseStage =
+/** @deprecated Use BaseTokenTopUpParams instead */
+export type BaseTokenPurchaseParams = BaseTokenTopUpParams;
+
+export type BaseTokenTopUpStage =
   | 'calculating'
   | 'switching-network'
   | 'signing'
   | 'topping-up'
-  | 'purchasing'
   | 'complete'
   | 'error';
 
-export interface BaseTokenPurchaseResult {
+/** @deprecated Use BaseTokenTopUpStage instead */
+export type BaseTokenPurchaseStage = BaseTokenTopUpStage;
+
+export interface BaseTokenTopUpResult {
   success: boolean;
   topUpResult?: {
     id: string;
     winc: string;
   };
-  purchaseResult?: {
-    id: string;
-  };
   error?: string;
 }
+
+/** @deprecated Use BaseTokenTopUpResult instead */
+export type BaseTokenPurchaseResult = BaseTokenTopUpResult;
 
 /**
  * Calculates the token amount needed for a given winc amount
@@ -159,13 +155,16 @@ async function createAuthenticatedTurboClient(
 }
 
 /**
- * Executes the complete Base token purchase flow:
+ * Tops up Turbo credits using Base network tokens (ETH or USDC on Base).
+ *
+ * This function handles:
  * 1. Calculate token amount needed (with buffer)
  * 2. Switch to Base network if needed
  * 3. Top up Turbo credits with Base tokens
- * 4. Execute ArNS purchase with credits
+ * 4. Wait for credits to be available
  *
- * This is designed to appear as a single seamless transaction to the user.
+ * After this function completes successfully, the caller should execute
+ * the ArNS purchase separately using the topped-up credits.
  */
 export async function executeBaseTokenPurchase({
   tokenType,
@@ -175,9 +174,8 @@ export async function executeBaseTokenPurchase({
   connector,
   turboArNSClient,
   turboNetwork,
-  purchaseParams: _purchaseParams,
   onProgress,
-}: BaseTokenPurchaseParams): Promise<BaseTokenPurchaseResult> {
+}: BaseTokenTopUpParams): Promise<BaseTokenTopUpResult> {
   const config = BASE_TOKEN_CONFIG[tokenType];
 
   try {
@@ -316,61 +314,46 @@ export async function executeBaseTokenPurchase({
     // Wait a moment for the top-up to be processed
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    // Stage 5: Execute ArNS purchase with credits
-    onProgress?.('purchasing', 'Completing purchase...');
+    // Poll for credit balance update (max 30 seconds) to ensure credits are available
+    onProgress?.('topping-up', 'Waiting for credits to be available...');
 
-    try {
-      // For credit-based purchases, we use turbo fundFrom
-      // The turboArNSClient should handle this via its executeArNSIntent method
-      // But since we just topped up, we need to wait for credits to be available
-      // and then make the purchase
+    let creditsAvailable = false;
+    let attempts = 0;
+    const maxAttempts = 15;
 
-      // Poll for credit balance update (max 30 seconds)
-      let creditsAvailable = false;
-      let attempts = 0;
-      const maxAttempts = 15;
-
-      while (!creditsAvailable && attempts < maxAttempts) {
-        try {
-          const balance =
-            await turboArNSClient.turboUploader.getBalance(walletAddress);
-          if (Number(balance.winc) >= Number(wincRequired)) {
-            creditsAvailable = true;
-          } else {
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-            attempts++;
-          }
-        } catch {
+    while (!creditsAvailable && attempts < maxAttempts) {
+      try {
+        const balance =
+          await turboArNSClient.turboUploader.getBalance(walletAddress);
+        if (Number(balance.winc) >= Number(wincRequired)) {
+          creditsAvailable = true;
+        } else {
           await new Promise((resolve) => setTimeout(resolve, 2000));
           attempts++;
         }
+      } catch {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        attempts++;
       }
-
-      if (!creditsAvailable) {
-        // Credits may still be processing, but let's try the purchase anyway
-        // The Turbo service should have the credits by now
-        console.warn(
-          'Credits not yet visible in balance, attempting purchase anyway...',
-        );
-      }
-
-      // Execute the ArNS purchase using Turbo credits
-      // We need to call the ARIO contract with fundFrom: 'turbo'
-      // This will be handled by the calling code (Checkout.tsx)
-      // For now, we return success from the top-up and let the caller handle the purchase
-
-      return {
-        success: true,
-        topUpResult: {
-          id: topUpResult.id,
-          winc: topUpResult.winc || wincRequired,
-        },
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      throw new TopUpError(`Purchase failed after top-up: ${errorMessage}`);
     }
+
+    if (!creditsAvailable) {
+      // Credits may still be processing, but the caller can proceed
+      // The Turbo service should have the credits by now
+      console.warn(
+        'Credits not yet visible in balance, caller may proceed anyway...',
+      );
+    }
+
+    onProgress?.('complete', 'Top-up complete');
+
+    return {
+      success: true,
+      topUpResult: {
+        id: topUpResult.id,
+        winc: topUpResult.winc || wincRequired,
+      },
+    };
   } catch (error) {
     onProgress?.('error');
 
