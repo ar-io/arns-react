@@ -178,7 +178,7 @@ function CryptoConfigurationPanel({
     // Increment request ID to invalidate any pending async requests
     const currentRequestId = ++requestIdRef.current;
 
-    if (!uploadCostGib) {
+    if (!uploadCostGib || uploadCostGib.length === 0) {
       return;
     }
 
