@@ -247,7 +247,7 @@ function CryptoConfirmation({
           cryptoAmount,
           tokenType,
         );
-        if (!atomicAmount) {
+        if (atomicAmount === undefined || +atomicAmount <= 0) {
           setQuote(null);
           setPaymentError('Unsupported token type.');
           setIsLoadingQuote(false);
