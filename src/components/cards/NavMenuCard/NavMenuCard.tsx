@@ -130,17 +130,9 @@ function NavMenuCard() {
     try {
       setShowMenu(false);
 
-      // Disconnect the wallet
-      if (wallet) {
-        try {
-          await wallet.disconnect();
-        } catch {
-          // Ignore disconnect errors
-        }
-      }
-
-      // Disconnect wagmi for Ethereum wallets
+      // Disconnect wallet and force disconnect wagmi for Ethereum wallets
       try {
+        await wallet?.disconnect();
         await disconnectAsync();
       } catch {
         // Ignore disconnect errors - may not be connected
