@@ -469,7 +469,7 @@ function Checkout() {
           });
 
           if (!topUpResult.success) {
-            throw new Error(topUpResult.error || 'Top-up failed');
+            throw new Error(topUpResult.error ?? 'Top-up failed');
           }
 
           // Now execute the ArNS purchase with Turbo credits
