@@ -232,10 +232,15 @@ function CryptoConfirmation({
     async function fetchQuote() {
       if (!turbo || cryptoAmount <= 0) {
         setIsLoadingQuote(false);
+        setQuote(null);
         return;
       }
 
+      // Clear stale state before starting fetch
       setIsLoadingQuote(true);
+      setQuote(null);
+      setPaymentError(undefined);
+
       try {
         // Convert to atomic units before calling getWincForToken
         const atomicAmount = turbo.getAmountByTokenType(
@@ -243,6 +248,7 @@ function CryptoConfirmation({
           tokenType,
         );
         if (!atomicAmount) {
+          setQuote(null);
           setPaymentError('Unsupported token type.');
           setIsLoadingQuote(false);
           return;
@@ -265,8 +271,10 @@ function CryptoConfirmation({
           gigabytes,
           winc: wincResult.winc,
         });
+        setPaymentError(undefined);
       } catch (e) {
         console.error('Failed to fetch quote:', e);
+        setQuote(null);
         setPaymentError('Failed to fetch current rates. Please try again.');
       } finally {
         setIsLoadingQuote(false);
