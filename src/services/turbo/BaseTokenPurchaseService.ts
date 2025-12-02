@@ -74,7 +74,7 @@ async function calculateTokenAmount(
   turboNetwork: typeof NETWORK_DEFAULTS.TURBO,
 ): Promise<{ tokenAmount: number; tokenAmountSmallestUnit: string }> {
   const turbo = TurboFactory.unauthenticated({
-    token: tokenType as 'base-eth',
+    token: tokenType as 'base-eth' | 'base-usdc',
     paymentServiceConfig: {
       url: turboNetwork.PAYMENT_URL,
     },
