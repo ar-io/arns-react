@@ -1,5 +1,9 @@
-import { ETHToTokenAmount, TurboFactory } from '@ardrive/turbo-sdk/web';
-import { BrowserProvider } from 'ethers';
+import {
+  ETHToTokenAmount,
+  EthereumWalletAdapter,
+  TurboFactory,
+} from '@ardrive/turbo-sdk/web';
+import { BrowserProvider, Eip1193Provider, JsonRpcSigner } from 'ethers';
 import { Config, Connector } from 'wagmi';
 
 import {
@@ -117,6 +121,33 @@ async function calculateTokenAmount(
 }
 
 /**
+ * Type guard to check if an object is an EIP-1193 compatible provider
+ */
+function isEip1193Provider(provider: unknown): provider is Eip1193Provider {
+  return (
+    typeof provider === 'object' &&
+    provider !== null &&
+    'request' in provider &&
+    typeof (provider as Eip1193Provider).request === 'function'
+  );
+}
+
+/**
+ * Creates an Ethereum wallet adapter compatible with Turbo SDK from a JsonRpcSigner
+ */
+function createWalletAdapter(signer: JsonRpcSigner): EthereumWalletAdapter {
+  return {
+    getSigner: () => ({
+      signMessage: (message: string | Uint8Array) =>
+        signer.signMessage(message),
+      sendTransaction: (tx: Parameters<JsonRpcSigner['sendTransaction']>[0]) =>
+        signer.sendTransaction(tx),
+      provider: signer.provider,
+    }),
+  };
+}
+
+/**
  * Creates an authenticated Turbo client with the wagmi signer
  */
 async function createAuthenticatedTurboClient(
@@ -127,7 +158,15 @@ async function createAuthenticatedTurboClient(
 ) {
   // Get the provider from the connector - must be done AFTER network switch
   const provider = await connector.getProvider();
-  const ethersProvider = new BrowserProvider(provider as any);
+
+  // Validate provider is EIP-1193 compatible
+  if (!isEip1193Provider(provider)) {
+    throw new BaseTokenError(
+      'Wallet provider is not EIP-1193 compatible. Please use a compatible wallet.',
+    );
+  }
+
+  const ethersProvider = new BrowserProvider(provider);
   const signer = await ethersProvider.getSigner();
 
   // Verify we're on the correct chain
@@ -139,13 +178,13 @@ async function createAuthenticatedTurboClient(
     );
   }
 
+  // Create wallet adapter with proper typing
+  const walletAdapter = createWalletAdapter(signer);
+
   // Create turbo client with wallet adapter
-  // Note: tokenType is already 'base-eth' or 'base-usdc', cast is for TypeScript
   const turbo = TurboFactory.authenticated({
     token: tokenType as 'base-eth' | 'base-usdc',
-    walletAdapter: {
-      getSigner: () => signer as any,
-    },
+    walletAdapter,
     paymentServiceConfig: {
       url: turboNetwork.PAYMENT_URL,
     },
