@@ -15,6 +15,12 @@ export default defineConfig({
     minify: true,
     cssMinify: true,
   },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'esnext',
+    },
+    exclude: ['@base-org/account'],
+  },
   plugins: [
     svgr(),
     react(),

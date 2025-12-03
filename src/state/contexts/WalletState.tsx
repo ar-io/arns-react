@@ -107,12 +107,11 @@ export function WalletStateProvider({
           ),
         );
         dispatchWalletState({
-          type: 'setWalletAddress',
-          payload: undefined,
-        });
-        dispatchWalletState({
-          type: 'setWallet',
-          payload: undefined,
+          type: 'setWalletAndAddress',
+          payload: {
+            wallet: undefined,
+            walletAddress: undefined,
+          },
         });
       }
     };
@@ -122,12 +121,11 @@ export function WalletStateProvider({
         localStorage.removeItem('walletType');
         eventEmitter.emit('error', new BeaconError('Beacon disconnected'));
         dispatchWalletState({
-          type: 'setWalletAddress',
-          payload: undefined,
-        });
-        dispatchWalletState({
-          type: 'setWallet',
-          payload: undefined,
+          type: 'setWalletAndAddress',
+          payload: {
+            wallet: undefined,
+            walletAddress: undefined,
+          },
         });
       }
     };
@@ -198,24 +196,29 @@ export function WalletStateProvider({
         await connector.updatePermissions();
 
         dispatchWalletState({
-          type: 'setWalletAddress',
-          payload: address,
-        });
-        dispatchWalletState({
-          type: 'setWallet',
-          payload: connector,
+          type: 'setWalletAndAddress',
+          payload: {
+            wallet: connector,
+            walletAddress: address,
+          },
         });
       } else if (walletType === WALLET_TYPES.ETHEREUM) {
-        if (ethAccount?.isConnected && ethAccount?.address) {
-          const connector = new EthWalletConnector(config);
+        if (
+          ethAccount?.isConnected &&
+          ethAccount?.address &&
+          ethAccount?.connector
+        ) {
+          const walletConnector = new EthWalletConnector(
+            config,
+            ethAccount.connector,
+          );
 
           dispatchWalletState({
-            type: 'setWalletAddress',
-            payload: ethAccount.address,
-          });
-          dispatchWalletState({
-            type: 'setWallet',
-            payload: connector,
+            type: 'setWalletAndAddress',
+            payload: {
+              wallet: walletConnector,
+              walletAddress: ethAccount.address,
+            },
           });
         }
       } else if (walletType === WALLET_TYPES.BEACON) {
@@ -224,24 +227,22 @@ export function WalletStateProvider({
           localStorage.removeItem('walletType');
           eventEmitter.emit('error', new BeaconError('Beacon disconnected'));
           dispatchWalletState({
-            type: 'setWalletAddress',
-            payload: undefined,
-          });
-          dispatchWalletState({
-            type: 'setWallet',
-            payload: undefined,
+            type: 'setWalletAndAddress',
+            payload: {
+              wallet: undefined,
+              walletAddress: undefined,
+            },
           });
           return;
         }
         const address = await connector?.getWalletAddress();
 
         dispatchWalletState({
-          type: 'setWalletAddress',
-          payload: address,
-        });
-        dispatchWalletState({
-          type: 'setWallet',
-          payload: connector,
+          type: 'setWalletAndAddress',
+          payload: {
+            wallet: connector,
+            walletAddress: address,
+          },
         });
       }
     } catch (error) {
@@ -263,6 +264,44 @@ export function WalletStateProvider({
       updateIfConnected();
     }
   }, [ethAccount, wallet, walletAddress]);
+
+  // Handle external Ethereum wallet disconnection (when user disconnects from wallet extension)
+  useEffect(() => {
+    if (
+      !ethAccount.isConnected &&
+      wallet instanceof EthWalletConnector &&
+      walletAddress
+    ) {
+      localStorage.removeItem('walletType');
+      dispatchWalletState({
+        type: 'setWalletAndAddress',
+        payload: {
+          wallet: undefined,
+          walletAddress: undefined,
+        },
+      });
+    }
+  }, [ethAccount.isConnected, wallet, walletAddress]);
+
+  // Auto-reconnect Ethereum wallet on page load when wagmi restores the session
+  // This mirrors the arweaveWalletLoaded event behavior for Arweave wallets
+  useEffect(() => {
+    const storedWalletType = window.localStorage.getItem('walletType');
+    if (
+      storedWalletType === WALLET_TYPES.ETHEREUM &&
+      ethAccount.isConnected &&
+      ethAccount.address &&
+      ethAccount.connector &&
+      !wallet
+    ) {
+      updateIfConnected();
+    }
+  }, [
+    ethAccount.isConnected,
+    ethAccount.address,
+    ethAccount.connector,
+    wallet,
+  ]);
 
   return (
     <WalletStateContext.Provider value={[state, dispatchWalletState]}>

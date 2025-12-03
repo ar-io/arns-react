@@ -43,6 +43,7 @@ export const ARWEAVE_HOST = import.meta.env.VITE_ARWEAVE_HOST ?? 'arweave.net';
 export const ARWEAVE_GRAPHQL_URL =
   import.meta.env.VITE_ARWEAVE_GRAPHQL_URL ?? 'https://arweave.net/graphql';
 export const HYPERBEAM_URL = import.meta.env.VITE_HYPERBEAM_URL;
+export const WALLETCONNECT_PROJECT_ID = '692e2917daed8533f0f59cd604c3751a';
 export const DEFAULT_ARWEAVE = new Arweave({
   host: ARWEAVE_HOST,
   protocol: 'https',
