@@ -78,6 +78,20 @@ export class ANTStateError extends NotificationOnlyError {
   }
 }
 
+export class BaseTokenError extends NotificationOnlyError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'Base Network';
+  }
+}
+
+export class TopUpError extends NotificationOnlyError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'Top Up';
+  }
+}
+
 export interface ANTAuditor {
   availableApis: AoANTHandler[];
   issues: Record<AoANTHandler, Error[]>;
