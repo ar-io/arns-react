@@ -8,6 +8,13 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.27.0] - 2025-12-04
+
+### Added
+
+- Rainbow Kit integration for multi-wallet support (100+ Ethereum wallets)
+- Crypto top-up options for Turbo credits
+
 ## [1.26.0] - 2025-11-21
 
 ### Added
