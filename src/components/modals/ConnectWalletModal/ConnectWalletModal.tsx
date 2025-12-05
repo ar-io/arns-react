@@ -1,16 +1,16 @@
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 import {
   BeaconWalletConnector,
   EthWalletConnector,
   WanderWalletConnector,
 } from '@src/services/wallets';
 import { ArweaveAppWalletConnector } from '@src/services/wallets/ArweaveAppWalletConnector';
-import { METAMASK_URL } from '@src/utils/constants';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useConfig } from 'wagmi';
+import { useAccount, useConfig, useDisconnect } from 'wagmi';
 
 import { useWalletState } from '../../../state/contexts/WalletState';
-import { AoAddress, ArNSWalletConnector } from '../../../types';
+import { AoAddress, ArNSWalletConnector, WALLET_TYPES } from '../../../types';
 import eventEmitter from '../../../utils/events';
 import {
   ArweaveAppIcon,
@@ -34,6 +34,47 @@ function ConnectWalletModal(): JSX.Element {
   const [loading, setLoading] = useState(!walletStateInitialized);
 
   const config = useConfig();
+  const ethAccount = useAccount();
+  const { openConnectModal } = useConnectModal();
+  const { disconnectAsync } = useDisconnect();
+
+  // Handle Ethereum wallet connection - detect when wagmi becomes connected
+  useEffect(() => {
+    if (
+      ethAccount.isConnected &&
+      ethAccount.address &&
+      ethAccount.connector &&
+      !wallet
+    ) {
+      try {
+        localStorage.setItem('walletType', WALLET_TYPES.ETHEREUM);
+
+        const walletConnector = new EthWalletConnector(
+          config,
+          ethAccount.connector,
+        );
+
+        dispatchWalletState({
+          type: 'setWalletAndAddress',
+          payload: {
+            wallet: walletConnector,
+            walletAddress: ethAccount.address,
+          },
+        });
+      } catch (error) {
+        console.error('Failed to create Ethereum wallet connector:', error);
+        localStorage.removeItem('walletType');
+        eventEmitter.emit('error', error);
+      }
+    }
+  }, [
+    ethAccount.isConnected,
+    ethAccount.address,
+    ethAccount.connector,
+    wallet,
+    config,
+    dispatchWalletState,
+  ]);
 
   useEffect(() => {
     if (walletStateInitialized) {
@@ -81,16 +122,34 @@ function ConnectWalletModal(): JSX.Element {
   async function connect(walletConnector: ArNSWalletConnector) {
     try {
       setConnecting(true);
+
+      // Disconnect existing wallet before connecting new one
+      if (wallet) {
+        try {
+          await wallet.disconnect();
+        } catch {
+          // Ignore disconnect errors - wallet may already be disconnected
+        }
+      }
+
+      // Disconnect wagmi if switching to a non-Ethereum wallet
+      if (ethAccount.isConnected) {
+        try {
+          await disconnectAsync();
+        } catch {
+          // Ignore disconnect errors
+        }
+      }
+
       await walletConnector.connect();
 
       const address = await walletConnector.getWalletAddress();
       dispatchWalletState({
-        type: 'setWalletAddress',
-        payload: address,
-      });
-      dispatchWalletState({
-        type: 'setWallet',
-        payload: walletConnector,
+        type: 'setWalletAndAddress',
+        payload: {
+          wallet: walletConnector,
+          walletAddress: address,
+        },
       });
 
       closeModal({ next: true, address });
@@ -164,23 +223,44 @@ function ConnectWalletModal(): JSX.Element {
         <button
           type="button"
           className="wallet-connect-button text-base"
+          disabled={connecting}
           onClick={async () => {
-            if (!config) {
-              throw new Error(
-                'Application is not not properly configured for Metamask.',
-              );
+            // If already connected via wagmi and user wants to use same wallet
+            // they can click again after Rainbow Kit shows "Already connected"
+            // For wallet switching, we disconnect first then open modal
+            if (ethAccount.isConnected) {
+              try {
+                // Disconnect existing wagmi connection to allow fresh wallet selection
+                await disconnectAsync();
+              } catch {
+                // Ignore disconnect errors
+              }
             }
 
-            if (!window.ethereum?.isMetaMask) {
-              window.open(METAMASK_URL, '_blank', 'noopener,noreferrer');
-              return;
+            // Disconnect any existing non-Ethereum wallet
+            if (wallet && !(wallet instanceof EthWalletConnector)) {
+              try {
+                await wallet.disconnect();
+                dispatchWalletState({
+                  type: 'setWalletAndAddress',
+                  payload: {
+                    wallet: undefined,
+                    walletAddress: undefined,
+                  },
+                });
+              } catch {
+                // Ignore disconnect errors
+              }
             }
 
-            connect(new EthWalletConnector(config));
+            // Open Rainbow Kit modal for wallet selection
+            if (openConnectModal) {
+              openConnectModal();
+            }
           }}
         >
           <MetamaskIcon className="external-icon size-12 p-3" />
-          {window?.ethereum?.isMetaMask ? 'Metamask' : 'Install Metamask'}
+          Ethereum Wallets
         </button>
 
         <span
