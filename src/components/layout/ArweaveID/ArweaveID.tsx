@@ -13,8 +13,8 @@ export enum ArweaveIdTypes {
 
 export const ARWEAVE_ID_MAPPING = {
   [ArweaveIdTypes.TRANSACTION]: 'https://viewblock.io/arweave/tx/',
-  [ArweaveIdTypes.CONTRACT]: 'https://www.ao.link/#/entity/',
-  [ArweaveIdTypes.INTERACTION]: 'https://www.ao.link/#/message/',
+  [ArweaveIdTypes.CONTRACT]: 'https://scan.ar.io/#/entity/',
+  [ArweaveIdTypes.INTERACTION]: 'https://scan.ar.io/#/message/',
   [ArweaveIdTypes.ADDRESS]: 'https://viewblock.io/arweave/address/',
 };
 
