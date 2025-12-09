@@ -5,6 +5,8 @@ import {
   AoARIORead,
   AoARIOWrite,
   AoClient,
+  ArNSMarketplaceRead,
+  ArNSMarketplaceWrite,
 } from '@ar.io/sdk/web';
 import { NetworkGatewaysProvider } from '@ar.io/wayfinder-core';
 import {
@@ -30,6 +32,7 @@ import {
   ARIO_PROCESS_ID,
   ARWEAVE_HOST,
   DEFAULT_ARWEAVE,
+  MARKETPLACE_PROCESS_ID,
   NETWORK_DEFAULTS,
 } from '../../utils/constants';
 import type { GlobalAction } from '../reducers/GlobalReducer';
@@ -41,6 +44,7 @@ function loadSettingsFromStorage(): {
   turboNetwork: typeof NETWORK_DEFAULTS.TURBO;
   arioProcessId: string;
   antRegistryProcessId: string;
+  marketplaceProcessId: string;
   hyperbeamUrl?: string;
 } | null {
   try {
@@ -59,6 +63,7 @@ function loadSettingsFromStorage(): {
         aoNetwork: settings.network?.aoNetwork || NETWORK_DEFAULTS.AO,
         turboNetwork: settings.network?.turboNetwork || NETWORK_DEFAULTS.TURBO,
         arioProcessId: settings.arns?.arioProcessId || ARIO_PROCESS_ID,
+        marketplaceProcessId: settings.arns?.marketplaceProcessId || MARKETPLACE_PROCESS_ID,
         antRegistryProcessId:
           settings.arns?.antRegistryProcessId || ANT_REGISTRY_ID,
         hyperbeamUrl: settings.network?.hyperbeamUrl || undefined,
@@ -82,6 +87,8 @@ const initialTurboNetwork =
 const initialArioProcessId = savedSettings?.arioProcessId || ARIO_PROCESS_ID;
 const initialAntRegistryProcessId =
   savedSettings?.antRegistryProcessId || ANT_REGISTRY_ID;
+const initialMarketplaceProcessId =
+  savedSettings?.marketplaceProcessId || MARKETPLACE_PROCESS_ID;
 const initialHyperbeamUrl = savedSettings?.hyperbeamUrl;
 
 export const defaultArIO = ARIO.init({
@@ -89,6 +96,16 @@ export const defaultArIO = ARIO.init({
   hyperbeamUrl: initialHyperbeamUrl,
   process: new AOProcess({
     processId: initialArioProcessId,
+    ao: connect({
+      CU_URL: ARIO_AO_CU_URL,
+      MODE: 'legacy',
+    }),
+  }),
+});
+
+export const defaultMarketplaceContract = new ArNSMarketplaceRead({
+  process: new AOProcess({
+    processId: initialMarketplaceProcessId,
     ao: connect({
       CU_URL: ARIO_AO_CU_URL,
       MODE: 'legacy',
@@ -104,17 +121,20 @@ export type GlobalState = {
   aoClient: AoClient;
   antAoClient: AoClient;
   arioProcessId: string;
+  marketplaceProcessId: string;
   antRegistryProcessId: string;
   blockHeight?: number;
   lastBlockUpdateTimestamp?: number;
   arweaveDataProvider: ArweaveCompositeDataProvider;
   arioContract: AoARIORead | AoARIOWrite;
+  marketplaceContract: ArNSMarketplaceRead | ArNSMarketplaceWrite;
   hyperbeamUrl?: string;
 };
 
 const initialState: GlobalState = {
   arioProcessId: initialArioProcessId,
   antRegistryProcessId: initialAntRegistryProcessId,
+  marketplaceProcessId: initialMarketplaceProcessId,
   arioTicker: 'ARIO',
   gateway: initialGateway,
   aoNetwork: initialAoNetwork,
@@ -135,6 +155,7 @@ const initialState: GlobalState = {
     contract: defaultArIO,
   }),
   arioContract: defaultArIO,
+  marketplaceContract: defaultMarketplaceContract,
 };
 
 const GlobalStateContext = createContext<[GlobalState, Dispatch<GlobalAction>]>(

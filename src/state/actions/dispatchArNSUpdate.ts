@@ -1,4 +1,9 @@
-import { AOProcess, ARIO, AoArNSNameData } from '@ar.io/sdk/web';
+import {
+  AOProcess,
+  ARIO,
+  AoArNSNameData,
+  ArNSMarketplaceRead,
+} from '@ar.io/sdk/web';
 import { connect } from '@permaweb/aoconnect';
 import { captureException } from '@sentry/react';
 import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
@@ -11,6 +16,7 @@ import { TransactionEdge } from 'arweave-graphql';
 import { pLimit } from 'plimit-lit';
 import { Dispatch } from 'react';
 
+import { buildMarketplaceUserAssetsQuery } from '@src/hooks/useMarketplaceUserAssets';
 import { ANTProcessData } from '../contexts';
 import { ArNSAction } from '../reducers/ArNSReducer';
 
@@ -18,6 +24,7 @@ export async function dispatchArNSUpdate({
   dispatch,
   walletAddress,
   arioProcessId,
+  marketplaceProcessId,
   antRegistryProcessId,
   aoNetworkSettings,
   hyperbeamUrl,
@@ -25,6 +32,7 @@ export async function dispatchArNSUpdate({
   dispatch: Dispatch<ArNSAction>;
   walletAddress: AoAddress;
   arioProcessId: string;
+  marketplaceProcessId: string;
   antRegistryProcessId: string;
   aoNetworkSettings: typeof NETWORK_DEFAULTS.AO;
   hyperbeamUrl?: string;
@@ -45,6 +53,9 @@ export async function dispatchArNSUpdate({
     queryClient.resetQueries({
       queryKey: ['ant-info'],
     });
+    queryClient.resetQueries({
+      queryKey: ['marketplace-user-assets'],
+    });
 
     dispatch({ type: 'reset' });
     dispatch({
@@ -57,6 +68,22 @@ export async function dispatchArNSUpdate({
       process: new AOProcess({ processId: arioProcessId, ao }),
     });
 
+    const marketplaceContract = new ArNSMarketplaceRead({
+      process: new AOProcess({ processId: marketplaceProcessId, ao }),
+    });
+
+    console.log('marketplaceContract', marketplaceContract);
+
+    const marketplaceUserAssets = await queryClient.fetchQuery(
+      buildMarketplaceUserAssetsQuery({
+        address: walletAddress.toString(),
+        marketplaceContract,
+        marketplaceProcessId,
+        arioProcessId,
+        aoNetwork: aoNetworkSettings,
+      }),
+    );
+    console.log('marketplaceUserAssets', marketplaceUserAssets);
     const userDomains: Record<string, AoArNSNameData> = {};
     let cursor: string | undefined = undefined;
     let hasMore = true;
@@ -76,7 +103,11 @@ export async function dispatchArNSUpdate({
 
     // ONLY QUERY FOR ANTS THAT WE ARE INTERESTED IN, EG REGISTERED ANTS
     const registeredUserAnts = Array.from(
-      new Set(Object.values(userDomains).map((record) => record.processId)),
+      new Set(
+        Object.values(userDomains)
+          .map((record) => record.processId)
+          .concat(marketplaceUserAssets.antIds),
+      ),
     );
 
     // Fetch ANT Process meta from graphql

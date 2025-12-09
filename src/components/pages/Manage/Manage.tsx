@@ -18,8 +18,15 @@ import './styles.css';
 
 function Manage() {
   const navigate = useNavigate();
-  const [{ arioProcessId, aoNetwork, hyperbeamUrl, antRegistryProcessId }] =
-    useGlobalState();
+  const [
+    {
+      arioProcessId,
+      aoNetwork,
+      hyperbeamUrl,
+      antRegistryProcessId,
+      marketplaceProcessId,
+    },
+  ] = useGlobalState();
   const [{ loading: loadingArnsState, domains, ants }, dispatchArNSState] =
     useArNSState();
   const { data: antVersion } = useLatestANTVersion();
@@ -112,6 +119,7 @@ function Manage() {
                           dispatch: dispatchArNSState,
                           walletAddress: walletAddress,
                           arioProcessId,
+                          marketplaceProcessId,
                           antRegistryProcessId,
                           aoNetworkSettings: aoNetwork,
                           hyperbeamUrl,

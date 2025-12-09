@@ -9,6 +9,7 @@ import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
+import { ListNameForSaleModal } from '@src/components/modals';
 import UpgradeDomainModal from '@src/components/modals/ant-management/UpgradeDomainModal/UpgradeDomainModal';
 import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
@@ -41,7 +42,7 @@ import { ANTStateError } from '@src/utils/errors';
 import { queryClient } from '@src/utils/network';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { capitalize } from 'lodash';
-import { CircleCheck, Star } from 'lucide-react';
+import { CircleCheck, DollarSign, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link, useNavigate } from 'react-router-dom';
@@ -137,6 +138,12 @@ const DomainsTable = ({
       }
     | undefined
   >(undefined);
+
+  const [showListForSaleModal, setShowListForSaleModal] = useState(false);
+  const [selectedDomainForSale, setSelectedDomainForSale] = useState<{
+    name: string;
+    antId: string;
+  } | null>(null);
 
   useEffect(() => {
     if (domainData) {
@@ -530,6 +537,35 @@ const DomainsTable = ({
                   ) : (
                     <></>
                   )}
+                  <Tooltip
+                    message="List for Sale"
+                    tooltipOverrides={{
+                      placement: 'top',
+                      autoAdjustOverflow: true,
+                      color: 'var(--text-faded)',
+                    }}
+                    icon={
+                      <button
+                        className="outline-button manage-button"
+                        onClick={() => {
+                          setSelectedDomainForSale({
+                            name: row.getValue('name') as string,
+                            antId: row.getValue('processId') as string,
+                          });
+                          setShowListForSaleModal(true);
+                        }}
+                        style={{
+                          border: 'none',
+                          padding: '0px',
+                          minWidth: '0px',
+                          width: 'fit-content',
+                          marginRight: '8px',
+                        }}
+                      >
+                        <DollarSign className="w-5 h-5 text-grey hover:text-white transition-colors" />
+                      </button>
+                    }
+                  />
                   <ManageAssetButtons
                     id={lowerCaseDomain(row.getValue('name') as string)}
                     assetType="names"
@@ -668,6 +704,17 @@ const DomainsTable = ({
             setShowUpgradeDomainModal(b);
             setDomainToUpgrade(undefined);
           }}
+        />
+      )}
+      {selectedDomainForSale && (
+        <ListNameForSaleModal
+          show={showListForSaleModal}
+          onClose={() => {
+            setShowListForSaleModal(false);
+            setSelectedDomainForSale(null);
+          }}
+          domainName={selectedDomainForSale.name}
+          antId={selectedDomainForSale.antId}
         />
       )}
     </>

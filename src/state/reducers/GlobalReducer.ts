@@ -1,4 +1,4 @@
-import { AoARIORead, AoARIOWrite, AoClient } from '@ar.io/sdk/web';
+import { AoARIORead, AoARIOWrite, AoClient, ArNSMarketplaceRead, ArNSMarketplaceWrite } from '@ar.io/sdk/web';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
 
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
@@ -43,6 +43,14 @@ export type GlobalAction =
   | {
       type: 'setArIOContract';
       payload: AoARIORead | AoARIOWrite;
+    }
+  | {
+      type: 'setMarketplaceContract';
+      payload: ArNSMarketplaceRead | ArNSMarketplaceWrite;
+    }
+  | {
+      type: 'setMarketplaceProcessId';
+      payload: string;
     }
   | {
       type: 'setIoTicker';
@@ -105,6 +113,16 @@ export const reducer = (
       return {
         ...state,
         arioContract: action.payload,
+      };
+    case 'setMarketplaceContract':
+      return {
+        ...state,
+        marketplaceContract: action.payload,
+      };
+    case 'setMarketplaceProcessId':
+      return {
+        ...state,
+        marketplaceProcessId: action.payload,
       };
     case 'setIoProcessId':
       return {
