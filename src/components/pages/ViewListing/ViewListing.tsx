@@ -193,7 +193,12 @@ function ViewListing() {
                 </div>
                 {priceInUsd && (
                   <div className="text-gray-400 text-lg">
-                    ≈ ${formatARIOWithCommas(priceInUsd)} USD
+                    ≈ $
+                    {priceInUsd.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}{' '}
+                    USD
                   </div>
                 )}
               </div>

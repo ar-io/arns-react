@@ -539,14 +539,8 @@ const DomainsTable = ({
                   )}
                   <Tooltip
                     message="List for Sale"
-                    tooltipOverrides={{
-                      placement: 'top',
-                      autoAdjustOverflow: true,
-                      color: 'var(--text-faded)',
-                    }}
                     icon={
                       <button
-                        className="outline-button manage-button"
                         onClick={() => {
                           setSelectedDomainForSale({
                             name: row.getValue('name') as string,
@@ -554,15 +548,8 @@ const DomainsTable = ({
                           });
                           setShowListForSaleModal(true);
                         }}
-                        style={{
-                          border: 'none',
-                          padding: '0px',
-                          minWidth: '0px',
-                          width: 'fit-content',
-                          marginRight: '8px',
-                        }}
                       >
-                        <DollarSign className="w-5 h-5 text-grey hover:text-white transition-colors" />
+                        <DollarSign className="w-[18px] text-grey hover:text-white transition-colors" />
                       </button>
                     }
                   />

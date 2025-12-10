@@ -1,10 +1,20 @@
 import { Tooltip } from '@src/components/data-display';
 import { useArIoPrice } from '@src/hooks/useArIOPrice';
-import { useGlobalState } from '@src/state';
+import { useGlobalState, useWalletState } from '@src/state';
 import { DollarSign, Gavel, TrendingDown, XIcon } from 'lucide-react';
 import { Tabs } from 'radix-ui';
 import { useState } from 'react';
 
+import {
+  AOProcess,
+  AoARIOWrite,
+  ArNSMarketplaceWrite,
+  createAoSigner,
+} from '@ar.io/sdk';
+import eventEmitter from '@src/utils/events';
+import { useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import ConfirmListingPanel from './panels/ConfirmListingPanel';
 import FixedPricePanel from './panels/FixedPricePanel';
 
 export type ListingType = 'fixed' | 'dutch' | 'english';
@@ -24,12 +34,19 @@ function ListNameForSaleModal({
   domainName,
   antId,
 }: ListNameForSaleModalProps) {
-  const [{ arioTicker }] = useGlobalState();
+  const [{ arioTicker, aoClient, marketplaceProcessId, arioContract }] =
+    useGlobalState();
+  const [{ wallet, walletAddress }] = useWalletState();
   const { data: arIoPrice } = useArIoPrice();
+  const queryClient = useQueryClient();
 
   const [listingType, setListingType] = useState<ListingType>('fixed');
   const [panelState, setPanelState] = useState<PanelStates>('configure');
   const [listingPrice, setListingPrice] = useState<number>(0);
+  const [expirationDate, setExpirationDate] = useState<Date | undefined>(
+    new Date(Date.now() + 60 * 60 * 1000), // Default to 1 hour from now (current day)
+  );
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   if (!show) return null;
 
@@ -50,6 +67,50 @@ function ListNameForSaleModal({
 
   const showListingTabs = panelState === 'configure';
 
+  async function handleConfirmListing() {
+    try {
+      if (!wallet?.contractSigner) {
+        throw new Error('Wallet not found');
+      }
+      if (!walletAddress) {
+        throw new Error('Wallet address not found');
+      }
+      setIsLoading(true);
+      const writeMarketplaceContract = new ArNSMarketplaceWrite({
+        process: new AOProcess({
+          processId: marketplaceProcessId,
+          ao: aoClient,
+        }),
+        signer: createAoSigner(wallet.contractSigner),
+        ario: arioContract as AoARIOWrite,
+      });
+
+      switch (listingType) {
+        case 'fixed': {
+          await writeMarketplaceContract.listNameForSale({
+            name: domainName,
+            expirationTime:
+              expirationDate?.getTime() ||
+              Date.now() + 1000 * 60 * 60 * 24 * 30,
+            price: listingPrice.toString(),
+            type: 'fixed',
+            walletAddress: walletAddress.toString(),
+          });
+
+          break;
+        }
+        default:
+          throw new Error('Invalid listing type');
+      }
+      setPanelState('success');
+      queryClient.invalidateQueries({ queryKey: ['marketplace'] });
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <div className="modal-container relative">
       <div className="flex flex-col rounded bg-metallic-grey border border-dark-grey gap-2 w-[32rem] overflow-hidden">
@@ -68,6 +129,13 @@ function ListNameForSaleModal({
                   List your ArNS name on the marketplace for other users to
                   purchase. You will retain ownership until the sale is
                   completed.
+                  <Link
+                    className="underline w-full flex text-link justify-end"
+                    to="https://docs.ar.io/build/guides/arns-marketplace"
+                    target="_blank"
+                  >
+                    Learn more
+                  </Link>
                 </div>
               }
             />
@@ -77,13 +145,15 @@ function ListNameForSaleModal({
           </button>
         </div>
 
-        {/* Domain Name Display */}
-        <div className="flex px-6 pt-2">
-          <div className="flex items-center gap-2 text-white">
-            <span className="text-sm text-grey">Listing:</span>
-            <span className="font-medium">{domainName}</span>
+        {/* Domain Name Display - Only show on configure screen */}
+        {showListingTabs && (
+          <div className="flex px-6 pt-2">
+            <div className="flex items-center gap-2 text-white">
+              <span className="text-sm text-grey">Name:</span>
+              <span className="font-medium">{domainName}</span>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Listing Type Tabs - Only show on configure screen */}
         {showListingTabs && (
@@ -154,29 +224,32 @@ function ListNameForSaleModal({
                 setListingPrice={setListingPrice}
                 arIoPrice={arIoPrice}
                 arioTicker={arioTicker}
-                onNext={() => setPanelState('confirm')}
-                disableNext={listingPrice <= 0}
+                expirationDate={expirationDate}
+                setExpirationDate={setExpirationDate}
+                onNext={() => {
+                  setPanelState('confirm');
+                }}
+                disableNext={listingPrice <= 0 || !expirationDate}
               />
             )}
           </Tabs.Content>
 
-          {/* Confirm Panel - TODO: Implement */}
+          {/* Confirm Panel */}
           <Tabs.Content
             value="confirm"
             className={`flex flex-col rounded h-full data-[state=inactive]:size-0 data-[state=active]:size-full data-[state=inactive]:opacity-0 transition-all duration-300 ease-in-out`}
           >
-            <div className="flex flex-col items-center justify-center p-8 text-center">
-              <h3 className="text-lg font-medium mb-4">Confirm Listing</h3>
-              <p className="text-grey mb-6">
-                Listing confirmation panel coming soon...
-              </p>
-              <button
-                className="bg-white text-black px-6 py-2 rounded hover:bg-gray-200 transition-colors"
-                onClick={() => setPanelState('configure')}
-              >
-                Back to Configure
-              </button>
-            </div>
+            <ConfirmListingPanel
+              domainName={domainName}
+              antId={antId}
+              listingPrice={listingPrice}
+              arioTicker={arioTicker}
+              arIoPrice={arIoPrice}
+              expirationDate={expirationDate}
+              onConfirm={handleConfirmListing}
+              onCancel={() => setPanelState('configure')}
+              isLoading={isLoading}
+            />
           </Tabs.Content>
 
           {/* Success Panel - TODO: Implement */}
@@ -190,7 +263,7 @@ function ListNameForSaleModal({
                 Your name has been listed on the marketplace.
               </p>
               <button
-                className="bg-white text-black px-6 py-2 rounded hover:bg-gray-200 transition-colors"
+                className="bg-primary text-black px-6 py-2 rounded hover:bg-primary-dark transition-colors"
                 onClick={onClose}
               >
                 Close

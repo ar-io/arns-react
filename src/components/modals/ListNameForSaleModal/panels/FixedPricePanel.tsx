@@ -1,3 +1,6 @@
+import { Tooltip } from '@src/components/data-display';
+import { InfoIcon } from '@src/components/icons';
+import DateTimePicker from '@src/components/inputs/DateTimePicker/DateTimePicker';
 import { useArNSDomainPriceList } from '@src/hooks/useArNSDomainPriceList';
 import { formatARIOWithCommas } from '@src/utils';
 import { useCallback, useEffect, useState } from 'react';
@@ -6,7 +9,7 @@ import { isNumeric } from 'validator';
 const MIN_LISTING_PRICE = 1;
 const MAX_LISTING_PRICE = 1000000;
 
-const PRICE_BUTTON_VALUES = [100, 500, 1000, 5000];
+const PRICE_BUTTON_VALUES = [10000, 50000, 100000, 1000000];
 
 interface FixedPricePanelProps {
   domainName: string;
@@ -15,6 +18,8 @@ interface FixedPricePanelProps {
   setListingPrice: (price: number) => void;
   arIoPrice?: number;
   arioTicker: string;
+  expirationDate?: Date;
+  setExpirationDate: (date: Date | undefined) => void;
   onNext: () => void;
   disableNext: boolean;
 }
@@ -25,6 +30,8 @@ function FixedPricePanel({
   setListingPrice,
   arIoPrice,
   arioTicker,
+  expirationDate,
+  setExpirationDate,
   onNext,
   disableNext,
 }: FixedPricePanelProps) {
@@ -45,6 +52,18 @@ function FixedPricePanel({
       setCustomValue(marketPrice.toString());
     }
   }, [domainPrices, listingPrice, setListingPrice]);
+
+  // Sync customValue with listingPrice when coming back from confirm screen
+  useEffect(() => {
+    if (listingPrice > 0) {
+      setCustomValue(listingPrice.toString());
+      // Check if the current price matches any preset button
+      const matchingButton = PRICE_BUTTON_VALUES.find(
+        (value) => value === listingPrice,
+      );
+      setButtonSelected(matchingButton);
+    }
+  }, [listingPrice]);
 
   const isValidCustomFormat = useCallback((value: string): boolean => {
     if (value === '') return true;
@@ -77,13 +96,6 @@ function FixedPricePanel({
     [arIoPrice],
   );
 
-  const currentListingPrice = () => {
-    if (customValue && isNumeric(customValue)) {
-      return Number(customValue);
-    }
-    return listingPrice;
-  };
-
   const marketPriceDisplay = domainPrices?.buy
     ? `Market Value: ${formatARIOWithCommas(Math.ceil(domainPrices.buy / 1000000))} ${arioTicker}`
     : '';
@@ -110,7 +122,7 @@ function FixedPricePanel({
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <label className="text-white text-sm font-medium">
-            Listing Price ({arioTicker})
+            Amount ({arioTicker})
           </label>
 
           {/* Preset Price Buttons */}
@@ -198,22 +210,51 @@ function FixedPricePanel({
         </div>
       </div>
 
-      {/* Info Section */}
-      <div className="flex flex-col gap-2 p-4 bg-gray-800 rounded border border-grey">
-        <ul className="text-xs text-grey list-disc list-inside space-y-1">
-          <li>
-            Your name will be listed on the marketplace at this fixed price
-          </li>
-          <li>You retain ownership until the sale is completed</li>
-          <li>You can cancel or modify the listing at any time</li>
-          <li>Marketplace fees may apply to completed sales</li>
-        </ul>
+      {/* Listing Duration */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-1">
+            <label className="text-white text-sm font-medium">
+              Listing Expiration
+            </label>
+            <Tooltip
+              message="Dates and times are based on your local timezone and use the 24-hour time system (e.g., 14:30 for 2:30 PM)"
+              icon={
+                <InfoIcon
+                  style={{
+                    fontSize: '14px',
+                    fill: 'var(--text-grey)',
+                    width: '14px',
+                    cursor: 'pointer',
+                  }}
+                />
+              }
+              tooltipOverrides={{
+                overlayInnerStyle: {
+                  padding: '12px',
+                  maxWidth: '280px',
+                },
+              }}
+            />
+          </div>
+          <DateTimePicker
+            value={expirationDate}
+            onChange={setExpirationDate}
+            placeholder="Select expiration date and time"
+            minDate={new Date(Date.now() + 24 * 60 * 60 * 1000)} // Minimum 1 day from now
+            className="w-full"
+          />
+          <span className="text-xs text-grey">
+            Your listing will automatically expire at the selected date and time
+            (max 30 days)
+          </span>
+        </div>
       </div>
 
       {/* Action Buttons */}
       <div className="flex gap-3 pt-4">
         <button
-          className="flex-1 bg-transparent border border-grey text-white px-6 py-3 rounded hover:bg-grey hover:bg-opacity-20 transition-colors"
+          className="flex-1 bg-transparent border border-dark-grey text-white px-6 py-3 rounded hover:bg-grey hover:bg-opacity-20 transition-colors"
           onClick={() => window.history.back()}
         >
           Cancel
@@ -221,30 +262,15 @@ function FixedPricePanel({
         <button
           className={`flex-1 px-6 py-3 rounded transition-colors ${
             disableNext || customValueError
-              ? 'bg-grey text-grey cursor-not-allowed'
+              ? 'bg-grey text-white cursor-not-allowed'
               : 'bg-primary text-black hover:bg-primary-dark'
           }`}
           onClick={onNext}
           disabled={disableNext || !!customValueError}
         >
-          List for Sale
+          Next
         </button>
       </div>
-
-      {/* Summary Footer */}
-      {currentListingPrice() > 0 && (
-        <div className="flex justify-between items-center pt-4 border-t border-grey text-sm">
-          <span className="text-grey">Listing Price:</span>
-          <span className="text-white font-medium">
-            {formatARIOWithCommas(currentListingPrice())} {arioTicker}
-            {arIoPrice && (
-              <span className="text-grey ml-2">
-                {formatUsdValue(currentListingPrice())}
-              </span>
-            )}
-          </span>
-        </div>
-      )}
     </div>
   );
 }
