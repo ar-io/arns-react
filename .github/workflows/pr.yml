@@ -21,11 +21,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install and Build 🔧
         run: |
-          yarn --frozen-lockfile
-          yarn build
+          pnpm install --frozen-lockfile
+          pnpm build
         env:
           # FOR BUILD
           VITE_NODE_ENV: develop

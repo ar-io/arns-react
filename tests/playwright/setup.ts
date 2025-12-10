@@ -6,7 +6,7 @@ let previewProcess: any;
 async function globalSetup() {
   // Start the Vite preview server as a child process
   console.log('Starting Vite preview server...');
-  previewProcess = spawn('yarn', ['preview'], {
+  previewProcess = spawn('pnpm', ['preview'], {
     stdio: 'inherit', // Inherit stdio to show server output
     shell: true, // Use shell to ensure compatibility across environments
   });

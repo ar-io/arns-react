@@ -20,11 +20,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: 'yarn'
-      - run: yarn --frozen-lockfile
-      - run: yarn lint:check
-      # - run: yarn test
-      - run: yarn build
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint:check
+      # - run: pnpm test
+      - run: pnpm build
 
       # Upload build artifacts to avoid rebuilding in subsequent jobs
       - name: Upload build artifacts
@@ -40,7 +40,7 @@ jobs:
     if: github.ref_name == 'main'
     steps:
       - uses: actions/checkout@v3
-      - run: yarn --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
 
       # Cache Playwright browsers
       - name: Cache Playwright browsers
@@ -48,12 +48,12 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key:
-            playwright-browsers-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+            playwright-browsers-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: |
             playwright-browsers-${{ runner.os }}-
 
       # Install Playwright browsers if not cached
-      - run: yarn playwright install
+      - run: pnpm playwright install
 
       # Download build artifacts instead of rebuilding
       - name: Download build artifacts
@@ -62,4 +62,4 @@ jobs:
           name: dist
           path: dist/
 
-      - run: yarn test:playwright
+      - run: pnpm test:playwright

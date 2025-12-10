@@ -14,9 +14,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: 'yarn'
-      - run: yarn --frozen-lockfile
-      - run: yarn lint:check
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint:check
       # - run: yarn test
 
   build_for_production:
@@ -28,10 +28,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: 'yarn'
-      - run: yarn --frozen-lockfile
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
       - name: Build
-        run: yarn build
+        run: pnpm build
         env:
           VITE_NODE_ENV: production
           VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -97,8 +97,8 @@ jobs:
           name: dist-production
           path: dist/
 
-      - run: yarn --frozen-lockfile
-      - run: yarn deploy:arweave
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm deploy:arweave
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
           VITE_ARNS_NAME: ${{ secrets.ARNS_NAME }}
