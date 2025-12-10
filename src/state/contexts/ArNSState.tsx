@@ -56,8 +56,15 @@ export function ArNSStateProvider({
   reducer,
   children,
 }: ArNSStateProviderProps): JSX.Element {
-  const [{ arioProcessId, aoNetwork, hyperbeamUrl, antRegistryProcessId, marketplaceProcessId }] =
-    useGlobalState();
+  const [
+    {
+      arioProcessId,
+      aoNetwork,
+      hyperbeamUrl,
+      antRegistryProcessId,
+      marketplaceProcessId,
+    },
+  ] = useGlobalState();
   const [state, dispatchArNSState] = useReducer(reducer, initialArNSState);
   const [{ walletAddress }] = useWalletState();
 

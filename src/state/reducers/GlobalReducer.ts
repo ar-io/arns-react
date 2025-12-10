@@ -1,4 +1,10 @@
-import { AoARIORead, AoARIOWrite, AoClient, ArNSMarketplaceRead, ArNSMarketplaceWrite } from '@ar.io/sdk/web';
+import {
+  AoARIORead,
+  AoARIOWrite,
+  AoClient,
+  ArNSMarketplaceRead,
+  ArNSMarketplaceWrite,
+} from '@ar.io/sdk/web';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
 
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
@@ -51,6 +57,10 @@ export type GlobalAction =
   | {
       type: 'setMarketplaceProcessId';
       payload: string;
+    }
+  | {
+      type: 'setMinimumANTVersionForMarketplace';
+      payload: number;
     }
   | {
       type: 'setIoTicker';
@@ -123,6 +133,11 @@ export const reducer = (
       return {
         ...state,
         marketplaceProcessId: action.payload,
+      };
+    case 'setMinimumANTVersionForMarketplace':
+      return {
+        ...state,
+        minimumANTVersionForMarketplace: action.payload,
       };
     case 'setIoProcessId':
       return {

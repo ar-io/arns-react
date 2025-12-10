@@ -32,6 +32,7 @@ import {
   ARIO_PROCESS_ID,
   ARWEAVE_HOST,
   DEFAULT_ARWEAVE,
+  DEFAULT_MIN_MARKETPLACE_ANT_VERSION,
   MARKETPLACE_PROCESS_ID,
   NETWORK_DEFAULTS,
 } from '../../utils/constants';
@@ -45,6 +46,7 @@ function loadSettingsFromStorage(): {
   arioProcessId: string;
   antRegistryProcessId: string;
   marketplaceProcessId: string;
+  minimumANTVersionForMarketplace: number;
   hyperbeamUrl?: string;
 } | null {
   try {
@@ -63,9 +65,13 @@ function loadSettingsFromStorage(): {
         aoNetwork: settings.network?.aoNetwork || NETWORK_DEFAULTS.AO,
         turboNetwork: settings.network?.turboNetwork || NETWORK_DEFAULTS.TURBO,
         arioProcessId: settings.arns?.arioProcessId || ARIO_PROCESS_ID,
-        marketplaceProcessId: settings.arns?.marketplaceProcessId || MARKETPLACE_PROCESS_ID,
+        marketplaceProcessId:
+          settings.arns?.marketplaceProcessId || MARKETPLACE_PROCESS_ID,
         antRegistryProcessId:
           settings.arns?.antRegistryProcessId || ANT_REGISTRY_ID,
+        minimumANTVersionForMarketplace:
+          settings.arns?.minimumANTVersionForMarketplace ||
+          DEFAULT_MIN_MARKETPLACE_ANT_VERSION,
         hyperbeamUrl: settings.network?.hyperbeamUrl || undefined,
       };
     }
@@ -89,6 +95,9 @@ const initialAntRegistryProcessId =
   savedSettings?.antRegistryProcessId || ANT_REGISTRY_ID;
 const initialMarketplaceProcessId =
   savedSettings?.marketplaceProcessId || MARKETPLACE_PROCESS_ID;
+const initialMinimumANTVersionForMarketplace =
+  savedSettings?.minimumANTVersionForMarketplace ||
+  DEFAULT_MIN_MARKETPLACE_ANT_VERSION;
 const initialHyperbeamUrl = savedSettings?.hyperbeamUrl;
 
 export const defaultArIO = ARIO.init({
@@ -123,6 +132,7 @@ export type GlobalState = {
   arioProcessId: string;
   marketplaceProcessId: string;
   antRegistryProcessId: string;
+  minimumANTVersionForMarketplace: number;
   blockHeight?: number;
   lastBlockUpdateTimestamp?: number;
   arweaveDataProvider: ArweaveCompositeDataProvider;
@@ -135,6 +145,7 @@ const initialState: GlobalState = {
   arioProcessId: initialArioProcessId,
   antRegistryProcessId: initialAntRegistryProcessId,
   marketplaceProcessId: initialMarketplaceProcessId,
+  minimumANTVersionForMarketplace: initialMinimumANTVersionForMarketplace,
   arioTicker: 'ARIO',
   gateway: initialGateway,
   aoNetwork: initialAoNetwork,

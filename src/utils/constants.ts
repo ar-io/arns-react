@@ -24,6 +24,9 @@ export const APP_VERSION = __NPM_PACKAGE_VERSION__ || '1.0.0';
 
 // This is the minimum version all workflows are currently compatible with (including reassign, release, etc)
 export const MIN_ANT_VERSION = 16;
+
+// Default minimum ANT version required for marketplace functionality
+export const DEFAULT_MIN_MARKETPLACE_ANT_VERSION = 25;
 export const WRITE_OPTIONS = {
   tags: [
     {
@@ -97,7 +100,8 @@ export const ARIO_PROCESS_ID =
   import.meta.env.VITE_ARIO_PROCESS_ID || ARIO_TESTNET_PROCESS_ID;
 
 export const MARKETPLACE_PROCESS_ID =
-  import.meta.env.VITE_MARKETPLACE_PROCESS_ID || "wPh88ziUF4meLpHfffmgdA6IFtzmXHgdeg-epzBjkao";
+  import.meta.env.VITE_MARKETPLACE_PROCESS_ID ||
+  'wPh88ziUF4meLpHfffmgdA6IFtzmXHgdeg-epzBjkao';
 
 // TODO: export this from the sdk
 export const ANT_REGISTRY_TESTNET_PROCESS_ID =

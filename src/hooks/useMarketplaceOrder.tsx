@@ -23,12 +23,10 @@ export function buildMarketplaceOrderQuery({
     ],
     queryFn: () => {
       if (!antId) throw new Error('No ANT ID provided to fetch order');
-      return marketplaceContract
-        .getOrderByANTId({ antId })
-        .catch((error) => {
-          console.error('Error fetching marketplace order', error);
-          throw error;
-        });
+      return marketplaceContract.getOrderByANTId({ antId }).catch((error) => {
+        console.error('Error fetching marketplace order', error);
+        throw error;
+      });
     },
     enabled:
       !!marketplaceContract &&
@@ -40,9 +38,8 @@ export function buildMarketplaceOrderQuery({
 }
 
 export function useMarketplaceOrder({ antId }: { antId?: string }) {
-  const [
-    { marketplaceContract, marketplaceProcessId, aoNetwork },
-  ] = useGlobalState();
+  const [{ marketplaceContract, marketplaceProcessId, aoNetwork }] =
+    useGlobalState();
 
   return useQuery(
     buildMarketplaceOrderQuery({

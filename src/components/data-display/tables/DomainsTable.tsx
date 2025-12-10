@@ -9,7 +9,10 @@ import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
-import { ListNameForSaleModal } from '@src/components/modals';
+import {
+  ListNameForSaleModal,
+  UpgradeDomainForMarketplaceModal,
+} from '@src/components/modals';
 import UpgradeDomainModal from '@src/components/modals/ant-management/UpgradeDomainModal/UpgradeDomainModal';
 import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
@@ -120,7 +123,14 @@ const DomainsTable = ({
   const navigate = useNavigate();
   const [{ walletAddress }] = useWalletState();
   const [
-    { arioProcessId, aoNetwork, hyperbeamUrl, antRegistryProcessId, gateway },
+    {
+      arioProcessId,
+      aoNetwork,
+      hyperbeamUrl,
+      antRegistryProcessId,
+      gateway,
+      minimumANTVersionForMarketplace,
+    },
   ] = useGlobalState();
   const [{ loading: loadingArnsState }, dispatchArNSState] = useArNSState();
   const [, dispatchModalState] = useModalState();
@@ -144,6 +154,22 @@ const DomainsTable = ({
     name: string;
     antId: string;
   } | null>(null);
+
+  const [showUpgradeForMarketplaceModal, setShowUpgradeForMarketplaceModal] =
+    useState(false);
+  const [domainToUpgradeForMarketplace, setDomainToUpgradeForMarketplace] =
+    useState<
+      | {
+          domain: string;
+          processId: string;
+        }
+      | undefined
+    >(undefined);
+
+  // Helper function to check if ANT is marketplace compatible
+  const isMarketplaceCompatible = (antVersion: number): boolean => {
+    return antVersion >= minimumANTVersionForMarketplace;
+  };
 
   useEffect(() => {
     if (domainData) {
@@ -538,18 +564,41 @@ const DomainsTable = ({
                     <></>
                   )}
                   <Tooltip
-                    message="List for Sale"
+                    message={
+                      isMarketplaceCompatible(row.original.version)
+                        ? 'List for Sale'
+                        : `Upgrade to version ${minimumANTVersionForMarketplace}+ to list for sale`
+                    }
                     icon={
                       <button
                         onClick={() => {
-                          setSelectedDomainForSale({
-                            name: row.getValue('name') as string,
-                            antId: row.getValue('processId') as string,
-                          });
-                          setShowListForSaleModal(true);
+                          const domainName = row.getValue('name') as string;
+                          const processId = row.getValue('processId') as string;
+
+                          if (isMarketplaceCompatible(row.original.version)) {
+                            // ANT is marketplace compatible, proceed with listing
+                            setSelectedDomainForSale({
+                              name: domainName,
+                              antId: processId,
+                            });
+                            setShowListForSaleModal(true);
+                          } else {
+                            // ANT needs upgrade for marketplace compatibility
+                            setDomainToUpgradeForMarketplace({
+                              domain: lowerCaseDomain(domainName),
+                              processId: processId,
+                            });
+                            setShowUpgradeForMarketplaceModal(true);
+                          }
                         }}
                       >
-                        <DollarSign className="w-[18px] text-grey hover:text-white transition-colors" />
+                        <DollarSign
+                          className={`w-[18px] transition-colors ${
+                            isMarketplaceCompatible(row.original.version)
+                              ? 'text-grey hover:text-white'
+                              : 'text-warning hover:text-warning-light'
+                          }`}
+                        />
                       </button>
                     }
                   />
@@ -702,6 +751,27 @@ const DomainsTable = ({
           }}
           domainName={selectedDomainForSale.name}
           antId={selectedDomainForSale.antId}
+        />
+      )}
+      {domainToUpgradeForMarketplace && (
+        <UpgradeDomainForMarketplaceModal
+          domain={domainToUpgradeForMarketplace.domain}
+          processId={domainToUpgradeForMarketplace.processId}
+          visible={showUpgradeForMarketplaceModal}
+          setVisible={(b: boolean) => {
+            setShowUpgradeForMarketplaceModal(b);
+            setDomainToUpgradeForMarketplace(undefined);
+          }}
+          onUpgradeComplete={() => {
+            // After successful upgrade, show the list for sale modal
+            if (domainToUpgradeForMarketplace) {
+              setSelectedDomainForSale({
+                name: domainToUpgradeForMarketplace.domain,
+                antId: domainToUpgradeForMarketplace.processId,
+              });
+              setShowListForSaleModal(true);
+            }
+          }}
         />
       )}
     </>

@@ -4,6 +4,7 @@ import ListNameForSaleModal from './ListNameForSaleModal/ListNameForSaleModal';
 import AddUndernameModal from './ant-management/AddUndernameModal/AddUndernameModal';
 import EditUndernameModal from './ant-management/EditUndernameModal/EditUndernameModal';
 import TransferANTModal from './ant-management/TransferANTModal/TransferANTModal';
+import UpgradeDomainForMarketplaceModal from './ant-management/UpgradeDomainForMarketplaceModal/UpgradeDomainForMarketplaceModal';
 
 export {
   ConnectWalletModal,
@@ -12,4 +13,5 @@ export {
   EditUndernameModal,
   DepositARIOToMarketplaceModal,
   ListNameForSaleModal,
+  UpgradeDomainForMarketplaceModal,
 };
