@@ -1,3 +1,4 @@
+import MarketplaceListingsTable from '@src/components/data-display/tables/MarketplaceListingsTable';
 import { ManageMarketplaceARIOModal } from '@src/components/modals';
 import { useGlobalState } from '@src/state';
 import { useState } from 'react';
@@ -26,7 +27,9 @@ export default function Marketplace() {
           Manage {arioTicker}
         </button>
       </div>
-      <div className="flex flex-col gap-4">{/* TODO: listings */}</div>
+      <div className="flex w-full gap-6 mt-8">
+        <MarketplaceListingsTable />
+      </div>
 
       {/* Manage Marketplace Balance Modal */}
       <ManageMarketplaceARIOModal

@@ -23,7 +23,7 @@ export function buildMarketplaceOrderQuery({
     ],
     queryFn: () => {
       if (!antId) throw new Error('No ANT ID provided to fetch order');
-      return marketplaceContract.getOrderByANTId({ antId }).catch((error) => {
+      return marketplaceContract.getOrderByANTId(antId).catch((error) => {
         console.error('Error fetching marketplace order', error);
         throw error;
       });

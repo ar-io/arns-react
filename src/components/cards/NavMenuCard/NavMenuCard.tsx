@@ -102,7 +102,17 @@ function NavMenuCard() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [menuRef, showMenu, wallet, walletAddress, turboCreditBalance]);
+  }, [menuRef, showMenu, wallet, walletAddress]);
+
+  // Separate effect to update turbo credits when they change
+  useEffect(() => {
+    if (turboCreditBalance !== undefined) {
+      setWalletDetails((prev) => ({
+        ...prev,
+        'Turbo Credits': turboCreditBalance,
+      }));
+    }
+  }, [turboCreditBalance]);
 
   // Refresh balances when menu is opened
   useEffect(() => {
@@ -112,10 +122,10 @@ function NavMenuCard() {
   }, [showMenu, walletAddress]);
 
   function resetWalletDetails() {
-    setWalletDetails({
+    setWalletDetails((prev) => ({
+      ...prev,
       [arioTicker]: undefined,
-      'Turbo Credits': undefined,
-    });
+    }));
     setMarketplaceDetails({
       Balance: undefined,
       'Locked Balance': undefined,
@@ -177,10 +187,10 @@ function NavMenuCard() {
         ? formatMarketplaceBalance(marketplaceBalance.balances.lockedBalance)
         : '0';
 
-      setWalletDetails({
+      setWalletDetails((prev) => ({
+        ...prev,
         [arioTicker]: formattedIOBalance,
-        'Turbo Credits': turboCreditBalance,
-      });
+      }));
 
       setMarketplaceDetails({
         Balance: formattedMarketplaceLiquid,

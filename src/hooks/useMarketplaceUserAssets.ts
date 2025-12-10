@@ -41,7 +41,9 @@ export function buildMarketplaceUserAssetsQuery({
   });
 }
 
-export function useMarketplaceUserAssets({ address }: { address?: string }) {
+export function useMarketplaceUserAssets({
+  address,
+}: { address?: string } = {}) {
   const [
     { marketplaceContract, marketplaceProcessId, arioProcessId, aoNetwork },
   ] = useGlobalState();

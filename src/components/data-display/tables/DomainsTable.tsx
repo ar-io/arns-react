@@ -4,6 +4,7 @@ import {
   ExternalLinkIcon,
   RefreshIcon,
 } from '@src/components/icons';
+import InterruptedWorkflowIndicator from '@src/components/indicators/InterruptedWorkflowIndicator/InterruptedWorkflowIndicator';
 import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
@@ -13,8 +14,11 @@ import {
   ListNameForSaleModal,
   UpgradeDomainForMarketplaceModal,
 } from '@src/components/modals';
+import ContinueWorkflowModal from '@src/components/modals/ContinueWorkflowModal/ContinueWorkflowModal';
 import UpgradeDomainModal from '@src/components/modals/ant-management/UpgradeDomainModal/UpgradeDomainModal';
+import { useANTIntent } from '@src/hooks/useANTIntent';
 import { useLatestANTVersion } from '@src/hooks/useANTVersions';
+import { useInterruptedWorkflows } from '@src/hooks/useInterruptedWorkflows';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import {
   ANTProcessData,
@@ -45,7 +49,7 @@ import { ANTStateError } from '@src/utils/errors';
 import { queryClient } from '@src/utils/network';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { capitalize } from 'lodash';
-import { CircleCheck, DollarSign, Star } from 'lucide-react';
+import { AlertTriangle, CircleCheck, DollarSign, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link, useNavigate } from 'react-router-dom';
@@ -137,6 +141,10 @@ const DomainsTable = ({
   const [, dispatchTransactionState] = useTransactionState();
   const { data: latestAntVersion } = useLatestANTVersion();
   const { data: primaryNameData } = usePrimaryName();
+  const { interruptedWorkflows } = useInterruptedWorkflows(
+    domainData.ants,
+    domainData.names,
+  );
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<TableData[]>([]);
   const [showUpgradeDomainModal, setShowUpgradeDomainModal] =
@@ -166,9 +174,28 @@ const DomainsTable = ({
       | undefined
     >(undefined);
 
+  const [showContinueWorkflowModal, setShowContinueWorkflowModal] =
+    useState(false);
+  const [workflowToContinue, setWorkflowToContinue] = useState<{
+    domainName: string;
+    antId: string;
+    intentId: string;
+  } | null>(null);
+
   // Helper function to check if ANT is marketplace compatible
   const isMarketplaceCompatible = (antVersion: number): boolean => {
     return antVersion >= minimumANTVersionForMarketplace;
+  };
+
+  // Helper function to check if a domain has an interrupted workflow
+  const getInterruptedWorkflowForDomain = (
+    domainName: string,
+    antId: string,
+  ) => {
+    return interruptedWorkflows.find(
+      (workflow) =>
+        workflow.domainName === domainName && workflow.antId === antId,
+    );
   };
 
   useEffect(() => {
@@ -312,30 +339,43 @@ const DomainsTable = ({
             );
           }
           case 'name': {
+            const isInterrupted = interruptedWorkflows.some(
+              (workflow) => workflow.domainName === rowValue,
+            );
+
             return (
-              <Tooltip
-                tooltipOverrides={{
-                  overlayClassName: 'w-fit',
-                  overlayInnerStyle: { width: 'fit-content' },
-                }}
-                message={
-                  <span className="w-fit whitespace-nowrap text-white">
-                    {rowValue}
-                  </span>
-                }
-                icon={
-                  <Link
-                    className="link gap-2 w-fit whitespace-nowrap items-center"
-                    to={`https://${encodeDomainToASCII(
-                      row.getValue('name'),
-                    )}.${gateway}`}
-                    target="_blank"
-                  >
-                    {formatForMaxCharCount(decodeDomainToASCII(rowValue), 20)}{' '}
-                    <ExternalLinkIcon className="size-3 fill-grey" />
-                  </Link>
-                }
-              />
+              <div className="flex items-center gap-2">
+                <Tooltip
+                  tooltipOverrides={{
+                    overlayClassName: 'w-fit',
+                    overlayInnerStyle: { width: 'fit-content' },
+                  }}
+                  message={
+                    <span className="w-fit whitespace-nowrap text-white">
+                      {rowValue}
+                    </span>
+                  }
+                  icon={
+                    <Link
+                      className="link gap-2 w-fit whitespace-nowrap items-center"
+                      to={`https://${encodeDomainToASCII(
+                        row.getValue('name'),
+                      )}.${gateway}`}
+                      target="_blank"
+                    >
+                      {formatForMaxCharCount(decodeDomainToASCII(rowValue), 20)}{' '}
+                      <ExternalLinkIcon className="size-3 fill-grey" />
+                    </Link>
+                  }
+                />
+                {isInterrupted && (
+                  <InterruptedWorkflowIndicator
+                    domainName={rowValue}
+                    size="sm"
+                    className="cursor-pointer"
+                  />
+                )}
+              </div>
             );
           }
           case 'role':
@@ -563,45 +603,83 @@ const DomainsTable = ({
                   ) : (
                     <></>
                   )}
-                  <Tooltip
-                    message={
-                      isMarketplaceCompatible(row.original.version)
-                        ? 'List for Sale'
-                        : `Upgrade to version ${minimumANTVersionForMarketplace}+ to list for sale`
-                    }
-                    icon={
-                      <button
-                        onClick={() => {
-                          const domainName = row.getValue('name') as string;
-                          const processId = row.getValue('processId') as string;
+                  {(() => {
+                    const domainName = row.getValue('name') as string;
+                    const processId = row.getValue('processId') as string;
+                    const interruptedWorkflow = getInterruptedWorkflowForDomain(
+                      domainName,
+                      processId,
+                    );
 
-                          if (isMarketplaceCompatible(row.original.version)) {
-                            // ANT is marketplace compatible, proceed with listing
-                            setSelectedDomainForSale({
-                              name: domainName,
-                              antId: processId,
-                            });
-                            setShowListForSaleModal(true);
-                          } else {
-                            // ANT needs upgrade for marketplace compatibility
-                            setDomainToUpgradeForMarketplace({
-                              domain: lowerCaseDomain(domainName),
-                              processId: processId,
-                            });
-                            setShowUpgradeForMarketplaceModal(true);
+                    if (interruptedWorkflow) {
+                      // Show interrupted workflow icon
+                      return (
+                        <Tooltip
+                          message="Continue interrupted workflow"
+                          icon={
+                            <button
+                              onClick={() => {
+                                setWorkflowToContinue({
+                                  domainName: interruptedWorkflow.domainName,
+                                  antId: interruptedWorkflow.antId,
+                                  intentId: interruptedWorkflow.intentId,
+                                });
+                                setShowContinueWorkflowModal(true);
+                              }}
+                            >
+                              <div className="relative">
+                                <AlertTriangle className="w-[18px] text-warning hover:text-warning-light transition-colors" />
+                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-warning rounded-full animate-ping opacity-75"></div>
+                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-warning rounded-full"></div>
+                              </div>
+                            </button>
                           }
-                        }}
-                      >
-                        <DollarSign
-                          className={`w-[18px] transition-colors ${
-                            isMarketplaceCompatible(row.original.version)
-                              ? 'text-grey hover:text-white'
-                              : 'text-warning hover:text-warning-light'
-                          }`}
                         />
-                      </button>
+                      );
+                    } else {
+                      // Show marketplace listing icon
+                      return (
+                        <Tooltip
+                          message={
+                            isMarketplaceCompatible(row.original.version)
+                              ? 'List for Sale'
+                              : `Upgrade to version ${minimumANTVersionForMarketplace}+ to list for sale`
+                          }
+                          icon={
+                            <button
+                              onClick={() => {
+                                if (
+                                  isMarketplaceCompatible(row.original.version)
+                                ) {
+                                  // ANT is marketplace compatible, proceed with listing
+                                  setSelectedDomainForSale({
+                                    name: domainName,
+                                    antId: processId,
+                                  });
+                                  setShowListForSaleModal(true);
+                                } else {
+                                  // ANT needs upgrade for marketplace compatibility
+                                  setDomainToUpgradeForMarketplace({
+                                    domain: lowerCaseDomain(domainName),
+                                    processId: processId,
+                                  });
+                                  setShowUpgradeForMarketplaceModal(true);
+                                }
+                              }}
+                            >
+                              <DollarSign
+                                className={`w-[18px] transition-colors ${
+                                  isMarketplaceCompatible(row.original.version)
+                                    ? 'text-grey hover:text-white'
+                                    : 'text-warning hover:text-warning-light'
+                                }`}
+                              />
+                            </button>
+                          }
+                        />
+                      );
                     }
-                  />
+                  })()}
                   <ManageAssetButtons
                     id={lowerCaseDomain(row.getValue('name') as string)}
                     assetType="names"
@@ -771,6 +849,23 @@ const DomainsTable = ({
               });
               setShowListForSaleModal(true);
             }
+          }}
+        />
+      )}
+      {workflowToContinue && (
+        <ContinueWorkflowModal
+          show={showContinueWorkflowModal}
+          onClose={() => {
+            setShowContinueWorkflowModal(false);
+            setWorkflowToContinue(null);
+          }}
+          domainName={workflowToContinue.domainName}
+          antId={workflowToContinue.antId}
+          intentId={workflowToContinue.intentId}
+          onWorkflowContinued={() => {
+            // Refresh the data after workflow is continued
+            setShowContinueWorkflowModal(false);
+            setWorkflowToContinue(null);
           }}
         />
       )}
