@@ -1,18 +1,18 @@
-import { DepositARIOToMarketplaceModal } from '@src/components/modals';
+import { ManageMarketplaceARIOModal } from '@src/components/modals';
 import { useGlobalState } from '@src/state';
 import { useState } from 'react';
 
 export default function Marketplace() {
   const [{ arioTicker }] = useGlobalState();
 
-  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showManageModal, setShowManageModal] = useState(false);
 
-  const handleDepositClick = () => {
-    setShowDepositModal(true);
+  const handleManageClick = () => {
+    setShowManageModal(true);
   };
 
-  const handleCloseDepositModal = () => {
-    setShowDepositModal(false);
+  const handleCloseManageModal = () => {
+    setShowManageModal(false);
   };
 
   return (
@@ -21,17 +21,17 @@ export default function Marketplace() {
         <h1 className="text-white text-4xl font-bold">Marketplace</h1>
         <button
           className="border-white border text-white px-4 py-2 rounded hover:bg-white hover:text-black transition-colors"
-          onClick={handleDepositClick}
+          onClick={handleManageClick}
         >
-          Deposit {arioTicker}
+          Manage {arioTicker}
         </button>
       </div>
       <div className="flex flex-col gap-4">{/* TODO: listings */}</div>
 
-      {/* Deposit Modal */}
-      <DepositARIOToMarketplaceModal
-        show={showDepositModal}
-        onClose={handleCloseDepositModal}
+      {/* Manage Marketplace Balance Modal */}
+      <ManageMarketplaceARIOModal
+        show={showManageModal}
+        onClose={handleCloseManageModal}
       />
     </div>
   );

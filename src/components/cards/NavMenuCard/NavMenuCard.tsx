@@ -1,5 +1,5 @@
 import { AntLogoIcon } from '@src/components/data-display/AntLogoIcon';
-import { DepositARIOToMarketplaceModal } from '@src/components/modals';
+import { ManageMarketplaceARIOModal } from '@src/components/modals';
 import TurboTopUpModal from '@src/components/modals/turbo/TurboTopUpModal';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
@@ -84,7 +84,7 @@ function NavMenuCard() {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const [turboTopUpModalOpen, setTurboTopUpModalOpen] = useState(false);
-  const [depositMarketplaceModalOpen, setDepositMarketplaceModalOpen] =
+  const [manageMarketplaceModalOpen, setManageMarketplaceModalOpen] =
     useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -438,11 +438,11 @@ function NavMenuCard() {
                               <button
                                 className="text-xs text-white hover:text-black bg-foreground hover:bg-white border border-dark-grey rounded px-2 py-[2px] transition-all duration-200 whitespace-nowrap"
                                 onClick={() => {
-                                  setDepositMarketplaceModalOpen(true);
+                                  setManageMarketplaceModalOpen(true);
                                   setShowMenu(false);
                                 }}
                               >
-                                Deposit
+                                Manage
                               </button>
                             )}
                           </div>
@@ -640,10 +640,10 @@ function NavMenuCard() {
       {turboTopUpModalOpen && (
         <TurboTopUpModal onClose={() => setTurboTopUpModalOpen(false)} />
       )}
-      {depositMarketplaceModalOpen && (
-        <DepositARIOToMarketplaceModal
-          show={depositMarketplaceModalOpen}
-          onClose={() => setDepositMarketplaceModalOpen(false)}
+      {manageMarketplaceModalOpen && (
+        <ManageMarketplaceARIOModal
+          show={manageMarketplaceModalOpen}
+          onClose={() => setManageMarketplaceModalOpen(false)}
         />
       )}
     </>
