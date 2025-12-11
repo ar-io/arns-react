@@ -169,6 +169,7 @@ export async function dispatchArNSUpdate({
         if (
           domainInfo.state &&
           domainInfo.state.Owner !== walletAddress.toString() &&
+          domainInfo.state.Owner !== marketplaceProcessId && // if the owner is the marketplace process id, do not remove it since we still want to show it
           !domainInfo.state.Controllers.includes(walletAddress.toString())
         ) {
           dispatch({

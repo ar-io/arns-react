@@ -1,9 +1,12 @@
-import { ExternalLinkIcon, RefreshIcon } from '@src/components/icons';
+import { AoArNSNameDataWithName, Order } from '@ar.io/sdk';
+import { mARIOToTokenAmount } from '@ardrive/turbo-sdk';
+import { RefreshIcon } from '@src/components/icons';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import { useArIoPrice } from '@src/hooks/useArIOPrice';
+import { useArNSRecords } from '@src/hooks/useArNSRecords';
 import { useMarketplaceOrders } from '@src/hooks/useMarketplaceOrders';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '@src/state';
@@ -23,13 +26,14 @@ import TableView from './TableView';
 
 type MarketplaceListing = {
   id: string;
-  name: string;
+  name: string | null;
   antId: string;
   seller: string;
   price: number;
   priceUSD?: number;
-  listedAt: string;
-  expiresAt?: string;
+  listedAt: number;
+  expiresAt: number | null;
+  type: string;
   action: ReactNode;
 } & Record<string, any>;
 
@@ -47,6 +51,7 @@ function filterTableData(
       listing.seller,
       listing.antId,
       listing.price?.toString(),
+      listing.type,
     ];
 
     return searchableFields.some((field) =>
@@ -59,6 +64,7 @@ function MarketplaceListingsTable() {
   const [{ arioTicker }] = useGlobalState();
   const { data: arIoPrice } = useArIoPrice();
   const [filter, setFilter] = useState('');
+  const { data: arnsRecords } = useArNSRecords();
 
   // Fetch marketplace orders
   const {
@@ -77,23 +83,36 @@ function MarketplaceListingsTable() {
   const tableData = useMemo(() => {
     if (!ordersData?.items) return [];
 
-    return ordersData.items.map((order: any): MarketplaceListing => {
-      const priceInARIO = Number(order.price || 0) / 1000000; // Convert from mARIO to ARIO
-      const priceUSD = arIoPrice ? priceInARIO * arIoPrice : undefined;
+    if (!arnsRecords) return [];
+
+    const antToNameMap = arnsRecords.reduce(
+      (acc: Record<string, string>, record: AoArNSNameDataWithName) => {
+        acc[record.processId] = record.name;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
+
+    return ordersData.items.map((order: Order): MarketplaceListing => {
+      const priceInARIO = mARIOToTokenAmount(order.price ?? 0); // Convert from mARIO to ARIO
+      const priceUSD = arIoPrice
+        ? Number(priceInARIO.valueOf()) * arIoPrice
+        : undefined;
 
       return {
-        id: order.id || order.antId,
-        name: order.name || 'Unknown',
-        antId: order.antId,
-        seller: order.seller || order.owner,
-        price: priceInARIO,
+        id: order.id,
+        name: antToNameMap[order.dominantToken] || null,
+        antId: order.dominantToken,
+        seller: order.creator,
+        price: Number(priceInARIO.valueOf()),
         priceUSD,
-        listedAt: order.createdAt || order.listedAt,
-        expiresAt: order.expiresAt,
+        listedAt: order.dateCreated,
+        expiresAt: order.expirationTime || null,
+        type: order.orderType,
         action: (
           <div className="flex items-center gap-2">
             <Link
-              to={`/marketplace/listing/${order.name || order.antId}`}
+              to={`/marketplace/names/${antToNameMap[order.dominantToken]}`}
               className="flex items-center gap-1 px-3 py-1 bg-primary text-black rounded text-sm hover:bg-primary-light transition-colors"
             >
               <ShoppingCart className="w-4 h-4" />
@@ -101,7 +120,7 @@ function MarketplaceListingsTable() {
             </Link>
             <Tooltip title="View on ArNS">
               <a
-                href={`https://${order.name}.ar-io.dev`}
+                href={`https://${antToNameMap[order.dominantToken]}.ar-io.dev`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 px-2 py-1 border border-grey rounded text-sm hover:bg-dark-grey transition-colors"
@@ -129,7 +148,7 @@ function MarketplaceListingsTable() {
         header: 'Name',
         cell: ({ row }) => {
           const name = row.original.name;
-          const decodedName = decodeDomainToASCII(name);
+          const decodedName = name ? decodeDomainToASCII(name) : '';
 
           return (
             <div className="flex items-center gap-2">
@@ -145,6 +164,33 @@ function MarketplaceListingsTable() {
                 </Tooltip>
               )}
             </div>
+          );
+        },
+      }),
+      columnHelper.display({
+        id: 'type',
+        header: 'Type',
+        cell: ({ row }) => {
+          const type = row.original.type;
+
+          // Format the type for display
+          const formatType = (type: string) => {
+            switch (type?.toLowerCase()) {
+              case 'fixed':
+                return 'Fixed Price';
+              case 'dutch':
+                return 'Dutch Auction';
+              case 'english':
+                return 'English Auction';
+              default:
+                return type || 'Fixed Price';
+            }
+          };
+
+          return (
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              {formatType(type)}
+            </span>
           );
         },
       }),
@@ -286,7 +332,7 @@ function MarketplaceListingsTable() {
           <div className="mb-4">
             <input
               type="text"
-              placeholder="Search listings by name, seller, or ANT ID..."
+              placeholder="Search listings by name, seller, ANT ID, or type..."
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               className="w-full px-4 py-2 border border-grey rounded bg-transparent text-white placeholder-grey focus:border-primary outline-none"
