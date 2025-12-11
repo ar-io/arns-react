@@ -74,16 +74,17 @@ async function calculateTokenAmount(
   turboNetwork: typeof NETWORK_DEFAULTS.TURBO,
 ): Promise<{ tokenAmount: number; tokenAmountSmallestUnit: string }> {
   const turbo = TurboFactory.unauthenticated({
-    token: tokenType as 'base-eth' | 'base-usdc',
+    token: tokenType,
     paymentServiceConfig: {
       url: turboNetwork.PAYMENT_URL,
     },
   });
 
-  // Get rate by sampling
-  const sampleAmount = tokenType === 'base-usdc' ? 10 : 0.01;
+  // Get rate by sampling - base-ario and base-usdc use 6 decimals
+  const sampleAmount =
+    tokenType === 'base-usdc' ? 10 : tokenType === 'base-ario' ? 100 : 0.01;
   let sampleTokenAmount: string;
-  if (tokenType === 'base-usdc') {
+  if (tokenType === 'base-usdc' || tokenType === 'base-ario') {
     sampleTokenAmount = (sampleAmount * 1e6).toString();
   } else {
     sampleTokenAmount = ETHToTokenAmount(sampleAmount).toString();
@@ -101,14 +102,15 @@ async function calculateTokenAmount(
   );
   const tokensNeeded = wincWithBuffer / wincPerToken;
 
-  // Round up appropriately
-  const decimals = tokenType === 'base-usdc' ? 2 : 8;
+  // Round up appropriately - USDC and base-ario use 2 decimals, base-eth uses 8
+  const decimals =
+    tokenType === 'base-usdc' || tokenType === 'base-ario' ? 2 : 8;
   const roundedTokensNeeded =
     Math.ceil(tokensNeeded * Math.pow(10, decimals)) / Math.pow(10, decimals);
 
-  // Convert to smallest unit
+  // Convert to smallest unit - base-usdc and base-ario use 6 decimals
   let smallestUnitAmount: string;
-  if (tokenType === 'base-usdc') {
+  if (tokenType === 'base-usdc' || tokenType === 'base-ario') {
     smallestUnitAmount = Math.ceil(roundedTokensNeeded * 1e6).toString();
   } else {
     smallestUnitAmount = ETHToTokenAmount(roundedTokensNeeded).toString();
@@ -183,7 +185,7 @@ async function createAuthenticatedTurboClient(
 
   // Create turbo client with wallet adapter
   const turbo = TurboFactory.authenticated({
-    token: tokenType as 'base-eth' | 'base-usdc',
+    token: tokenType,
     walletAdapter,
     paymentServiceConfig: {
       url: turboNetwork.PAYMENT_URL,

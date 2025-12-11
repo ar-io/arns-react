@@ -103,7 +103,9 @@ export function formatBaseTokenAmount(
   tokenType: BaseTokenType,
 ): string {
   const config = BASE_TOKEN_CONFIG[tokenType];
-  const decimals = tokenType === 'base-usdc' ? 2 : 6;
+  // USDC and base-ario use 2 decimals, ETH uses 6
+  const decimals =
+    tokenType === 'base-usdc' || tokenType === 'base-ario' ? 2 : 6;
   return `${amount.toFixed(decimals)} ${config.symbol}`;
 }
 

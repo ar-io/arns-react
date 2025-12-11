@@ -62,11 +62,12 @@ export function useBaseTokenPrice(
 
       // We need to reverse-calculate: given winc needed, how many tokens?
       // First, get the rate by checking how much winc we get for a sample amount
-      const sampleAmount = tokenType === 'base-usdc' ? 10 : 0.01; // 10 USDC or 0.01 ETH
+      const sampleAmount =
+        tokenType === 'base-usdc' ? 10 : tokenType === 'base-ario' ? 100 : 0.01; // 10 USDC, 100 ARIO, or 0.01 ETH
 
       let sampleTokenAmount: string;
-      if (tokenType === 'base-usdc') {
-        // USDC uses 6 decimals
+      if (tokenType === 'base-usdc' || tokenType === 'base-ario') {
+        // USDC and Base ARIO use 6 decimals
         sampleTokenAmount = (sampleAmount * 1e6).toString();
       } else {
         // ETH uses 18 decimals via helper function
@@ -89,22 +90,24 @@ export function useBaseTokenPrice(
       const tokensNeeded = wincWithBuffer / wincPerToken;
 
       // Round up to ensure we have enough
-      // For ETH: round to 8 decimal places, for USDC: round to 2 decimal places
-      const decimals = tokenType === 'base-usdc' ? 2 : 8;
+      // For ETH: round to 8 decimal places, for USDC and base-ario: 2 decimals
+      const decimals =
+        tokenType === 'base-usdc' || tokenType === 'base-ario' ? 2 : 8;
       const roundedTokensNeeded =
         Math.ceil(tokensNeeded * Math.pow(10, decimals)) /
         Math.pow(10, decimals);
 
-      // Convert to smallest unit
+      // Convert to smallest unit - base-usdc and base-ario use 6 decimals
       let smallestUnitAmount: string;
-      if (tokenType === 'base-usdc') {
+      if (tokenType === 'base-usdc' || tokenType === 'base-ario') {
         smallestUnitAmount = Math.ceil(roundedTokensNeeded * 1e6).toString();
       } else {
         smallestUnitAmount = ETHToTokenAmount(roundedTokensNeeded).toString();
       }
 
-      // Format display amount
-      const displayDecimals = tokenType === 'base-usdc' ? 2 : 6;
+      // Format display amount - USDC and base-ario use 2 decimals, ETH uses 6
+      const displayDecimals =
+        tokenType === 'base-usdc' || tokenType === 'base-ario' ? 2 : 6;
       const displayAmount = `${roundedTokensNeeded.toFixed(displayDecimals)} ${config.symbol}`;
 
       return {
@@ -146,9 +149,10 @@ export function useBaseTokenRate(tokenType: BaseTokenType | undefined) {
       });
 
       // Get rate for 1 unit of the token
-      const amount = tokenType === 'base-usdc' ? 1 : 1; // 1 USDC or 1 ETH
+      const amount = 1; // 1 USDC, 1 ARIO, or 1 ETH
       let tokenAmount: string;
-      if (tokenType === 'base-usdc') {
+      if (tokenType === 'base-usdc' || tokenType === 'base-ario') {
+        // USDC and Base ARIO use 6 decimals
         tokenAmount = (amount * 1e6).toString();
       } else {
         tokenAmount = ETHToTokenAmount(amount).toString();

@@ -19,6 +19,7 @@ import { useGlobalState, useWalletState } from '@src/state';
 import { WALLET_TYPES } from '@src/types';
 import { formatARIOWithCommas } from '@src/utils/common/common';
 import {
+  BASE_ARIO_CONTRACT,
   BASE_MAINNET_CHAIN_ID,
   BASE_USDC_CONTRACT,
   ETH_MAINNET_CHAIN_ID,
@@ -101,6 +102,13 @@ function CryptoConfirmation({
     token: BASE_USDC_CONTRACT,
   });
 
+  // Base ARIO balance
+  const { data: baseArioBalance } = useBalance({
+    address: ethAddress,
+    chainId: BASE_MAINNET_CHAIN_ID,
+    token: BASE_ARIO_CONTRACT,
+  });
+
   // Polygon POL balance
   const { data: polBalance } = useBalance({
     address: ethAddress,
@@ -178,6 +186,14 @@ function CryptoConfirmation({
               symbol: 'USDC',
             }
           : null;
+      case 'base-ario':
+        return baseArioBalance
+          ? {
+              value: Number(baseArioBalance.formatted),
+              formatted: Number(baseArioBalance.formatted).toFixed(2),
+              symbol: 'ARIO',
+            }
+          : null;
       case 'pol':
         return polBalance
           ? {
@@ -205,6 +221,7 @@ function CryptoConfirmation({
     baseEthBalance,
     ethUsdcBalance,
     baseUsdcBalance,
+    baseArioBalance,
     polBalance,
     polygonUsdcBalance,
   ]);
@@ -214,14 +231,13 @@ function CryptoConfirmation({
     if (!currentTokenBalance) return null;
     const afterValue = currentTokenBalance.value - cryptoAmount;
     const isUsdc = ['usdc', 'base-usdc', 'polygon-usdc'].includes(tokenType);
+    const isBaseArio = tokenType === 'base-ario';
+    // USDC and base-ario use 2 decimals, others use 6
+    const decimals = isUsdc || isBaseArio ? 2 : 6;
     return {
       value: afterValue,
       formatted:
-        afterValue >= 0
-          ? isUsdc
-            ? afterValue.toFixed(2)
-            : afterValue.toFixed(6)
-          : 'Insufficient',
+        afterValue >= 0 ? afterValue.toFixed(decimals) : 'Insufficient',
       symbol: currentTokenBalance.symbol,
       isInsufficient: afterValue < 0,
     };
@@ -299,9 +315,11 @@ function CryptoConfirmation({
 
     // ETH wallets can pay with ETH-based tokens via direct payment
     // ETH wallets can also pay with ARIO (AO-based token) using the InjectedEthereumSigner
+    // ETH wallets can also pay with base-ario (ARIO on Base) via EVM transaction
     if (walletType === WALLET_TYPES.ETHEREUM) {
       return [
         'ario',
+        'base-ario',
         'ethereum',
         'base-eth',
         'pol',
@@ -413,7 +431,9 @@ function CryptoConfirmation({
           const expectedChainId =
             tokenType === 'ethereum' || tokenType === 'usdc'
               ? ETH_MAINNET_CHAIN_ID
-              : tokenType === 'base-eth' || tokenType === 'base-usdc'
+              : tokenType === 'base-eth' ||
+                  tokenType === 'base-usdc' ||
+                  tokenType === 'base-ario'
                 ? BASE_MAINNET_CHAIN_ID
                 : tokenType === 'pol' || tokenType === 'polygon-usdc'
                   ? POLYGON_MAINNET_CHAIN_ID
@@ -518,9 +538,10 @@ function CryptoConfirmation({
           } else if (
             tokenType === 'usdc' ||
             tokenType === 'base-usdc' ||
-            tokenType === 'polygon-usdc'
+            tokenType === 'polygon-usdc' ||
+            tokenType === 'base-ario'
           ) {
-            // USDC uses 6 decimals - use Math.round to avoid floating-point errors
+            // USDC and Base ARIO use 6 decimals - use Math.round to avoid floating-point errors
             tokenAmount = Math.round(cryptoAmount * 1e6).toString();
           } else {
             // ETH L1 or Base ETH
