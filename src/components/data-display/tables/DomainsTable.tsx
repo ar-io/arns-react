@@ -18,7 +18,11 @@ import ContinueWorkflowModal from '@src/components/modals/ContinueWorkflowModal/
 import UpgradeDomainModal from '@src/components/modals/ant-management/UpgradeDomainModal/UpgradeDomainModal';
 import { useANTIntent } from '@src/hooks/useANTIntent';
 import { useLatestANTVersion } from '@src/hooks/useANTVersions';
-import { useInterruptedWorkflows } from '@src/hooks/useInterruptedWorkflows';
+import {
+  InterruptedWorkflow,
+  useInterruptedWorkflows,
+} from '@src/hooks/useInterruptedWorkflows';
+import { useMarketplaceOrder } from '@src/hooks/useMarketplaceOrder';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import {
   ANTProcessData,
@@ -49,6 +53,7 @@ import { ANTStateError } from '@src/utils/errors';
 import { queryClient } from '@src/utils/network';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { capitalize } from 'lodash';
+import { Activity, StoreIcon } from 'lucide-react';
 import { AlertTriangle, CircleCheck, DollarSign, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
@@ -110,6 +115,168 @@ function filterTableData(filter: string, data: TableData[]): TableData[] {
   return results;
 }
 
+// Helper component to determine the correct icon for marketplace-owned domains
+function MarketplaceActionIcon({
+  domainName,
+  processId,
+}: { domainName: string; processId: string }) {
+  const { hasIntent } = useANTIntent(processId);
+
+  const { data: order, error: orderError } = useMarketplaceOrder({
+    antId: processId,
+  });
+
+  // If there's an intent but no order (or order fetch failed), show Activity icon
+  const hasOrder = order && !orderError;
+
+  if (hasIntent && !hasOrder) {
+    return (
+      <Tooltip
+        message="Pending marketplace activity"
+        icon={
+          <div className="flex items-center justify-center w-[18px] h-[18px] text-orange-400 hover:text-orange-300 transition-colors">
+            <Activity className="w-[18px] h-[18px]" />
+          </div>
+        }
+      />
+    );
+  }
+
+  // Default to marketplace store icon
+  return (
+    <Tooltip
+      message="View in Marketplace"
+      icon={
+        <Link
+          to={`/marketplace/names/${domainName}`}
+          className="flex items-center justify-center w-[18px] h-[18px] text-blue-400 hover:text-blue-300 transition-colors"
+        >
+          <StoreIcon className="w-[18px] h-[18px]" />
+        </Link>
+      }
+    />
+  );
+}
+
+// Helper component for interrupted workflow action
+function InterruptedWorkflowAction({
+  interruptedWorkflow,
+}: {
+  interruptedWorkflow: InterruptedWorkflow;
+}) {
+  const [showContinueWorkflowModal, setShowContinueWorkflowModal] =
+    useState(false);
+
+  return (
+    <>
+      <Tooltip
+        message="Continue interrupted workflow"
+        icon={
+          <button onClick={() => setShowContinueWorkflowModal(true)}>
+            <div className="relative">
+              <AlertTriangle className="w-[18px] text-error hover:text-warning-light transition-colors animate-pulse" />
+            </div>
+          </button>
+        }
+      />
+      {showContinueWorkflowModal && (
+        <ContinueWorkflowModal
+          show={showContinueWorkflowModal}
+          onClose={() => setShowContinueWorkflowModal(false)}
+          domainName={interruptedWorkflow.domainName}
+          antId={interruptedWorkflow.antId}
+          intentId={interruptedWorkflow.intent.intentId}
+        />
+      )}
+    </>
+  );
+}
+
+// Helper component to display role with pending intent indicator
+function RoleDisplay({
+  role,
+  domainName,
+  processId,
+}: {
+  role: string;
+  domainName: string;
+  processId: string;
+}) {
+  const { hasIntent, intent } = useANTIntent(processId);
+  const [showContinueWorkflowModal, setShowContinueWorkflowModal] =
+    useState(false);
+
+  if (role === 'marketplace') {
+    // For marketplace role, check if there's a pending intent
+    if (hasIntent && intent) {
+      return (
+        <>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowContinueWorkflowModal(true)}
+              className="relative flex items-center gap-2 hover:opacity-80 transition-opacity"
+            >
+              <div className="relative">
+                <Activity className="w-4 h-4 text-error animate-pulse" />
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping opacity-75"></div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
+              </div>
+              <span>Marketplace</span>
+            </button>
+          </div>
+          {showContinueWorkflowModal && (
+            <ContinueWorkflowModal
+              show={showContinueWorkflowModal}
+              onClose={() => setShowContinueWorkflowModal(false)}
+              domainName={domainName}
+              antId={processId}
+              intentId={intent.intentId}
+            />
+          )}
+        </>
+      );
+    }
+
+    // Normal marketplace display
+    return (
+      <div className="flex items-center gap-2">
+        <StoreIcon className="w-4 h-4 text-blue-400" />
+        <span>Marketplace</span>
+      </div>
+    );
+  }
+
+  // For other roles, check if there's a pending intent
+  if (hasIntent && intent) {
+    return (
+      <>
+        <button
+          onClick={() => setShowContinueWorkflowModal(true)}
+          className="relative flex items-center gap-2 hover:opacity-80 transition-opacity"
+        >
+          <div className="relative">
+            <span>{capitalize(role)}</span>
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping opacity-75"></div>
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
+          </div>
+        </button>
+        {showContinueWorkflowModal && (
+          <ContinueWorkflowModal
+            show={showContinueWorkflowModal}
+            onClose={() => setShowContinueWorkflowModal(false)}
+            domainName={domainName}
+            antId={processId}
+            intentId={intent.intentId}
+          />
+        )}
+      </>
+    );
+  }
+
+  // Normal role display
+  return capitalize(role);
+}
+
 const DomainsTable = ({
   domainData,
   loading,
@@ -134,6 +301,7 @@ const DomainsTable = ({
       antRegistryProcessId,
       gateway,
       minimumANTVersionForMarketplace,
+      marketplaceProcessId,
     },
   ] = useGlobalState();
   const [{ loading: loadingArnsState }, dispatchArNSState] = useArNSState();
@@ -174,14 +342,6 @@ const DomainsTable = ({
       | undefined
     >(undefined);
 
-  const [showContinueWorkflowModal, setShowContinueWorkflowModal] =
-    useState(false);
-  const [workflowToContinue, setWorkflowToContinue] = useState<{
-    domainName: string;
-    antId: string;
-    intentId: string;
-  } | null>(null);
-
   // Helper function to check if ANT is marketplace compatible
   const isMarketplaceCompatible = (antVersion: number): boolean => {
     return antVersion >= minimumANTVersionForMarketplace;
@@ -220,15 +380,25 @@ const DomainsTable = ({
               })
             : false);
 
+        // Determine role including marketplace ownership
+        const getRoleWithMarketplace = () => {
+          const owner = ant?.state?.Owner;
+          if (owner === marketplaceProcessId) {
+            return 'marketplace';
+          }
+          return (
+            getOwnershipStatus(
+              owner,
+              ant?.state?.Controllers,
+              walletAddress?.toString(),
+            ) ?? 'N/A'
+          );
+        };
+
         const data: TableData = {
           openRow: <></>,
           name: domain,
-          role:
-            getOwnershipStatus(
-              ant?.state?.Owner,
-              ant?.state?.Controllers,
-              walletAddress?.toString(),
-            ) ?? 'N/A',
+          role: getRoleWithMarketplace(),
           processId: record.processId,
           targetId: ant?.state?.Records?.['@']?.transactionId ?? 'N/A',
           ioCompatible,
@@ -339,10 +509,6 @@ const DomainsTable = ({
             );
           }
           case 'name': {
-            const isInterrupted = interruptedWorkflows.some(
-              (workflow) => workflow.domainName === rowValue,
-            );
-
             return (
               <div className="flex items-center gap-2">
                 <Tooltip
@@ -368,18 +534,22 @@ const DomainsTable = ({
                     </Link>
                   }
                 />
-                {isInterrupted && (
-                  <InterruptedWorkflowIndicator
-                    domainName={rowValue}
-                    size="sm"
-                    className="cursor-pointer"
-                  />
-                )}
               </div>
             );
           }
-          case 'role':
-            return capitalize(row.getValue(key));
+          case 'role': {
+            const role = row.getValue(key) as string;
+            const domainName = row.getValue('name') as string;
+            const processId = row.getValue('processId') as string;
+
+            return (
+              <RoleDisplay
+                role={role}
+                domainName={domainName}
+                processId={processId}
+              />
+            );
+          }
           case 'processId': {
             return (
               <ArweaveID
@@ -606,34 +776,27 @@ const DomainsTable = ({
                   {(() => {
                     const domainName = row.getValue('name') as string;
                     const processId = row.getValue('processId') as string;
+                    const role = row.getValue('role') as string;
                     const interruptedWorkflow = getInterruptedWorkflowForDomain(
                       domainName,
                       processId,
                     );
 
+                    // If domain is owned by marketplace, show marketplace link or activity icon
+                    if (role === 'marketplace' && !interruptedWorkflow) {
+                      return (
+                        <MarketplaceActionIcon
+                          domainName={domainName}
+                          processId={processId}
+                        />
+                      );
+                    }
+
                     if (interruptedWorkflow) {
                       // Show interrupted workflow icon
                       return (
-                        <Tooltip
-                          message="Continue interrupted workflow"
-                          icon={
-                            <button
-                              onClick={() => {
-                                setWorkflowToContinue({
-                                  domainName: interruptedWorkflow.domainName,
-                                  antId: interruptedWorkflow.antId,
-                                  intentId: interruptedWorkflow.intentId,
-                                });
-                                setShowContinueWorkflowModal(true);
-                              }}
-                            >
-                              <div className="relative">
-                                <AlertTriangle className="w-[18px] text-warning hover:text-warning-light transition-colors" />
-                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-warning rounded-full animate-ping opacity-75"></div>
-                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-warning rounded-full"></div>
-                              </div>
-                            </button>
-                          }
+                        <InterruptedWorkflowAction
+                          interruptedWorkflow={interruptedWorkflow}
                         />
                       );
                     } else {
@@ -849,23 +1012,6 @@ const DomainsTable = ({
               });
               setShowListForSaleModal(true);
             }
-          }}
-        />
-      )}
-      {workflowToContinue && (
-        <ContinueWorkflowModal
-          show={showContinueWorkflowModal}
-          onClose={() => {
-            setShowContinueWorkflowModal(false);
-            setWorkflowToContinue(null);
-          }}
-          domainName={workflowToContinue.domainName}
-          antId={workflowToContinue.antId}
-          intentId={workflowToContinue.intentId}
-          onWorkflowContinued={() => {
-            // Refresh the data after workflow is continued
-            setShowContinueWorkflowModal(false);
-            setWorkflowToContinue(null);
           }}
         />
       )}

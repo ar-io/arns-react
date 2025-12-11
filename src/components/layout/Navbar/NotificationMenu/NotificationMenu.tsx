@@ -341,7 +341,7 @@ function NotificationMenu() {
                           setWorkflowToContinue({
                             domainName: firstWorkflow.domainName,
                             antId: firstWorkflow.antId,
-                            intentId: firstWorkflow.intentId,
+                            intentId: firstWorkflow.intent.intentId,
                           });
                           setShowContinueWorkflowModal(true);
                         }
@@ -385,10 +385,6 @@ function NotificationMenu() {
           domainName={workflowToContinue.domainName}
           antId={workflowToContinue.antId}
           intentId={workflowToContinue.intentId}
-          onWorkflowContinued={() => {
-            setShowContinueWorkflowModal(false);
-            setWorkflowToContinue(null);
-          }}
         />
       )}
     </>

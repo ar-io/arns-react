@@ -1,3 +1,4 @@
+import { mARIOToken } from '@ar.io/sdk';
 import { Tooltip } from '@src/components/data-display';
 import { InfoIcon } from '@src/components/icons';
 import DateTimePicker from '@src/components/inputs/DateTimePicker/DateTimePicker';
@@ -47,7 +48,9 @@ function FixedPricePanel({
   // Set initial price based on market value when data loads
   useEffect(() => {
     if (domainPrices && !listingPrice && domainPrices.buy > 0) {
-      const marketPrice = Math.ceil(domainPrices.buy / 1000000); // Convert from mARIO to ARIO
+      const marketPrice = Math.ceil(
+        new mARIOToken(domainPrices.buy).toARIO().valueOf(),
+      ); // Convert from mARIO to ARIO
       setListingPrice(marketPrice);
       setCustomValue(marketPrice.toString());
     }

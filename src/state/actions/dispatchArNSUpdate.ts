@@ -85,6 +85,8 @@ export async function dispatchArNSUpdate({
     );
     console.log('marketplaceUserAssets', marketplaceUserAssets);
     const userDomains: Record<string, AoArNSNameData> = {};
+
+    // get owned domains
     let cursor: string | undefined = undefined;
     let hasMore = true;
     while (hasMore) {
@@ -99,6 +101,26 @@ export async function dispatchArNSUpdate({
       });
       cursor = res.nextCursor;
       hasMore = res.hasMore;
+    }
+
+    // get marketplace domains
+    // TODO: remove once ant's don't remove the controllers on transfer (should still show up in the ant registry as controller)
+    // Need to do this seperately since the current api in the sdk above for user domains doesn't support the marketplace escrowed assets
+    let marketplaceCursor: string | undefined = undefined;
+    let marketplaceHasMore = true;
+    while (marketplaceHasMore) {
+      const marketplaceRes = await arioContract.getArNSRecords({
+        limit: 1000,
+        cursor: marketplaceCursor,
+        filters: {
+          processId: marketplaceUserAssets.antIds,
+        },
+      });
+      marketplaceRes.items.forEach((record) => {
+        userDomains[record.name] = record;
+      });
+      marketplaceCursor = marketplaceRes.nextCursor;
+      marketplaceHasMore = marketplaceRes.hasMore;
     }
 
     // ONLY QUERY FOR ANTS THAT WE ARE INTERESTED IN, EG REGISTERED ANTS

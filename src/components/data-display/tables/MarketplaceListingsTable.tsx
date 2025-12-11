@@ -19,7 +19,7 @@ import {
 import { formatARIOWithCommas } from '@src/utils/common/common';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { Tooltip } from 'antd';
-import { ExternalLink, ShoppingCart } from 'lucide-react';
+import { ExternalLink, ShoppingCart, StoreIcon } from 'lucide-react';
 import { ReactNode, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import TableView from './TableView';
@@ -115,7 +115,7 @@ function MarketplaceListingsTable() {
               to={`/marketplace/names/${antToNameMap[order.dominantToken]}`}
               className="flex items-center gap-1 px-3 py-1 bg-primary text-black rounded text-sm hover:bg-primary-light transition-colors"
             >
-              <ShoppingCart className="w-4 h-4" />
+              <StoreIcon className="w-4 h-4" />
               View
             </Link>
             <Tooltip title="View on ArNS">

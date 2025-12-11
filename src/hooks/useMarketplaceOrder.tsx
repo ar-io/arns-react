@@ -21,12 +21,16 @@ export function buildMarketplaceOrderQuery({
       marketplaceProcessId,
       aoNetwork.ARIO,
     ],
-    queryFn: () => {
+    queryFn: async () => {
       if (!antId) throw new Error('No ANT ID provided to fetch order');
-      return marketplaceContract.getOrderByANTId(antId).catch((error) => {
-        console.error('Error fetching marketplace order', error);
-        throw error;
-      });
+      const res = await marketplaceContract
+        .getOrderByANTId(antId)
+        .catch((error) => {
+          console.error('Error fetching marketplace order', error);
+          throw error;
+        });
+      if (res.dominantToken !== antId) throw new Error('Order not found');
+      return res;
     },
     enabled:
       !!marketplaceContract &&

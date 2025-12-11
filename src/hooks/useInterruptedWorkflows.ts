@@ -6,7 +6,7 @@ import { useMarketplaceUserAssets } from './useMarketplaceUserAssets';
 export interface InterruptedWorkflow {
   domainName: string;
   antId: string;
-  intentId: string;
+  intent: MarketplaceIntent;
 }
 
 /**
@@ -46,16 +46,15 @@ export function useInterruptedWorkflows(
 
     // Check if there's a pending intent for this ANT
     const antIntent = intents.find(
-      (intent: MarketplaceIntent) =>
-        intent.antProcessId === antId && intent.status === 'pending',
+      (intent: MarketplaceIntent) => intent.antProcessId === antId,
     );
 
-    // If there's an intent and the ANT owner is still the user, it's interrupted
-    if (antIntent && ant.state.Owner === walletAddress.toString()) {
+    // If there's an intent it's interrupted
+    if (antIntent) {
       interruptedWorkflows.push({
         domainName,
         antId,
-        intentId: antIntent.intentId,
+        intent: antIntent,
       });
     }
   });

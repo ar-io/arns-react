@@ -18,11 +18,11 @@ import { decodeDomainToASCII, isArweaveTransactionID } from '@src/utils';
 import { formatARIOWithCommas } from '@src/utils/common/common';
 import { DEFAULT_ANT_LOGO } from '@src/utils/constants';
 import { ReactNode, useCallback, useState } from 'react';
-import { Link } from 'react-router-dom';
 
 export type ConfirmListingPanelProps = {
   domainName: string;
   antId?: string;
+  listingType: 'fixed' | 'dutch' | 'english';
   listingPrice: number;
   arioTicker: string;
   arIoPrice?: number;
@@ -35,6 +35,7 @@ export type ConfirmListingPanelProps = {
 function ConfirmListingPanel({
   domainName,
   antId,
+  listingType,
   listingPrice,
   arioTicker,
   arIoPrice,
@@ -98,8 +99,21 @@ function ConfirmListingPanel({
 
   const { listingFee, saleTax, youWillReceive } = calculateFees();
 
+  const getListingTypeLabel = () => {
+    switch (listingType) {
+      case 'fixed':
+        return 'Fixed Price';
+      case 'dutch':
+        return 'Dutch Auction';
+      case 'english':
+        return 'English Auction';
+      default:
+        return 'Unknown';
+    }
+  };
+
   const orderSummary: Record<string, ReactNode> = {
-    'Listing Type': 'Fixed Price',
+    'Listing Type': getListingTypeLabel(),
     'Domain Name': domainName,
     'Current Owner':
       walletAddress?.toString().slice(0, 8) +
