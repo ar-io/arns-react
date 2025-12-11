@@ -46,6 +46,7 @@ import {
   lowerCaseDomain,
 } from '@src/utils';
 import {
+  ARIO_DISCORD_LINK,
   MIN_ANT_VERSION,
   PERMANENT_DOMAIN_MESSAGE,
 } from '@src/utils/constants';
@@ -54,7 +55,14 @@ import { queryClient } from '@src/utils/network';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { capitalize } from 'lodash';
 import { Activity, StoreIcon } from 'lucide-react';
-import { AlertTriangle, CircleCheck, DollarSign, Star } from 'lucide-react';
+import {
+  AlertTriangle,
+  CircleCheck,
+  Copy,
+  DollarSign,
+  ExternalLink,
+  Star,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link, useNavigate } from 'react-router-dom';
@@ -115,6 +123,86 @@ function filterTableData(filter: string, data: TableData[]): TableData[] {
   return results;
 }
 
+// Helper component for error state configuration
+function ErrorStateTooltip({
+  domainName,
+  antId,
+}: { domainName: string; antId: string }) {
+  const [{ walletAddress }] = useWalletState();
+  const [copied, setCopied] = useState(false);
+
+  const errorConfig = {
+    domainName,
+    antId,
+    userAddress: walletAddress?.toString() || 'N/A',
+    timestamp: new Date().toISOString(),
+    issue: 'Marketplace owns ANT but no order exists',
+  };
+
+  const configText = JSON.stringify(errorConfig, null, 2);
+
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(configText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+    }
+  };
+
+  const handleDiscordClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    window.open(ARIO_DISCORD_LINK, '_blank', 'noopener,noreferrer');
+  };
+
+  return (
+    <Tooltip
+      message={
+        <div className="flex flex-col gap-3 max-w-sm">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-error" />
+            <span className="text-sm font-medium text-error">
+              Error State Detected
+            </span>
+          </div>
+
+          <p className="text-xs text-grey">
+            The marketplace owns this ANT but there is no corresponding order.
+            This requires team intervention.
+          </p>
+
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={handleCopy}
+              className="flex items-center gap-2 px-2 py-1 bg-dark-grey rounded text-xs hover:bg-background-secondary transition-colors"
+            >
+              <Copy className="w-3 h-3" />
+              {copied ? 'Copied!' : 'Copy Config'}
+            </button>
+
+            <button
+              onClick={handleDiscordClick}
+              className="flex items-center gap-2 px-2 py-1 bg-blue-600 rounded text-xs hover:bg-blue-700 transition-colors"
+            >
+              <ExternalLink className="w-3 h-3" />
+              Report to Discord
+            </button>
+          </div>
+        </div>
+      }
+      icon={
+        <div className="relative">
+          <AlertTriangle className="w-[18px] h-[18px] text-error hover:text-error transition-colors animate-pulse" />
+        </div>
+      }
+    />
+  );
+}
+
 // Helper component to determine the correct icon for marketplace-owned domains
 function MarketplaceActionIcon({
   domainName,
@@ -128,6 +216,11 @@ function MarketplaceActionIcon({
 
   // If there's an intent but no order (or order fetch failed), show Activity icon
   const hasOrder = order && !orderError;
+
+  // Error state: no intent and no order (marketplace owns ANT but nothing exists)
+  if (!hasIntent && !hasOrder) {
+    return <ErrorStateTooltip domainName={domainName} antId={processId} />;
+  }
 
   if (hasIntent && !hasOrder) {
     return (

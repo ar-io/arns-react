@@ -102,6 +102,7 @@ export async function dispatchArNSUpdate({
       cursor = res.nextCursor;
       hasMore = res.hasMore;
     }
+    console.log('userDomains', userDomains);
 
     // get marketplace domains
     // TODO: remove once ant's don't remove the controllers on transfer (should still show up in the ant registry as controller)
@@ -122,6 +123,7 @@ export async function dispatchArNSUpdate({
       marketplaceCursor = marketplaceRes.nextCursor;
       marketplaceHasMore = marketplaceRes.hasMore;
     }
+    console.log('marketplaceUserDomains', userDomains);
 
     // ONLY QUERY FOR ANTS THAT WE ARE INTERESTED IN, EG REGISTERED ANTS
     const registeredUserAnts = Array.from(
@@ -131,6 +133,7 @@ export async function dispatchArNSUpdate({
           .concat(marketplaceUserAssets.antIds),
       ),
     );
+    console.log('registeredUserAnts', registeredUserAnts);
 
     // Fetch ANT Process meta from graphql
     const antMetas = (await queryClient
