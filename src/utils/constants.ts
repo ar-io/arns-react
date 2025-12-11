@@ -355,6 +355,7 @@ export const ETH_USDC_CONTRACT =
   '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' as const;
 export const BASE_USDC_CONTRACT =
   '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' as const;
+// Official AR.IO ARIO token on Base — https://basescan.org/token/0x138746adfA52909E5920def027f5a8dc1C7EfFb6
 export const BASE_ARIO_CONTRACT =
   '0x138746adfA52909E5920def027f5a8dc1C7EfFb6' as const;
 export const POLYGON_USDC_CONTRACT =
