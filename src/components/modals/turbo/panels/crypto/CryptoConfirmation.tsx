@@ -230,18 +230,13 @@ function CryptoConfirmation({
   const afterTokenBalance = useMemo(() => {
     if (!currentTokenBalance) return null;
     const afterValue = currentTokenBalance.value - cryptoAmount;
-    const isUsdc = ['usdc', 'base-usdc', 'polygon-usdc'].includes(tokenType);
-    const isBaseArio = tokenType === 'base-ario';
-    // USDC and base-ario use 2 decimals, others use 6
-    const decimals = isUsdc || isBaseArio ? 2 : 6;
     return {
       value: afterValue,
-      formatted:
-        afterValue >= 0 ? afterValue.toFixed(decimals) : 'Insufficient',
+      formatted: afterValue >= 0 ? afterValue.toFixed(6) : 'Insufficient',
       symbol: currentTokenBalance.symbol,
       isInsufficient: afterValue < 0,
     };
-  }, [currentTokenBalance, cryptoAmount, tokenType]);
+  }, [currentTokenBalance, cryptoAmount]);
 
   // Fetch quote for the crypto amount
   useEffect(() => {
