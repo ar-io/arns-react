@@ -257,7 +257,7 @@ export async function executeBaseTokenPurchase({
     // Stage 4: Top up credits
     onProgress?.(
       'topping-up',
-      `Topping up with ${tokenAmount.toFixed(tokenType === 'base-usdc' ? 2 : 6)} ${config.symbol}...`,
+      `Topping up with ${tokenAmount.toFixed(tokenType === 'base-usdc' || tokenType === 'base-ario' ? 2 : 6)} ${config.symbol}...`,
     );
 
     let topUpResult;
@@ -297,7 +297,7 @@ export async function executeBaseTokenPurchase({
         errorMessage.toLowerCase().includes('not enough')
       ) {
         throw new TopUpError(
-          `Insufficient ${config.symbol} balance. You need at least ${tokenAmount.toFixed(tokenType === 'base-usdc' ? 2 : 6)} ${config.symbol} plus gas fees.`,
+          `Insufficient ${config.symbol} balance. You need at least ${tokenAmount.toFixed(tokenType === 'base-usdc' || tokenType === 'base-ario' ? 2 : 6)} ${config.symbol} plus gas fees.`,
         );
       }
 
@@ -429,7 +429,8 @@ export async function estimateBaseTokenAmount(
     turboNetwork,
   );
 
-  const decimals = tokenType === 'base-usdc' ? 2 : 6;
+  const decimals =
+    tokenType === 'base-usdc' || tokenType === 'base-ario' ? 2 : 6;
   return {
     tokenAmount,
     symbol: config.symbol,
