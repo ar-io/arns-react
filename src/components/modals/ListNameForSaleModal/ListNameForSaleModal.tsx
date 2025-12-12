@@ -12,6 +12,7 @@ import {
   ArNSMarketplaceWrite,
   createAoSigner,
 } from '@ar.io/sdk';
+import { connect } from '@permaweb/aoconnect';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
@@ -39,7 +40,7 @@ function ListNameForSaleModal({
   domainName,
   antId,
 }: ListNameForSaleModalProps) {
-  const [{ arioTicker, aoClient, marketplaceProcessId, arioContract }] =
+  const [{ arioTicker, marketplaceProcessId, arioContract, aoClient }] =
     useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const { data: arIoPrice } = useArIoPrice();
@@ -117,11 +118,29 @@ function ListNameForSaleModal({
             walletAddress: walletAddress.toString(),
           });
 
+          // we need to reset the query states for orders and ant state.
+          queryClient.resetQueries({
+            predicate: (query) =>
+              query.queryKey.some(
+                (key: unknown) =>
+                  typeof key === 'string' && key.startsWith('marketplace'),
+              ),
+          });
+          queryClient.resetQueries({
+            predicate: (query) =>
+              query.queryKey.some(
+                (key: unknown) =>
+                  (typeof key === 'string' && key.includes(domainName)) ||
+                  (typeof key === 'string' && key.includes(antId ?? '')),
+              ),
+          });
+
           break;
         }
         default:
           throw new Error('Invalid listing type');
       }
+      console.log('result', result);
       eventEmitter.emit('success', {
         name: 'List Name for Sale',
         message: (
@@ -138,7 +157,11 @@ function ListNameForSaleModal({
             <span>
               View transfer on aolink{' '}
               <ArweaveID
-                id={new ArweaveTransactionID(result.antTransferResult?.id)}
+                id={
+                  result.antTransferResult?.id
+                    ? new ArweaveTransactionID(result.antTransferResult?.id)
+                    : '0xanErrorOccured'
+                }
                 type={ArweaveIdTypes.INTERACTION}
               />
             </span>

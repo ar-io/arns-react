@@ -5,6 +5,7 @@ import {
   createAoSigner,
   mARIOToken,
 } from '@ar.io/sdk';
+import { connect } from '@permaweb/aoconnect';
 import MarketplaceOrderInfoCard, {
   MarketplaceOrderConfig,
 } from '@src/components/cards/MarketplaceOrderInfoCard';

@@ -54,7 +54,7 @@ export async function dispatchArNSUpdate({
       queryKey: ['ant-info'],
     });
     queryClient.resetQueries({
-      queryKey: ['marketplace-user-assets'],
+      predicate: (query) => query.queryKey[0] === 'marketplace-user-assets',
     });
 
     dispatch({ type: 'reset' });
@@ -72,8 +72,6 @@ export async function dispatchArNSUpdate({
       process: new AOProcess({ processId: marketplaceProcessId, ao }),
     });
 
-    console.log('marketplaceContract', marketplaceContract);
-
     const marketplaceUserAssets = await queryClient.fetchQuery(
       buildMarketplaceUserAssetsQuery({
         address: walletAddress.toString(),
@@ -83,7 +81,7 @@ export async function dispatchArNSUpdate({
         aoNetwork: aoNetworkSettings,
       }),
     );
-    console.log('marketplaceUserAssets', marketplaceUserAssets);
+
     const userDomains: Record<string, AoArNSNameData> = {};
 
     // get owned domains
@@ -102,10 +100,10 @@ export async function dispatchArNSUpdate({
       cursor = res.nextCursor;
       hasMore = res.hasMore;
     }
-    console.log('userDomains', userDomains);
 
     // get marketplace domains
-    // TODO: remove once ant's don't remove the controllers on transfer (should still show up in the ant registry as controller)
+    // TODO: maybe remove once ant's don't remove the controllers on transfer (should still show up in the ant registry as controller)
+    // Might be nice as a catch in case ants have a bug where they remove the controllers on transfer unintentionally.
     // Need to do this seperately since the current api in the sdk above for user domains doesn't support the marketplace escrowed assets
     let marketplaceCursor: string | undefined = undefined;
     let marketplaceHasMore = true;
@@ -133,7 +131,6 @@ export async function dispatchArNSUpdate({
           .concat(marketplaceUserAssets.antIds),
       ),
     );
-    console.log('registeredUserAnts', registeredUserAnts);
 
     // Fetch ANT Process meta from graphql
     const antMetas = (await queryClient

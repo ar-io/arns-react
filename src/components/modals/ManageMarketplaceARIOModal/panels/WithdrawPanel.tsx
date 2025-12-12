@@ -5,6 +5,7 @@ import {
   ArNSMarketplaceWrite,
   createAoSigner,
 } from '@ar.io/sdk';
+import { connect } from '@permaweb/aoconnect';
 import { Loader } from '@src/components/layout';
 import { useArIoPrice } from '@src/hooks/useArIOPrice';
 import { useMarketplaceUserAssets } from '@src/hooks/useMarketplaceUserAssets';
@@ -27,9 +28,9 @@ function WithdrawPanel({ onClose }: WithdrawPanelProps) {
     {
       arioTicker,
       arioContract,
-      aoClient,
       marketplaceContract,
       marketplaceProcessId,
+      aoClient,
     },
   ] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();

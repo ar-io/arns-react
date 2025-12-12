@@ -106,7 +106,8 @@ export const defaultArIO = ARIO.init({
   process: new AOProcess({
     processId: initialArioProcessId,
     ao: connect({
-      CU_URL: ARIO_AO_CU_URL,
+      // CU_URL: ARIO_AO_CU_URL,
+      CU_URL: 'http://localhost:6363',
       MODE: 'legacy',
     }),
   }),
@@ -116,7 +117,8 @@ export const defaultMarketplaceContract = new ArNSMarketplaceRead({
   process: new AOProcess({
     processId: initialMarketplaceProcessId,
     ao: connect({
-      CU_URL: ARIO_AO_CU_URL,
+      // CU_URL: ARIO_AO_CU_URL,
+      CU_URL: 'http://localhost:6363',
       MODE: 'legacy',
     }),
   }),

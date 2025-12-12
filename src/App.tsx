@@ -23,7 +23,7 @@ import './index.css';
 import { useGlobalState } from './state';
 
 // set the log level of ar-io-sdk
-Logger.default.setLogLevel('none');
+Logger.default.setLogLevel('info');
 
 const Manage = React.lazy(() => import('./components/pages/Manage/Manage'));
 const Home = React.lazy(() => import('./components/pages/Home/Home'));
