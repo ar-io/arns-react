@@ -163,6 +163,8 @@ function ListNameForSaleModal({
                     : '0xanErrorOccured'
                 }
                 type={ArweaveIdTypes.INTERACTION}
+                shouldLink
+                characterCount={8}
               />
             </span>
           </span>

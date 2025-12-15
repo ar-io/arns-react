@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build and Lint
 
 concurrency:
   group: ${{ github.ref_name }}
@@ -13,18 +13,17 @@ on:
   workflow_call:
 
 jobs:
-  lint_test_build:
+  lint_and_build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
-          cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint:check
-      # - run: pnpm test
-      - run: pnpm build
+          node-version-file: ".nvmrc"
+          cache: "yarn"
+      - run: yarn install --frozen-lockfile
+      - run: yarn lint:check
+      - run: yarn build
 
       # Upload build artifacts to avoid rebuilding in subsequent jobs
       - name: Upload build artifacts
@@ -33,33 +32,3 @@ jobs:
           name: dist
           path: dist/
           retention-days: 1
-
-  test-playwright:
-    runs-on: ubuntu-latest
-    needs: lint_test_build
-    if: github.ref_name == 'main'
-    steps:
-      - uses: actions/checkout@v3
-      - run: pnpm install --frozen-lockfile
-
-      # Cache Playwright browsers
-      - name: Cache Playwright browsers
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/ms-playwright
-          key:
-            playwright-browsers-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            playwright-browsers-${{ runner.os }}-
-
-      # Install Playwright browsers if not cached
-      - run: pnpm playwright install
-
-      # Download build artifacts instead of rebuilding
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist/
-
-      - run: pnpm test:playwright

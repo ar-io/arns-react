@@ -18,10 +18,11 @@ import {
 } from '@src/utils';
 import { formatARIOWithCommas } from '@src/utils/common/common';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
-import { Tooltip } from 'antd';
-import { ExternalLink, ShoppingCart, StoreIcon } from 'lucide-react';
+import { ExternalLink, Loader2, ShoppingCart, StoreIcon } from 'lucide-react';
 import { ReactNode, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+
+import Tooltip from '@src/components/Tooltips/Tooltip';
 import TableView from './TableView';
 
 type MarketplaceListing = {
@@ -73,25 +74,34 @@ function MarketplaceListingsTable() {
     error,
     refetch,
     isFetching,
+    isRefetching,
+    isPending,
   } = useMarketplaceOrders({
     limit: 100,
     sortBy: 'createdAt',
     sortOrder: 'desc',
   });
 
-  // Transform orders data into table format
-  const tableData = useMemo(() => {
-    if (!ordersData?.items) return [];
+  const loadingTableData = useMemo(() => {
+    return isLoading || isFetching || isRefetching || isPending;
+  }, [isLoading, isFetching, isRefetching, isPending]);
 
-    if (!arnsRecords) return [];
-
-    const antToNameMap = arnsRecords.reduce(
+  const antToNameMap = useMemo(() => {
+    if (!arnsRecords) return {};
+    return arnsRecords.reduce(
       (acc: Record<string, string>, record: AoArNSNameDataWithName) => {
         acc[record.processId] = record.name;
         return acc;
       },
       {} as Record<string, string>,
     );
+  }, [arnsRecords]);
+
+  // Transform orders data into table format
+  const tableData = useMemo(() => {
+    if (!ordersData?.items) return [];
+
+    if (!arnsRecords) return [];
 
     return ordersData.items.map((order: Order): MarketplaceListing => {
       const priceInARIO = mARIOToTokenAmount(order.price ?? 0); // Convert from mARIO to ARIO
@@ -110,29 +120,18 @@ function MarketplaceListingsTable() {
         expiresAt: order.expirationTime || null,
         type: order.orderType,
         action: (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-end pr-2 gap-2">
             <Link
               to={`/marketplace/names/${antToNameMap[order.dominantToken]}`}
               className="flex items-center gap-1 px-3 py-1 bg-primary text-black rounded text-sm hover:bg-primary-light transition-colors"
             >
-              <StoreIcon className="w-4 h-4" />
-              View
+              View Listing
             </Link>
-            <Tooltip title="View on ArNS">
-              <a
-                href={`https://${antToNameMap[order.dominantToken]}.ar-io.dev`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 px-2 py-1 border border-grey rounded text-sm hover:bg-dark-grey transition-colors"
-              >
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            </Tooltip>
           </div>
         ),
       };
     });
-  }, [ordersData, arIoPrice]);
+  }, [ordersData, arIoPrice, antToNameMap]);
 
   // Filter data based on search
   const filteredData = useMemo(
@@ -152,16 +151,34 @@ function MarketplaceListingsTable() {
 
           return (
             <div className="flex items-center gap-2">
-              <Link
-                to={`/marketplace/listing/${name}`}
-                className="text-primary hover:text-primary-light transition-colors font-medium"
-              >
-                {formatForMaxCharCount(decodedName, 30)}
-              </Link>
+              <>
+                {' '}
+                <Link
+                  to={`/marketplace/listing/${name}`}
+                  className="text-link hover:text-primary-light transition-colors font-medium"
+                >
+                  {formatForMaxCharCount(decodedName, 30)}
+                </Link>
+                <Tooltip
+                  message="View on ArNS"
+                  icon={
+                    <a
+                      href={`https://${antToNameMap[row.original.antId]}.ar-io.dev`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 px-2 py-1 rounded text-sm hover:bg-dark-grey transition-colors"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  }
+                />
+              </>
+
               {name !== decodedName && (
-                <Tooltip title={`Original: ${name}`}>
-                  <span className="text-xs text-grey">IDN</span>
-                </Tooltip>
+                <Tooltip
+                  message={`Original: ${name}`}
+                  icon={<span className="text-xs text-grey">IDN</span>}
+                />
               )}
             </div>
           );
@@ -263,9 +280,50 @@ function MarketplaceListingsTable() {
           try {
             const date = new Date(listedAt);
             return (
-              <Tooltip title={formatVerboseDate(date.getTime())}>
-                <span className="text-sm">{date.toLocaleDateString()}</span>
-              </Tooltip>
+              <Tooltip
+                message={formatVerboseDate(date.getTime())}
+                icon={
+                  <span className="text-sm">{date.toLocaleDateString()}</span>
+                }
+              />
+            );
+          } catch {
+            return <span className="text-grey">Invalid date</span>;
+          }
+        },
+      }),
+      columnHelper.display({
+        id: 'expiresAt',
+        header: 'Expires At',
+        cell: ({ row }) => {
+          const expiresAt = row.original.expiresAt;
+
+          if (!expiresAt) return <span className="text-grey">Never</span>;
+
+          try {
+            const date = new Date(expiresAt);
+            const now = new Date();
+            const isExpired = date < now;
+            const isExpiringSoon =
+              date.getTime() - now.getTime() < 24 * 60 * 60 * 1000; // Less than 24 hours
+
+            return (
+              <Tooltip
+                message={formatVerboseDate(date.getTime())}
+                icon={
+                  <span
+                    className={`text-sm ${
+                      isExpired
+                        ? 'text-error'
+                        : isExpiringSoon
+                          ? 'text-warning'
+                          : 'text-white'
+                    }`}
+                  >
+                    {isExpired ? 'Expired' : date.toLocaleDateString()}
+                  </span>
+                }
+              />
             );
           } catch {
             return <span className="text-grey">Invalid date</span>;
@@ -274,7 +332,7 @@ function MarketplaceListingsTable() {
       }),
       columnHelper.display({
         id: 'action',
-        header: 'Actions',
+        header: '',
         cell: ({ row }) => row.original.action,
       }),
     ],
@@ -284,7 +342,7 @@ function MarketplaceListingsTable() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center">
-        <div className="text-red-400 mb-4">
+        <div className="text-error mb-4">
           Failed to load marketplace listings
         </div>
         <button
@@ -312,17 +370,19 @@ function MarketplaceListingsTable() {
         </div>
         <button
           onClick={() => refetch()}
-          disabled={isLoading || isFetching}
+          disabled={loadingTableData}
           className="flex items-center gap-2 px-3 py-1 border border-grey rounded text-sm hover:bg-dark-grey transition-colors disabled:opacity-50 text-white fill-white"
         >
-          <RefreshIcon
-            className={`w-4 h-4 ${isLoading || isFetching ? 'animate-spin' : ''}`}
-          />
+          {!loadingTableData ? (
+            <RefreshIcon className={`w-4 h-4`} />
+          ) : (
+            <Loader2 className={`w-4 h-4 animate-spin`} />
+          )}
           Refresh
         </button>
       </div>
 
-      {isLoading ? (
+      {loadingTableData ? (
         <div className="flex items-center justify-center p-8">
           <Loader size={32} />
           <span className="ml-3 text-grey">Loading listings...</span>

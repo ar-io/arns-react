@@ -85,7 +85,9 @@ function ConfirmListingPanel({
       .toARIO()
       .valueOf();
 
-    const youWillReceive = listingPrice - totalFees;
+    // Only deduct sale tax from received amount - listing fee is paid upfront
+    const youWillReceive =
+      listingPrice - new mARIOToken(Number(saleTax)).toARIO().valueOf();
 
     return {
       listingFee: new mARIOToken(Number(listingFee.valueOf()))
@@ -153,7 +155,7 @@ function ConfirmListingPanel({
         <div className="flex items-center gap-1">
           <span>Listing Fee</span>
           <Tooltip
-            message={`1 ${arioTicker} per hour the listing is live`}
+            message={`1 ${arioTicker} per hour the listing is live (paid upfront)`}
             icon={
               <InfoIcon
                 style={{
@@ -221,7 +223,7 @@ function ConfirmListingPanel({
       ),
     },
     {
-      key: 'You will receive',
+      key: 'You will receive (after sale)',
       value: (
         <div className="flex flex-col items-end">
           <span className="text-white font-medium">
@@ -372,9 +374,9 @@ function ConfirmListingPanel({
                               Fees and escrow:
                               <ul className="list-decimal list-inside space-y-2 text-sm pl-4 pt-1">
                                 <li>
-                                  A listing fee will be charged to list your
-                                  name for sale commensurate with the scheduled
-                                  duration of the listing.
+                                  A listing fee will be charged upfront to list
+                                  your name for sale commensurate with the
+                                  scheduled duration of the listing.
                                 </li>
                                 <li>
                                   Marketplace fees will be deducted from the

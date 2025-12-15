@@ -53,7 +53,6 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@tests': path.resolve(__dirname) + '/tests',
       '@src': path.resolve(__dirname) + '/src',
     },
   },

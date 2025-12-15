@@ -7,31 +7,30 @@ on:
       - main
 
 jobs:
-  lint_and_test:
+  lint_and_build_check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint:check
-      # - run: yarn test
+          cache: 'yarn'
+      - run: yarn install --frozen-lockfile
+      - run: yarn lint:check
 
   build_for_production:
     runs-on: ubuntu-latest
-    needs: lint_and_test
+    needs: lint_and_build_check
     environment: production
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
+          cache: 'yarn'
+      - run: yarn install --frozen-lockfile
       - name: Build
-        run: pnpm build
+        run: yarn build
         env:
           VITE_NODE_ENV: production
           VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -97,8 +96,8 @@ jobs:
           name: dist-production
           path: dist/
 
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm deploy:arweave
+      - run: yarn install --frozen-lockfile
+      - run: yarn deploy:arweave
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
           VITE_ARNS_NAME: ${{ secrets.ARNS_NAME }}
