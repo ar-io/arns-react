@@ -36,6 +36,13 @@ export class MetamaskError extends NotificationOnlyError {
   }
 }
 
+export class EthereumWalletError extends NotificationOnlyError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'Ethereum Wallet';
+  }
+}
+
 export class BeaconError extends NotificationOnlyError {
   constructor(message: string) {
     super(message);
@@ -68,6 +75,20 @@ export class ANTStateError extends NotificationOnlyError {
   constructor(message: string) {
     super(message);
     this.name = 'ANT State';
+  }
+}
+
+export class BaseTokenError extends NotificationOnlyError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'Base Network';
+  }
+}
+
+export class TopUpError extends NotificationOnlyError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'Top Up';
   }
 }
 

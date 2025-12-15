@@ -4,6 +4,7 @@ import { useDemandFactor } from '@src/hooks/useDemandFactor';
 import { camelToReadable, lowerCaseDomain } from '@src/utils';
 import {
   ARNS_NAME_REGEX_PARTIAL,
+  BASE_NAME_FEES,
   MAX_ARNS_NAME_LENGTH,
 } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
@@ -22,29 +23,6 @@ type TableData = {
 } & Record<string, any>;
 
 const columnHelper = createColumnHelper<TableData>();
-
-const minFees = new Array(MAX_ARNS_NAME_LENGTH - 12)
-  .fill(true)
-  .reduce((acc, _, index) => {
-    acc[index + 13] = 200;
-    return acc;
-  }, {});
-
-const BASE_NAME_FEES: Record<number, number> = {
-  1: 1000000,
-  2: 200000,
-  3: 20000,
-  4: 10000,
-  5: 2500,
-  6: 1500,
-  7: 800,
-  8: 500,
-  9: 400,
-  10: 350,
-  11: 300,
-  12: 250,
-  ...minFees,
-};
 
 export default function Prices() {
   const { data: demandFactor, isLoading, error } = useDemandFactor();

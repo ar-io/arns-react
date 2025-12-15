@@ -8,9 +8,11 @@ import {
   MessageResult,
 } from '@ar.io/sdk/web';
 import {
+  ARIOToTokenAmount,
   ARToTokenAmount,
   CurrencyMap,
   ETHToTokenAmount,
+  POLToTokenAmount,
   TokenType,
   TurboFactory,
   TurboWincForFiatResponse,
@@ -420,8 +422,19 @@ export class TurboArNSClient {
     switch (tokenType) {
       case 'arweave':
         return ARToTokenAmount(amount);
+      case 'ario':
+        return ARIOToTokenAmount(amount);
       case 'ethereum':
+      case 'base-eth':
         return ETHToTokenAmount(amount);
+      case 'pol':
+        return POLToTokenAmount(amount);
+      case 'usdc':
+      case 'base-usdc':
+      case 'polygon-usdc':
+      case 'base-ario':
+        // USDC and Base ARIO use 6 decimals
+        return (amount * 1e6).toString();
       default:
         return undefined;
     }

@@ -8,6 +8,25 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.28.0] - 2025-12-10
+
+### Added
+
+- Base ARIO token support for Turbo credit top-ups and ArNS name purchases
+- "No fee" badges on ARIO token options in payment flows
+- ARIO token options prioritized at top of token selection
+
+### Changed
+
+- Upgraded @ardrive/turbo-sdk to 1.39.0-alpha.1 for Base ARIO support
+
+## [1.27.0] - 2025-12-04
+
+### Added
+
+- Rainbow Kit integration for multi-wallet support (100+ Ethereum wallets)
+- Crypto top-up options for Turbo credits
+
 ## [1.26.0] - 2025-11-21
 
 ### Added
