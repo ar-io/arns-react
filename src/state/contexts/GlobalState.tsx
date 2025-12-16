@@ -106,6 +106,7 @@ export const defaultArIO = ARIO.init({
     processId: initialArioProcessId,
     ao: connect({
       CU_URL: initialAoNetwork.ARIO.CU_URL,
+      MU_URL: initialAoNetwork.ARIO.MU_URL,
       MODE: 'legacy',
     }),
   }),
@@ -150,12 +151,14 @@ const initialState: GlobalState = {
   aoNetwork: initialAoNetwork,
   turboNetwork: initialTurboNetwork,
   aoClient: connect({
-    ...initialAoNetwork.ARIO,
-    GATEWAY_URL: 'https://' + initialGateway,
+    CU_URL: initialAoNetwork.ARIO.CU_URL,
+    MU_URL: initialAoNetwork.ARIO.MU_URL,
+    MODE: 'legacy',
   }),
   antAoClient: connect({
-    ...initialAoNetwork.ANT,
-    GATEWAY_URL: 'https://' + initialGateway,
+    CU_URL: initialAoNetwork.ANT.CU_URL,
+    MU_URL: initialAoNetwork.ANT.MU_URL,
+    MODE: 'legacy',
   }),
   hyperbeamUrl: initialHyperbeamUrl,
   blockHeight: undefined,
