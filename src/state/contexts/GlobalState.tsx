@@ -28,7 +28,6 @@ import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveComp
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import {
   APP_VERSION,
-  ARIO_AO_CU_URL,
   ARIO_PROCESS_ID,
   ARWEAVE_HOST,
   DEFAULT_ARWEAVE,
@@ -106,8 +105,7 @@ export const defaultArIO = ARIO.init({
   process: new AOProcess({
     processId: initialArioProcessId,
     ao: connect({
-      // CU_URL: ARIO_AO_CU_URL,
-      CU_URL: 'http://localhost:6363',
+      CU_URL: initialAoNetwork.ARIO.CU_URL,
       MODE: 'legacy',
     }),
   }),
@@ -117,8 +115,7 @@ export const defaultMarketplaceContract = new ArNSMarketplaceRead({
   process: new AOProcess({
     processId: initialMarketplaceProcessId,
     ao: connect({
-      // CU_URL: ARIO_AO_CU_URL,
-      CU_URL: 'http://localhost:6363',
+      CU_URL: initialAoNetwork.ARIO.CU_URL,
       MODE: 'legacy',
     }),
   }),
