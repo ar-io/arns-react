@@ -24,7 +24,7 @@ jobs:
             - name: Build application
               run: yarn build
 
-            - uses: permaweb/permaweb-deploy@v0.0.1
+            - uses: permaweb/permaweb-deploy@v0.0.2
               with:
                   deploy-key: ${{ secrets.DEPLOY_KEY }}
                   arns-name: ${{ secrets.ARNS_NAME }}
