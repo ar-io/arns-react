@@ -14,6 +14,7 @@ import { useGlobalState, useWalletState } from '@src/state';
 import { formatARIOWithCommas } from '@src/utils';
 import { getBaseChainId } from '@src/utils/baseNetwork';
 import {
+  BASE_ARIO_CONTRACT,
   BASE_TOKEN_CONFIG,
   BASE_USDC_CONTRACT,
   BaseTokenType,
@@ -354,11 +355,15 @@ function PaymentOptionsForm({
   // Build crypto dropdown options - include Base tokens for ETH wallets
   const cryptoDropdownOptions = useMemo(() => {
     const options: { label: string; value: CryptoOptions }[] = [
-      { label: formattedARIOTicker, value: formattedARIOTicker },
+      { label: `${formattedARIOTicker} (No fee)`, value: formattedARIOTicker },
     ];
 
     if (isEthereumWallet) {
       options.push(
+        {
+          label: `${BASE_TOKEN_CONFIG['base-ario'].label} (No fee)`,
+          value: 'base-ario' as const,
+        },
         {
           label: BASE_TOKEN_CONFIG['base-eth'].label,
           value: 'base-eth' as const,
@@ -426,6 +431,13 @@ function PaymentOptionsForm({
     token: BASE_USDC_CONTRACT,
   });
 
+  // Fetch ARIO balance on Base
+  const { data: baseArioBalance } = useBalance({
+    address: ethAddress,
+    chainId: getBaseChainId(),
+    token: BASE_ARIO_CONTRACT,
+  });
+
   // Format Base token balance for display
   const baseTokenBalance = useMemo(() => {
     if (!selectedBaseToken) return null;
@@ -441,8 +453,14 @@ function PaymentOptionsForm({
         formatted: `${Number(baseUsdcBalance.formatted).toFixed(2)} USDC`,
       };
     }
+    if (selectedBaseToken === 'base-ario' && baseArioBalance) {
+      return {
+        value: Number(baseArioBalance.formatted),
+        formatted: `${Number(baseArioBalance.formatted).toFixed(2)} ARIO`,
+      };
+    }
     return null;
-  }, [selectedBaseToken, baseEthBalance, baseUsdcBalance]);
+  }, [selectedBaseToken, baseEthBalance, baseUsdcBalance, baseArioBalance]);
 
   const selectedCryptoBalance = useMemo(() => {
     if (selectedCrypto === formattedARIOTicker) {

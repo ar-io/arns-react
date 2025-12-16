@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 const COINGECKO_IDS: Partial<Record<TokenType, string>> = {
   arweave: 'arweave',
   ario: 'ar-io-network',
+  'base-ario': 'ar-io-network', // Base ARIO is still ARIO
   ethereum: 'ethereum',
   'base-eth': 'ethereum', // Base ETH is still ETH
   pol: 'polygon-ecosystem-token',

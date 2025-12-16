@@ -1,7 +1,7 @@
 {
   "name": "arns-vite-react",
   "private": true,
-  "version": "1.27.0",
+  "version": "1.28.0",
   "homepage": ".",
   "scripts": {
     "build": "yarn clean && cross-env NODE_OPTIONS=--max-old-space-size=32768 vite build",
@@ -88,6 +88,7 @@
     "autoprefixer": "^10.4.20",
     "core-js": "^3.26.1",
     "cross-env": "^7.0.3",
+    "fake-indexeddb": "^6.0.0",
     "http-server": "^14.1.1",
     "husky": "^9.1.7",
     "lint-staged": "^13.1.0",
