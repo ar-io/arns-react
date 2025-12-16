@@ -5,6 +5,7 @@ on:
         types: [opened, synchronize, reopened, closed]
 jobs:
     deploy-preview:
+        environment: production
         runs-on: ubuntu-latest
         if: github.event.pull_request.head.repo.full_name == github.repository && github.event.action != 'closed'
 
