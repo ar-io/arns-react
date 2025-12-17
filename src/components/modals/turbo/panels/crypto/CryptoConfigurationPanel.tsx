@@ -283,9 +283,9 @@ function CryptoConfigurationPanel({
                       {tokenInfo?.name || token}
                       {isArioToken && (
                         <span
-                          className={`text-[8px] px-1 py-0.5 rounded ${
+                          className={`text-[8px] px-1 py-0.5 rounded font-medium ${
                             isSelected
-                              ? 'bg-green-600 text-white'
+                              ? 'bg-green-100 text-green-800'
                               : 'bg-green-600/20 text-green-400'
                           }`}
                         >
