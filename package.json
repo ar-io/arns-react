@@ -57,7 +57,7 @@
     "idb-keyval": "^6.2.1",
     "lodash": "^4.17.21",
     "lottie-react": "^2.4.0",
-    "lucide-react": "^0.438.0",
+    "lucide-react": "0.556.0",
     "permaweb-deploy": "^2.5.1",
     "plimit-lit": "^3.0.1",
     "puny-coder": "^1.0.1",

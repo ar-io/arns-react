@@ -15,14 +15,17 @@ import {
   decodeDomainToASCII,
   formatForMaxCharCount,
   formatVerboseDate,
+  lowerCaseDomain,
 } from '@src/utils';
 import { formatARIOWithCommas } from '@src/utils/common/common';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
-import { ExternalLink, Loader2, ShoppingCart, StoreIcon } from 'lucide-react';
-import { ReactNode, useMemo, useState } from 'react';
+import { BookSearch, ExternalLink, EyeIcon } from 'lucide-react';
+import React, { ReactNode, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import Tooltip from '@src/components/Tooltips/Tooltip';
+import ARIOLoadingSpinner from '@src/components/indicators/ARIOLoadingSpinner';
+import PageLoader from '@src/components/layout/progress/PageLoader/PageLoader';
 import TableView from './TableView';
 
 type MarketplaceListing = {
@@ -61,10 +64,19 @@ function filterTableData(
   });
 }
 
-function MarketplaceListingsTable() {
-  const [{ arioTicker }] = useGlobalState();
+interface MarketplaceListingsTableProps {
+  filter?: string;
+  refreshTrigger?: number;
+}
+
+function MarketplaceListingsTable({
+  filter: externalFilter = '',
+  refreshTrigger,
+}: MarketplaceListingsTableProps = {}) {
+  const [{ arioTicker, gateway }] = useGlobalState();
   const { data: arIoPrice } = useArIoPrice();
-  const [filter, setFilter] = useState('');
+  const [internalFilter] = useState('');
+  const filter = externalFilter !== undefined ? externalFilter : internalFilter;
   const { data: arnsRecords } = useArNSRecords();
 
   // Fetch marketplace orders
@@ -81,6 +93,13 @@ function MarketplaceListingsTable() {
     sortBy: 'createdAt',
     sortOrder: 'desc',
   });
+
+  // Trigger refetch when refreshTrigger changes
+  React.useEffect(() => {
+    if (refreshTrigger !== undefined && refreshTrigger > 0) {
+      refetch();
+    }
+  }, [refreshTrigger, refetch]);
 
   const loadingTableData = useMemo(() => {
     return isLoading || isFetching || isRefetching || isPending;
@@ -103,34 +122,54 @@ function MarketplaceListingsTable() {
 
     if (!arnsRecords) return [];
 
-    return ordersData.items.map((order: Order): MarketplaceListing => {
-      const priceInARIO = mARIOToTokenAmount(order.price ?? 0); // Convert from mARIO to ARIO
-      const priceUSD = arIoPrice
-        ? Number(priceInARIO.valueOf()) * arIoPrice
-        : undefined;
+    return ordersData.items
+      .map((order: Order): MarketplaceListing | undefined => {
+        const priceInARIO = mARIOToTokenAmount(order.price ?? 0); // Convert from mARIO to ARIO
+        const priceUSD = arIoPrice
+          ? Number(priceInARIO.valueOf()) * arIoPrice
+          : undefined;
 
-      return {
-        id: order.id,
-        name: antToNameMap[order.dominantToken] || null,
-        antId: order.dominantToken,
-        seller: order.creator,
-        price: Number(priceInARIO.valueOf()),
-        priceUSD,
-        listedAt: order.dateCreated,
-        expiresAt: order.expirationTime || null,
-        type: order.orderType,
-        action: (
-          <div className="flex items-center justify-end pr-2 gap-2">
-            <Link
-              to={`/marketplace/names/${antToNameMap[order.dominantToken]}`}
-              className="flex items-center gap-1 px-3 py-1 bg-primary text-black rounded text-sm hover:bg-primary-light transition-colors"
-            >
-              View Listing
-            </Link>
-          </div>
-        ),
-      };
-    });
+        const name = antToNameMap[order.dominantToken] || null;
+
+        // If no name related to the order, skip it - not a valid listing in our system
+        if (name === null) return undefined;
+
+        return {
+          id: order.id,
+          name,
+          antId: order.dominantToken,
+          seller: order.creator,
+          price: Number(priceInARIO.valueOf()),
+          priceUSD,
+          listedAt: order.dateCreated,
+          expiresAt: order.expirationTime || null,
+          type: order.orderType,
+          action: (
+            <div className="flex items-center justify-end pr-4 gap-2">
+              <Tooltip
+                message="View listing details"
+                icon={
+                  <Link to={`/marketplace/names/${name}`}>
+                    <BookSearch className="w-4 h-4 text-primary hover:text-white" />
+                  </Link>
+                }
+              />
+
+              <Tooltip
+                message="View name details"
+                icon={
+                  <Link to={`/manage/names/${name}`}>
+                    <EyeIcon className="w-4 h-4 text-grey hover:text-white" />
+                  </Link>
+                }
+              />
+            </div>
+          ),
+        };
+      })
+      .filter(
+        (listing): listing is MarketplaceListing => listing !== undefined,
+      );
   }, [ordersData, arIoPrice, antToNameMap]);
 
   // Filter data based on search
@@ -140,53 +179,39 @@ function MarketplaceListingsTable() {
   );
 
   // Define table columns
-  const columns = useMemo<ColumnDef<MarketplaceListing>[]>(
+  const columns = useMemo(
     () => [
-      columnHelper.display({
-        id: 'name',
+      columnHelper.accessor('name', {
         header: 'Name',
+        sortingFn: (rowA, rowB) => {
+          const nameA = rowA.original.name?.toLowerCase() ?? '';
+          const nameB = rowB.original.name?.toLowerCase() ?? '';
+          return nameA.localeCompare(nameB);
+        },
         cell: ({ row }) => {
           const name = row.original.name;
           const decodedName = name ? decodeDomainToASCII(name) : '';
 
           return (
-            <div className="flex items-center gap-2">
-              <>
-                {' '}
-                <Link
-                  to={`/marketplace/listing/${name}`}
-                  className="text-link hover:text-primary-light transition-colors font-medium"
-                >
-                  {formatForMaxCharCount(decodedName, 30)}
-                </Link>
-                <Tooltip
-                  message="View on ArNS"
-                  icon={
-                    <a
-                      href={`https://${antToNameMap[row.original.antId]}.ar-io.dev`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 px-2 py-1 rounded text-sm hover:bg-dark-grey transition-colors"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  }
-                />
-              </>
-
-              {name !== decodedName && (
-                <Tooltip
-                  message={`Original: ${name}`}
-                  icon={<span className="text-xs text-grey">IDN</span>}
-                />
-              )}
-            </div>
+            <a
+              href={`https://${lowerCaseDomain(decodedName)}.${gateway}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex px-2 py-1 rounded text-sm whitespace-nowrap text-link items-start cursor-pointer gap-2"
+            >
+              {formatForMaxCharCount(decodedName, 30)}{' '}
+              <ExternalLink className="w-4 h-4 text-grey" />
+            </a>
           );
         },
       }),
-      columnHelper.display({
-        id: 'type',
+      columnHelper.accessor('type', {
         header: 'Type',
+        sortingFn: (rowA, rowB) => {
+          const typeA = rowA.original.type?.toLowerCase() ?? '';
+          const typeB = rowB.original.type?.toLowerCase() ?? '';
+          return typeA.localeCompare(typeB);
+        },
         cell: ({ row }) => {
           const type = row.original.type;
 
@@ -211,9 +236,13 @@ function MarketplaceListingsTable() {
           );
         },
       }),
-      columnHelper.display({
-        id: 'price',
+      columnHelper.accessor('price', {
         header: 'Price',
+        sortingFn: (rowA, rowB) => {
+          const priceA = rowA.original.price ?? 0;
+          const priceB = rowB.original.price ?? 0;
+          return priceA - priceB;
+        },
         cell: ({ row }) => {
           const price = row.original.price;
           const priceUSD = row.original.priceUSD;
@@ -237,9 +266,13 @@ function MarketplaceListingsTable() {
           );
         },
       }),
-      columnHelper.display({
-        id: 'seller',
+      columnHelper.accessor('seller', {
         header: 'Seller',
+        sortingFn: (rowA, rowB) => {
+          const sellerA = rowA.original.seller?.toLowerCase() ?? '';
+          const sellerB = rowB.original.seller?.toLowerCase() ?? '';
+          return sellerA.localeCompare(sellerB);
+        },
         cell: ({ row }) => {
           const seller = row.original.seller;
 
@@ -253,9 +286,13 @@ function MarketplaceListingsTable() {
           );
         },
       }),
-      columnHelper.display({
-        id: 'antId',
+      columnHelper.accessor('antId', {
         header: 'ANT Process',
+        sortingFn: (rowA, rowB) => {
+          const antIdA = rowA.original.antId?.toLowerCase() ?? '';
+          const antIdB = rowB.original.antId?.toLowerCase() ?? '';
+          return antIdA.localeCompare(antIdB);
+        },
         cell: ({ row }) => {
           const antId = row.original.antId;
 
@@ -269,9 +306,13 @@ function MarketplaceListingsTable() {
           );
         },
       }),
-      columnHelper.display({
-        id: 'listedAt',
+      columnHelper.accessor('listedAt', {
         header: 'Listed',
+        sortingFn: (rowA, rowB) => {
+          const listedAtA = rowA.original.listedAt ?? 0;
+          const listedAtB = rowB.original.listedAt ?? 0;
+          return listedAtA - listedAtB;
+        },
         cell: ({ row }) => {
           const listedAt = row.original.listedAt;
 
@@ -292,9 +333,17 @@ function MarketplaceListingsTable() {
           }
         },
       }),
-      columnHelper.display({
-        id: 'expiresAt',
+      columnHelper.accessor('expiresAt', {
         header: 'Expires At',
+        sortingFn: (rowA, rowB) => {
+          // Handle null values - null (never expires) should sort to the end
+          const expiresAtA = rowA.original.expiresAt;
+          const expiresAtB = rowB.original.expiresAt;
+          if (expiresAtA === null && expiresAtB === null) return 0;
+          if (expiresAtA === null) return 1;
+          if (expiresAtB === null) return -1;
+          return expiresAtA - expiresAtB;
+        },
         cell: ({ row }) => {
           const expiresAt = row.original.expiresAt;
 
@@ -336,7 +385,7 @@ function MarketplaceListingsTable() {
         cell: ({ row }) => row.original.action,
       }),
     ],
-    [arioTicker],
+    [arioTicker, gateway],
   );
 
   if (error) {
@@ -357,58 +406,33 @@ function MarketplaceListingsTable() {
   }
 
   return (
-    <div className="flex w-full flex-col">
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center gap-4">
-          <h2 className="text-xl font-semibold text-white">Active Listings</h2>
-          {!isLoading && (
-            <span className="text-sm text-grey">
-              {filteredData.length} listing
-              {filteredData.length !== 1 ? 's' : ''}
-            </span>
-          )}
-        </div>
-        <button
-          onClick={() => refetch()}
-          disabled={loadingTableData}
-          className="flex items-center gap-2 px-3 py-1 border border-grey rounded text-sm hover:bg-dark-grey transition-colors disabled:opacity-50 text-white fill-white"
-        >
-          {!loadingTableData ? (
-            <RefreshIcon className={`w-4 h-4`} />
+    <div>
+      <TableView
+        columns={columns as ColumnDef<MarketplaceListing>[]}
+        data={loadingTableData ? [] : filteredData}
+        isLoading={false}
+        defaultSortingState={{ id: 'listedAt', desc: true }}
+        noDataFoundText={
+          loadingTableData ? (
+            <div className="flex flex-col items-center justify-center p-8 text-center">
+              <ARIOLoadingSpinner />
+            </div>
           ) : (
-            <Loader2 className={`w-4 h-4 animate-spin`} />
-          )}
-          Refresh
-        </button>
-      </div>
-
-      {loadingTableData ? (
-        <div className="flex items-center justify-center p-8">
-          <Loader size={32} />
-          <span className="ml-3 text-grey">Loading listings...</span>
-        </div>
-      ) : (
-        <>
-          <div className="mb-4">
-            <input
-              type="text"
-              placeholder="Search listings by name, seller, ANT ID, or type..."
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-grey rounded bg-transparent text-white placeholder-grey focus:border-primary outline-none"
-            />
-          </div>
-          <div className="border border-dark-grey rounded">
-            <TableView
-              columns={columns}
-              data={filteredData}
-              isLoading={false}
-              defaultSortingState={{ id: 'listedAt', desc: true }}
-              noDataFoundText="No marketplace listings found"
-            />
-          </div>
-        </>
-      )}
+            <div className="flex flex-col items-center justify-center p-8 text-center">
+              <div className="text-grey mb-4">
+                No marketplace listings found
+              </div>
+              <button
+                onClick={() => refetch()}
+                className="flex items-center gap-2 px-4 py-2 border-white text-white rounded transition-colors"
+              >
+                <RefreshIcon className="w-4 h-4 fill-white" />
+                Retry
+              </button>
+            </div>
+          )
+        }
+      />
     </div>
   );
 }
