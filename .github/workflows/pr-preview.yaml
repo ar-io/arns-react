@@ -1,0 +1,34 @@
+name: PR Preview Deployment
+
+on:
+    workflow_dispatch:
+    pull_request:
+        types: [opened, synchronize, reopened, closed]
+jobs:
+    deploy-preview:
+        runs-on: ubuntu-latest
+        if: github.event.pull_request.head.repo.full_name == github.repository && github.event.action != 'closed'
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version-file: .nvmrc
+                  cache: "yarn"
+
+            - name: Install dependencies
+              run: yarn install --frozen-lockfile
+
+            - name: Build application
+              run: yarn build
+
+            - uses: permaweb/permaweb-deploy@v0.0.2
+              with:
+                  deploy-key: ${{ secrets.DEPLOY_KEY }}
+                  arns-name: ${{ secrets.ARNS_NAME }}
+                  preview: "true"
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  deploy-folder: ./dist

@@ -290,6 +290,7 @@ export const currencyLabels: Partial<Record<TokenType, string>> = {
   ario: 'ARIO',
   'base-eth': 'ETH on Base',
   'base-usdc': 'USDC on Base',
+  'base-ario': 'ARIO on Base',
   usdc: 'USDC',
   'polygon-usdc': 'USDC on Polygon',
 };
@@ -309,12 +310,14 @@ export const ETHEREUM_WALLET_TOKENS: SupportedCryptoToken[] = [
   'pol',
   'polygon-usdc',
   'ario',
+  'base-ario',
 ];
 
 // Preset amounts for crypto top-ups by token type
 export const CRYPTO_PRESETS: Partial<Record<TokenType, number[]>> = {
   arweave: [0.5, 1, 5, 10],
   ario: [50, 100, 500, 1000],
+  'base-ario': [50, 100, 500, 1000],
   ethereum: [0.01, 0.05, 0.1, 0.25],
   'base-eth': [0.01, 0.05, 0.1, 0.25],
   usdc: [5, 25, 50, 100],
@@ -329,6 +332,7 @@ export const TOKEN_DISPLAY_INFO: Partial<
 > = {
   arweave: { name: 'AR', network: 'Arweave' },
   ario: { name: 'ARIO', network: 'AO' },
+  'base-ario': { name: 'ARIO', network: 'Base' },
   ethereum: { name: 'ETH', network: 'Ethereum' },
   'base-eth': { name: 'ETH', network: 'Base' },
   usdc: { name: 'USDC', network: 'Ethereum' },
@@ -351,6 +355,9 @@ export const ETH_USDC_CONTRACT =
   '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' as const;
 export const BASE_USDC_CONTRACT =
   '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' as const;
+// Official AR.IO ARIO token on Base — https://basescan.org/token/0x138746adfA52909E5920def027f5a8dc1C7EfFb6
+export const BASE_ARIO_CONTRACT =
+  '0x138746adfA52909E5920def027f5a8dc1C7EfFb6' as const;
 export const POLYGON_USDC_CONTRACT =
   '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359' as const;
 
@@ -358,7 +365,7 @@ export const POLYGON_USDC_CONTRACT =
 export const TOP_UP_BUFFER_MULTIPLIER = 1.02;
 
 // Base token types for ArNS purchases
-export type BaseTokenType = 'base-eth' | 'base-usdc';
+export type BaseTokenType = 'base-eth' | 'base-usdc' | 'base-ario';
 export type CryptoPaymentToken = 'ario' | BaseTokenType;
 
 // Base token configuration
@@ -386,11 +393,18 @@ export const BASE_TOKEN_CONFIG: Record<
     symbol: 'USDC',
     networkName: 'Base',
   },
+  'base-ario': {
+    label: 'ARIO on Base',
+    decimals: 6,
+    chainId: BASE_MAINNET_CHAIN_ID,
+    symbol: 'ARIO',
+    networkName: 'Base',
+  },
 };
 
 // Check if a token is a Base token
 export function isBaseToken(token: string): token is BaseTokenType {
-  return token === 'base-eth' || token === 'base-usdc';
+  return token === 'base-eth' || token === 'base-usdc' || token === 'base-ario';
 }
 
 // ArNS Name Base Fees by character length (in ARIO)
