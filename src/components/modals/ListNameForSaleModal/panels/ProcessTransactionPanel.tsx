@@ -44,7 +44,7 @@ function ProcessTransactionPanel({
       </div>
 
       {/* Timeline Stepper */}
-      <div className="flex flex-col bg-foreground rounded-lg p-6">
+      <div className="flex flex-col rounded-lg p-6">
         <VerticalTimelineStepper steps={workflowSteps} />
       </div>
 

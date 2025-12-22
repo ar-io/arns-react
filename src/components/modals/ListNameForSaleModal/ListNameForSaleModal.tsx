@@ -23,6 +23,7 @@ import {
   AoARIOWrite,
   AoMessageResult,
   ArNSMarketplaceWrite,
+  ListNameForSaleProgressEvent,
   MessageResult,
   calculateListingFee,
   calculateSaleTax,
@@ -438,14 +439,36 @@ function ListNameForSaleModal({
               price: listingPrice.toString(),
               type: 'fixed',
               walletAddress: walletAddress.toString(),
+              onProgress: (event: ListNameForSaleProgressEvent) => {
+                console.log('event', event);
+                switch (event) {
+                  case 'transfer-ant': {
+                    // Intent created successfully
+                    updateWorkflowSteps({
+                      step: 'createIntent',
+                      status: 'success',
+                      description: 'Intent created',
+                    });
+                    updateWorkflowSteps({
+                      step: 'transferANT',
+                      status: 'processing',
+                      description: 'Transferring ANT to marketplace...',
+                    });
+                    break;
+                  }
+                  default: {
+                    return;
+                  }
+                }
+              },
             });
-
-            // Intent created successfully
-            updateWorkflowSteps({
-              step: 'createIntent',
-              status: 'success',
-              description: 'Intent created',
-            });
+            if (result.intent) {
+              updateWorkflowSteps({
+                step: 'createIntent',
+                status: 'success',
+                description: 'Intent created',
+              });
+            }
 
             // Step 3: Transfer ANT
             if (result.antTransferResult?.id) {

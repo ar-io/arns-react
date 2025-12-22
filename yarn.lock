@@ -91,10 +91,8 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@3.23.0-alpha.1":
-  version "3.23.0-alpha.1"
-  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-3.23.0-alpha.1.tgz#791a96fe028837db65485a32701f618a2518249e"
-  integrity sha512-SQicvYwY4yVBE+QxNY7iljKdzrxzVcd7rEoai5idj/jUTjcuHc5IzoXoa0PFu29RkMw9kTh+QjG/l/PbnQhN4g==
+"@ar.io/sdk@../ar-io-sdk":
+  version "3.23.0-alpha.2"
   dependencies:
     "@dha-team/arbundles" "^1.0.1"
     "@permaweb/aoconnect" "0.0.68"

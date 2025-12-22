@@ -967,6 +967,9 @@ const DomainsTable = ({
             }
             return rowData;
           }}
+          tableClass={
+            filteredTableData.length > 0 ? 'border-b border-dark-grey' : ''
+          }
           noDataFoundText={
             !walletAddress ? (
               <div className="flex flex-column text-medium center white p-[100px] box-border gap-[20px]">
@@ -1045,7 +1048,6 @@ const DomainsTable = ({
               }
             />
           )}
-          tableClass="border-[1px] border-dark-grey"
           rowClass={(props) => {
             if (props?.row !== undefined) {
               return props.row.getIsExpanded()

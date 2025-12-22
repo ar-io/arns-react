@@ -63,6 +63,7 @@ function ContinueWorkflowModal({
       aoClient,
       arioContract,
       arioTicker,
+      arioProcessId,
     },
   ] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
@@ -215,6 +216,25 @@ function ContinueWorkflowModal({
         case InterruptedWorkflowTypes.PUSH_INTENT: {
           // Push intent resolution to marketplace
           result = await marketplaceContract.pushANTIntentResolution(intentId);
+          // we need to poll for the change and react to it
+
+          const retries = 0;
+          const maxRetries = 10;
+          while (retries < maxRetries) {
+            try {
+              const _res = await marketplaceContract.getUserAssets({
+                address: walletAddress.toString(),
+                arioProcessId,
+              });
+            } catch {
+              console.error('Issue retrieving marketplace assets');
+            }
+          }
+          queryClient.resetQueries({
+            predicate: (query) => {
+              return query.queryKey.includes('marketplace');
+            },
+          });
           break;
         }
         default:
