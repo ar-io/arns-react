@@ -7,7 +7,7 @@ import { FaDiscord } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 import changeLog from '../../../../CHANGELOG.md?raw';
-import { ARIO_DISCORD_LINK } from '../../../utils/constants';
+import { ARIO_DISCORD_LINK, ARNS_DOCS_LINK } from '../../../utils/constants';
 import { APP_VERSION } from '../../../utils/constants';
 import { BrandLogo } from '../../icons';
 
@@ -98,7 +98,7 @@ function Footer() {
         >
           <button
             className="button grey text center hover pointer hover:text-white"
-            onClick={() => window.open('https://docs.ar.io/arns', '_blank')}
+            onClick={() => window.open(ARNS_DOCS_LINK, '_blank')}
           >
             <QuestionCircleOutlined className="text-base" />
           </button>
