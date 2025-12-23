@@ -349,6 +349,8 @@ export const TOKEN_DISPLAY_INFO: Partial<
   'polygon-usdc': { name: 'USDC', network: 'Polygon' },
 };
 
+export const ARNS_DOCS_LINK = 'https://docs.ar.io/learn/arns';
+
 export const LINK_HOW_ARE_CONVERSIONS_DETERMINED =
   'https://docs.ar.io/build/upload/turbo-credits#pricing--fees';
 

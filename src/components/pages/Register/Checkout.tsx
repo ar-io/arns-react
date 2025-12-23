@@ -233,16 +233,13 @@ function Checkout() {
       };
     }
     if (paymentMethod === 'crypto') {
-      // For Base tokens, show the crypto amount with "(via Turbo)" note
+      // For Base tokens, show the crypto amount
       if (isBaseToken(selectedCryptoToken)) {
         return {
           'Total due:': baseTokenPrice ? (
-            <div className="flex flex-col items-end">
-              <span className="text-white text-bold text-lg">
-                ~{baseTokenPrice.displayAmount}
-              </span>
-              <span className="text-grey text-xs">(via Turbo Credits)</span>
-            </div>
+            <span className="text-white text-bold text-lg">
+              ~{baseTokenPrice.displayAmount}
+            </span>
           ) : (
             <span className="text-grey text-bold text-lg animate-pulse">
               Loading...

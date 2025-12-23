@@ -619,7 +619,8 @@ function PaymentOptionsForm({
                   <div className="flex flex-col gap-1 text-xs text-grey">
                     <span>
                       You&apos;ll pay with{' '}
-                      {BASE_TOKEN_CONFIG[selectedBaseToken].label} on the Base
+                      {BASE_TOKEN_CONFIG[selectedBaseToken].symbol} on the{' '}
+                      {BASE_TOKEN_CONFIG[selectedBaseToken].networkName}{' '}
                       network.
                     </span>
                     <span>

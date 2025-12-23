@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.28.1] - 2025-12-22
+
+### Fixed
+
+- Updated docs link to the ARIO ArNS docs
+
 ## [1.28.0] - 2025-12-10
 
 ### Added

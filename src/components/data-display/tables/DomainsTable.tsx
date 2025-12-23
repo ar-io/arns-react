@@ -47,6 +47,7 @@ import {
 } from '@src/utils';
 import {
   ARIO_DISCORD_LINK,
+  ARNS_DOCS_LINK,
   MIN_ANT_VERSION,
   PERMANENT_DOMAIN_MESSAGE,
 } from '@src/utils/constants';
@@ -757,7 +758,7 @@ const DomainsTable = ({
                         of your supported undernames.
                       </span>
                       <Link
-                        to="https://docs.ar.io/arns/#under-names"
+                        to={ARNS_DOCS_LINK}
                         target="_blank"
                         rel="noreferrer"
                         className="link w-fit m-auto"
