@@ -376,7 +376,12 @@ function ListNameForSaleModal({
               )
                 .toARIO()
                 .valueOf();
-
+              console.log({
+                newARIOBalance,
+                listingFee: feeDetails.listingFee,
+                tries,
+                maxTries,
+              });
               if (
                 tries >= maxTries ||
                 newARIOBalance <= feeDetails.listingFee
@@ -441,8 +446,8 @@ function ListNameForSaleModal({
               walletAddress: walletAddress.toString(),
               onProgress: (event: ListNameForSaleProgressEvent) => {
                 console.log('event', event);
-                switch (event) {
-                  case 'transfer-ant': {
+                switch (event.step) {
+                  case 'transferring-ant': {
                     // Intent created successfully
                     updateWorkflowSteps({
                       step: 'createIntent',
