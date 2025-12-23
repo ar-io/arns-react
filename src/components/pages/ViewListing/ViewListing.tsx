@@ -1,14 +1,18 @@
 import {
   AOProcess,
+  ARIOToken,
+  AoARIOWrite,
   ArNSMarketplaceWrite,
   Order,
   createAoSigner,
+  mARIOToken,
 } from '@ar.io/sdk';
 import { mARIOToTokenAmount } from '@ardrive/turbo-sdk';
 import ANTDetailsTip from '@src/components/Tooltips/ANTDetailsTip';
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import { AntLogoIcon } from '@src/components/data-display/AntLogoIcon';
 import LeaseDurationFromEndTimestamp from '@src/components/data-display/LeaseDurationFromEndTimestamp';
+import VerticalTimelineStepper from '@src/components/data-display/VerticalTimelineStepper';
 import { ArNSLogo } from '@src/components/icons';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
@@ -17,15 +21,49 @@ import ArweaveID, {
 import { useArIoPrice } from '@src/hooks/useArIOPrice';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { useMarketplaceOrder } from '@src/hooks/useMarketplaceOrder';
+import { useMarketplaceUserAssets } from '@src/hooks/useMarketplaceUserAssets';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useGlobalState, useWalletState } from '@src/state';
-import { decodeDomainToASCII } from '@src/utils';
+import { decodeDomainToASCII, sleep } from '@src/utils';
 import { formatARIOWithCommas } from '@src/utils/common/common';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
-import { ExternalLink, Globe, ShoppingCart, User } from 'lucide-react';
-import { useState } from 'react';
+import {
+  ArrowLeftIcon,
+  CheckIcon,
+  DollarSign,
+  ExternalLink,
+  LucideProps,
+  ShoppingCart,
+  XIcon,
+} from 'lucide-react';
+import { ReactNode, useCallback, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+
+const defaultBuyWorkflowSteps: Record<
+  string,
+  {
+    title: ReactNode;
+    description: ReactNode;
+    icon: ReactNode;
+  }
+> = {
+  deposit: {
+    title: 'Deposit Payment',
+    description: 'Deposit ARIO to the marketplace',
+    icon: <DollarSign className="w-4 h-4 text-grey" />,
+  },
+  buy: {
+    title: 'Purchase Name',
+    description: 'Execute the purchase transaction',
+    icon: <ShoppingCart className="w-4 h-4 text-grey" />,
+  },
+  complete: {
+    title: 'Complete',
+    description: 'Name has been purchased',
+    icon: <CheckIcon className="w-4 h-4 text-grey" />,
+  },
+};
 
 function ViewListing() {
   const { name } = useParams<{ name: string }>();
@@ -33,6 +71,11 @@ function ViewListing() {
     useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [isBuying, setIsBuying] = useState(false);
+  const [showProcessing, setShowProcessing] = useState(false);
+  const [workflowComplete, setWorkflowComplete] = useState(false);
+  const [workflowError, setWorkflowError] = useState(false);
+
+  const [workflowSteps, setWorkflowSteps] = useState(defaultBuyWorkflowSteps);
 
   // Get domain info to extract ANT process ID
   const {
@@ -55,11 +98,94 @@ function ViewListing() {
   // Get ARIO price for USD conversion
   const { data: arioPrice } = useArIoPrice();
 
+  // Get user's marketplace balance
+  const { data: userAssets } = useMarketplaceUserAssets();
+
   const isLoading = domainLoading || orderLoading;
   const hasError = domainError || orderError;
 
+  // Check if the order is expired
+  const isExpired = useMemo(() => {
+    if (!orderData?.expirationTime) return false;
+    return Date.now() >= orderData.expirationTime;
+  }, [orderData?.expirationTime]);
+
+  // Check if user has sufficient balance for the purchase
+  const hasSufficientBalance = useMemo(() => {
+    if (!orderData?.price || !userAssets?.balances?.balance) return false;
+    const userBalance = new mARIOToken(Number(userAssets.balances.balance ?? 0))
+      .toARIO()
+      .valueOf();
+    const orderPrice = Number(mARIOToTokenAmount(orderData.price).valueOf());
+    return userBalance >= orderPrice;
+  }, [orderData?.price, userAssets?.balances?.balance]);
+
+  const updateWorkflowSteps = useCallback(
+    ({
+      step,
+      status,
+      description,
+    }: {
+      step: 'deposit' | 'buy' | 'complete';
+      status: 'pending' | 'processing' | 'success' | 'error';
+      description?: string;
+    }) => {
+      const DepositIcon = DollarSign;
+      const BuyIcon = ShoppingCart;
+      const CompleteIcon = CheckIcon;
+      const ErrorIcon = XIcon;
+
+      let CurrentIcon: React.ForwardRefExoticComponent<
+        Omit<LucideProps, 'ref'> & React.RefAttributes<SVGSVGElement>
+      >;
+      switch (step) {
+        case 'deposit':
+          CurrentIcon = DepositIcon;
+          break;
+        case 'buy':
+          CurrentIcon = BuyIcon;
+          break;
+        case 'complete':
+          CurrentIcon = CompleteIcon;
+          break;
+        default:
+          CurrentIcon = ErrorIcon;
+          break;
+      }
+
+      const iconClass = {
+        pending: 'w-4 h-4 text-grey',
+        processing: 'w-4 h-4 animate-spin text-white',
+        success: 'w-4 h-4 text-success',
+        error: 'w-4 h-4 text-error',
+      }[status];
+
+      const IconComponent =
+        status === 'processing' ? (
+          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+        ) : (
+          <CurrentIcon className={iconClass} />
+        );
+
+      setWorkflowSteps((prev) => ({
+        ...prev,
+        [step]: {
+          ...prev[step],
+          icon: IconComponent,
+          description: description ?? prev[step].description,
+        },
+      }));
+    },
+    [],
+  );
+
   async function handleBuy() {
     setIsBuying(true);
+    setShowProcessing(true);
+    setWorkflowComplete(false);
+    setWorkflowError(false);
+    setWorkflowSteps(defaultBuyWorkflowSteps);
+
     try {
       if (!orderData) {
         throw new Error('Order not found');
@@ -76,18 +202,120 @@ function ViewListing() {
       if (!name) {
         throw new Error('Domain name not found');
       }
+      if (isExpired) {
+        throw new Error('This listing has expired');
+      }
+
       const marketplaceContract = new ArNSMarketplaceWrite({
         process: new AOProcess({
           processId: marketplaceProcessId,
           ao: aoClient,
         }),
         signer: createAoSigner(wallet.contractSigner),
-        ario: arioContract as any,
+        ario: arioContract as AoARIOWrite,
+      });
+
+      if (!orderData.price) {
+        throw new Error('Order price not found');
+      }
+      const orderPrice = Number(mARIOToTokenAmount(orderData.price).valueOf());
+
+      // Step 1: Deposit if needed
+      if (!hasSufficientBalance) {
+        updateWorkflowSteps({ step: 'deposit', status: 'processing' });
+
+        const existingBalance = userAssets?.balances?.balance
+          ? new mARIOToken(Number(userAssets.balances.balance ?? 0))
+              .toARIO()
+              .valueOf()
+          : 0;
+
+        const amountToDeposit = Math.max(
+          1,
+          Math.ceil(orderPrice - existingBalance),
+        );
+
+        try {
+          await marketplaceContract.depositArIO({
+            amount: new ARIOToken(amountToDeposit)
+              .toMARIO()
+              .valueOf()
+              .toString(),
+          });
+
+          // Wait for deposit to be confirmed
+          let newBalance = 0;
+          let tries = 0;
+          const maxTries = 10;
+          while (newBalance < orderPrice && tries < maxTries) {
+            try {
+              const balanceResult =
+                await marketplaceContract.getMarketplaceBalance({
+                  address: walletAddress.toString(),
+                });
+              newBalance = new mARIOToken(Number(balanceResult?.balance ?? 0))
+                .toARIO()
+                .valueOf();
+
+              if (newBalance >= orderPrice) break;
+            } catch (error) {
+              console.error('Error checking balance:', error);
+            }
+            tries++;
+            await sleep(5000);
+          }
+
+          if (newBalance < orderPrice) {
+            throw new Error('Failed to deposit enough ARIO');
+          }
+
+          updateWorkflowSteps({
+            step: 'deposit',
+            status: 'success',
+            description: `Deposited ${amountToDeposit} ${arioTicker}`,
+          });
+        } catch (error) {
+          updateWorkflowSteps({
+            step: 'deposit',
+            status: 'error',
+            description: 'Failed to deposit ARIO',
+          });
+          throw error;
+        }
+      } else {
+        updateWorkflowSteps({
+          step: 'deposit',
+          status: 'success',
+          description: 'Sufficient balance available',
+        });
+      }
+
+      // Step 2: Execute purchase
+      updateWorkflowSteps({
+        step: 'buy',
+        status: 'processing',
+        description: 'Executing purchase...',
       });
 
       const result = await marketplaceContract.buyFixedPriceANT({
         antId: domainInfo.processId,
       });
+
+      updateWorkflowSteps({
+        step: 'buy',
+        status: 'success',
+        description: 'Purchase complete',
+      });
+
+      // Step 3: Complete
+      updateWorkflowSteps({
+        step: 'complete',
+        status: 'success',
+        description: 'Name purchased successfully!',
+      });
+
+      setWorkflowComplete(true);
+      setWorkflowError(false);
 
       queryClient.resetQueries({
         predicate: (query) =>
@@ -102,14 +330,16 @@ function ViewListing() {
             (key: unknown) => typeof key === 'string' && key.includes(name),
           ),
       });
+      queryClient.invalidateQueries({ queryKey: ['marketplace'] });
+
       eventEmitter.emit('success', {
         name: 'Buy ANT',
         message: (
           <span>
-            Successfully bought ANT {domainInfo.processId}
+            Successfully bought {name}!
             <br />
             <br />
-            <span>View transaction on aolink</span>
+            <span>View transaction on aolink </span>
             <ArweaveID
               id={new ArweaveTransactionID(result.id)}
               type={ArweaveIdTypes.INTERACTION}
@@ -121,6 +351,8 @@ function ViewListing() {
       });
     } catch (error) {
       console.error(error);
+      setWorkflowComplete(true);
+      setWorkflowError(true);
       eventEmitter.emit('error', error);
     } finally {
       setIsBuying(false);
@@ -204,11 +436,21 @@ function ViewListing() {
         <div className="flex items-center gap-4 mb-8">
           <Link
             to="/marketplace"
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-gray-400 hover:text-white transition-colors flex items-center gap-2"
           >
-            ← Back to Marketplace
+            <ArrowLeftIcon className="w-4 h-4 fill-white" /> Back to Marketplace
           </Link>
         </div>
+
+        {/* Expired Warning */}
+        {isExpired && (
+          <div className="mb-6">
+            <WarningCard
+              text="This listing has expired and is no longer available for purchase."
+              wrapperStyle={{ maxWidth: '100%' }}
+            />
+          </div>
+        )}
 
         {/* Main Content */}
         <div className="flex gap-8">
@@ -383,27 +625,78 @@ function ViewListing() {
                 </div>
 
                 {/* Buy Button */}
-                <button
-                  className={`w-full font-semibold py-3 px-6 rounded transition-colors flex items-center justify-center gap-2 mt-8 ${
-                    isBuying
-                      ? 'bg-grey text-white cursor-not-allowed'
-                      : 'bg-primary hover:bg-warning text-black'
-                  }`}
-                  onClick={handleBuy}
-                  disabled={isBuying}
-                >
-                  {isBuying ? (
-                    <>
-                      <Loader size={20} />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingCart className="w-5 h-5" />
-                      Buy Now
-                    </>
-                  )}
-                </button>
+                {!showProcessing ? (
+                  <button
+                    className={`w-full font-semibold py-3 px-6 rounded transition-colors flex items-center justify-center gap-2 mt-8 ${
+                      isBuying || isExpired
+                        ? 'bg-grey text-white cursor-not-allowed'
+                        : 'bg-primary hover:bg-warning text-black'
+                    }`}
+                    onClick={handleBuy}
+                    disabled={isBuying || isExpired}
+                  >
+                    {isExpired ? (
+                      <>
+                        <XIcon className="w-5 h-5" />
+                        Listing Expired
+                      </>
+                    ) : isBuying ? (
+                      <>
+                        <Loader size={20} />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="w-5 h-5" />
+                        Buy Now
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <div className="flex flex-col gap-4 mt-8">
+                    <div className="flex flex-col gap-2 mb-2">
+                      <h3 className="text-lg font-medium text-white">
+                        {workflowComplete
+                          ? workflowError
+                            ? 'Purchase Failed'
+                            : 'Purchase Complete!'
+                          : 'Processing Purchase...'}
+                      </h3>
+                      <p className="text-sm text-grey">
+                        {workflowComplete
+                          ? workflowError
+                            ? 'There was an error completing your purchase.'
+                            : `${name} is now yours!`
+                          : 'Please wait while we process your purchase. Do not close this page.'}
+                      </p>
+                    </div>
+
+                    <VerticalTimelineStepper steps={workflowSteps} />
+
+                    {workflowComplete && (
+                      <div className="flex gap-3 mt-4">
+                        {workflowError ? (
+                          <button
+                            className="flex-1 bg-transparent border border-grey text-white px-6 py-3 rounded hover:bg-grey hover:bg-opacity-20 transition-colors"
+                            onClick={() => {
+                              setShowProcessing(false);
+                              setWorkflowSteps(defaultBuyWorkflowSteps);
+                            }}
+                          >
+                            Try Again
+                          </button>
+                        ) : (
+                          <Link
+                            to={`/manage/names/${name}`}
+                            className="flex-1 bg-primary text-black px-6 py-3 rounded hover:bg-primary-dark transition-colors text-center font-semibold"
+                          >
+                            View Your Name
+                          </Link>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
