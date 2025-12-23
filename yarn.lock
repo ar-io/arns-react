@@ -91,8 +91,10 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@../ar-io-sdk":
-  version "3.23.0-alpha.2"
+"@ar.io/sdk@^3.10.1":
+  version "3.22.1"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-3.22.1.tgz#d758dc8a40528c1eebba9751cfba8547148e31a6"
+  integrity sha512-MH+JST5Zm1CPS43vZvxvwrBEdN7qKYZSmQuXp/EUrZkTLdegt5KnhMoUEqQCOQKlT2YF7hYI+NFwhy32ezQqxQ==
   dependencies:
     "@dha-team/arbundles" "^1.0.1"
     "@permaweb/aoconnect" "0.0.68"
@@ -102,10 +104,10 @@
     eventemitter3 "^5.0.1"
     prompts "^2.4.2"
 
-"@ar.io/sdk@^3.10.1":
-  version "3.22.1"
-  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-3.22.1.tgz#d758dc8a40528c1eebba9751cfba8547148e31a6"
-  integrity sha512-MH+JST5Zm1CPS43vZvxvwrBEdN7qKYZSmQuXp/EUrZkTLdegt5KnhMoUEqQCOQKlT2YF7hYI+NFwhy32ezQqxQ==
+"@ar.io/sdk@^3.23.0-alpha.3":
+  version "3.23.0-alpha.3"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-3.23.0-alpha.3.tgz#cfb7b6c0638e2652f723e9324645dcebcf373007"
+  integrity sha512-VaA/5SPdv8QCODllBETrMb0bJVIbm2b0yTefOE+A8FMS1uhe5Jy4bGyByk5S9UDSG/GiZmJqDkiQ/1spFP/jDw==
   dependencies:
     "@dha-team/arbundles" "^1.0.1"
     "@permaweb/aoconnect" "0.0.68"
