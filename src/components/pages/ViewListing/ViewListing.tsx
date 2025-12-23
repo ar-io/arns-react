@@ -434,12 +434,19 @@ function ViewListing() {
       <div>
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Link
-            to="/marketplace"
-            className="text-gray-400 hover:text-white transition-colors flex items-center gap-2"
-          >
-            <ArrowLeftIcon className="w-4 h-4 fill-white" /> Back to Marketplace
-          </Link>
+          {showProcessing ? (
+            <span className="text-grey cursor-not-allowed flex items-center gap-2 opacity-50">
+              <ArrowLeftIcon className="w-4 h-4" /> Back to Marketplace
+            </span>
+          ) : (
+            <Link
+              to="/marketplace"
+              className="text-gray-400 hover:text-white transition-colors flex items-center gap-2"
+            >
+              <ArrowLeftIcon className="w-4 h-4 fill-white" /> Back to
+              Marketplace
+            </Link>
+          )}
         </div>
 
         {/* Expired Warning */}
@@ -473,231 +480,236 @@ function ViewListing() {
                 />
               </div>
 
-              {/* Domain Details */}
-              <div className="flex w-full flex-col border-y-[1px] border-foreground gap-2 py-6 z-10">
-                {orderData?.creator && (
-                  <div className="flex items-center justify-between gap-2 text-grey text-sm">
-                    <span>Owner:</span>
-                    <div className="flex items-end justify-end">
-                      <ArweaveID
-                        id={new ArweaveTransactionID(orderData.creator)}
-                        type={ArweaveIdTypes.ADDRESS}
-                        shouldLink={true}
-                        characterCount={12}
-                      />
-                    </div>
-                  </div>
-                )}
+              {/* Domain Details - Hidden during processing */}
+              {!showProcessing && (
+                <>
+                  <div className="flex w-full flex-col border-y-[1px] border-foreground gap-2 py-6 z-10">
+                    {orderData?.creator && (
+                      <div className="flex items-center justify-between gap-2 text-grey text-sm">
+                        <span>Owner:</span>
+                        <div className="flex items-end justify-end">
+                          <ArweaveID
+                            id={new ArweaveTransactionID(orderData.creator)}
+                            type={ArweaveIdTypes.ADDRESS}
+                            shouldLink={true}
+                            characterCount={12}
+                          />
+                        </div>
+                      </div>
+                    )}
 
-                {domainInfo?.undernameCount !== undefined && (
-                  <div className="text-grey text-sm flex items-center justify-between">
-                    <span>Undernames: </span>
-                    <span className="text-white flex justify-end items-center">
-                      {domainInfo.undernameCount}
-                    </span>
-                  </div>
-                )}
+                    {domainInfo?.undernameCount !== undefined && (
+                      <div className="text-grey text-sm flex items-center justify-between">
+                        <span>Undernames: </span>
+                        <span className="text-white flex justify-end items-center">
+                          {domainInfo.undernameCount}
+                        </span>
+                      </div>
+                    )}
 
-                <div className="text-grey flex items-center justify-between gap-2 text-sm">
-                  <span className="whitespace-nowrap">ANT Process: </span>
-                  <span className="text-white font-mono flex justify-end">
-                    <ArweaveID
-                      id={new ArweaveTransactionID(domainInfo?.processId)}
-                      type={ArweaveIdTypes.CONTRACT}
-                      shouldLink={true}
-                      characterCount={12}
-                    />
-                  </span>
-                </div>
-
-                <div className="text-grey text-sm flex items-center justify-between">
-                  <span>Lease Duration: </span>
-                  <span className="text-white">
-                    <LeaseDurationFromEndTimestamp
-                      endTimestamp={
-                        domainInfo?.arnsRecord?.type === 'lease'
-                          ? (domainInfo.arnsRecord as any)?.endTimestamp
-                          : undefined // Permabuy domains or no record - let component show "Permanent"
-                      }
-                    />
-                  </span>
-                </div>
-              </div>
-
-              <div className="pt-6">
-                {/* Price Section */}
-                <div className="border-b border-foreground pb-4">
-                  <div className="text-grey text-sm mb-2 whitespace-nowrap">
-                    Price
-                  </div>
-                  <div className="text-white text-3xl font-bold">
-                    {formatARIOWithCommas(priceInArio)} {arioTicker}
-                  </div>
-                  {priceInUsd && (
-                    <div className="text-grey text-lg">
-                      ≈ $
-                      {priceInUsd.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}{' '}
-                      USD
-                    </div>
-                  )}
-                </div>
-
-                {/* Order Details */}
-                <div className="space-y-3 pt-6 text-sm">
-                  {orderData?.creator && (
-                    <div className="flex justify-between">
-                      <span className="text-grey whitespace-nowrap">
-                        Seller:
-                      </span>
-                      <a
-                        href={`https://aolink.ar-io.dev/#/entity/${orderData.creator}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1 justify-end"
-                      >
-                        {orderData.creator.slice(0, 8)}...
-                        {orderData.creator.slice(-8)}
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    </div>
-                  )}
-
-                  {orderData?.dateCreated && (
-                    <div className="flex justify-between">
-                      <span className="text-grey whitespace-nowrap">
-                        Listed:
-                      </span>
-                      <span className="text-white flex justify-end">
-                        {new Date(orderData.dateCreated).toLocaleDateString(
-                          'en-US',
-                          {
-                            weekday: 'short',
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          },
-                        )}
-                      </span>
-                    </div>
-                  )}
-
-                  {orderData?.expirationTime && (
-                    <div className="flex justify-between">
-                      <span className="text-grey whitespace-nowrap">
-                        Expires:
-                      </span>
-                      <span className="text-white flex justify-end">
-                        {new Date(orderData.expirationTime).toLocaleDateString(
-                          'en-US',
-                          {
-                            weekday: 'short',
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          },
-                        )}
-                      </span>
-                    </div>
-                  )}
-
-                  {orderData?.id && (
-                    <div className="flex justify-between">
-                      <span className="text-grey whitespace-nowrap">
-                        Order ID:
-                      </span>
-                      <div className="flex justify-end">
+                    <div className="text-grey flex items-center justify-between gap-2 text-sm">
+                      <span className="whitespace-nowrap">ANT Process: </span>
+                      <span className="text-white font-mono flex justify-end">
                         <ArweaveID
-                          id={new ArweaveTransactionID(orderData.id)}
-                          type={ArweaveIdTypes.INTERACTION}
-                          characterCount={12}
+                          id={new ArweaveTransactionID(domainInfo?.processId)}
+                          type={ArweaveIdTypes.CONTRACT}
                           shouldLink={true}
+                          characterCount={12}
                         />
+                      </span>
+                    </div>
+
+                    <div className="text-grey text-sm flex items-center justify-between">
+                      <span>Lease Duration: </span>
+                      <span className="text-white">
+                        <LeaseDurationFromEndTimestamp
+                          endTimestamp={
+                            domainInfo?.arnsRecord?.type === 'lease'
+                              ? (domainInfo.arnsRecord as any)?.endTimestamp
+                              : undefined // Permabuy domains or no record - let component show "Permanent"
+                          }
+                        />
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="pt-6">
+                    {/* Price Section */}
+                    <div className="border-b border-foreground pb-4">
+                      <div className="text-grey text-sm mb-2 whitespace-nowrap">
+                        Price
                       </div>
+                      <div className="text-white text-3xl font-bold">
+                        {formatARIOWithCommas(priceInArio)} {arioTicker}
+                      </div>
+                      {priceInUsd && (
+                        <div className="text-grey text-lg">
+                          ≈ $
+                          {priceInUsd.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}{' '}
+                          USD
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Order Details */}
+                    <div className="space-y-3 pt-6 text-sm">
+                      {orderData?.creator && (
+                        <div className="flex justify-between">
+                          <span className="text-grey whitespace-nowrap">
+                            Seller:
+                          </span>
+                          <a
+                            href={`https://aolink.ar-io.dev/#/entity/${orderData.creator}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1 justify-end"
+                          >
+                            {orderData.creator.slice(0, 8)}...
+                            {orderData.creator.slice(-8)}
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </div>
+                      )}
+
+                      {orderData?.dateCreated && (
+                        <div className="flex justify-between">
+                          <span className="text-grey whitespace-nowrap">
+                            Listed:
+                          </span>
+                          <span className="text-white flex justify-end">
+                            {new Date(orderData.dateCreated).toLocaleDateString(
+                              'en-US',
+                              {
+                                weekday: 'short',
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              },
+                            )}
+                          </span>
+                        </div>
+                      )}
+
+                      {orderData?.expirationTime && (
+                        <div className="flex justify-between">
+                          <span className="text-grey whitespace-nowrap">
+                            Expires:
+                          </span>
+                          <span className="text-white flex justify-end">
+                            {new Date(
+                              orderData.expirationTime,
+                            ).toLocaleDateString('en-US', {
+                              weekday: 'short',
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
+                        </div>
+                      )}
+
+                      {orderData?.id && (
+                        <div className="flex justify-between">
+                          <span className="text-grey whitespace-nowrap">
+                            Order ID:
+                          </span>
+                          <div className="flex justify-end">
+                            <ArweaveID
+                              id={new ArweaveTransactionID(orderData.id)}
+                              type={ArweaveIdTypes.INTERACTION}
+                              characterCount={12}
+                              shouldLink={true}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Buy Button / Processing Panel */}
+              {!showProcessing ? (
+                <button
+                  className={`w-full font-semibold py-3 px-6 rounded transition-colors flex items-center justify-center gap-2 mt-8 ${
+                    isBuying || isExpired
+                      ? 'bg-grey text-white cursor-not-allowed'
+                      : 'bg-primary hover:bg-warning text-black'
+                  }`}
+                  onClick={handleBuy}
+                  disabled={isBuying || isExpired}
+                >
+                  {isExpired ? (
+                    <>
+                      <XIcon className="w-5 h-5" />
+                      Listing Expired
+                    </>
+                  ) : isBuying ? (
+                    <>
+                      <Loader size={20} />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="w-5 h-5" />
+                      Buy Now
+                    </>
+                  )}
+                </button>
+              ) : (
+                <div className="flex flex-col gap-4 pt-6">
+                  <div className="flex flex-col gap-2 mb-2">
+                    <h3 className="text-lg font-medium text-white">
+                      {workflowComplete
+                        ? workflowError
+                          ? 'Purchase Failed'
+                          : 'Purchase Complete!'
+                        : 'Processing Purchase...'}
+                    </h3>
+                    <p className="text-sm text-grey">
+                      {workflowComplete
+                        ? workflowError
+                          ? 'There was an error completing your purchase.'
+                          : `${name} is now yours!`
+                        : 'Please wait while we process your purchase. Do not close this page.'}
+                    </p>
+                  </div>
+                  <div className="p-4">
+                    {' '}
+                    <VerticalTimelineStepper steps={workflowSteps} />
+                  </div>
+
+                  {workflowComplete && (
+                    <div className="flex gap-3 mt-4">
+                      {workflowError ? (
+                        <button
+                          className="flex-1 bg-transparent border border-grey text-white px-6 py-3 rounded hover:bg-grey hover:bg-opacity-20 transition-colors"
+                          onClick={() => {
+                            setShowProcessing(false);
+                            setWorkflowSteps(defaultBuyWorkflowSteps);
+                          }}
+                        >
+                          Try Again
+                        </button>
+                      ) : (
+                        <Link
+                          to={`/manage/names/${name}`}
+                          className="flex-1 bg-primary text-black px-6 py-3 rounded hover:bg-primary-dark transition-colors text-center font-semibold"
+                        >
+                          View Your Name
+                        </Link>
+                      )}
                     </div>
                   )}
                 </div>
-
-                {/* Buy Button */}
-                {!showProcessing ? (
-                  <button
-                    className={`w-full font-semibold py-3 px-6 rounded transition-colors flex items-center justify-center gap-2 mt-8 ${
-                      isBuying || isExpired
-                        ? 'bg-grey text-white cursor-not-allowed'
-                        : 'bg-primary hover:bg-warning text-black'
-                    }`}
-                    onClick={handleBuy}
-                    disabled={isBuying || isExpired}
-                  >
-                    {isExpired ? (
-                      <>
-                        <XIcon className="w-5 h-5" />
-                        Listing Expired
-                      </>
-                    ) : isBuying ? (
-                      <>
-                        <Loader size={20} />
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        <ShoppingCart className="w-5 h-5" />
-                        Buy Now
-                      </>
-                    )}
-                  </button>
-                ) : (
-                  <div className="flex flex-col gap-4 mt-8">
-                    <div className="flex flex-col gap-2 mb-2">
-                      <h3 className="text-lg font-medium text-white">
-                        {workflowComplete
-                          ? workflowError
-                            ? 'Purchase Failed'
-                            : 'Purchase Complete!'
-                          : 'Processing Purchase...'}
-                      </h3>
-                      <p className="text-sm text-grey">
-                        {workflowComplete
-                          ? workflowError
-                            ? 'There was an error completing your purchase.'
-                            : `${name} is now yours!`
-                          : 'Please wait while we process your purchase. Do not close this page.'}
-                      </p>
-                    </div>
-
-                    <VerticalTimelineStepper steps={workflowSteps} />
-
-                    {workflowComplete && (
-                      <div className="flex gap-3 mt-4">
-                        {workflowError ? (
-                          <button
-                            className="flex-1 bg-transparent border border-grey text-white px-6 py-3 rounded hover:bg-grey hover:bg-opacity-20 transition-colors"
-                            onClick={() => {
-                              setShowProcessing(false);
-                              setWorkflowSteps(defaultBuyWorkflowSteps);
-                            }}
-                          >
-                            Try Again
-                          </button>
-                        ) : (
-                          <Link
-                            to={`/manage/names/${name}`}
-                            className="flex-1 bg-primary text-black px-6 py-3 rounded hover:bg-primary-dark transition-colors text-center font-semibold"
-                          >
-                            View Your Name
-                          </Link>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+              )}
             </div>
           </div>
         </div>
