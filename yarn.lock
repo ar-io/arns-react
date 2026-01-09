@@ -91,10 +91,23 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@^3.10.1", "@ar.io/sdk@^3.22.1":
+"@ar.io/sdk@^3.10.1":
   version "3.22.2"
   resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-3.22.2.tgz#45c3fe0a75ce3101881506cd6d21c9cc3178f6ed"
   integrity sha512-SeHJ0hly7o14JsO8nu88TSr2zcef4xmIKkxBRik4dhE0qcYzLSmniIuBLrR9+2BUYvR5H6evL9W7JyGoJdUiow==
+  dependencies:
+    "@dha-team/arbundles" "^1.0.1"
+    "@permaweb/aoconnect" "0.0.68"
+    arweave "1.15.5"
+    axios "^1.13.2"
+    commander "^12.1.0"
+    eventemitter3 "^5.0.1"
+    prompts "^2.4.2"
+
+"@ar.io/sdk@^3.23.0-alpha.3":
+  version "3.23.0-alpha.3"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-3.23.0-alpha.3.tgz#cfb7b6c0638e2652f723e9324645dcebcf373007"
+  integrity sha512-VaA/5SPdv8QCODllBETrMb0bJVIbm2b0yTefOE+A8FMS1uhe5Jy4bGyByk5S9UDSG/GiZmJqDkiQ/1spFP/jDw==
   dependencies:
     "@dha-team/arbundles" "^1.0.1"
     "@permaweb/aoconnect" "0.0.68"
@@ -9940,6 +9953,11 @@ reusify@^1.0.4:
   resolved "https://registry.npmjs.org/reusify/-/reusify-1.1.0.tgz#0fe13b9522e1473f51b558ee796e08f11f9b489f"
   integrity sha512-g6QUff04oZpHs0eG5p83rFLhHeV00ug/Yf9nZM6fLeUrPguBTkTQOdpAWWspMh55TZfVQDPaN3NQJfbVRAxdIw==
 
+rfc4648@^1.5.4:
+  version "1.5.4"
+  resolved "https://registry.npmjs.org/rfc4648/-/rfc4648-1.5.4.tgz#1174c0afba72423a0b70c386ecfeb80aa61b05ca"
+  integrity sha512-rRg/6Lb+IGfJqO05HZkN50UtY7K/JhxJag1kP23+zyMfrvoB0B7RWv06MbOzoc79RgCdNTiUaNsTT1AJZ7Z+cg==
+
 rfdc@^1.3.0, rfdc@^1.4.1:
   version "1.4.1"
   resolved "https://registry.npmjs.org/rfdc/-/rfdc-1.4.1.tgz#778f76c4fb731d93414e8f925fbecf64cce7f6ca"
@@ -11469,7 +11487,7 @@ zod@^4.1.5:
   resolved "https://registry.npmjs.org/zod/-/zod-4.2.1.tgz#07f0388c7edbfd5f5a2466181cb4adf5b5dbd57b"
   integrity sha512-0wZ1IRqGGhMP76gLqz8EyfBXKk0J2qo2+H3fi4mcUP/KtTocoX08nmIAHl1Z2kJIZbZee8KOpBCSNPRgauucjw==
 
-"zone.js@^0.11.0 || ^0.12.0 || ^0.13.0 || ^0.14.0 || ^0.15.0":
+"zone.js@^0.11.0 || ^0.12.0 || ^0.13.0 || ^0.14.0 || ^0.15.0", zone.js@^0.15.1:
   version "0.15.1"
   resolved "https://registry.npmjs.org/zone.js/-/zone.js-0.15.1.tgz#1e109adb75f80e9e004ee8e0d4a0a52e0a336481"
   integrity sha512-XE96n56IQpJM7NAoXswY3XRLcWFW83xe0BiAOeMD7K5k5xecOeul3Qcpx6GqEeeHNkW5DWL5zOyTbEfB4eti8w==
