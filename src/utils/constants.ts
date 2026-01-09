@@ -102,7 +102,7 @@ export const ARIO_PROCESS_ID =
 
 export const MARKETPLACE_PROCESS_ID =
   import.meta.env.VITE_MARKETPLACE_PROCESS_ID ||
-  'FZHGoLXc7SUZr-JoPL01Lvlu5ZWNzgSrlvfdVhpr22w';
+  'ijCygKzV48PHx_TUdFN7NNJgbBUatQDL_h8FfqVzXfE';
 
 // TODO: export this from the sdk
 export const ANT_REGISTRY_TESTNET_PROCESS_ID =
