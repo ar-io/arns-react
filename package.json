@@ -20,9 +20,9 @@
   },
   "dependencies": {
     "@ant-design/icons": "5.4.0",
-    "@ar.io/sdk": "^3.23.0-alpha.3",
-    "@ar.io/wayfinder-core": "^1.0.4",
-    "@ar.io/wayfinder-react": "^1.0.11",
+    "@ar.io/sdk": "^3.22.1",
+    "@ar.io/wayfinder-core": "^1.9.0",
+    "@ar.io/wayfinder-react": "^1.0.27",
     "@ardrive/turbo-sdk": "1.39.2",
     "@dha-team/arbundles": "^1.0.4",
     "@permaweb/ao-scheduler-utils": "^0.0.29",

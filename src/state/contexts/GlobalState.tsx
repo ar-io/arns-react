@@ -8,11 +8,14 @@ import {
   ArNSMarketplaceRead,
   ArNSMarketplaceWrite,
 } from '@ar.io/sdk/web';
-import { NetworkGatewaysProvider } from '@ar.io/wayfinder-core';
 import {
+  CompositeGatewaysProvider,
   LocalStorageGatewaysProvider,
-  WayfinderProvider,
-} from '@ar.io/wayfinder-react';
+  NetworkGatewaysProvider,
+  RandomRoutingStrategy,
+  StaticGatewaysProvider,
+} from '@ar.io/wayfinder-core';
+import { WayfinderProvider } from '@ar.io/wayfinder-react';
 import { connect } from '@permaweb/aoconnect';
 import { SETTINGS_STORAGE_KEY } from '@src/hooks';
 import eventEmitter from '@src/utils/events';
@@ -217,15 +220,25 @@ export function GlobalStateProvider({
 
   return (
     <GlobalStateContext.Provider value={[state, dispatchGlobalState]}>
-      {/* Wrap global state in wayfinder provider */}
       <WayfinderProvider
-        gatewaysProvider={
-          new LocalStorageGatewaysProvider({
-            gatewaysProvider: new NetworkGatewaysProvider({
-              ario: state.arioContract,
+        routingSettings={{
+          strategy: new RandomRoutingStrategy({
+            gatewaysProvider: new CompositeGatewaysProvider({
+              providers: [
+                // cache the network list
+                new LocalStorageGatewaysProvider({
+                  gatewaysProvider: new NetworkGatewaysProvider({
+                    ario: state.arioContract,
+                  }),
+                }),
+                // fallback to user-defined static gateway
+                new StaticGatewaysProvider({
+                  gateways: ['https://' + state.gateway],
+                }),
+              ],
             }),
-          })
-        }
+          }),
+        }}
         telemetrySettings={{
           enabled: true,
           clientName: 'arns-app',
