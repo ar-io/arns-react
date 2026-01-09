@@ -5,7 +5,7 @@ on:
     inputs:
       undername:
         description: "Undername to deploy to (e.g., 'preview' for preview.arns.app)"
-        required: false
+        required: true
         type: string
   pull_request:
     types: [opened, synchronize, reopened, closed]
@@ -38,7 +38,7 @@ jobs:
         with:
           deploy-key: ${{ secrets.DEPLOY_KEY }}
           arns-name: ${{ secrets.ARNS_NAME }}
-          undername: ${{ inputs.undername }}
+          undername: "${{ github.event_name == 'pull_request' && '@' || inputs.undername }}"
           preview: ${{ github.event_name == 'pull_request' }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-folder: ./dist
