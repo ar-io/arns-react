@@ -1,0 +1,56 @@
+name: Deploy to Undername
+
+on:
+    workflow_dispatch:
+        inputs:
+            undername:
+                description: 'Undername to deploy to (e.g., "preview" for preview.arns.app)'
+                required: true
+                type: string
+
+jobs:
+    build_and_deploy:
+        runs-on: ubuntu-latest
+        environment: develop
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version-file: ".nvmrc"
+                  cache: "yarn"
+
+            - name: Install dependencies
+              run: yarn --frozen-lockfile
+
+            - name: Build application
+              run: yarn build
+              env:
+                  VITE_NODE_ENV: production
+                  VITE_GITHUB_HASH: ${{ github.sha }}
+                  VITE_ARWEAVE_HOST: ${{ vars.ARWEAVE_HOST }}
+                  VITE_ARNS_SERVICE_API: ${{ vars.ARNS_SERVICE_API }}
+                  VITE_ARNS_REGISTRY_ADDRESS: ${{ vars.VITE_ARNS_REGISTRY_ADDRESS }}
+                  VITE_ARIO_PROCESS_ID: ${{ vars.VITE_ARIO_PROCESS_ID }}
+                  VITE_ARIO_AO_CU_URL: ${{ vars.VITE_ARIO_AO_CU_URL }}
+                  VITE_ANT_AO_CU_URL: ${{ vars.VITE_ANT_AO_CU_URL }}
+
+            - name: Deploy to undername
+              run: |
+                  npx permaweb-deploy \
+                    --deploy-folder ./dist \
+                    --ant-process ${{ secrets.ANT_PROCESS }} \
+                    --undername ${{ inputs.undername }}
+              env:
+                  DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+
+            - name: Notify Slack
+              uses: rtCamp/action-slack-notify@v2
+              if: always()
+              env:
+                  SLACK_TITLE: "ArNS App Deployment (${{ inputs.undername }}) - ${{ job.status }}"
+                  SLACK_COLOR: ${{ job.status }}
+                  SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+                  SLACK_MESSAGE: 'Deployed branch "${{ github.ref_name }}" to undername "${{ inputs.undername }}" - ${{ job.status }}'
