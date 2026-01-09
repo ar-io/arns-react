@@ -32,23 +32,13 @@ jobs:
       - name: Build application
         run: yarn build
 
-      # Deploy to specific undername (workflow_dispatch with undername input)
-      - name: Deploy to undername
-        if: github.event_name == 'workflow_dispatch' && inputs.undername != ''
+      # Deploy PR preview (pull_request or workflow_dispatch without undername)
+      - name: Deploy PR preview
         uses: permaweb/permaweb-deploy@v0.0.2
         with:
           deploy-key: ${{ secrets.DEPLOY_KEY }}
           arns-name: ${{ secrets.ARNS_NAME }}
           undername: ${{ inputs.undername }}
-          deploy-folder: ./dist
-
-      # Deploy PR preview (pull_request or workflow_dispatch without undername)
-      - name: Deploy PR preview
-        if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.undername == '')
-        uses: permaweb/permaweb-deploy@v0.0.2
-        with:
-          deploy-key: ${{ secrets.DEPLOY_KEY }}
-          arns-name: ${{ secrets.ARNS_NAME }}
-          preview: "true"
+          preview: ${{ github.event_name == 'pull_request' }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-folder: ./dist
