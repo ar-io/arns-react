@@ -2,7 +2,12 @@ import { Tooltip } from '@src/components/data-display';
 import { useANTIntent } from '@src/hooks/useANTIntent';
 import { useArIoPrice } from '@src/hooks/useArIOPrice';
 import { useMarketplaceInfo } from '@src/hooks/useMarketplaceInfo';
-import { useGlobalState, useWalletState } from '@src/state';
+import {
+  dispatchArNSUpdate,
+  useArNSState,
+  useGlobalState,
+  useWalletState,
+} from '@src/state';
 import {
   CheckIcon,
   DollarSign,
@@ -93,9 +98,20 @@ function ListNameForSaleModal({
   domainName,
   antId,
 }: ListNameForSaleModalProps) {
-  const [{ arioTicker, marketplaceProcessId, arioContract, aoClient }] =
-    useGlobalState();
+  const [
+    {
+      arioTicker,
+      marketplaceProcessId,
+      arioContract,
+      aoClient,
+      aoNetwork,
+      arioProcessId,
+      hyperbeamUrl,
+      antRegistryProcessId,
+    },
+  ] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
+  const [, dispatchArNSState] = useArNSState();
   const { data: arIoPrice } = useArIoPrice();
   const { data: marketplaceInfo } = useMarketplaceInfo();
   const { data: userAssets } = useMarketplaceUserAssets();
@@ -577,6 +593,15 @@ function ListNameForSaleModal({
       queryClient.invalidateQueries({
         predicate: (query) =>
           query.queryKey?.[0]?.toString().includes('marketplace') ?? false,
+      });
+      dispatchArNSUpdate({
+        dispatch: dispatchArNSState,
+        walletAddress: walletAddress,
+        arioProcessId: arioProcessId,
+        marketplaceProcessId: marketplaceProcessId,
+        antRegistryProcessId: antRegistryProcessId,
+        aoNetworkSettings: aoNetwork,
+        hyperbeamUrl: hyperbeamUrl,
       });
     } catch (error) {
       setWorkflowComplete(true);

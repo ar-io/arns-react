@@ -23,6 +23,10 @@ import {
   useInterruptedWorkflows,
 } from '@src/hooks/useInterruptedWorkflows';
 import { useMarketplaceOrder } from '@src/hooks/useMarketplaceOrder';
+import {
+  PendingWorkflow,
+  usePendingWorkflows,
+} from '@src/hooks/usePendingWorkflows';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import {
   ANTProcessData,
@@ -286,6 +290,63 @@ function InterruptedWorkflowAction({
   );
 }
 
+// Helper component for pending workflow action
+// If there's an order for this domain, prefer displaying the order link instead
+function PendingWorkflowAction({
+  pendingWorkflow,
+}: {
+  pendingWorkflow: PendingWorkflow;
+}) {
+  const [showContinueWorkflowModal, setShowContinueWorkflowModal] =
+    useState(false);
+
+  const { data: order, error: orderError } = useMarketplaceOrder({
+    antId: pendingWorkflow.antId,
+  });
+
+  // If there's an order, prefer displaying marketplace link
+  const hasOrder = order && !orderError;
+  if (hasOrder) {
+    return (
+      <Tooltip
+        message="View in Marketplace"
+        icon={
+          <Link
+            to={`/marketplace/names/${pendingWorkflow.domainName}`}
+            className="flex items-center justify-center w-[18px] h-[18px] text-blue-400 hover:text-blue-300 transition-colors"
+          >
+            <StoreIcon className="w-[18px] h-[18px]" />
+          </Link>
+        }
+      />
+    );
+  }
+
+  return (
+    <>
+      <Tooltip
+        message="Pending marketplace workflow - click to continue"
+        icon={
+          <button onClick={() => setShowContinueWorkflowModal(true)}>
+            <div className="relative">
+              <Activity className="w-[18px] h-[18px] text-orange-400 hover:text-orange-300 transition-colors animate-pulse" />
+            </div>
+          </button>
+        }
+      />
+      {showContinueWorkflowModal && (
+        <ContinueWorkflowModal
+          show={showContinueWorkflowModal}
+          onClose={() => setShowContinueWorkflowModal(false)}
+          domainName={pendingWorkflow.domainName}
+          antId={pendingWorkflow.antId}
+          intentId={pendingWorkflow.intent.intentId}
+        />
+      )}
+    </>
+  );
+}
+
 // Helper component to display role with pending intent indicator
 function RoleDisplay({
   role,
@@ -404,6 +465,10 @@ const DomainsTable = ({
   const { data: latestAntVersion } = useLatestANTVersion();
   const { data: primaryNameData } = usePrimaryName();
   const { interruptedWorkflows } = useInterruptedWorkflows(
+    domainData.ants,
+    domainData.names,
+  );
+  const { getPendingWorkflowForDomain } = usePendingWorkflows(
     domainData.ants,
     domainData.names,
   );
@@ -875,6 +940,10 @@ const DomainsTable = ({
                       domainName,
                       processId,
                     );
+                    const pendingWorkflow = getPendingWorkflowForDomain(
+                      domainName,
+                      processId,
+                    );
 
                     // If domain is owned by marketplace, show marketplace link or activity icon
                     if (role === 'marketplace' && !interruptedWorkflow) {
@@ -893,49 +962,58 @@ const DomainsTable = ({
                           interruptedWorkflow={interruptedWorkflow}
                         />
                       );
-                    } else {
-                      // Show marketplace listing icon
+                    }
+
+                    if (pendingWorkflow) {
+                      // Show pending workflow icon - allows user to continue the workflow
                       return (
-                        <Tooltip
-                          message={
-                            isMarketplaceCompatible(row.original.version)
-                              ? 'List for Sale'
-                              : `Upgrade to version ${minimumANTVersionForMarketplace}+ to list for sale`
-                          }
-                          icon={
-                            <button
-                              onClick={() => {
-                                if (
-                                  isMarketplaceCompatible(row.original.version)
-                                ) {
-                                  // ANT is marketplace compatible, proceed with listing
-                                  setSelectedDomainForSale({
-                                    name: domainName,
-                                    antId: processId,
-                                  });
-                                  setShowListForSaleModal(true);
-                                } else {
-                                  // ANT needs upgrade for marketplace compatibility
-                                  setDomainToUpgradeForMarketplace({
-                                    domain: lowerCaseDomain(domainName),
-                                    processId: processId,
-                                  });
-                                  setShowUpgradeForMarketplaceModal(true);
-                                }
-                              }}
-                            >
-                              <DollarSign
-                                className={`w-[18px] transition-colors ${
-                                  isMarketplaceCompatible(row.original.version)
-                                    ? 'text-grey hover:text-white'
-                                    : 'text-warning hover:text-warning-light'
-                                }`}
-                              />
-                            </button>
-                          }
+                        <PendingWorkflowAction
+                          pendingWorkflow={pendingWorkflow}
                         />
                       );
                     }
+
+                    // Show marketplace listing icon
+                    return (
+                      <Tooltip
+                        message={
+                          isMarketplaceCompatible(row.original.version)
+                            ? 'List for Sale'
+                            : `Upgrade to version ${minimumANTVersionForMarketplace}+ to list for sale`
+                        }
+                        icon={
+                          <button
+                            onClick={() => {
+                              if (
+                                isMarketplaceCompatible(row.original.version)
+                              ) {
+                                // ANT is marketplace compatible, proceed with listing
+                                setSelectedDomainForSale({
+                                  name: domainName,
+                                  antId: processId,
+                                });
+                                setShowListForSaleModal(true);
+                              } else {
+                                // ANT needs upgrade for marketplace compatibility
+                                setDomainToUpgradeForMarketplace({
+                                  domain: lowerCaseDomain(domainName),
+                                  processId: processId,
+                                });
+                                setShowUpgradeForMarketplaceModal(true);
+                              }
+                            }}
+                          >
+                            <DollarSign
+                              className={`w-[18px] transition-colors ${
+                                isMarketplaceCompatible(row.original.version)
+                                  ? 'text-grey hover:text-white'
+                                  : 'text-warning hover:text-warning-light'
+                              }`}
+                            />
+                          </button>
+                        }
+                      />
+                    );
                   })()}
                   <ManageAssetButtons
                     id={lowerCaseDomain(row.getValue('name') as string)}
