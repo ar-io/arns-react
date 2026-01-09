@@ -574,7 +574,10 @@ function ListNameForSaleModal({
         });
       }
 
-      queryClient.invalidateQueries({ queryKey: ['marketplace'] });
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          query.queryKey?.[0]?.toString().includes('marketplace') ?? false,
+      });
     } catch (error) {
       setWorkflowComplete(true);
       setWorkflowError(true);

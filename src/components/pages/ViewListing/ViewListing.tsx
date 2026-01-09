@@ -65,6 +65,26 @@ const defaultBuyWorkflowSteps: Record<
   },
 };
 
+const defaultCancelWorkflowSteps: Record<
+  string,
+  {
+    title: ReactNode;
+    description: ReactNode;
+    icon: ReactNode;
+  }
+> = {
+  cancel: {
+    title: 'Cancel Order',
+    description: 'Remove listing from marketplace',
+    icon: <XIcon className="w-4 h-4 text-grey" />,
+  },
+  complete: {
+    title: 'Complete',
+    description: 'Listing has been cancelled',
+    icon: <CheckIcon className="w-4 h-4 text-grey" />,
+  },
+};
+
 function ViewListing() {
   const { name } = useParams<{ name: string }>();
   const [{ arioTicker, aoClient, arioContract, marketplaceProcessId }] =
@@ -120,18 +140,28 @@ function ViewListing() {
     return userBalance >= orderPrice;
   }, [orderData?.price, userAssets?.balances?.balance]);
 
+  // Check if the current user is the seller
+  const isUserSeller = useMemo(() => {
+    return (
+      walletAddress &&
+      orderData?.creator &&
+      walletAddress.toString() === orderData.creator
+    );
+  }, [walletAddress, orderData?.creator]);
+
   const updateWorkflowSteps = useCallback(
     ({
       step,
       status,
       description,
     }: {
-      step: 'deposit' | 'buy' | 'complete';
+      step: 'deposit' | 'buy' | 'cancel' | 'complete';
       status: 'pending' | 'processing' | 'success' | 'error';
       description?: string;
     }) => {
       const DepositIcon = DollarSign;
       const BuyIcon = ShoppingCart;
+      const CancelIcon = XIcon;
       const CompleteIcon = CheckIcon;
       const ErrorIcon = XIcon;
 
@@ -144,6 +174,9 @@ function ViewListing() {
           break;
         case 'buy':
           CurrentIcon = BuyIcon;
+          break;
+        case 'cancel':
+          CurrentIcon = CancelIcon;
           break;
         case 'complete':
           CurrentIcon = CompleteIcon;
@@ -359,6 +392,121 @@ function ViewListing() {
     }
   }
 
+  async function handleCancel() {
+    setIsBuying(true);
+    setShowProcessing(true);
+    setWorkflowComplete(false);
+    setWorkflowError(false);
+    setWorkflowSteps(defaultCancelWorkflowSteps);
+
+    try {
+      if (!orderData) {
+        throw new Error('Order not found');
+      }
+      if (!domainInfo?.processId) {
+        throw new Error('ANT process ID not found');
+      }
+      if (!wallet?.contractSigner) {
+        throw new Error('Wallet not found');
+      }
+      if (!walletAddress) {
+        throw new Error('Wallet address not found');
+      }
+      if (!name) {
+        throw new Error('Domain name not found');
+      }
+
+      const marketplaceContract = new ArNSMarketplaceWrite({
+        process: new AOProcess({
+          processId: marketplaceProcessId,
+          ao: aoClient,
+        }),
+        signer: createAoSigner(wallet.contractSigner),
+        ario: arioContract as AoARIOWrite,
+      });
+
+      // Step 1: Cancel the order
+      updateWorkflowSteps({
+        step: 'cancel',
+        status: 'processing',
+        description: 'Cancelling listing...',
+      });
+
+      const result = await marketplaceContract.cancelOrder(orderData.id);
+
+      // Wait for the cancellation to be processed/cranked
+      await sleep(10_000);
+
+      updateWorkflowSteps({
+        step: 'cancel',
+        status: 'success',
+        description: 'Listing cancelled',
+      });
+
+      // Step 2: Complete
+      updateWorkflowSteps({
+        step: 'complete',
+        status: 'success',
+        description: 'Cancellation complete!',
+      });
+
+      setWorkflowComplete(true);
+      setWorkflowError(false);
+
+      // Invalidate relevant queries
+      queryClient.resetQueries({
+        predicate: (query) =>
+          query.queryKey.some(
+            (key: unknown) =>
+              typeof key === 'string' && key.includes(domainInfo.processId),
+          ),
+      });
+      queryClient.resetQueries({
+        predicate: (query) =>
+          query.queryKey.some(
+            (key: unknown) => typeof key === 'string' && key.includes(name),
+          ),
+      });
+      queryClient.resetQueries({
+        predicate: (query) =>
+          query.queryKey.some(
+            (key: unknown) =>
+              typeof key === 'string' && key.includes('marketplace'),
+          ),
+      });
+
+      eventEmitter.emit('success', {
+        name: 'Cancel Listing',
+        message: (
+          <span>
+            Successfully cancelled listing for {name}!
+            <br />
+            <br />
+            <span>View transaction on aolink </span>
+            <ArweaveID
+              id={new ArweaveTransactionID(result.id)}
+              type={ArweaveIdTypes.INTERACTION}
+              characterCount={8}
+              shouldLink={true}
+            />
+          </span>
+        ),
+      });
+    } catch (error) {
+      console.error(error);
+      updateWorkflowSteps({
+        step: 'cancel',
+        status: 'error',
+        description: 'Failed to cancel listing',
+      });
+      setWorkflowComplete(true);
+      setWorkflowError(true);
+      eventEmitter.emit('error', error);
+    } finally {
+      setIsBuying(false);
+    }
+  }
+
   // Handle case where domain doesn't exist or isn't listed
   if (!isLoading && (!domainInfo || !orderData)) {
     return (
@@ -433,21 +581,23 @@ function ViewListing() {
     <div className="page text-white">
       <div>
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          {showProcessing ? (
-            <span className="text-grey cursor-not-allowed flex items-center gap-2 opacity-50">
-              <ArrowLeftIcon className="w-4 h-4" /> Back to Marketplace
-            </span>
-          ) : (
-            <Link
-              to="/marketplace"
-              className="text-gray-400 hover:text-white transition-colors flex items-center gap-2"
-            >
-              <ArrowLeftIcon className="w-4 h-4 fill-white" /> Back to
-              Marketplace
-            </Link>
-          )}
-        </div>
+        {!workflowComplete && (
+          <div className="flex items-center gap-4 mb-8">
+            {showProcessing ? (
+              <span className="text-white cursor-not-allowed flex items-center gap-2 opacity-50">
+                <ArrowLeftIcon className="w-4 h-4" /> Back to Marketplace
+              </span>
+            ) : (
+              <Link
+                to="/marketplace"
+                className="text-gray-400 hover:text-white transition-colors flex items-center gap-2"
+              >
+                <ArrowLeftIcon className="w-4 h-4 fill-white" /> Back to
+                Marketplace
+              </Link>
+            )}
+          </div>
+        )}
 
         {/* Expired Warning */}
         {isExpired && (
@@ -635,15 +785,17 @@ function ViewListing() {
                 </>
               )}
 
-              {/* Buy Button / Processing Panel */}
+              {/* Buy/Cancel Button / Processing Panel */}
               {!showProcessing ? (
                 <button
                   className={`w-full font-semibold py-3 px-6 rounded transition-colors flex items-center justify-center gap-2 mt-8 ${
                     isBuying || isExpired
                       ? 'bg-grey text-white cursor-not-allowed'
-                      : 'bg-primary hover:bg-warning text-black'
+                      : isUserSeller
+                        ? 'bg-error-thin hover:bg-error text-white'
+                        : 'bg-primary hover:bg-warning text-black'
                   }`}
-                  onClick={handleBuy}
+                  onClick={isUserSeller ? handleCancel : handleBuy}
                   disabled={isBuying || isExpired}
                 >
                   {isExpired ? (
@@ -655,6 +807,11 @@ function ViewListing() {
                     <>
                       <Loader size={20} />
                       Processing...
+                    </>
+                  ) : isUserSeller ? (
+                    <>
+                      <XIcon className="w-5 h-5" />
+                      Cancel Listing
                     </>
                   ) : (
                     <>
@@ -669,9 +826,15 @@ function ViewListing() {
                     <h3 className="text-lg font-medium text-white">
                       {workflowComplete
                         ? workflowError
-                          ? 'Purchase Failed'
-                          : 'Purchase Complete!'
-                        : 'Processing Purchase...'}
+                          ? isUserSeller
+                            ? 'Cancellation Failed'
+                            : 'Purchase Failed'
+                          : isUserSeller
+                            ? 'Listing Cancelled!'
+                            : 'Purchase Complete!'
+                        : isUserSeller
+                          ? 'Cancelling Listing...'
+                          : 'Processing Purchase...'}
                     </h3>
                     <p className="text-sm text-grey">
                       {workflowComplete
@@ -700,10 +863,16 @@ function ViewListing() {
                         </button>
                       ) : (
                         <Link
-                          to={`/manage/names/${name}`}
+                          to={
+                            isUserSeller
+                              ? `/marketplace`
+                              : `/manage/names/${name}`
+                          }
                           className="flex-1 bg-primary text-black px-6 py-3 rounded hover:bg-primary-dark transition-colors text-center font-semibold"
                         >
-                          View Your Name
+                          {isUserSeller
+                            ? 'Back to Marketplace'
+                            : 'View Your Name'}
                         </Link>
                       )}
                     </div>
