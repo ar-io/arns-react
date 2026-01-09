@@ -973,6 +973,11 @@ const DomainsTable = ({
                       );
                     }
 
+                    // Only show marketplace listing icon for owners
+                    if (role !== 'owner') {
+                      return null;
+                    }
+
                     // Show marketplace listing icon
                     return (
                       <Tooltip

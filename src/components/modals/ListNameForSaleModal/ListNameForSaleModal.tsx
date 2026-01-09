@@ -457,7 +457,7 @@ function ListNameForSaleModal({
             result = await writeMarketplaceContract.listNameForSale({
               name: domainName,
               expirationTime: expirationDate.getTime(),
-              price: listingPrice.toString(),
+              price: new ARIOToken(listingPrice).toMARIO().valueOf().toString(),
               type: 'fixed',
               walletAddress: walletAddress.toString(),
               onProgress: (event: ListNameForSaleProgressEvent) => {

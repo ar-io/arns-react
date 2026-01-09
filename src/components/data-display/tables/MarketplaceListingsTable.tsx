@@ -1,5 +1,4 @@
-import { AoArNSNameDataWithName, Order } from '@ar.io/sdk';
-import { mARIOToTokenAmount } from '@ardrive/turbo-sdk';
+import { AoArNSNameDataWithName, Order, mARIOToken } from '@ar.io/sdk';
 import { RefreshIcon } from '@src/components/icons';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
@@ -124,10 +123,10 @@ function MarketplaceListingsTable({
 
     return ordersData.items
       .map((order: Order): MarketplaceListing | undefined => {
-        const priceInARIO = mARIOToTokenAmount(order.price ?? 0); // Convert from mARIO to ARIO
-        const priceUSD = arIoPrice
-          ? Number(priceInARIO.valueOf()) * arIoPrice
-          : undefined;
+        const priceInARIO = new mARIOToken(Number(order.price ?? 0))
+          .toARIO()
+          .valueOf(); // Convert from mARIO to ARIO
+        const priceUSD = arIoPrice ? priceInARIO * arIoPrice : undefined;
 
         const name = antToNameMap[order.dominantToken] || null;
 
@@ -139,7 +138,7 @@ function MarketplaceListingsTable({
           name,
           antId: order.dominantToken,
           seller: order.creator,
-          price: Number(priceInARIO.valueOf()),
+          price: priceInARIO,
           priceUSD,
           listedAt: order.dateCreated,
           expiresAt: order.expirationTime || null,

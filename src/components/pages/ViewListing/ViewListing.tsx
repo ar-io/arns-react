@@ -7,7 +7,6 @@ import {
   createAoSigner,
   mARIOToken,
 } from '@ar.io/sdk';
-import { mARIOToTokenAmount } from '@ardrive/turbo-sdk';
 import ANTDetailsTip from '@src/components/Tooltips/ANTDetailsTip';
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import { AntLogoIcon } from '@src/components/data-display/AntLogoIcon';
@@ -136,7 +135,9 @@ function ViewListing() {
     const userBalance = new mARIOToken(Number(userAssets.balances.balance ?? 0))
       .toARIO()
       .valueOf();
-    const orderPrice = Number(mARIOToTokenAmount(orderData.price).valueOf());
+    const orderPrice = new mARIOToken(Number(orderData.price))
+      .toARIO()
+      .valueOf();
     return userBalance >= orderPrice;
   }, [orderData?.price, userAssets?.balances?.balance]);
 
@@ -251,7 +252,9 @@ function ViewListing() {
       if (!orderData.price) {
         throw new Error('Order price not found');
       }
-      const orderPrice = Number(mARIOToTokenAmount(orderData.price).valueOf());
+      const orderPrice = new mARIOToken(Number(orderData.price))
+        .toARIO()
+        .valueOf();
 
       // Step 1: Deposit if needed
       if (!hasSufficientBalance) {
@@ -572,7 +575,7 @@ function ViewListing() {
 
   // Convert price from mARIO to ARIO
   const priceInArio = orderData?.price
-    ? Number(mARIOToTokenAmount(orderData.price).valueOf())
+    ? new mARIOToken(Number(orderData.price)).toARIO().valueOf()
     : 0;
   const priceInUsd =
     arioPrice && typeof arioPrice === 'number' ? priceInArio * arioPrice : null;
