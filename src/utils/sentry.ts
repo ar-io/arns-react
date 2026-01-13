@@ -1,4 +1,3 @@
-import { BrowserTracing } from '@sentry/browser';
 import * as Sentry from '@sentry/react';
 import { useEffect } from 'react';
 import {
@@ -22,7 +21,7 @@ const sentry =
     ? Sentry.init({
         dsn: `https://${SENTRY_DSN_PUBLIC_KEY}@${SENTRY_DSN_PROJECT_URI}/${SENTRY_DSN_PROJECT_ID}`,
         integrations: [
-          new BrowserTracing({
+          new Sentry.BrowserTracing({
             routingInstrumentation: Sentry.reactRouterV6Instrumentation(
               useEffect,
               useLocation,
