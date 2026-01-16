@@ -5,6 +5,8 @@
   "homepage": ".",
   "scripts": {
     "build": "yarn clean && cross-env NODE_OPTIONS=--max-old-space-size=32768 vite build",
+    "build:production": "yarn clean && cross-env NODE_OPTIONS=--max-old-space-size=32768 VITE_NODE_ENV=production VITE_ENVIRONMENT=production vite build",
+    "build:develop": "yarn clean && cross-env NODE_OPTIONS=--max-old-space-size=32768 VITE_NODE_ENV=develop VITE_ENVIRONMENT=develop vite build",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "publish:arweave": "yarn build && permaweb-deploy --arns-name $VITE_ARNS_NAME ",
