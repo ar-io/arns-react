@@ -1,7 +1,10 @@
 import { AoANTState, AoArNSNameData } from '@ar.io/sdk';
 import { Tooltip } from '@src/components/data-display';
 import { useLatestANTVersion } from '@src/hooks/useANTVersions';
-import { useInterruptedWorkflows } from '@src/hooks/useInterruptedWorkflows';
+import {
+  InterruptedWorkflowType,
+  useInterruptedWorkflows,
+} from '@src/hooks/useInterruptedWorkflows';
 import { ANTProcessData, useArNSState, useWalletState } from '@src/state';
 import { getAntsRequiringUpdate } from '@src/utils';
 import { MILLISECONDS_IN_GRACE_PERIOD } from '@src/utils/constants';
@@ -154,6 +157,7 @@ function NotificationMenu() {
     domainName: string;
     antId: string;
     intentId: string;
+    workflowType: InterruptedWorkflowType;
   } | null>(null);
 
   // Memoize individual notification data to prevent JSX recreation
@@ -335,13 +339,17 @@ function NotificationMenu() {
                   {notification.message?.toString().includes('Interrupted') ? (
                     <button
                       onClick={() => {
-                        // Get the first interrupted workflow to continue
-                        const firstWorkflow = interruptedWorkflows[0];
+                        // Get the first interrupted workflow that can be continued (not UNKNOWN)
+                        const firstWorkflow = interruptedWorkflows.find(
+                          (w) =>
+                            w.workflowType !== InterruptedWorkflowType.UNKNOWN,
+                        );
                         if (firstWorkflow) {
                           setWorkflowToContinue({
                             domainName: firstWorkflow.domainName,
                             antId: firstWorkflow.antId,
                             intentId: firstWorkflow.intent.intentId,
+                            workflowType: firstWorkflow.workflowType,
                           });
                           setShowContinueWorkflowModal(true);
                         }
@@ -385,6 +393,7 @@ function NotificationMenu() {
           domainName={workflowToContinue.domainName}
           antId={workflowToContinue.antId}
           intentId={workflowToContinue.intentId}
+          workflowType={workflowToContinue.workflowType}
         />
       )}
     </>

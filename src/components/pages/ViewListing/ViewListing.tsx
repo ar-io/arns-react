@@ -23,7 +23,12 @@ import { useMarketplaceOrder } from '@src/hooks/useMarketplaceOrder';
 import { useMarketplaceUserAssets } from '@src/hooks/useMarketplaceUserAssets';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useGlobalState, useWalletState } from '@src/state';
-import { decodeDomainToASCII, sleep } from '@src/utils';
+import {
+  decodeDomainToASCII,
+  isArweaveTransactionID,
+  isEthAddress,
+  sleep,
+} from '@src/utils';
 import { formatARIOWithCommas } from '@src/utils/common/common';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
@@ -642,9 +647,15 @@ function ViewListing() {
                         <span>Owner:</span>
                         <div className="flex items-end justify-end">
                           <ArweaveID
-                            id={new ArweaveTransactionID(orderData.creator)}
+                            id={
+                              isEthAddress(orderData.creator)
+                                ? orderData.creator
+                                : new ArweaveTransactionID(orderData.creator)
+                            }
                             type={ArweaveIdTypes.ADDRESS}
-                            shouldLink={true}
+                            shouldLink={isArweaveTransactionID(
+                              orderData.creator,
+                            )}
                             characterCount={12}
                           />
                         </div>
@@ -663,12 +674,17 @@ function ViewListing() {
                     <div className="text-grey flex items-center justify-between gap-2 text-sm">
                       <span className="whitespace-nowrap">ANT Process: </span>
                       <span className="text-white font-mono flex justify-end">
-                        <ArweaveID
-                          id={new ArweaveTransactionID(domainInfo?.processId)}
-                          type={ArweaveIdTypes.CONTRACT}
-                          shouldLink={true}
-                          characterCount={12}
-                        />
+                        {domainInfo?.processId &&
+                        isArweaveTransactionID(domainInfo.processId) ? (
+                          <ArweaveID
+                            id={new ArweaveTransactionID(domainInfo.processId)}
+                            type={ArweaveIdTypes.CONTRACT}
+                            shouldLink={true}
+                            characterCount={12}
+                          />
+                        ) : (
+                          'N/A'
+                        )}
                       </span>
                     </div>
 
