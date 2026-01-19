@@ -14,6 +14,8 @@ import {
   decodeDomainToASCII,
   formatForMaxCharCount,
   formatVerboseDate,
+  isArweaveTransactionID,
+  isEthAddress,
   lowerCaseDomain,
 } from '@src/utils';
 import { formatARIOWithCommas } from '@src/utils/common/common';
@@ -123,9 +125,10 @@ function MarketplaceListingsTable({
 
     return ordersData.items
       .map((order: Order): MarketplaceListing | undefined => {
-        const priceInARIO = new mARIOToken(Number(order.price ?? 0))
-          .toARIO()
-          .valueOf(); // Convert from mARIO to ARIO
+        const rawPrice = Number(order.price ?? 0);
+        const safePrice =
+          Number.isNaN(rawPrice) || !Number.isFinite(rawPrice) ? 0 : rawPrice;
+        const priceInARIO = new mARIOToken(safePrice).toARIO().valueOf(); // Convert from mARIO to ARIO
         const priceUSD = arIoPrice ? priceInARIO * arIoPrice : undefined;
 
         const name = antToNameMap[order.dominantToken] || null;
@@ -275,11 +278,15 @@ function MarketplaceListingsTable({
         cell: ({ row }) => {
           const seller = row.original.seller;
 
+          if (!seller) return 'N/A';
+
           return (
             <ArweaveID
-              id={new ArweaveTransactionID(seller) as AoAddress}
+              id={
+                isEthAddress(seller) ? seller : new ArweaveTransactionID(seller)
+              }
               type={ArweaveIdTypes.ADDRESS}
-              shouldLink
+              shouldLink={isArweaveTransactionID(seller)}
               characterCount={8}
             />
           );
@@ -295,9 +302,11 @@ function MarketplaceListingsTable({
         cell: ({ row }) => {
           const antId = row.original.antId;
 
+          if (!antId || !isArweaveTransactionID(antId)) return 'N/A';
+
           return (
             <ArweaveID
-              id={new ArweaveTransactionID(antId) as AoAddress}
+              id={new ArweaveTransactionID(antId)}
               type={ArweaveIdTypes.TRANSACTION}
               shouldLink
               characterCount={8}

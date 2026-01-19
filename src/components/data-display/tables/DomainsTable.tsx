@@ -20,6 +20,7 @@ import { useANTIntent } from '@src/hooks/useANTIntent';
 import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import {
   InterruptedWorkflow,
+  InterruptedWorkflowType,
   useInterruptedWorkflows,
 } from '@src/hooks/useInterruptedWorkflows';
 import { useMarketplaceOrder } from '@src/hooks/useMarketplaceOrder';
@@ -284,6 +285,7 @@ function InterruptedWorkflowAction({
           domainName={interruptedWorkflow.domainName}
           antId={interruptedWorkflow.antId}
           intentId={interruptedWorkflow.intent.intentId}
+          workflowType={interruptedWorkflow.workflowType}
         />
       )}
     </>
@@ -341,6 +343,7 @@ function PendingWorkflowAction({
           domainName={pendingWorkflow.domainName}
           antId={pendingWorkflow.antId}
           intentId={pendingWorkflow.intent.intentId}
+          workflowType={InterruptedWorkflowType.TRANSFER}
         />
       )}
     </>
@@ -386,6 +389,7 @@ function RoleDisplay({
               domainName={domainName}
               antId={processId}
               intentId={intent.intentId}
+              workflowType={InterruptedWorkflowType.PUSH_INTENT}
             />
           )}
         </>
@@ -422,6 +426,7 @@ function RoleDisplay({
             domainName={domainName}
             antId={processId}
             intentId={intent.intentId}
+            workflowType={InterruptedWorkflowType.TRANSFER}
           />
         )}
       </>
@@ -956,7 +961,19 @@ const DomainsTable = ({
                     }
 
                     if (interruptedWorkflow) {
-                      // Show interrupted workflow icon
+                      // If workflow type is unknown, show error state tooltip instead of continue modal
+                      if (
+                        interruptedWorkflow.workflowType ===
+                        InterruptedWorkflowType.UNKNOWN
+                      ) {
+                        return (
+                          <ErrorStateTooltip
+                            domainName={domainName}
+                            antId={processId}
+                          />
+                        );
+                      }
+                      // Show interrupted workflow icon for TRANSFER and PUSH_INTENT types
                       return (
                         <InterruptedWorkflowAction
                           interruptedWorkflow={interruptedWorkflow}
