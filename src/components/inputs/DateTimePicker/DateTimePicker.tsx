@@ -11,6 +11,23 @@ interface DateTimePickerProps {
   className?: string;
 }
 
+// Helper to convert 24h to 12h format
+function to12Hour(hour24: number): { hour12: number; period: 'AM' | 'PM' } {
+  const period = hour24 >= 12 ? 'PM' : 'AM';
+  let hour12 = hour24 % 12;
+  if (hour12 === 0) hour12 = 12;
+  return { hour12, period };
+}
+
+// Helper to convert 12h to 24h format
+function to24Hour(hour12: number, period: 'AM' | 'PM'): number {
+  if (period === 'AM') {
+    return hour12 === 12 ? 0 : hour12;
+  } else {
+    return hour12 === 12 ? 12 : hour12 + 12;
+  }
+}
+
 function DateTimePicker({
   value,
   onChange,
@@ -18,22 +35,36 @@ function DateTimePicker({
   className = '',
 }: DateTimePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [timeValue, setTimeValue] = useState<string>(
-    value ? format(value, 'HH:mm') : '12:00',
-  );
 
-  const handleDateSelect = (date: Date | undefined) => {
+  // Initialize time state from value
+  const initialHour24 = value ? value.getHours() : 12;
+  const initial12h = to12Hour(initialHour24);
+  const [hour12, setHour12] = useState<number>(initial12h.hour12);
+  const [minutes, setMinutes] = useState<number>(
+    value ? value.getMinutes() : 0,
+  );
+  const [period, setPeriod] = useState<'AM' | 'PM'>(initial12h.period);
+
+  const updateDateTime = (
+    date: Date | undefined,
+    newHour12: number,
+    newMinutes: number,
+    newPeriod: 'AM' | 'PM',
+  ) => {
     if (date) {
-      const [hours, minutes] = timeValue.split(':').map(Number);
+      const hour24 = to24Hour(newHour12, newPeriod);
       const newDateTime = new Date(date);
-      newDateTime.setHours(hours, minutes, 0, 0);
+      newDateTime.setHours(hour24, newMinutes, 0, 0);
 
       // Ensure minimum 1 hour from now
       const oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000);
       if (newDateTime < oneHourFromNow) {
         // If selected time is less than 1 hour from now, set it to 1 hour from now
         const adjustedTime = new Date(oneHourFromNow);
-        setTimeValue(format(adjustedTime, 'HH:mm'));
+        const adjusted12h = to12Hour(adjustedTime.getHours());
+        setHour12(adjusted12h.hour12);
+        setMinutes(adjustedTime.getMinutes());
+        setPeriod(adjusted12h.period);
         onChange(adjustedTime);
       } else {
         onChange(newDateTime);
@@ -43,24 +74,23 @@ function DateTimePicker({
     }
   };
 
-  const handleTimeChange = (time: string) => {
-    setTimeValue(time);
-    if (value) {
-      const [hours, minutes] = time.split(':').map(Number);
-      const newDateTime = new Date(value);
-      newDateTime.setHours(hours, minutes, 0, 0);
+  const handleDateSelect = (date: Date | undefined) => {
+    updateDateTime(date, hour12, minutes, period);
+  };
 
-      // Ensure minimum 1 hour from now
-      const oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000);
-      if (newDateTime < oneHourFromNow) {
-        // If selected time is less than 1 hour from now, set it to 1 hour from now
-        const adjustedTime = new Date(oneHourFromNow);
-        setTimeValue(format(adjustedTime, 'HH:mm'));
-        onChange(adjustedTime);
-      } else {
-        onChange(newDateTime);
-      }
-    }
+  const handleHourChange = (newHour12: number) => {
+    setHour12(newHour12);
+    updateDateTime(value, newHour12, minutes, period);
+  };
+
+  const handleMinuteChange = (newMinutes: number) => {
+    setMinutes(newMinutes);
+    updateDateTime(value, hour12, newMinutes, period);
+  };
+
+  const handlePeriodChange = (newPeriod: 'AM' | 'PM') => {
+    setPeriod(newPeriod);
+    updateDateTime(value, hour12, minutes, newPeriod);
   };
 
   const isDateDisabled = (date: Date) => {
@@ -75,14 +105,16 @@ function DateTimePicker({
   };
 
   const isTimeDisabled = (
-    hours: number,
-    minutes: number,
+    testHour12: number,
+    testMinutes: number,
+    testPeriod: 'AM' | 'PM',
     selectedDate?: Date,
   ) => {
     if (!selectedDate) return false;
 
+    const hour24 = to24Hour(testHour12, testPeriod);
     const testDateTime = new Date(selectedDate);
-    testDateTime.setHours(hours, minutes, 0, 0);
+    testDateTime.setHours(hour24, testMinutes, 0, 0);
 
     const oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000);
     return testDateTime < oneHourFromNow;
@@ -210,7 +242,7 @@ function DateTimePicker({
             <span>
               {value ? (
                 <>
-                  {format(value, 'PPP')} at {format(value, 'HH:mm')}
+                  {format(value, 'PPP')} at {format(value, 'h:mm a')}
                 </>
               ) : (
                 placeholder
@@ -226,7 +258,7 @@ function DateTimePicker({
           className="w-80 rounded-lg border border-dark-grey bg-metallic-grey shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
           style={{ zIndex: 99999 }}
           sideOffset={8}
-          align="start"
+          align="center"
         >
           <Calendar selected={value} onSelect={handleDateSelect} />
 
@@ -234,19 +266,46 @@ function DateTimePicker({
           <div className="border-t border-dark-grey p-4">
             <label className="block text-sm text-white mb-2">Time</label>
             <div className="flex gap-2 items-center">
-              {/* Hour Selector */}
+              {/* Hour Selector (1-12) */}
               <div className="flex-1">
                 <select
-                  value={timeValue.split(':')[0]}
-                  onChange={(e) => {
-                    const minutes = timeValue.split(':')[1];
-                    handleTimeChange(`${e.target.value}:${minutes}`);
-                  }}
+                  value={hour12}
+                  onChange={(e) => handleHourChange(parseInt(e.target.value))}
                   className="w-full rounded border border-dark-grey bg-metallic-grey px-3 py-2 text-white focus:border-primary focus:outline-none appearance-none cursor-pointer"
                 >
-                  {Array.from({ length: 24 }, (_, i) => {
-                    const currentMinutes = parseInt(timeValue.split(':')[1]);
-                    const isDisabled = isTimeDisabled(i, currentMinutes, value);
+                  {Array.from({ length: 12 }, (_, i) => {
+                    const hourValue = i + 1; // 1-12
+                    const isDisabled = isTimeDisabled(
+                      hourValue,
+                      minutes,
+                      period,
+                      value,
+                    );
+                    return (
+                      <option
+                        key={hourValue}
+                        value={hourValue}
+                        disabled={isDisabled}
+                        className={isDisabled ? 'text-grey' : ''}
+                      >
+                        {hourValue}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              <span className="text-white">:</span>
+
+              {/* Minute Selector */}
+              <div className="flex-1">
+                <select
+                  value={minutes.toString().padStart(2, '0')}
+                  onChange={(e) => handleMinuteChange(parseInt(e.target.value))}
+                  className="w-full rounded border border-dark-grey bg-metallic-grey px-3 py-2 text-white focus:border-primary focus:outline-none appearance-none cursor-pointer"
+                >
+                  {Array.from({ length: 60 }, (_, i) => {
+                    const isDisabled = isTimeDisabled(hour12, i, period, value);
                     return (
                       <option
                         key={i}
@@ -261,33 +320,30 @@ function DateTimePicker({
                 </select>
               </div>
 
-              <span className="text-white">:</span>
-
-              {/* Minute Selector */}
-              <div className="flex-1">
-                <select
-                  value={timeValue.split(':')[1]}
-                  onChange={(e) => {
-                    const hours = timeValue.split(':')[0];
-                    handleTimeChange(`${hours}:${e.target.value}`);
-                  }}
-                  className="w-full rounded border border-dark-grey bg-metallic-grey px-3 py-2 text-white focus:border-primary focus:outline-none appearance-none cursor-pointer"
+              {/* AM/PM Toggle */}
+              <div className="flex rounded border border-dark-grey overflow-hidden">
+                <button
+                  type="button"
+                  className={`px-3 py-2 text-sm transition-colors ${
+                    period === 'AM'
+                      ? 'bg-primary text-black'
+                      : 'bg-metallic-grey text-white hover:bg-dark-grey'
+                  }`}
+                  onClick={() => handlePeriodChange('AM')}
                 >
-                  {Array.from({ length: 60 }, (_, i) => {
-                    const currentHours = parseInt(timeValue.split(':')[0]);
-                    const isDisabled = isTimeDisabled(currentHours, i, value);
-                    return (
-                      <option
-                        key={i}
-                        value={i.toString().padStart(2, '0')}
-                        disabled={isDisabled}
-                        className={isDisabled ? 'text-grey' : ''}
-                      >
-                        {i.toString().padStart(2, '0')}
-                      </option>
-                    );
-                  })}
-                </select>
+                  AM
+                </button>
+                <button
+                  type="button"
+                  className={`px-3 py-2 text-sm transition-colors ${
+                    period === 'PM'
+                      ? 'bg-primary text-black'
+                      : 'bg-metallic-grey text-white hover:bg-dark-grey'
+                  }`}
+                  onClick={() => handlePeriodChange('PM')}
+                >
+                  PM
+                </button>
               </div>
             </div>
           </div>
