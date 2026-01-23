@@ -106,7 +106,7 @@ export const ANT_REGISTRY_PROCESS_ID =
 
 export const DEFAULT_ANT_LUA_ID = ANT_LUA_ID;
 
-export const DEFAULT_ANT_LOGO = 'Sie_26dvgyok0PZD_-iQAFOhOd5YxDTkczOLoqTTL_A';
+export const DEFAULT_ANT_LOGO = 'AnYvLJTWcG9lr2Ll5MwYWZR2o5uTE39WbpYB0zCxwKM';
 export const ARIO_AO_CU_URL =
   import.meta.env.VITE_ARIO_AO_CU_URL || 'https://cu.ardrive.io';
 
