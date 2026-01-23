@@ -1,5 +1,6 @@
 import { AoANTRecord, AoANTState, sortANTRecords } from '@ar.io/sdk';
 import { Tooltip } from '@src/components/data-display';
+import { ArioSpinner } from '@src/components/data-display/Spinner';
 import { ExternalLinkIcon, PencilIcon, TrashIcon } from '@src/components/icons';
 import ArweaveID, {
   ArweaveIdTypes,
@@ -33,13 +34,11 @@ import {
 import { MIN_ANT_VERSION } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
-import Lottie from 'lottie-react';
 import { Plus, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link } from 'react-router-dom';
 
-import arioLoading from '../../icons/ario-spinner.json';
 import TableView from './TableView';
 
 interface TableData {
@@ -405,11 +404,7 @@ const UndernamesTable = ({
         noDataFoundText={
           isLoading ? (
             <span className="h-fit flex flex-col text-white w-full items-center p-5 justify-center">
-              <Lottie
-                animationData={arioLoading}
-                loop={true}
-                className="h-[100px]"
-              />
+              <ArioSpinner size={100} />
               <span>Loading Undernames...</span>
             </span>
           ) : (

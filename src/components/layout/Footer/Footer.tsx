@@ -9,7 +9,6 @@ import { Link } from 'react-router-dom';
 import changeLog from '../../../../CHANGELOG.md?raw';
 import { ARIO_DISCORD_LINK, ARNS_DOCS_LINK } from '../../../utils/constants';
 import { APP_VERSION } from '../../../utils/constants';
-import { BrandLogo } from '../../icons';
 
 const FORMATTED_CHANGELOG = changeLog
   .substring(changeLog.indexOf('## [Unreleased]') + 16)
@@ -29,9 +28,6 @@ function Footer() {
       }}
     >
       <div className={'flex-row flex-center md:flex-left p-2 md:p-0'}>
-        <span className="hidden md:block">
-          <BrandLogo width={'30px'} height={'30px'} fill={'var(--text-grey)'} />
-        </span>
         <Link
           className="grey text hover:text-white"
           to={'https://ar.io/legal/terms-of-service-and-privacy-policy'}

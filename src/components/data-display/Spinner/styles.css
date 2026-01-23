@@ -1,0 +1,41 @@
+.ario-spinner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ario-spinner-logo {
+  position: absolute;
+  width: 75%;
+  height: 75%;
+  animation: ario-pulse 2s ease-in-out infinite;
+}
+
+.ario-spinner-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  animation: ario-spin 1.5s linear infinite;
+}
+
+@keyframes ario-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ario-pulse {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}

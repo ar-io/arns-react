@@ -3,10 +3,10 @@ import {
   isLeasedArNSRecord,
   mARIOToken,
 } from '@ar.io/sdk/web';
+import { ArioSpinner } from '@src/components/data-display/Spinner';
 import { useArNSIntentPrice } from '@src/hooks/useArNSIntentPrice';
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import useDomainInfo from '@src/hooks/useDomainInfo';
-import Lottie from 'lottie-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -32,7 +32,6 @@ import {
   YEAR_IN_MILLISECONDS,
 } from '../../../utils/constants';
 import { InfoIcon } from '../../icons';
-import arioLoading from '../../icons/ario-spinner.json';
 import Counter from '../../inputs/Counter/Counter';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import DialogModal from '../../modals/DialogModal/DialogModal';
@@ -264,11 +263,7 @@ function ExtendLease() {
               {loadingDomainData && (
                 <div className="flex flex-col items-center justify-center rounded-md bg-foreground h-full w-full absolute top-0 left-0">
                   <div className="flex flex-row items-center justify-center">
-                    <Lottie
-                      animationData={arioLoading}
-                      loop={true}
-                      className="h-[150px]"
-                    />
+                    <ArioSpinner size={150} />
                   </div>
                 </div>
               )}
