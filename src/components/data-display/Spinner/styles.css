@@ -1,19 +1,21 @@
 .ario-spinner {
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
+}
+
+.ario-spinner-logo,
+.ario-spinner-ring {
+  grid-area: 1 / 1;
 }
 
 .ario-spinner-logo {
-  position: absolute;
   width: 75%;
   height: 75%;
   animation: ario-pulse 2s ease-in-out infinite;
 }
 
 .ario-spinner-ring {
-  position: absolute;
   width: 100%;
   height: 100%;
   animation: ario-spin 1.5s linear infinite;
