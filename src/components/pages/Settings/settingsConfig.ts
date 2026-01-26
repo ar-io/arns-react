@@ -4,9 +4,16 @@ import {
   ARIO_TESTNET_PROCESS_ID,
 } from '@ar.io/sdk/web';
 import { isArweaveTransactionID, isValidGateway, isValidURL } from '@src/utils';
+
+// Validator for positive integers
+const isValidPositiveInteger = (value: string): boolean => {
+  const num = parseInt(value, 10);
+  return !isNaN(num) && num > 0 && num.toString() === value;
+};
 import {
   ANT_REGISTRY_TESTNET_PROCESS_ID,
   ARIO_PROCESS_ID,
+  DEFAULT_MIN_MARKETPLACE_ANT_VERSION,
   NETWORK_DEFAULTS,
 } from '@src/utils/constants';
 
@@ -69,6 +76,35 @@ export function createSettingsConfig(
           type: 'setAntRegistryProcessId',
           payload: ANT_REGISTRY_ID,
         });
+      },
+    },
+    {
+      key: 'minimumANTVersionForMarketplace',
+      label: 'Minimum ANT Version for Marketplace',
+      placeholder: 'Enter minimum ANT version number',
+      validator: isValidPositiveInteger,
+      defaultValue: DEFAULT_MIN_MARKETPLACE_ANT_VERSION.toString(),
+      type: 'number',
+      onSet: (value: string) => {
+        dispatchGlobalState({
+          type: 'setMinimumANTVersionForMarketplace',
+          payload: parseInt(value, 10),
+        });
+      },
+      onReset: () => {
+        dispatchGlobalState({
+          type: 'setMinimumANTVersionForMarketplace',
+          payload: DEFAULT_MIN_MARKETPLACE_ANT_VERSION,
+        });
+      },
+      globalStateSync: {
+        getValue: () => globalState.minimumANTVersionForMarketplace.toString(),
+        setValue: (value: string) => {
+          dispatchGlobalState({
+            type: 'setMinimumANTVersionForMarketplace',
+            payload: parseInt(value, 10),
+          });
+        },
       },
     },
     {

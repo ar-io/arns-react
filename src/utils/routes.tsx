@@ -1,7 +1,8 @@
 import Prices from '@src/components/pages/Prices/Prices';
 import RNPPage from '@src/components/pages/RNPPage/RNPPage';
-import { Bolt, CircleDollarSignIcon, Gavel } from 'lucide-react';
+import { Bolt, CircleDollarSignIcon, Gavel, StoreIcon } from 'lucide-react';
 
+import Marketplace from '@src/components/pages/Marketplace/Marketplace';
 import { Home, Manage } from '../components/pages';
 
 // We have to wrap the icons like this due to lucide break on mobile when stored as a const like this
@@ -17,6 +18,10 @@ const WrappedDollarSignIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
   props,
 ) => {
   return <CircleDollarSignIcon {...props} />;
+};
+
+const WrappedStoreIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
+  return <StoreIcon {...props} />;
 };
 
 export type Route = {
@@ -58,6 +63,14 @@ export const ROUTES: { [x: string]: Route } = {
     icon: WrappedBoltIcon,
     path: '/manage',
     component: Manage,
+    protected: false,
+    index: false,
+  },
+  marketplace: {
+    text: 'Marketplace',
+    icon: WrappedStoreIcon,
+    path: '/marketplace',
+    component: Marketplace,
     protected: false,
     index: false,
   },

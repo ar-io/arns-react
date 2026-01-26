@@ -23,7 +23,7 @@ import './index.css';
 import { useGlobalState } from './state';
 
 // set the log level of ar-io-sdk
-Logger.default.setLogLevel('none');
+Logger.default.setLogLevel('error');
 
 const Manage = React.lazy(() => import('./components/pages/Manage/Manage'));
 const Home = React.lazy(() => import('./components/pages/Home/Home'));
@@ -65,6 +65,14 @@ const SettingsLayout = React.lazy(
 const Prices = React.lazy(() => import('./components/pages/Prices/Prices'));
 
 const RNPPage = React.lazy(() => import('./components/pages/RNPPage/RNPPage'));
+
+const MarketplacePage = React.lazy(
+  () => import('./components/pages/Marketplace/Marketplace'),
+);
+
+const ViewListingPage = React.lazy(
+  () => import('./components/pages/ViewListing/ViewListing'),
+);
 
 const sentryCreateBrowserRouter =
   Sentry.wrapCreateBrowserRouter(createHashRouter);
@@ -371,6 +379,39 @@ function App() {
                 <Prices />
               </Suspense>
             }
+          />
+          <Route
+            path="/marketplace"
+            element={
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                <MarketplacePage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/marketplace/names/:name"
+            element={
+              <Suspense
+                fallback={
+                  <PageLoader loading={true} message={'Loading, please wait'} />
+                }
+              >
+                <ViewListingPage />
+              </Suspense>
+            }
+            handle={{
+              crumbs: (data: string) => [
+                { name: 'Marketplace', route: '/marketplace' },
+                {
+                  name: data,
+                  route: `/marketplace/names/${data}`,
+                },
+              ],
+            }}
           />
         </Route>
 

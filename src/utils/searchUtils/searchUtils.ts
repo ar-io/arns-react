@@ -201,6 +201,45 @@ export function isValidURL(url: string) {
   return url ? URL_REGEX.test(url) : false;
 }
 
+export function isValidNetworkURL(url: string): boolean {
+  if (!url) return false;
+
+  try {
+    // Try to parse as URL to validate structure
+    const urlObj = new URL(url);
+
+    // Allow http and https protocols
+    if (!['http:', 'https:'].includes(urlObj.protocol)) {
+      return false;
+    }
+
+    // Validate hostname (can be domain, IP, or localhost)
+    const hostname = urlObj.hostname;
+
+    // Allow localhost
+    if (hostname === 'localhost') return true;
+
+    // Allow IP addresses
+    const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+    if (ipRegex.test(hostname)) {
+      // Validate IP ranges (0-255)
+      const parts = hostname.split('.');
+      return parts.every((part) => {
+        const num = parseInt(part, 10);
+        return num >= 0 && num <= 255;
+      });
+    }
+
+    // Allow domain names
+    const domainRegex =
+      /^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+    return domainRegex.test(hostname);
+  } catch {
+    // If URL constructor fails, fall back to regex
+    return URL_REGEX.test(url);
+  }
+}
+
 export function isMaxLeaseDuration(duration: number | string) {
   return (
     (duration &&

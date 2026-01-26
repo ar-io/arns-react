@@ -21,14 +21,13 @@ const sentry =
     ? Sentry.init({
         dsn: `https://${SENTRY_DSN_PUBLIC_KEY}@${SENTRY_DSN_PROJECT_URI}/${SENTRY_DSN_PROJECT_ID}`,
         integrations: [
-          new Sentry.BrowserTracing({
-            routingInstrumentation: Sentry.reactRouterV6Instrumentation(
-              useEffect,
-              useLocation,
-              useNavigationType,
-              createRoutesFromChildren,
-              matchRoutes,
-            ),
+          Sentry.browserTracingIntegration(),
+          Sentry.reactRouterV6BrowserTracingIntegration({
+            useEffect,
+            useLocation,
+            useNavigationType,
+            createRoutesFromChildren,
+            matchRoutes,
           }),
           Sentry.httpClientIntegration({
             failedRequestStatusCodes: [

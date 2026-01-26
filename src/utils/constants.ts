@@ -24,6 +24,9 @@ export const APP_VERSION = __NPM_PACKAGE_VERSION__ || '1.0.0';
 
 // This is the minimum version all workflows are currently compatible with (including reassign, release, etc)
 export const MIN_ANT_VERSION = 16;
+
+// Default minimum ANT version required for marketplace functionality
+export const DEFAULT_MIN_MARKETPLACE_ANT_VERSION = 25;
 export const WRITE_OPTIONS = {
   tags: [
     {
@@ -86,15 +89,20 @@ export const FQDN_REGEX = new RegExp(
 );
 export const URL_REGEX = new RegExp(
   '^((https?|ftp)://)?' +
-    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
-    '((\\d{1,3}\\.){3}\\d{1,3}))' +
-    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
-    '(\\?[;&a-z\\d%_.~+=-]*)?' +
-    '(\\#[-a-z\\d_]*)?$',
+    '((([a-zA-Z\\d]([a-zA-Z\\d-]*[a-zA-Z\\d])*)\\.)+[a-zA-Z]{2,}|' +
+    '((\\d{1,3}\\.){3}\\d{1,3})|' +
+    'localhost)' +
+    '(\\:\\d+)?(\\/[-a-zA-Z\\d%_.~+]*)*' +
+    '(\\?[;&a-zA-Z\\d%_.~+=-]*)?' +
+    '(\\#[-a-zA-Z\\d_]*)?$',
   'i',
 );
 export const ARIO_PROCESS_ID =
   import.meta.env.VITE_ARIO_PROCESS_ID || ARIO_TESTNET_PROCESS_ID;
+
+export const MARKETPLACE_PROCESS_ID =
+  import.meta.env.VITE_MARKETPLACE_PROCESS_ID ||
+  'ijCygKzV48PHx_TUdFN7NNJgbBUatQDL_h8FfqVzXfE';
 
 // TODO: export this from the sdk
 export const ANT_REGISTRY_TESTNET_PROCESS_ID =

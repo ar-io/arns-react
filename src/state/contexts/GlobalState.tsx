@@ -5,6 +5,8 @@ import {
   AoARIORead,
   AoARIOWrite,
   AoClient,
+  ArNSMarketplaceRead,
+  ArNSMarketplaceWrite,
 } from '@ar.io/sdk/web';
 import {
   CompositeGatewaysProvider,
@@ -29,10 +31,11 @@ import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveComp
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import {
   APP_VERSION,
-  ARIO_AO_CU_URL,
   ARIO_PROCESS_ID,
   ARWEAVE_HOST,
   DEFAULT_ARWEAVE,
+  DEFAULT_MIN_MARKETPLACE_ANT_VERSION,
+  MARKETPLACE_PROCESS_ID,
   NETWORK_DEFAULTS,
 } from '../../utils/constants';
 import type { GlobalAction } from '../reducers/GlobalReducer';
@@ -44,6 +47,8 @@ function loadSettingsFromStorage(): {
   turboNetwork: typeof NETWORK_DEFAULTS.TURBO;
   arioProcessId: string;
   antRegistryProcessId: string;
+  marketplaceProcessId: string;
+  minimumANTVersionForMarketplace: number;
   hyperbeamUrl?: string;
 } | null {
   try {
@@ -62,8 +67,13 @@ function loadSettingsFromStorage(): {
         aoNetwork: settings.network?.aoNetwork || NETWORK_DEFAULTS.AO,
         turboNetwork: settings.network?.turboNetwork || NETWORK_DEFAULTS.TURBO,
         arioProcessId: settings.arns?.arioProcessId || ARIO_PROCESS_ID,
+        marketplaceProcessId:
+          settings.arns?.marketplaceProcessId || MARKETPLACE_PROCESS_ID,
         antRegistryProcessId:
           settings.arns?.antRegistryProcessId || ANT_REGISTRY_ID,
+        minimumANTVersionForMarketplace:
+          settings.arns?.minimumANTVersionForMarketplace ||
+          DEFAULT_MIN_MARKETPLACE_ANT_VERSION,
         hyperbeamUrl: settings.network?.hyperbeamUrl || undefined,
       };
     }
@@ -85,6 +95,11 @@ const initialTurboNetwork =
 const initialArioProcessId = savedSettings?.arioProcessId || ARIO_PROCESS_ID;
 const initialAntRegistryProcessId =
   savedSettings?.antRegistryProcessId || ANT_REGISTRY_ID;
+const initialMarketplaceProcessId =
+  savedSettings?.marketplaceProcessId || MARKETPLACE_PROCESS_ID;
+const initialMinimumANTVersionForMarketplace =
+  savedSettings?.minimumANTVersionForMarketplace ||
+  DEFAULT_MIN_MARKETPLACE_ANT_VERSION;
 const initialHyperbeamUrl = savedSettings?.hyperbeamUrl;
 
 export const defaultArIO = ARIO.init({
@@ -93,7 +108,18 @@ export const defaultArIO = ARIO.init({
   process: new AOProcess({
     processId: initialArioProcessId,
     ao: connect({
-      CU_URL: ARIO_AO_CU_URL,
+      CU_URL: initialAoNetwork.ARIO.CU_URL,
+      MU_URL: initialAoNetwork.ARIO.MU_URL,
+      MODE: 'legacy',
+    }),
+  }),
+});
+
+export const defaultMarketplaceContract = new ArNSMarketplaceRead({
+  process: new AOProcess({
+    processId: initialMarketplaceProcessId,
+    ao: connect({
+      CU_URL: initialAoNetwork.ARIO.CU_URL,
       MODE: 'legacy',
     }),
   }),
@@ -107,28 +133,35 @@ export type GlobalState = {
   aoClient: AoClient;
   antAoClient: AoClient;
   arioProcessId: string;
+  marketplaceProcessId: string;
   antRegistryProcessId: string;
+  minimumANTVersionForMarketplace: number;
   blockHeight?: number;
   lastBlockUpdateTimestamp?: number;
   arweaveDataProvider: ArweaveCompositeDataProvider;
   arioContract: AoARIORead | AoARIOWrite;
+  marketplaceContract: ArNSMarketplaceRead | ArNSMarketplaceWrite;
   hyperbeamUrl?: string;
 };
 
 const initialState: GlobalState = {
   arioProcessId: initialArioProcessId,
   antRegistryProcessId: initialAntRegistryProcessId,
+  marketplaceProcessId: initialMarketplaceProcessId,
+  minimumANTVersionForMarketplace: initialMinimumANTVersionForMarketplace,
   arioTicker: 'ARIO',
   gateway: initialGateway,
   aoNetwork: initialAoNetwork,
   turboNetwork: initialTurboNetwork,
   aoClient: connect({
-    ...initialAoNetwork.ARIO,
-    GATEWAY_URL: 'https://' + initialGateway,
+    CU_URL: initialAoNetwork.ARIO.CU_URL,
+    MU_URL: initialAoNetwork.ARIO.MU_URL,
+    MODE: 'legacy',
   }),
   antAoClient: connect({
-    ...initialAoNetwork.ANT,
-    GATEWAY_URL: 'https://' + initialGateway,
+    CU_URL: initialAoNetwork.ANT.CU_URL,
+    MU_URL: initialAoNetwork.ANT.MU_URL,
+    MODE: 'legacy',
   }),
   hyperbeamUrl: initialHyperbeamUrl,
   blockHeight: undefined,
@@ -138,6 +171,7 @@ const initialState: GlobalState = {
     contract: defaultArIO,
   }),
   arioContract: defaultArIO,
+  marketplaceContract: defaultMarketplaceContract,
 };
 
 const GlobalStateContext = createContext<[GlobalState, Dispatch<GlobalAction>]>(
