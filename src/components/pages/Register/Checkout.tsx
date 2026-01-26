@@ -40,6 +40,7 @@ import {
 import { formatARIOWithCommas } from '@src/utils';
 import { getBaseChainId } from '@src/utils/baseNetwork';
 import {
+  BASE_ARIO_CONTRACT,
   BASE_TOKEN_CONFIG,
   BASE_USDC_CONTRACT,
   BaseTokenType,
@@ -109,6 +110,13 @@ function Checkout() {
     token: BASE_USDC_CONTRACT,
   });
 
+  // Fetch ARIO balance on Base for pre-emptive check
+  const { data: baseArioBalance } = useBalance({
+    address: ethAddress,
+    chainId: getBaseChainId(),
+    token: BASE_ARIO_CONTRACT,
+  });
+
   const costDetailsParams = useMemo(() => {
     return {
       ...((transactionData ?? {}) as any),
@@ -173,6 +181,10 @@ function Checkout() {
           if (!baseUsdcBalance) return false; // Balance not loaded yet
           return Number(baseUsdcBalance.formatted) < baseTokenPrice.tokenAmount;
         }
+        if (selectedCryptoToken === 'base-ario') {
+          if (!baseArioBalance) return false; // Balance not loaded yet
+          return Number(baseArioBalance.formatted) < baseTokenPrice.tokenAmount;
+        }
         return false;
       }
       return costDetail?.fundingPlan?.shortfall ? true : false;
@@ -193,6 +205,7 @@ function Checkout() {
     baseTokenPrice,
     baseEthBalance,
     baseUsdcBalance,
+    baseArioBalance,
   ]);
 
   const fees = useMemo(() => {
@@ -220,16 +233,13 @@ function Checkout() {
       };
     }
     if (paymentMethod === 'crypto') {
-      // For Base tokens, show the crypto amount with "(via Turbo)" note
+      // For Base tokens, show the crypto amount
       if (isBaseToken(selectedCryptoToken)) {
         return {
           'Total due:': baseTokenPrice ? (
-            <div className="flex flex-col items-end">
-              <span className="text-white text-bold text-lg">
-                ~{baseTokenPrice.displayAmount}
-              </span>
-              <span className="text-grey text-xs">(via Turbo Credits)</span>
-            </div>
+            <span className="text-white text-bold text-lg">
+              ~{baseTokenPrice.displayAmount}
+            </span>
           ) : (
             <span className="text-grey text-bold text-lg animate-pulse">
               Loading...

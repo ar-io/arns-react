@@ -8,11 +8,14 @@ import {
   ArNSMarketplaceRead,
   ArNSMarketplaceWrite,
 } from '@ar.io/sdk/web';
-import { NetworkGatewaysProvider } from '@ar.io/wayfinder-core';
 import {
+  CompositeGatewaysProvider,
   LocalStorageGatewaysProvider,
-  WayfinderProvider,
-} from '@ar.io/wayfinder-react';
+  NetworkGatewaysProvider,
+  RandomRoutingStrategy,
+  StaticGatewaysProvider,
+} from '@ar.io/wayfinder-core';
+import { WayfinderProvider } from '@ar.io/wayfinder-react';
 import { connect } from '@permaweb/aoconnect';
 import { SETTINGS_STORAGE_KEY } from '@src/hooks';
 import eventEmitter from '@src/utils/events';
@@ -28,7 +31,6 @@ import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveComp
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import {
   APP_VERSION,
-  ARIO_AO_CU_URL,
   ARIO_PROCESS_ID,
   ARWEAVE_HOST,
   DEFAULT_ARWEAVE,
@@ -106,8 +108,8 @@ export const defaultArIO = ARIO.init({
   process: new AOProcess({
     processId: initialArioProcessId,
     ao: connect({
-      // CU_URL: ARIO_AO_CU_URL,
-      CU_URL: 'http://localhost:6363',
+      CU_URL: initialAoNetwork.ARIO.CU_URL,
+      MU_URL: initialAoNetwork.ARIO.MU_URL,
       MODE: 'legacy',
     }),
   }),
@@ -117,8 +119,7 @@ export const defaultMarketplaceContract = new ArNSMarketplaceRead({
   process: new AOProcess({
     processId: initialMarketplaceProcessId,
     ao: connect({
-      // CU_URL: ARIO_AO_CU_URL,
-      CU_URL: 'http://localhost:6363',
+      CU_URL: initialAoNetwork.ARIO.CU_URL,
       MODE: 'legacy',
     }),
   }),
@@ -153,12 +154,14 @@ const initialState: GlobalState = {
   aoNetwork: initialAoNetwork,
   turboNetwork: initialTurboNetwork,
   aoClient: connect({
-    ...initialAoNetwork.ARIO,
-    GATEWAY_URL: 'https://' + initialGateway,
+    CU_URL: initialAoNetwork.ARIO.CU_URL,
+    MU_URL: initialAoNetwork.ARIO.MU_URL,
+    MODE: 'legacy',
   }),
   antAoClient: connect({
-    ...initialAoNetwork.ANT,
-    GATEWAY_URL: 'https://' + initialGateway,
+    CU_URL: initialAoNetwork.ANT.CU_URL,
+    MU_URL: initialAoNetwork.ANT.MU_URL,
+    MODE: 'legacy',
   }),
   hyperbeamUrl: initialHyperbeamUrl,
   blockHeight: undefined,
@@ -217,15 +220,25 @@ export function GlobalStateProvider({
 
   return (
     <GlobalStateContext.Provider value={[state, dispatchGlobalState]}>
-      {/* Wrap global state in wayfinder provider */}
       <WayfinderProvider
-        gatewaysProvider={
-          new LocalStorageGatewaysProvider({
-            gatewaysProvider: new NetworkGatewaysProvider({
-              ario: state.arioContract,
+        routingSettings={{
+          strategy: new RandomRoutingStrategy({
+            gatewaysProvider: new CompositeGatewaysProvider({
+              providers: [
+                // cache the network list
+                new LocalStorageGatewaysProvider({
+                  gatewaysProvider: new NetworkGatewaysProvider({
+                    ario: state.arioContract,
+                  }),
+                }),
+                // fallback to user-defined static gateway
+                new StaticGatewaysProvider({
+                  gateways: ['https://' + state.gateway],
+                }),
+              ],
             }),
-          })
-        }
+          }),
+        }}
         telemetrySettings={{
           enabled: true,
           clientName: 'arns-app',

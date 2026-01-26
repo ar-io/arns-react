@@ -432,7 +432,8 @@ export class TurboArNSClient {
       case 'usdc':
       case 'base-usdc':
       case 'polygon-usdc':
-        // USDC uses 6 decimals
+      case 'base-ario':
+        // USDC and Base ARIO use 6 decimals
         return (amount * 1e6).toString();
       default:
         return undefined;

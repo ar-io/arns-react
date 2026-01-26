@@ -76,7 +76,9 @@ export class EthWalletConnector implements ArNSWalletConnector {
       if (!signer.publicKey) {
         await signer.setPublicKey();
       }
-      const dataItem = createData(data as string, signer, {
+      // ensure there is data to sign
+      const ensuredData = data || ' ';
+      const dataItem = createData(ensuredData, signer, {
         tags,
         target,
         anchor: Math.round(Date.now() / 1000)

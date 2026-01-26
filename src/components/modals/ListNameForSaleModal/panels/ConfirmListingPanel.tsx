@@ -1,9 +1,3 @@
-import {
-  ARIOToken,
-  calculateListingFee,
-  calculateSaleTax,
-  mARIOToken,
-} from '@ar.io/sdk';
 import * as Popover from '@radix-ui/react-popover';
 import ANTDetailsTip from '@src/components/Tooltips/ANTDetailsTip';
 import { Tooltip } from '@src/components/data-display';
@@ -12,12 +6,11 @@ import { InfoIcon } from '@src/components/icons';
 import { ArNSLogo } from '@src/components/icons';
 import { Checkbox } from '@src/components/inputs/Checkbox';
 import useDomainInfo from '@src/hooks/useDomainInfo';
-import { useMarketplaceInfo } from '@src/hooks/useMarketplaceInfo';
 import { useWalletState } from '@src/state';
 import { decodeDomainToASCII, isArweaveTransactionID } from '@src/utils';
 import { formatARIOWithCommas } from '@src/utils/common/common';
 import { DEFAULT_ANT_LOGO } from '@src/utils/constants';
-import { ReactNode, useCallback, useState } from 'react';
+import { ReactNode, useState } from 'react';
 
 export type ConfirmListingPanelProps = {
   domainName: string;
@@ -27,6 +20,9 @@ export type ConfirmListingPanelProps = {
   arioTicker: string;
   arIoPrice?: number;
   expirationDate?: Date;
+  listingFee: number;
+  saleTax: number;
+  youWillReceive: number;
   onConfirm: () => void;
   onCancel: () => void;
   isLoading?: boolean;
@@ -40,6 +36,9 @@ function ConfirmListingPanel({
   arioTicker,
   arIoPrice,
   expirationDate,
+  listingFee,
+  saleTax,
+  youWillReceive,
   onConfirm,
   onCancel,
   isLoading = false,
@@ -48,7 +47,6 @@ function ConfirmListingPanel({
   const { data: domainInfo } = useDomainInfo({
     antId: isArweaveTransactionID(antId) ? antId : undefined,
   });
-  const { data: marketplaceInfo } = useMarketplaceInfo();
   const [agreementChecked, setAgreementChecked] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
@@ -60,46 +58,6 @@ function ConfirmListingPanel({
       maximumFractionDigits: 2,
     })} USD`;
   };
-
-  // Calculate marketplace fees using useCallback
-  const calculateFees = useCallback(() => {
-    if (!marketplaceInfo?.fees || !expirationDate) {
-      return {
-        listingFee: 0,
-        saleTax: 0,
-        totalFees: 0,
-        youWillReceive: listingPrice,
-      };
-    }
-    const expirationTime = expirationDate.getTime();
-    const listingFee = calculateListingFee({
-      listingFeePerHour: marketplaceInfo.fees.listingFeePerHour.toString(),
-      endTimestamp: expirationTime,
-    });
-    const saleTax = calculateSaleTax({
-      saleAmount: new ARIOToken(listingPrice).toMARIO().valueOf().toString(),
-      saleTaxNumerator: marketplaceInfo.fees.saleTaxNumerator,
-      saleTaxDenominator: marketplaceInfo.fees.saleTaxDenominator,
-    });
-    const totalFees = new mARIOToken(Number(listingFee + saleTax))
-      .toARIO()
-      .valueOf();
-
-    // Only deduct sale tax from received amount - listing fee is paid upfront
-    const youWillReceive =
-      listingPrice - new mARIOToken(Number(saleTax)).toARIO().valueOf();
-
-    return {
-      listingFee: new mARIOToken(Number(listingFee.valueOf()))
-        .toARIO()
-        .valueOf(),
-      saleTax: new mARIOToken(Number(saleTax.valueOf())).toARIO().valueOf(),
-      totalFees,
-      youWillReceive,
-    };
-  }, [listingPrice, expirationDate, marketplaceInfo?.fees]);
-
-  const { listingFee, saleTax, youWillReceive } = calculateFees();
 
   const getListingTypeLabel = () => {
     switch (listingType) {

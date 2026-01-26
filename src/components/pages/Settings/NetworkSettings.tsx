@@ -151,7 +151,6 @@ function NetworkSettings() {
       });
 
       const ao = connect({
-        GATEWAY_URL: 'https://' + gateway,
         CU_URL: newConfig.ARIO.CU_URL,
         MU_URL: newConfig.ARIO.MU_URL,
         MODE: 'legacy' as const,
@@ -162,7 +161,6 @@ function NetworkSettings() {
       });
 
       const antAo = connect({
-        GATEWAY_URL: 'https://' + gateway,
         CU_URL: newConfig.ANT.CU_URL,
         MU_URL: newConfig.ANT.MU_URL,
         MODE: 'legacy' as const,
@@ -206,7 +204,6 @@ function NetworkSettings() {
       // The arioContract uses this URL for fundFrom: 'turbo' operations
       if (config.PAYMENT_URL) {
         const ao = connect({
-          GATEWAY_URL: 'https://' + gateway,
           CU_URL: aoNetwork.ARIO.CU_URL,
           MU_URL: aoNetwork.ARIO.MU_URL,
           MODE: 'legacy' as const,

@@ -8,6 +8,24 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.28.1] - 2025-12-22
+
+### Fixed
+
+- Updated docs link to the ARIO ArNS docs
+
+## [1.28.0] - 2025-12-10
+
+### Added
+
+- Base ARIO token support for Turbo credit top-ups and ArNS name purchases
+- "No fee" badges on ARIO token options in payment flows
+- ARIO token options prioritized at top of token selection
+
+### Changed
+
+- Upgraded @ardrive/turbo-sdk to 1.39.0-alpha.1 for Base ARIO support
+
 ## [1.27.0] - 2025-12-04
 
 ### Added

@@ -76,11 +76,13 @@ function CryptoConfigurationPanel({
     }
     if (walletType === WALLET_TYPES.ETHEREUM) {
       // ETH wallets: group native tokens and stablecoins separately
+      // ARIO options first (no fees), then other native tokens
       const native: typeof ETHEREUM_WALLET_TOKENS = [
+        'ario',
+        'base-ario',
         'ethereum',
         'base-eth',
         'pol',
-        'ario',
       ];
       const stable: typeof ETHEREUM_WALLET_TOKENS = [
         'usdc',
@@ -263,6 +265,7 @@ function CryptoConfigurationPanel({
               {nativeTokens.map((token) => {
                 const tokenInfo = TOKEN_DISPLAY_INFO[token];
                 const isSelected = selectedToken === token;
+                const isArioToken = token === 'ario' || token === 'base-ario';
                 // 4 tokens = 3 cols each, 2 tokens = 6 cols each
                 const colSpan =
                   nativeTokens.length === 4 ? 'col-span-3' : 'col-span-6';
@@ -276,8 +279,19 @@ function CryptoConfigurationPanel({
                     }`}
                     onClick={() => setSelectedToken(token)}
                   >
-                    <span className="text-xs font-semibold">
+                    <span className="text-xs font-semibold flex items-center gap-1">
                       {tokenInfo?.name || token}
+                      {isArioToken && (
+                        <span
+                          className={`text-[8px] px-1 py-0.5 rounded font-medium ${
+                            isSelected
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-green-600/20 text-green-400'
+                          }`}
+                        >
+                          No fee
+                        </span>
+                      )}
                     </span>
                     {tokenInfo?.network && (
                       <span

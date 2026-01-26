@@ -1,5 +1,4 @@
 import { AntLogoIcon } from '@src/components/data-display/AntLogoIcon';
-import { ManageMarketplaceARIOModal } from '@src/components/modals';
 import TurboTopUpModal from '@src/components/modals/turbo/TurboTopUpModal';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
@@ -31,21 +30,12 @@ import { Loader, NavBarLink } from '../../layout';
 import ArweaveID, { ArweaveIdTypes } from '../../layout/ArweaveID/ArweaveID';
 import { WalletAddress } from '../../layout/WalletAddress/WalletAddress';
 import './styles.css';
-import { buildMarketplaceUserAssetsQuery } from '@src/hooks/useMarketplaceUserAssets';
 
 function NavMenuCard() {
   // TODO: all the balance queries here should be refactored to use balance hooks, or a central balance hook
   const queryClient = useQueryClient();
-  const [
-    {
-      arioContract,
-      arioTicker,
-      arioProcessId,
-      aoNetwork,
-      marketplaceContract,
-      marketplaceProcessId,
-    },
-  ] = useGlobalState();
+  const [{ arioContract, arioTicker, arioProcessId, aoNetwork }] =
+    useGlobalState();
 
   const [{ wallet, walletAddress }, dispatchWalletState] = useWalletState();
   const { disconnectAsync } = useDisconnect();
@@ -74,19 +64,9 @@ function NavMenuCard() {
     [arioTicker]: undefined,
   });
 
-  const [marketplaceDetails, setMarketplaceDetails] = useState<{
-    Balance: number | undefined | string;
-    'Locked Balance': number | undefined | string;
-  }>({
-    Balance: undefined,
-    'Locked Balance': undefined,
-  });
   const menuRef = useRef<HTMLDivElement>(null);
 
   const [turboTopUpModalOpen, setTurboTopUpModalOpen] = useState(false);
-  const [manageMarketplaceModalOpen, setManageMarketplaceModalOpen] =
-    useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     if (walletAddress) {
@@ -117,7 +97,7 @@ function NavMenuCard() {
   // Refresh balances when menu is opened
   useEffect(() => {
     if (showMenu && walletAddress) {
-      fetchWalletDetails(walletAddress, true);
+      fetchWalletDetails(walletAddress);
     }
   }, [showMenu, walletAddress]);
 
@@ -126,17 +106,9 @@ function NavMenuCard() {
       ...prev,
       [arioTicker]: undefined,
     }));
-    setMarketplaceDetails({
-      Balance: undefined,
-      'Locked Balance': undefined,
-    });
   }
 
-  async function fetchWalletDetails(walletAddress: AoAddress, refresh = false) {
-    if (refresh) {
-      setIsRefreshing(true);
-    }
-
+  async function fetchWalletDetails(walletAddress: AoAddress) {
     try {
       const ioBalance = await queryClient.fetchQuery(
         buildIOBalanceQuery({
@@ -150,16 +122,6 @@ function NavMenuCard() {
         }),
       );
 
-      const marketplaceBalance = await queryClient.fetchQuery(
-        buildMarketplaceUserAssetsQuery({
-          address: walletAddress.toString(),
-          marketplaceContract,
-          marketplaceProcessId,
-          arioProcessId,
-          aoNetwork,
-        }),
-      );
-
       const [formattedIOBalance] = [ioBalance].map((balance: string | number) =>
         Intl.NumberFormat('en-US', {
           notation: 'compact',
@@ -168,40 +130,12 @@ function NavMenuCard() {
         }).format(+balance),
       );
 
-      // Format marketplace balances
-      const formatMarketplaceBalance = (balance: string) => {
-        const numBalance = Number(balance) / 1000000; // Convert from mARIO to ARIO
-        return Intl.NumberFormat('en-US', {
-          notation: 'compact',
-          maximumFractionDigits: 2,
-          compactDisplay: 'short',
-        }).format(numBalance);
-      };
-
-      const formattedMarketplaceLiquid = marketplaceBalance?.balances?.balance
-        ? formatMarketplaceBalance(marketplaceBalance.balances.balance)
-        : '0';
-
-      const formattedMarketplaceLocked = marketplaceBalance?.balances
-        ?.lockedBalance
-        ? formatMarketplaceBalance(marketplaceBalance.balances.lockedBalance)
-        : '0';
-
       setWalletDetails((prev) => ({
         ...prev,
         [arioTicker]: formattedIOBalance,
       }));
-
-      setMarketplaceDetails({
-        Balance: formattedMarketplaceLiquid,
-        'Locked Balance': formattedMarketplaceLocked,
-      });
     } catch (error) {
       console.error('Error fetching wallet details:', error);
-    } finally {
-      if (refresh) {
-        setIsRefreshing(false);
-      }
     }
   }
 
@@ -364,98 +298,6 @@ function NavMenuCard() {
                               Add
                             </button>
                           )}
-                        </span>
-                      );
-                    })}
-                  </div>
-
-                  {/* Marketplace Section */}
-                  <div
-                    className="flex flex-column"
-                    style={{
-                      background: 'var(--box-color)',
-                      borderRadius: '5px',
-                      padding: '15px',
-                      boxSizing: 'border-box',
-                      gap: '10px',
-                      borderBottom: '1px solid var(--text-faded)',
-                    }}
-                  >
-                    {/* Marketplace Header */}
-                    <div
-                      className="flex items-center justify-between"
-                      style={{
-                        fontSize: '14px',
-                        fontWeight: 600,
-                        color: 'var(--text-white)',
-                        paddingBottom: '5px',
-                        borderBottom: '1px solid var(--text-faded)',
-                        marginBottom: '5px',
-                      }}
-                    >
-                      <span>Marketplace</span>
-                      {isRefreshing && (
-                        <Loader size={12} wrapperStyle={{ margin: '0px' }} />
-                      )}
-                    </div>
-
-                    {/* Marketplace Balances */}
-                    {Object.entries(marketplaceDetails).map(([key, value]) => {
-                      return (
-                        <span
-                          key={key}
-                          className="flex-row grey"
-                          style={{
-                            fontSize: '13px',
-                            gap: '10px',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                          }}
-                        >
-                          <div className="flex items-center gap-1">
-                            <span
-                              className="whitespace-nowrap"
-                              style={{ fontWeight: 400 }}
-                            >
-                              {key}:
-                            </span>
-                            {key === 'Locked Balance' && (
-                              <Tooltip
-                                title={`Deposited ${arioTicker} balance locked in active orders`}
-                                placement={'top'}
-                                autoAdjustOverflow={true}
-                                color="var(--text-faded)"
-                              >
-                                <span
-                                  className="cursor-pointer text-grey"
-                                  style={{ fontSize: '11px' }}
-                                >
-                                  ⓘ
-                                </span>
-                              </Tooltip>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {value ? (
-                              <span className="white">{value}</span>
-                            ) : (
-                              <Loader
-                                size={20}
-                                wrapperStyle={{ margin: '0px' }}
-                              />
-                            )}
-                            {key === 'Balance' && (
-                              <button
-                                className="text-xs text-white hover:text-black bg-foreground hover:bg-white border border-dark-grey rounded px-2 py-[2px] transition-all duration-200 whitespace-nowrap"
-                                onClick={() => {
-                                  setManageMarketplaceModalOpen(true);
-                                  setShowMenu(false);
-                                }}
-                              >
-                                Manage
-                              </button>
-                            )}
-                          </div>
                         </span>
                       );
                     })}
@@ -649,12 +491,6 @@ function NavMenuCard() {
       </Tooltip>
       {turboTopUpModalOpen && (
         <TurboTopUpModal onClose={() => setTurboTopUpModalOpen(false)} />
-      )}
-      {manageMarketplaceModalOpen && (
-        <ManageMarketplaceARIOModal
-          show={manageMarketplaceModalOpen}
-          onClose={() => setManageMarketplaceModalOpen(false)}
-        />
       )}
     </>
   );

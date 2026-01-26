@@ -20,9 +20,14 @@ import { useANTIntent } from '@src/hooks/useANTIntent';
 import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import {
   InterruptedWorkflow,
+  InterruptedWorkflowType,
   useInterruptedWorkflows,
 } from '@src/hooks/useInterruptedWorkflows';
 import { useMarketplaceOrder } from '@src/hooks/useMarketplaceOrder';
+import {
+  PendingWorkflow,
+  usePendingWorkflows,
+} from '@src/hooks/usePendingWorkflows';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import {
   ANTProcessData,
@@ -47,6 +52,7 @@ import {
 } from '@src/utils';
 import {
   ARIO_DISCORD_LINK,
+  ARNS_DOCS_LINK,
   MIN_ANT_VERSION,
   PERMANENT_DOMAIN_MESSAGE,
 } from '@src/utils/constants';
@@ -279,6 +285,65 @@ function InterruptedWorkflowAction({
           domainName={interruptedWorkflow.domainName}
           antId={interruptedWorkflow.antId}
           intentId={interruptedWorkflow.intent.intentId}
+          workflowType={interruptedWorkflow.workflowType}
+        />
+      )}
+    </>
+  );
+}
+
+// Helper component for pending workflow action
+// If there's an order for this domain, prefer displaying the order link instead
+function PendingWorkflowAction({
+  pendingWorkflow,
+}: {
+  pendingWorkflow: PendingWorkflow;
+}) {
+  const [showContinueWorkflowModal, setShowContinueWorkflowModal] =
+    useState(false);
+
+  const { data: order, error: orderError } = useMarketplaceOrder({
+    antId: pendingWorkflow.antId,
+  });
+
+  // If there's an order, prefer displaying marketplace link
+  const hasOrder = order && !orderError;
+  if (hasOrder) {
+    return (
+      <Tooltip
+        message="View in Marketplace"
+        icon={
+          <Link
+            to={`/marketplace/names/${pendingWorkflow.domainName}`}
+            className="flex items-center justify-center w-[18px] h-[18px] text-blue-400 hover:text-blue-300 transition-colors"
+          >
+            <StoreIcon className="w-[18px] h-[18px]" />
+          </Link>
+        }
+      />
+    );
+  }
+
+  return (
+    <>
+      <Tooltip
+        message="Pending marketplace workflow - click to continue"
+        icon={
+          <button onClick={() => setShowContinueWorkflowModal(true)}>
+            <div className="relative">
+              <Activity className="w-[18px] h-[18px] text-orange-400 hover:text-orange-300 transition-colors animate-pulse" />
+            </div>
+          </button>
+        }
+      />
+      {showContinueWorkflowModal && (
+        <ContinueWorkflowModal
+          show={showContinueWorkflowModal}
+          onClose={() => setShowContinueWorkflowModal(false)}
+          domainName={pendingWorkflow.domainName}
+          antId={pendingWorkflow.antId}
+          intentId={pendingWorkflow.intent.intentId}
+          workflowType={InterruptedWorkflowType.TRANSFER}
         />
       )}
     </>
@@ -324,6 +389,7 @@ function RoleDisplay({
               domainName={domainName}
               antId={processId}
               intentId={intent.intentId}
+              workflowType={InterruptedWorkflowType.PUSH_INTENT}
             />
           )}
         </>
@@ -360,6 +426,7 @@ function RoleDisplay({
             domainName={domainName}
             antId={processId}
             intentId={intent.intentId}
+            workflowType={InterruptedWorkflowType.TRANSFER}
           />
         )}
       </>
@@ -403,6 +470,10 @@ const DomainsTable = ({
   const { data: latestAntVersion } = useLatestANTVersion();
   const { data: primaryNameData } = usePrimaryName();
   const { interruptedWorkflows } = useInterruptedWorkflows(
+    domainData.ants,
+    domainData.names,
+  );
+  const { getPendingWorkflowForDomain } = usePendingWorkflows(
     domainData.ants,
     domainData.names,
   );
@@ -757,7 +828,7 @@ const DomainsTable = ({
                         of your supported undernames.
                       </span>
                       <Link
-                        to="https://docs.ar.io/arns/#under-names"
+                        to={ARNS_DOCS_LINK}
                         target="_blank"
                         rel="noreferrer"
                         className="link w-fit m-auto"
@@ -874,6 +945,10 @@ const DomainsTable = ({
                       domainName,
                       processId,
                     );
+                    const pendingWorkflow = getPendingWorkflowForDomain(
+                      domainName,
+                      processId,
+                    );
 
                     // If domain is owned by marketplace, show marketplace link or activity icon
                     if (role === 'marketplace' && !interruptedWorkflow) {
@@ -886,55 +961,81 @@ const DomainsTable = ({
                     }
 
                     if (interruptedWorkflow) {
-                      // Show interrupted workflow icon
+                      // If workflow type is unknown, show error state tooltip instead of continue modal
+                      if (
+                        interruptedWorkflow.workflowType ===
+                        InterruptedWorkflowType.UNKNOWN
+                      ) {
+                        return (
+                          <ErrorStateTooltip
+                            domainName={domainName}
+                            antId={processId}
+                          />
+                        );
+                      }
+                      // Show interrupted workflow icon for TRANSFER and PUSH_INTENT types
                       return (
                         <InterruptedWorkflowAction
                           interruptedWorkflow={interruptedWorkflow}
                         />
                       );
-                    } else {
-                      // Show marketplace listing icon
+                    }
+
+                    if (pendingWorkflow) {
+                      // Show pending workflow icon - allows user to continue the workflow
                       return (
-                        <Tooltip
-                          message={
-                            isMarketplaceCompatible(row.original.version)
-                              ? 'List for Sale'
-                              : `Upgrade to version ${minimumANTVersionForMarketplace}+ to list for sale`
-                          }
-                          icon={
-                            <button
-                              onClick={() => {
-                                if (
-                                  isMarketplaceCompatible(row.original.version)
-                                ) {
-                                  // ANT is marketplace compatible, proceed with listing
-                                  setSelectedDomainForSale({
-                                    name: domainName,
-                                    antId: processId,
-                                  });
-                                  setShowListForSaleModal(true);
-                                } else {
-                                  // ANT needs upgrade for marketplace compatibility
-                                  setDomainToUpgradeForMarketplace({
-                                    domain: lowerCaseDomain(domainName),
-                                    processId: processId,
-                                  });
-                                  setShowUpgradeForMarketplaceModal(true);
-                                }
-                              }}
-                            >
-                              <DollarSign
-                                className={`w-[18px] transition-colors ${
-                                  isMarketplaceCompatible(row.original.version)
-                                    ? 'text-grey hover:text-white'
-                                    : 'text-warning hover:text-warning-light'
-                                }`}
-                              />
-                            </button>
-                          }
+                        <PendingWorkflowAction
+                          pendingWorkflow={pendingWorkflow}
                         />
                       );
                     }
+
+                    // Only show marketplace listing icon for owners
+                    if (role !== 'owner') {
+                      return null;
+                    }
+
+                    // Show marketplace listing icon
+                    return (
+                      <Tooltip
+                        message={
+                          isMarketplaceCompatible(row.original.version)
+                            ? 'List for Sale'
+                            : `Upgrade to version ${minimumANTVersionForMarketplace}+ to list for sale`
+                        }
+                        icon={
+                          <button
+                            onClick={() => {
+                              if (
+                                isMarketplaceCompatible(row.original.version)
+                              ) {
+                                // ANT is marketplace compatible, proceed with listing
+                                setSelectedDomainForSale({
+                                  name: domainName,
+                                  antId: processId,
+                                });
+                                setShowListForSaleModal(true);
+                              } else {
+                                // ANT needs upgrade for marketplace compatibility
+                                setDomainToUpgradeForMarketplace({
+                                  domain: lowerCaseDomain(domainName),
+                                  processId: processId,
+                                });
+                                setShowUpgradeForMarketplaceModal(true);
+                              }
+                            }}
+                          >
+                            <DollarSign
+                              className={`w-[18px] transition-colors ${
+                                isMarketplaceCompatible(row.original.version)
+                                  ? 'text-grey hover:text-white'
+                                  : 'text-warning hover:text-warning-light'
+                              }`}
+                            />
+                          </button>
+                        }
+                      />
+                    );
                   })()}
                   <ManageAssetButtons
                     id={lowerCaseDomain(row.getValue('name') as string)}
@@ -967,6 +1068,9 @@ const DomainsTable = ({
             }
             return rowData;
           }}
+          tableClass={
+            filteredTableData.length > 0 ? 'border-b border-dark-grey' : ''
+          }
           noDataFoundText={
             !walletAddress ? (
               <div className="flex flex-column text-medium center white p-[100px] box-border gap-[20px]">
@@ -1045,7 +1149,6 @@ const DomainsTable = ({
               }
             />
           )}
-          tableClass="border-[1px] border-dark-grey"
           rowClass={(props) => {
             if (props?.row !== undefined) {
               return props.row.getIsExpanded()

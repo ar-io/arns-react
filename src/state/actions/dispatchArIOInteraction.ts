@@ -20,7 +20,11 @@ import {
   ContractInteraction,
 } from '@src/types';
 import { createAntStateForOwner, lowerCaseDomain, sleep } from '@src/utils';
-import { APP_NAME, WRITE_OPTIONS } from '@src/utils/constants';
+import {
+  APP_NAME,
+  NETWORK_DEFAULTS,
+  WRITE_OPTIONS,
+} from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
 import { Dispatch } from 'react';
@@ -78,6 +82,7 @@ export default async function dispatchArIOInteraction({
             owner.toString(),
             payload.targetId?.toString(),
           );
+
         // spawn creates the new ant, registers it to the ant registry, validates the state and returns the processId
         const antProcessId: string =
           payload.processId ||

@@ -5,7 +5,6 @@ import {
   createAoSigner,
   mARIOToken,
 } from '@ar.io/sdk';
-import { connect } from '@permaweb/aoconnect';
 import MarketplaceOrderInfoCard, {
   MarketplaceOrderConfig,
 } from '@src/components/cards/MarketplaceOrderInfoCard';
@@ -15,10 +14,10 @@ import ArweaveID, {
 import { useANTIntent } from '@src/hooks/useANTIntent';
 import { useArIoPrice } from '@src/hooks/useArIOPrice';
 import useDomainInfo from '@src/hooks/useDomainInfo';
+import { InterruptedWorkflowType } from '@src/hooks/useInterruptedWorkflows';
 import { useMarketplaceOrder } from '@src/hooks/useMarketplaceOrder';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useGlobalState, useWalletState } from '@src/state';
-import { ANT_INTERACTION_TYPES } from '@src/types';
 import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { useQueryClient } from '@tanstack/react-query';
@@ -37,15 +36,7 @@ interface ContinueWorkflowModalProps {
   domainName: string;
   antId: string;
   intentId: string;
-}
-
-enum InterruptedWorkflowTypes {
-  // used to indicate the ANT was not transferred to the marketplace - predicated by marketplace == ant owner
-  // if owner !== market and !== user, its a bad order.
-  // To fix, we must transfer the ANT to the marketplace with the correct intent ID.
-  TRANSFER = 'transfer',
-  // used to indicate the credit notice was not pushed to the marketplace - predicated by marketplace == ant owner and Push-ANT-Intent-Resolution will be used to fix.
-  PUSH_INTENT = 'push_intent',
+  workflowType: InterruptedWorkflowType;
 }
 
 function ContinueWorkflowModal({
@@ -54,6 +45,7 @@ function ContinueWorkflowModal({
   domainName,
   antId,
   intentId,
+  workflowType,
 }: ContinueWorkflowModalProps) {
   const [
     {
@@ -63,6 +55,7 @@ function ContinueWorkflowModal({
       aoClient,
       arioContract,
       arioTicker,
+      arioProcessId,
     },
   ] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
@@ -76,7 +69,7 @@ function ContinueWorkflowModal({
   const { data: domainInfo } = useDomainInfo({ antId });
 
   // Check for existing marketplace order
-  const { data: marketplaceOrder, error: orderError } = useMarketplaceOrder({
+  const { data: marketplaceOrder } = useMarketplaceOrder({
     antId,
   });
 
@@ -92,7 +85,9 @@ function ContinueWorkflowModal({
     const { orderParams } = marketplaceIntent;
 
     const listingType = orderParams.orderType || 'fixed';
-    const price = orderParams.price ? Number(orderParams.price) : 0;
+    const price = orderParams.price
+      ? new mARIOToken(Number(orderParams.price)).toARIO().valueOf()
+      : 0;
     const expirationDate = orderParams.expirationTime
       ? new Date(Number(orderParams.expirationTime))
       : undefined;
@@ -105,10 +100,10 @@ function ContinueWorkflowModal({
       expirationDate,
       // Add auction-specific fields if available
       startingPrice: orderParams.price
-        ? Number(orderParams.price) / 1000000
+        ? new mARIOToken(Number(orderParams.price)).toARIO().valueOf()
         : undefined, // For dutch auctions, price is the starting price
       reservePrice: orderParams.minimumPrice
-        ? Number(orderParams.minimumPrice) / 1000000
+        ? new mARIOToken(Number(orderParams.minimumPrice)).toARIO().valueOf()
         : undefined,
       decrementInterval: orderParams.decreaseInterval
         ? Number(orderParams.decreaseInterval) / (1000 * 60 * 60)
@@ -116,38 +111,6 @@ function ContinueWorkflowModal({
       decrementAmount: undefined, // This would need to be calculated based on price difference and intervals
     };
   }, [marketplaceIntent, arioTicker, arIoPrice]);
-
-  // Determine workflow type based on ANT state and marketplace order
-  const workflowType = useMemo(() => {
-    if (!domainInfo?.state?.Owner || !walletAddress) {
-      return null;
-    }
-
-    const antOwner = domainInfo.state.Owner;
-    const userAddress = walletAddress.toString();
-
-    // If ANT is owned by marketplace and there's no order, need to push intent
-    if (
-      antOwner === marketplaceProcessId &&
-      (!marketplaceOrder || orderError)
-    ) {
-      return InterruptedWorkflowTypes.PUSH_INTENT;
-    }
-
-    // If ANT is still owned by user, need to transfer
-    if (antOwner === userAddress) {
-      return InterruptedWorkflowTypes.TRANSFER;
-    }
-
-    // Unknown state - could be owned by someone else
-    return null;
-  }, [
-    domainInfo,
-    marketplaceOrder,
-    orderError,
-    marketplaceProcessId,
-    walletAddress,
-  ]);
 
   if (!show) return null;
 
@@ -172,7 +135,7 @@ function ContinueWorkflowModal({
       if (!walletAddress) {
         throw new Error('Wallet address not found');
       }
-      if (!workflowType) {
+      if (!workflowType || workflowType === InterruptedWorkflowType.UNKNOWN) {
         throw new Error('Unable to determine workflow type');
       }
 
@@ -189,7 +152,7 @@ function ContinueWorkflowModal({
 
       let result: any;
       switch (workflowType) {
-        case InterruptedWorkflowTypes.TRANSFER: {
+        case InterruptedWorkflowType.TRANSFER: {
           // Transfer the ANT to the marketplace with the X-Intent-Id tag
           const antProcess = ANT.init({
             hyperbeamUrl,
@@ -212,9 +175,28 @@ function ContinueWorkflowModal({
           );
           break;
         }
-        case InterruptedWorkflowTypes.PUSH_INTENT: {
+        case InterruptedWorkflowType.PUSH_INTENT: {
           // Push intent resolution to marketplace
           result = await marketplaceContract.pushANTIntentResolution(intentId);
+          // we need to poll for the change and react to it
+
+          const retries = 0;
+          const maxRetries = 10;
+          while (retries < maxRetries) {
+            try {
+              const _res = await marketplaceContract.getUserAssets({
+                address: walletAddress.toString(),
+                arioProcessId,
+              });
+            } catch {
+              console.error('Issue retrieving marketplace assets');
+            }
+          }
+          queryClient.resetQueries({
+            predicate: (query) => {
+              return query.queryKey.includes('marketplace');
+            },
+          });
           break;
         }
         default:
@@ -225,7 +207,7 @@ function ContinueWorkflowModal({
       setIsComplete(true);
 
       const actionMessage =
-        workflowType === InterruptedWorkflowTypes.TRANSFER
+        workflowType === InterruptedWorkflowType.TRANSFER
           ? 'The ANT has been transferred to the marketplace with the correct intent ID.'
           : 'The intent has been pushed to the marketplace for resolution.';
 
@@ -279,7 +261,7 @@ function ContinueWorkflowModal({
         {/* Content */}
         <div className="flex flex-col p-6 gap-4 text-white">
           {/* Workflow Type Detection */}
-          {workflowType && (
+          {workflowType && domainInfo?.state?.Owner && (
             <div className="flex flex-col gap-3 p-4 bg-blue-900/20 rounded-lg border border-dark-grey">
               <div className="flex items-center gap-2">
                 <Activity className="w-4 h-4 text-blue-400" />
@@ -290,7 +272,7 @@ function ContinueWorkflowModal({
               <div className="flex items-center gap-3 text-sm">
                 <span className="text-grey whitespace-nowrap">ANT Owner:</span>
                 <ArweaveID
-                  id={new ArweaveTransactionID(domainInfo?.state?.Owner || '')}
+                  id={new ArweaveTransactionID(domainInfo.state.Owner)}
                   type={ArweaveIdTypes.ADDRESS}
                   characterCount={8}
                 />
@@ -319,17 +301,17 @@ function ContinueWorkflowModal({
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 text-warning" />
                   <span className="text-sm font-medium">
-                    {workflowType === InterruptedWorkflowTypes.TRANSFER
+                    {workflowType === InterruptedWorkflowType.TRANSFER
                       ? 'ANT Transfer Required'
-                      : workflowType === InterruptedWorkflowTypes.PUSH_INTENT
+                      : workflowType === InterruptedWorkflowType.PUSH_INTENT
                         ? 'Intent Resolution Required'
                         : 'Workflow Interruption Detected'}
                   </span>
                 </div>
                 <p className="text-sm text-grey">
-                  {workflowType === InterruptedWorkflowTypes.TRANSFER
+                  {workflowType === InterruptedWorkflowType.TRANSFER
                     ? 'The ANT is still owned by you but has a pending marketplace intent. The ANT needs to be transferred to the marketplace to complete the listing.'
-                    : workflowType === InterruptedWorkflowTypes.PUSH_INTENT
+                    : workflowType === InterruptedWorkflowType.PUSH_INTENT
                       ? 'The ANT has been transferred to the marketplace but has not been processed and requires resolution. Continuing the workflow will push a state notice to inform the marketplace the ANT has been transferred to it.'
                       : 'A marketplace listing workflow was interrupted for this ANT. Please check the ANT ownership and marketplace order status.'}
                 </p>
@@ -390,7 +372,7 @@ function ContinueWorkflowModal({
             <button
               onClick={handleClose}
               disabled={isLoading}
-              className="px-4 py-3 rounded-md text-sm font-medium bg-background-secondary text-white hover:bg-dark-grey transition-colors border border-dark-grey"
+              className={`px-4 py-3 rounded-md text-sm font-medium transition-colors border border-dark-grey text-white disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               Cancel
             </button>
