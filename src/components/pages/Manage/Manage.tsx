@@ -18,15 +18,8 @@ import './styles.css';
 
 function Manage() {
   const navigate = useNavigate();
-  const [
-    {
-      arioProcessId,
-      aoNetwork,
-      hyperbeamUrl,
-      antRegistryProcessId,
-      marketplaceProcessId,
-    },
-  ] = useGlobalState();
+  const [{ arioProcessId, aoNetwork, hyperbeamUrl, antRegistryProcessId }] =
+    useGlobalState();
   const [{ loading: loadingArnsState, domains, ants }, dispatchArNSState] =
     useArNSState();
   const { data: antVersion } = useLatestANTVersion();
@@ -56,8 +49,17 @@ function Manage() {
             Register a Name
           </button>
         </div>
-        <div className="relative border border-dark-grey rounded">
-          <div className="flex flex-row  h-fit px-3 py-1 border-b border-dark-grey rounded-t-[2px]">
+        <div
+          id="manage-table-wrapper"
+          style={{
+            position: 'relative',
+            border: 'none',
+            borderRadius: 'var(--corner-radius)',
+            height: '100%',
+            minHeight: '400px',
+          }}
+        >
+          <div className="flex flex-row border-[1px] border-b-0 border-dark-grey h-fit px-3 py-1 rounded-t-[2px]">
             {
               <div className="flex w-full flex-row">
                 <div className="flex w-full p-[5px]">
@@ -110,7 +112,6 @@ function Manage() {
                           dispatch: dispatchArNSState,
                           walletAddress: walletAddress,
                           arioProcessId,
-                          marketplaceProcessId,
                           antRegistryProcessId,
                           aoNetworkSettings: aoNetwork,
                           hyperbeamUrl,

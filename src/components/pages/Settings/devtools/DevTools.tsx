@@ -1,7 +1,6 @@
 import React, { Suspense, useEffect, useState } from 'react';
 
 import ANTTools from './ANTTools';
-import MarketplaceTools from './MarketplaceTools';
 import TransferIO from './TransferIO';
 import UserAddress from './UserAddress';
 
@@ -43,7 +42,6 @@ const DevTools = () => {
       <UserAddress />
       <TransferIO />
       <ANTTools />
-      <MarketplaceTools />
       <div className="flex flex-row gap-2 w-full justify-end">
         <button
           onClick={() => setShowTanstackTools(true)}

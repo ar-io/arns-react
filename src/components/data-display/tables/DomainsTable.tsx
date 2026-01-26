@@ -4,30 +4,13 @@ import {
   ExternalLinkIcon,
   RefreshIcon,
 } from '@src/components/icons';
-import InterruptedWorkflowIndicator from '@src/components/indicators/InterruptedWorkflowIndicator/InterruptedWorkflowIndicator';
 import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
-import {
-  ListNameForSaleModal,
-  UpgradeDomainForMarketplaceModal,
-} from '@src/components/modals';
-import ContinueWorkflowModal from '@src/components/modals/ContinueWorkflowModal/ContinueWorkflowModal';
 import UpgradeDomainModal from '@src/components/modals/ant-management/UpgradeDomainModal/UpgradeDomainModal';
-import { useANTIntent } from '@src/hooks/useANTIntent';
 import { useLatestANTVersion } from '@src/hooks/useANTVersions';
-import {
-  InterruptedWorkflow,
-  InterruptedWorkflowType,
-  useInterruptedWorkflows,
-} from '@src/hooks/useInterruptedWorkflows';
-import { useMarketplaceOrder } from '@src/hooks/useMarketplaceOrder';
-import {
-  PendingWorkflow,
-  usePendingWorkflows,
-} from '@src/hooks/usePendingWorkflows';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import {
   ANTProcessData,
@@ -51,7 +34,6 @@ import {
   lowerCaseDomain,
 } from '@src/utils';
 import {
-  ARIO_DISCORD_LINK,
   ARNS_DOCS_LINK,
   MIN_ANT_VERSION,
   PERMANENT_DOMAIN_MESSAGE,
@@ -60,15 +42,7 @@ import { ANTStateError } from '@src/utils/errors';
 import { queryClient } from '@src/utils/network';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { capitalize } from 'lodash';
-import { Activity, StoreIcon } from 'lucide-react';
-import {
-  AlertTriangle,
-  CircleCheck,
-  Copy,
-  DollarSign,
-  ExternalLink,
-  Star,
-} from 'lucide-react';
+import { CircleCheck, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link, useNavigate } from 'react-router-dom';
@@ -129,314 +103,6 @@ function filterTableData(filter: string, data: TableData[]): TableData[] {
   return results;
 }
 
-// Helper component for error state configuration
-function ErrorStateTooltip({
-  domainName,
-  antId,
-}: { domainName: string; antId: string }) {
-  const [{ walletAddress }] = useWalletState();
-  const [copied, setCopied] = useState(false);
-
-  const errorConfig = {
-    domainName,
-    antId,
-    userAddress: walletAddress?.toString() || 'N/A',
-    timestamp: new Date().toISOString(),
-    issue: 'Marketplace owns ANT but no order exists',
-  };
-
-  const configText = JSON.stringify(errorConfig, null, 2);
-
-  const handleCopy = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    try {
-      await navigator.clipboard.writeText(configText);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error('Failed to copy to clipboard:', error);
-    }
-  };
-
-  const handleDiscordClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    window.open(ARIO_DISCORD_LINK, '_blank', 'noopener,noreferrer');
-  };
-
-  return (
-    <Tooltip
-      message={
-        <div className="flex flex-col gap-3 max-w-sm">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-error" />
-            <span className="text-sm font-medium text-error">
-              Error State Detected
-            </span>
-          </div>
-
-          <p className="text-xs text-grey">
-            The marketplace owns this ANT but there is no corresponding order.
-            This requires team intervention.
-          </p>
-
-          <div className="flex flex-col gap-2">
-            <button
-              onClick={handleCopy}
-              className="flex items-center gap-2 px-2 py-1 bg-dark-grey rounded text-xs hover:bg-background-secondary transition-colors"
-            >
-              <Copy className="w-3 h-3" />
-              {copied ? 'Copied!' : 'Copy Config'}
-            </button>
-
-            <button
-              onClick={handleDiscordClick}
-              className="flex items-center gap-2 px-2 py-1 bg-blue-600 rounded text-xs hover:bg-blue-700 transition-colors"
-            >
-              <ExternalLink className="w-3 h-3" />
-              Report to Discord
-            </button>
-          </div>
-        </div>
-      }
-      icon={
-        <div className="relative">
-          <AlertTriangle className="w-[18px] h-[18px] text-error hover:text-error transition-colors animate-pulse" />
-        </div>
-      }
-    />
-  );
-}
-
-// Helper component to determine the correct icon for marketplace-owned domains
-function MarketplaceActionIcon({
-  domainName,
-  processId,
-}: { domainName: string; processId: string }) {
-  const { hasIntent } = useANTIntent(processId);
-
-  const { data: order, error: orderError } = useMarketplaceOrder({
-    antId: processId,
-  });
-
-  // If there's an intent but no order (or order fetch failed), show Activity icon
-  const hasOrder = order && !orderError;
-
-  // Error state: no intent and no order (marketplace owns ANT but nothing exists)
-  if (!hasIntent && !hasOrder) {
-    return <ErrorStateTooltip domainName={domainName} antId={processId} />;
-  }
-
-  if (hasIntent && !hasOrder) {
-    return (
-      <Tooltip
-        message="Pending marketplace activity"
-        icon={
-          <div className="flex items-center justify-center w-[18px] h-[18px] text-orange-400 hover:text-orange-300 transition-colors">
-            <Activity className="w-[18px] h-[18px]" />
-          </div>
-        }
-      />
-    );
-  }
-
-  // Default to marketplace store icon
-  return (
-    <Tooltip
-      message="View in Marketplace"
-      icon={
-        <Link
-          to={`/marketplace/names/${domainName}`}
-          className="flex items-center justify-center w-[18px] h-[18px] text-blue-400 hover:text-blue-300 transition-colors"
-        >
-          <StoreIcon className="w-[18px] h-[18px]" />
-        </Link>
-      }
-    />
-  );
-}
-
-// Helper component for interrupted workflow action
-function InterruptedWorkflowAction({
-  interruptedWorkflow,
-}: {
-  interruptedWorkflow: InterruptedWorkflow;
-}) {
-  const [showContinueWorkflowModal, setShowContinueWorkflowModal] =
-    useState(false);
-
-  return (
-    <>
-      <Tooltip
-        message="Continue interrupted workflow"
-        icon={
-          <button onClick={() => setShowContinueWorkflowModal(true)}>
-            <div className="relative">
-              <AlertTriangle className="w-[18px] text-error hover:text-warning-light transition-colors animate-pulse" />
-            </div>
-          </button>
-        }
-      />
-      {showContinueWorkflowModal && (
-        <ContinueWorkflowModal
-          show={showContinueWorkflowModal}
-          onClose={() => setShowContinueWorkflowModal(false)}
-          domainName={interruptedWorkflow.domainName}
-          antId={interruptedWorkflow.antId}
-          intentId={interruptedWorkflow.intent.intentId}
-          workflowType={interruptedWorkflow.workflowType}
-        />
-      )}
-    </>
-  );
-}
-
-// Helper component for pending workflow action
-// If there's an order for this domain, prefer displaying the order link instead
-function PendingWorkflowAction({
-  pendingWorkflow,
-}: {
-  pendingWorkflow: PendingWorkflow;
-}) {
-  const [showContinueWorkflowModal, setShowContinueWorkflowModal] =
-    useState(false);
-
-  const { data: order, error: orderError } = useMarketplaceOrder({
-    antId: pendingWorkflow.antId,
-  });
-
-  // If there's an order, prefer displaying marketplace link
-  const hasOrder = order && !orderError;
-  if (hasOrder) {
-    return (
-      <Tooltip
-        message="View in Marketplace"
-        icon={
-          <Link
-            to={`/marketplace/names/${pendingWorkflow.domainName}`}
-            className="flex items-center justify-center w-[18px] h-[18px] text-blue-400 hover:text-blue-300 transition-colors"
-          >
-            <StoreIcon className="w-[18px] h-[18px]" />
-          </Link>
-        }
-      />
-    );
-  }
-
-  return (
-    <>
-      <Tooltip
-        message="Pending marketplace workflow - click to continue"
-        icon={
-          <button onClick={() => setShowContinueWorkflowModal(true)}>
-            <div className="relative">
-              <Activity className="w-[18px] h-[18px] text-orange-400 hover:text-orange-300 transition-colors animate-pulse" />
-            </div>
-          </button>
-        }
-      />
-      {showContinueWorkflowModal && (
-        <ContinueWorkflowModal
-          show={showContinueWorkflowModal}
-          onClose={() => setShowContinueWorkflowModal(false)}
-          domainName={pendingWorkflow.domainName}
-          antId={pendingWorkflow.antId}
-          intentId={pendingWorkflow.intent.intentId}
-          workflowType={InterruptedWorkflowType.TRANSFER}
-        />
-      )}
-    </>
-  );
-}
-
-// Helper component to display role with pending intent indicator
-function RoleDisplay({
-  role,
-  domainName,
-  processId,
-}: {
-  role: string;
-  domainName: string;
-  processId: string;
-}) {
-  const { hasIntent, intent } = useANTIntent(processId);
-  const [showContinueWorkflowModal, setShowContinueWorkflowModal] =
-    useState(false);
-
-  if (role === 'marketplace') {
-    // For marketplace role, check if there's a pending intent
-    if (hasIntent && intent) {
-      return (
-        <>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowContinueWorkflowModal(true)}
-              className="relative flex items-center gap-2 hover:opacity-80 transition-opacity"
-            >
-              <div className="relative">
-                <Activity className="w-4 h-4 text-error animate-pulse" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping opacity-75"></div>
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
-              </div>
-              <span>Marketplace</span>
-            </button>
-          </div>
-          {showContinueWorkflowModal && (
-            <ContinueWorkflowModal
-              show={showContinueWorkflowModal}
-              onClose={() => setShowContinueWorkflowModal(false)}
-              domainName={domainName}
-              antId={processId}
-              intentId={intent.intentId}
-              workflowType={InterruptedWorkflowType.PUSH_INTENT}
-            />
-          )}
-        </>
-      );
-    }
-
-    // Normal marketplace display
-    return (
-      <div className="flex items-center gap-2">
-        <StoreIcon className="w-4 h-4 text-blue-400" />
-        <span>Marketplace</span>
-      </div>
-    );
-  }
-
-  // For other roles, check if there's a pending intent
-  if (hasIntent && intent) {
-    return (
-      <>
-        <button
-          onClick={() => setShowContinueWorkflowModal(true)}
-          className="relative flex items-center gap-2 hover:opacity-80 transition-opacity"
-        >
-          <div className="relative">
-            <span>{capitalize(role)}</span>
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping opacity-75"></div>
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
-          </div>
-        </button>
-        {showContinueWorkflowModal && (
-          <ContinueWorkflowModal
-            show={showContinueWorkflowModal}
-            onClose={() => setShowContinueWorkflowModal(false)}
-            domainName={domainName}
-            antId={processId}
-            intentId={intent.intentId}
-            workflowType={InterruptedWorkflowType.TRANSFER}
-          />
-        )}
-      </>
-    );
-  }
-
-  // Normal role display
-  return capitalize(role);
-}
-
 const DomainsTable = ({
   domainData,
   loading,
@@ -454,29 +120,13 @@ const DomainsTable = ({
   const navigate = useNavigate();
   const [{ walletAddress }] = useWalletState();
   const [
-    {
-      arioProcessId,
-      aoNetwork,
-      hyperbeamUrl,
-      antRegistryProcessId,
-      gateway,
-      minimumANTVersionForMarketplace,
-      marketplaceProcessId,
-    },
+    { arioProcessId, aoNetwork, hyperbeamUrl, antRegistryProcessId, gateway },
   ] = useGlobalState();
   const [{ loading: loadingArnsState }, dispatchArNSState] = useArNSState();
   const [, dispatchModalState] = useModalState();
   const [, dispatchTransactionState] = useTransactionState();
   const { data: latestAntVersion } = useLatestANTVersion();
   const { data: primaryNameData } = usePrimaryName();
-  const { interruptedWorkflows } = useInterruptedWorkflows(
-    domainData.ants,
-    domainData.names,
-  );
-  const { getPendingWorkflowForDomain } = usePendingWorkflows(
-    domainData.ants,
-    domainData.names,
-  );
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<TableData[]>([]);
   const [showUpgradeDomainModal, setShowUpgradeDomainModal] =
@@ -488,39 +138,6 @@ const DomainsTable = ({
       }
     | undefined
   >(undefined);
-
-  const [showListForSaleModal, setShowListForSaleModal] = useState(false);
-  const [selectedDomainForSale, setSelectedDomainForSale] = useState<{
-    name: string;
-    antId: string;
-  } | null>(null);
-
-  const [showUpgradeForMarketplaceModal, setShowUpgradeForMarketplaceModal] =
-    useState(false);
-  const [domainToUpgradeForMarketplace, setDomainToUpgradeForMarketplace] =
-    useState<
-      | {
-          domain: string;
-          processId: string;
-        }
-      | undefined
-    >(undefined);
-
-  // Helper function to check if ANT is marketplace compatible
-  const isMarketplaceCompatible = (antVersion: number): boolean => {
-    return antVersion >= minimumANTVersionForMarketplace;
-  };
-
-  // Helper function to check if a domain has an interrupted workflow
-  const getInterruptedWorkflowForDomain = (
-    domainName: string,
-    antId: string,
-  ) => {
-    return interruptedWorkflows.find(
-      (workflow) =>
-        workflow.domainName === domainName && workflow.antId === antId,
-    );
-  };
 
   useEffect(() => {
     if (domainData) {
@@ -544,25 +161,15 @@ const DomainsTable = ({
               })
             : false);
 
-        // Determine role including marketplace ownership
-        const getRoleWithMarketplace = () => {
-          const owner = ant?.state?.Owner;
-          if (owner === marketplaceProcessId) {
-            return 'marketplace';
-          }
-          return (
-            getOwnershipStatus(
-              owner,
-              ant?.state?.Controllers,
-              walletAddress?.toString(),
-            ) ?? 'N/A'
-          );
-        };
-
         const data: TableData = {
           openRow: <></>,
           name: domain,
-          role: getRoleWithMarketplace(),
+          role:
+            getOwnershipStatus(
+              ant?.state?.Owner,
+              ant?.state?.Controllers,
+              walletAddress?.toString(),
+            ) ?? 'N/A',
           processId: record.processId,
           targetId: ant?.state?.Records?.['@']?.transactionId ?? 'N/A',
           ioCompatible,
@@ -674,46 +281,33 @@ const DomainsTable = ({
           }
           case 'name': {
             return (
-              <div className="flex items-center gap-2">
-                <Tooltip
-                  tooltipOverrides={{
-                    overlayClassName: 'w-fit',
-                    overlayInnerStyle: { width: 'fit-content' },
-                  }}
-                  message={
-                    <span className="w-fit whitespace-nowrap text-white">
-                      {rowValue}
-                    </span>
-                  }
-                  icon={
-                    <Link
-                      className="link gap-2 w-fit whitespace-nowrap items-center"
-                      to={`https://${encodeDomainToASCII(
-                        row.getValue('name'),
-                      )}.${gateway}`}
-                      target="_blank"
-                    >
-                      {formatForMaxCharCount(decodeDomainToASCII(rowValue), 20)}{' '}
-                      <ExternalLinkIcon className="size-3 fill-grey" />
-                    </Link>
-                  }
-                />
-              </div>
-            );
-          }
-          case 'role': {
-            const role = row.getValue(key) as string;
-            const domainName = row.getValue('name') as string;
-            const processId = row.getValue('processId') as string;
-
-            return (
-              <RoleDisplay
-                role={role}
-                domainName={domainName}
-                processId={processId}
+              <Tooltip
+                tooltipOverrides={{
+                  overlayClassName: 'w-fit',
+                  overlayInnerStyle: { width: 'fit-content' },
+                }}
+                message={
+                  <span className="w-fit whitespace-nowrap text-white">
+                    {rowValue}
+                  </span>
+                }
+                icon={
+                  <Link
+                    className="link gap-2 w-fit whitespace-nowrap items-center"
+                    to={`https://${encodeDomainToASCII(
+                      row.getValue('name'),
+                    )}.${gateway}`}
+                    target="_blank"
+                  >
+                    {formatForMaxCharCount(decodeDomainToASCII(rowValue), 20)}{' '}
+                    <ExternalLinkIcon className="size-3 fill-grey" />
+                  </Link>
+                }
               />
             );
           }
+          case 'role':
+            return capitalize(row.getValue(key));
           case 'processId': {
             return (
               <ArweaveID
@@ -937,106 +531,6 @@ const DomainsTable = ({
                   ) : (
                     <></>
                   )}
-                  {(() => {
-                    const domainName = row.getValue('name') as string;
-                    const processId = row.getValue('processId') as string;
-                    const role = row.getValue('role') as string;
-                    const interruptedWorkflow = getInterruptedWorkflowForDomain(
-                      domainName,
-                      processId,
-                    );
-                    const pendingWorkflow = getPendingWorkflowForDomain(
-                      domainName,
-                      processId,
-                    );
-
-                    // If domain is owned by marketplace, show marketplace link or activity icon
-                    if (role === 'marketplace' && !interruptedWorkflow) {
-                      return (
-                        <MarketplaceActionIcon
-                          domainName={domainName}
-                          processId={processId}
-                        />
-                      );
-                    }
-
-                    if (interruptedWorkflow) {
-                      // If workflow type is unknown, show error state tooltip instead of continue modal
-                      if (
-                        interruptedWorkflow.workflowType ===
-                        InterruptedWorkflowType.UNKNOWN
-                      ) {
-                        return (
-                          <ErrorStateTooltip
-                            domainName={domainName}
-                            antId={processId}
-                          />
-                        );
-                      }
-                      // Show interrupted workflow icon for TRANSFER and PUSH_INTENT types
-                      return (
-                        <InterruptedWorkflowAction
-                          interruptedWorkflow={interruptedWorkflow}
-                        />
-                      );
-                    }
-
-                    if (pendingWorkflow) {
-                      // Show pending workflow icon - allows user to continue the workflow
-                      return (
-                        <PendingWorkflowAction
-                          pendingWorkflow={pendingWorkflow}
-                        />
-                      );
-                    }
-
-                    // Only show marketplace listing icon for owners
-                    if (role !== 'owner') {
-                      return null;
-                    }
-
-                    // Show marketplace listing icon
-                    return (
-                      <Tooltip
-                        message={
-                          isMarketplaceCompatible(row.original.version)
-                            ? 'List for Sale'
-                            : `Upgrade to version ${minimumANTVersionForMarketplace}+ to list for sale`
-                        }
-                        icon={
-                          <button
-                            onClick={() => {
-                              if (
-                                isMarketplaceCompatible(row.original.version)
-                              ) {
-                                // ANT is marketplace compatible, proceed with listing
-                                setSelectedDomainForSale({
-                                  name: domainName,
-                                  antId: processId,
-                                });
-                                setShowListForSaleModal(true);
-                              } else {
-                                // ANT needs upgrade for marketplace compatibility
-                                setDomainToUpgradeForMarketplace({
-                                  domain: lowerCaseDomain(domainName),
-                                  processId: processId,
-                                });
-                                setShowUpgradeForMarketplaceModal(true);
-                              }
-                            }}
-                          >
-                            <DollarSign
-                              className={`w-[18px] transition-colors ${
-                                isMarketplaceCompatible(row.original.version)
-                                  ? 'text-grey hover:text-white'
-                                  : 'text-warning hover:text-warning-light'
-                              }`}
-                            />
-                          </button>
-                        }
-                      />
-                    );
-                  })()}
                   <ManageAssetButtons
                     id={lowerCaseDomain(row.getValue('name') as string)}
                     assetType="names"
@@ -1068,9 +562,6 @@ const DomainsTable = ({
             }
             return rowData;
           }}
-          tableClass={
-            filteredTableData.length > 0 ? 'border-b border-dark-grey' : ''
-          }
           noDataFoundText={
             !walletAddress ? (
               <div className="flex flex-column text-medium center white p-[100px] box-border gap-[20px]">
@@ -1149,6 +640,7 @@ const DomainsTable = ({
               }
             />
           )}
+          tableClass="border-[1px] border-dark-grey"
           rowClass={(props) => {
             if (props?.row !== undefined) {
               return props.row.getIsExpanded()
@@ -1176,38 +668,6 @@ const DomainsTable = ({
           setVisible={(b: boolean) => {
             setShowUpgradeDomainModal(b);
             setDomainToUpgrade(undefined);
-          }}
-        />
-      )}
-      {selectedDomainForSale && (
-        <ListNameForSaleModal
-          show={showListForSaleModal}
-          onClose={() => {
-            setShowListForSaleModal(false);
-            setSelectedDomainForSale(null);
-          }}
-          domainName={selectedDomainForSale.name}
-          antId={selectedDomainForSale.antId}
-        />
-      )}
-      {domainToUpgradeForMarketplace && (
-        <UpgradeDomainForMarketplaceModal
-          domain={domainToUpgradeForMarketplace.domain}
-          processId={domainToUpgradeForMarketplace.processId}
-          visible={showUpgradeForMarketplaceModal}
-          setVisible={(b: boolean) => {
-            setShowUpgradeForMarketplaceModal(b);
-            setDomainToUpgradeForMarketplace(undefined);
-          }}
-          onUpgradeComplete={() => {
-            // After successful upgrade, show the list for sale modal
-            if (domainToUpgradeForMarketplace) {
-              setSelectedDomainForSale({
-                name: domainToUpgradeForMarketplace.domain,
-                antId: domainToUpgradeForMarketplace.processId,
-              });
-              setShowListForSaleModal(true);
-            }
           }}
         />
       )}

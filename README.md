@@ -8,20 +8,20 @@ and purchase Names.
 ### Run
 
 ```shell
-pnpm install
-pnpm dev
+yarn
+yarn dev
 ```
 
 ### Build
 
 ```shell
-pnpm build
+yarn build
 ```
 
 ### Test
 
 ```shell
-pnpm test
+yarn test
 ```
 
 ## Contributions

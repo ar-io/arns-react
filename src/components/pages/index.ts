@@ -5,7 +5,6 @@ import ManageDomain from './ManageDomain/ManageDomain';
 import NotFound from './NotFound/NotFound';
 import Register from './Register/Register';
 import Undernames from './Undernames/Undernames';
-import ViewListing from './ViewListing/ViewListing';
 
 export {
   Home,
@@ -15,5 +14,4 @@ export {
   ManageANT,
   ManageDomain,
   Undernames,
-  ViewListing,
 };

@@ -18,12 +18,7 @@ import {
   dispatchNewGateway,
   useGlobalState,
 } from '@src/state';
-import {
-  isArweaveTransactionID,
-  isValidGateway,
-  isValidNetworkURL,
-  isValidURL,
-} from '@src/utils';
+import { isArweaveTransactionID, isValidGateway, isValidURL } from '@src/utils';
 import {
   ANT_REGISTRY_TESTNET_PROCESS_ID,
   ARIO_PROCESS_ID,
@@ -151,6 +146,7 @@ function NetworkSettings() {
       });
 
       const ao = connect({
+        GATEWAY_URL: 'https://' + gateway,
         CU_URL: newConfig.ARIO.CU_URL,
         MU_URL: newConfig.ARIO.MU_URL,
         MODE: 'legacy' as const,
@@ -161,6 +157,7 @@ function NetworkSettings() {
       });
 
       const antAo = connect({
+        GATEWAY_URL: 'https://' + gateway,
         CU_URL: newConfig.ANT.CU_URL,
         MU_URL: newConfig.ANT.MU_URL,
         MODE: 'legacy' as const,
@@ -204,6 +201,7 @@ function NetworkSettings() {
       // The arioContract uses this URL for fundFrom: 'turbo' operations
       if (config.PAYMENT_URL) {
         const ao = connect({
+          GATEWAY_URL: 'https://' + gateway,
           CU_URL: aoNetwork.ARIO.CU_URL,
           MU_URL: aoNetwork.ARIO.MU_URL,
           MODE: 'legacy' as const,
@@ -424,7 +422,7 @@ function NetworkSettings() {
           }
           onChange={(value) => {
             actions.setValue('cuUrl', value);
-            actions.setValidation('cuUrl', isValidNetworkURL(value));
+            actions.setValidation('cuUrl', isValidURL(value));
           }}
           onSet={() => updateAoNetwork({ CU_URL: state.values.cuUrl })}
           onReset={() => {
@@ -432,11 +430,7 @@ function NetworkSettings() {
             actions.setValidation('cuUrl', true);
             updateAoNetwork({ CU_URL: NETWORK_DEFAULTS.AO.ARIO.CU_URL });
           }}
-          onPressEnter={(value) => {
-            if (isValidNetworkURL(value)) {
-              updateAoNetwork({ CU_URL: value });
-            }
-          }}
+          onPressEnter={(value) => updateAoNetwork({ CU_URL: value })}
         />
 
         <SettingInput
@@ -449,7 +443,7 @@ function NetworkSettings() {
           }
           onChange={(value) => {
             actions.setValue('muUrl', value);
-            actions.setValidation('muUrl', isValidNetworkURL(value));
+            actions.setValidation('muUrl', isValidURL(value));
           }}
           onSet={() => updateAoNetwork({ MU_URL: state.values.muUrl })}
           onReset={() => {
@@ -457,11 +451,7 @@ function NetworkSettings() {
             actions.setValidation('muUrl', true);
             updateAoNetwork({ MU_URL: NETWORK_DEFAULTS.AO.ARIO.MU_URL });
           }}
-          onPressEnter={(value) => {
-            if (isValidNetworkURL(value)) {
-              updateAoNetwork({ MU_URL: value });
-            }
-          }}
+          onPressEnter={(value) => updateAoNetwork({ MU_URL: value })}
         />
 
         <SettingInput
@@ -523,7 +513,7 @@ function NetworkSettings() {
           }
           onChange={(value) => {
             actions.setValue('hyperbeamUrl', value);
-            actions.setValidation('hyperbeamUrl', isValidNetworkURL(value));
+            actions.setValidation('hyperbeamUrl', isValidURL(value));
           }}
           onSet={() =>
             dispatchGlobalState({
@@ -542,14 +532,12 @@ function NetworkSettings() {
               payload: NETWORK_DEFAULTS.AO.ARIO.HYPERBEAM_URL || undefined,
             });
           }}
-          onPressEnter={(value) => {
-            if (isValidNetworkURL(value)) {
-              dispatchGlobalState({
-                type: 'setHyperbeamUrl',
-                payload: value,
-              });
-            }
-          }}
+          onPressEnter={(value) =>
+            dispatchGlobalState({
+              type: 'setHyperbeamUrl',
+              payload: value,
+            })
+          }
         />
 
         <SettingInput
@@ -562,7 +550,7 @@ function NetworkSettings() {
           }
           onChange={(value) => {
             actions.setValue('turboPaymentUrl', value);
-            actions.setValidation('turboPaymentUrl', isValidNetworkURL(value));
+            actions.setValidation('turboPaymentUrl', isValidURL(value));
           }}
           onSet={() =>
             updateTurboNetwork({
@@ -581,13 +569,11 @@ function NetworkSettings() {
                 NETWORK_DEFAULTS.TURBO.STRIPE_PUBLISHABLE_KEY,
             });
           }}
-          onPressEnter={(value) => {
-            if (isValidNetworkURL(value)) {
-              updateTurboNetwork({
-                PAYMENT_URL: value,
-              });
-            }
-          }}
+          onPressEnter={(value) =>
+            updateTurboNetwork({
+              PAYMENT_URL: value,
+            })
+          }
         />
         <div className="flex flex-col p-2 w-full h-full justify-end items-end">
           <div className="flex flex-row gap-3 items-end w-full justify-end">

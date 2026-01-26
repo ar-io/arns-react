@@ -3,7 +3,7 @@
   "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
   "files": {
     "ignoreUnknown": false,
-    "ignore": ["node_modules", "dist", "**/package.json", "coverage"]
+    "ignore": ["node_modules", "dist", "coverage"]
   },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2 },
   "organizeImports": { "enabled": true },
@@ -87,6 +87,21 @@
   },
   "javascript": {
     "formatter": { "quoteStyle": "single" },
-    "globals": ["chrome", "__NPM_PACKAGE_VERSION__", "JSX", "React"]
+    "globals": [
+      "chrome",
+      "__NPM_PACKAGE_VERSION__",
+      "JSX",
+      "React",
+      "describe",
+      "it",
+      "expect",
+      "beforeEach",
+      "afterEach",
+      "beforeAll",
+      "afterAll",
+      "vi",
+      "test",
+      "jest"
+    ]
   }
 }

@@ -1,0 +1,31 @@
+{
+  "testEnvironment": "jsdom",
+  "testTimeout": 60000,
+  "setupFilesAfterEnv": ["<rootDir>/jest-setup.ts"],
+  "collectCoverage": false,
+  "collectCoverageFrom": ["src/**/*.{ts,tsx,js,jsx}", "!src/**/*.d.ts"],
+  "moduleNameMapper": {
+    "\\.(css|gif|png)$": "jest-transform-stub",
+    "\\.svg": "<rootDir>/tests/common/mocks/svg.js",
+    "(.+)\\?raw": "$1",
+    "^@tests/(.*)$": "<rootDir>/tests/$1",
+    "^@src/(.*)$": "<rootDir>/src/$1"
+  },
+  "transform": {
+    "^.+\\.(ts|tsx|js|jsx|mjs)$": ["ts-jest", { "useESM": true }],
+    "^.+\\.(md)$": "@glen/jest-raw-loader"
+  },
+  "transformIgnorePatterns": [
+    "/node_modules/(?!@dha-team/arbundles|arbundles|arweave-wallet-connector|@permaweb|@ar.io|@wagmi|wagmi).+\\.js$"
+  ],
+  "moduleDirectories": ["node_modules", "assets"],
+  "testPathIgnorePatterns": ["tests/common/", "tests/playwright"],
+  "coverageThreshold": {
+    "global": {
+      "branches": 80,
+      "functions": 80,
+      "lines": 80
+    }
+  },
+  "verbose": true
+}

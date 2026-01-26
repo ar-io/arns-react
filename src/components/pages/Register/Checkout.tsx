@@ -66,7 +66,6 @@ function Checkout() {
       arioTicker,
       hyperbeamUrl,
       antRegistryProcessId,
-      marketplaceProcessId,
     },
   ] = useGlobalState();
   const turbo = useTurboArNSClient();
@@ -549,7 +548,6 @@ function Checkout() {
           walletAddress,
           aoNetworkSettings: aoNetwork,
           hyperbeamUrl,
-          marketplaceProcessId: marketplaceProcessId,
         });
       }
     }

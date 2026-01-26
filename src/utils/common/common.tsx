@@ -168,44 +168,40 @@ export const executeWithTimeout = async (fn: () => any, ms: number) => {
  * @returns {@type JSX.Element} formatted date string
  */
 export function formatExpiryDate(endTimestamp?: number) {
-  try {
-    if (!endTimestamp) {
-      return PERMANENT_DOMAIN_MESSAGE;
-    }
-    const isGracePeriod =
-      Date.now() > endTimestamp &&
-      Date.now() < endTimestamp + MILLISECONDS_IN_GRACE_PERIOD;
-    const isExpired = endTimestamp < Date.now();
-
-    return (
-      <Tooltip
-        message={
-          isGracePeriod
-            ? 'Name is in Grace Period'
-            : isExpired
-              ? 'Name is Expired'
-              : 'Enters grace period on approximately ' +
-                formatVerboseDate(endTimestamp)
-        }
-        icon={
-          <span
-            style={{
-              color:
-                endTimestamp > Date.now()
-                  ? 'var(--success-green)'
-                  : isGracePeriod
-                    ? 'var(--accent)'
-                    : 'var(--error-red)',
-            }}
-          >
-            {formatDate(endTimestamp)}
-          </span>
-        }
-      />
-    );
-  } catch {
-    return 'Error formatting expiry date';
+  if (!endTimestamp) {
+    return PERMANENT_DOMAIN_MESSAGE;
   }
+  const isGracePeriod =
+    Date.now() > endTimestamp &&
+    Date.now() < endTimestamp + MILLISECONDS_IN_GRACE_PERIOD;
+  const isExpired = endTimestamp < Date.now();
+
+  return (
+    <Tooltip
+      message={
+        isGracePeriod
+          ? 'Name is in Grace Period'
+          : isExpired
+            ? 'Name is Expired'
+            : 'Enters grace period on approximately ' +
+              formatVerboseDate(endTimestamp)
+      }
+      icon={
+        <span
+          style={{
+            color:
+              endTimestamp > Date.now()
+                ? 'var(--success-green)'
+                : isGracePeriod
+                  ? 'var(--accent)'
+                  : 'var(--error-red)',
+          }}
+        >
+          {formatDate(endTimestamp)}
+        </span>
+      }
+    />
+  );
 }
 
 export const formatARIO = (ario: number) => {

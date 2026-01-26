@@ -217,7 +217,7 @@ const TableView = <T, S>({
         </div>
       )}
       {!isLoading && table.getRowCount() === 0 && (
-        <div className="flex h-fit items-center justify-center border-t rounded border-dark-grey text-grey">
+        <div className="flex h-fit items-center justify-center border-x border-b rounded border-dark-grey text-grey">
           {noDataFoundText}
         </div>
       )}

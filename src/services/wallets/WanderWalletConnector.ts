@@ -61,7 +61,7 @@ export class WanderWalletConnector implements ArNSWalletConnector {
     if (
       permissions &&
       !WANDER_WALLET_PERMISSIONS.every((permission) =>
-        permissions.includes(permission as any),
+        permissions.includes(permission),
       )
     ) {
       // disconnect due to missing permissions, then re-connect
@@ -72,7 +72,7 @@ export class WanderWalletConnector implements ArNSWalletConnector {
 
     await this._wallet
       .connect(
-        WANDER_WALLET_PERMISSIONS as any[],
+        WANDER_WALLET_PERMISSIONS,
         {
           name: 'ARNS - ar.io',
         },
@@ -104,11 +104,11 @@ export class WanderWalletConnector implements ArNSWalletConnector {
     if (
       permissions &&
       !WANDER_WALLET_PERMISSIONS.every((permission) =>
-        permissions.includes(permission as any),
+        permissions.includes(permission),
       )
     ) {
       const missingPermissions = WANDER_WALLET_PERMISSIONS.filter(
-        (permission) => !permissions.includes(permission as any),
+        (permission) => !permissions.includes(permission),
       );
       eventEmitter.emit(
         'error',

@@ -1,9 +1,4 @@
-import {
-  AOProcess,
-  ARIO,
-  AoArNSNameData,
-  ArNSMarketplaceRead,
-} from '@ar.io/sdk/web';
+import { AOProcess, ARIO, AoArNSNameData } from '@ar.io/sdk/web';
 import { connect } from '@permaweb/aoconnect';
 import { captureException } from '@sentry/react';
 import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
@@ -16,7 +11,6 @@ import { TransactionEdge } from 'arweave-graphql';
 import { pLimit } from 'plimit-lit';
 import { Dispatch } from 'react';
 
-import { buildMarketplaceUserAssetsQuery } from '@src/hooks/useMarketplaceUserAssets';
 import { ANTProcessData } from '../contexts';
 import { ArNSAction } from '../reducers/ArNSReducer';
 
@@ -24,7 +18,6 @@ export async function dispatchArNSUpdate({
   dispatch,
   walletAddress,
   arioProcessId,
-  marketplaceProcessId,
   antRegistryProcessId,
   aoNetworkSettings,
   hyperbeamUrl,
@@ -32,7 +25,6 @@ export async function dispatchArNSUpdate({
   dispatch: Dispatch<ArNSAction>;
   walletAddress: AoAddress;
   arioProcessId: string;
-  marketplaceProcessId: string;
   antRegistryProcessId: string;
   aoNetworkSettings: typeof NETWORK_DEFAULTS.AO;
   hyperbeamUrl?: string;
@@ -53,9 +45,6 @@ export async function dispatchArNSUpdate({
     queryClient.resetQueries({
       queryKey: ['ant-info'],
     });
-    queryClient.resetQueries({
-      predicate: (query) => query.queryKey[0] === 'marketplace-user-assets',
-    });
 
     dispatch({ type: 'reset' });
     dispatch({
@@ -68,23 +57,7 @@ export async function dispatchArNSUpdate({
       process: new AOProcess({ processId: arioProcessId, ao }),
     });
 
-    const marketplaceContract = new ArNSMarketplaceRead({
-      process: new AOProcess({ processId: marketplaceProcessId, ao }),
-    });
-
-    const marketplaceUserAssets = await queryClient.fetchQuery(
-      buildMarketplaceUserAssetsQuery({
-        address: walletAddress.toString(),
-        marketplaceContract,
-        marketplaceProcessId,
-        arioProcessId,
-        aoNetwork: aoNetworkSettings,
-      }),
-    );
-
     const userDomains: Record<string, AoArNSNameData> = {};
-
-    // get owned domains
     let cursor: string | undefined = undefined;
     let hasMore = true;
     while (hasMore) {
@@ -101,35 +74,9 @@ export async function dispatchArNSUpdate({
       hasMore = res.hasMore;
     }
 
-    // get marketplace domains
-    // TODO: maybe remove once ant's don't remove the controllers on transfer (should still show up in the ant registry as controller)
-    // Might be nice as a catch in case ants have a bug where they remove the controllers on transfer unintentionally.
-    // Need to do this seperately since the current api in the sdk above for user domains doesn't support the marketplace escrowed assets
-    let marketplaceCursor: string | undefined = undefined;
-    let marketplaceHasMore = true;
-    while (marketplaceHasMore) {
-      const marketplaceRes = await arioContract.getArNSRecords({
-        limit: 1000,
-        cursor: marketplaceCursor,
-        filters: {
-          processId: marketplaceUserAssets.antIds,
-        },
-      });
-      marketplaceRes.items.forEach((record) => {
-        userDomains[record.name] = record;
-      });
-      marketplaceCursor = marketplaceRes.nextCursor;
-      marketplaceHasMore = marketplaceRes.hasMore;
-    }
-    console.log('marketplaceUserDomains', userDomains);
-
     // ONLY QUERY FOR ANTS THAT WE ARE INTERESTED IN, EG REGISTERED ANTS
     const registeredUserAnts = Array.from(
-      new Set(
-        Object.values(userDomains)
-          .map((record) => record.processId)
-          .concat(marketplaceUserAssets.antIds),
-      ),
+      new Set(Object.values(userDomains).map((record) => record.processId)),
     );
 
     // Fetch ANT Process meta from graphql
@@ -191,7 +138,6 @@ export async function dispatchArNSUpdate({
         if (
           domainInfo.state &&
           domainInfo.state.Owner !== walletAddress.toString() &&
-          domainInfo.state.Owner !== marketplaceProcessId && // if the owner is the marketplace process id, do not remove it since we still want to show it
           !domainInfo.state.Controllers.includes(walletAddress.toString())
         ) {
           dispatch({

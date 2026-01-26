@@ -63,7 +63,6 @@ function NavMenuCard() {
     // AR: undefined,
     [arioTicker]: undefined,
   });
-
   const menuRef = useRef<HTMLDivElement>(null);
 
   const [turboTopUpModalOpen, setTurboTopUpModalOpen] = useState(false);
@@ -82,61 +81,39 @@ function NavMenuCard() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [menuRef, showMenu, wallet, walletAddress]);
-
-  // Separate effect to update turbo credits when they change
-  useEffect(() => {
-    if (turboCreditBalance !== undefined) {
-      setWalletDetails((prev) => ({
-        ...prev,
-        'Turbo Credits': turboCreditBalance,
-      }));
-    }
-  }, [turboCreditBalance]);
-
-  // Refresh balances when menu is opened
-  useEffect(() => {
-    if (showMenu && walletAddress) {
-      fetchWalletDetails(walletAddress);
-    }
-  }, [showMenu, walletAddress]);
+  }, [menuRef, showMenu, wallet, walletAddress, turboCreditBalance]);
 
   function resetWalletDetails() {
-    setWalletDetails((prev) => ({
-      ...prev,
+    setWalletDetails({
       [arioTicker]: undefined,
-    }));
+      'Turbo Credits': undefined,
+    });
   }
 
   async function fetchWalletDetails(walletAddress: AoAddress) {
-    try {
-      const ioBalance = await queryClient.fetchQuery(
-        buildIOBalanceQuery({
-          address: walletAddress.toString(),
-          arioContract,
-          meta: [
-            arioProcessId,
-            aoNetwork.ARIO.CU_URL,
-            aoNetwork.ARIO.HYPERBEAM_URL,
-          ],
-        }),
-      );
+    const ioBalance = await queryClient.fetchQuery(
+      buildIOBalanceQuery({
+        address: walletAddress.toString(),
+        arioContract,
+        meta: [
+          arioProcessId,
+          aoNetwork.ARIO.CU_URL,
+          aoNetwork.ARIO.HYPERBEAM_URL,
+        ],
+      }),
+    );
 
-      const [formattedIOBalance] = [ioBalance].map((balance: string | number) =>
-        Intl.NumberFormat('en-US', {
-          notation: 'compact',
-          maximumFractionDigits: 2,
-          compactDisplay: 'short',
-        }).format(+balance),
-      );
-
-      setWalletDetails((prev) => ({
-        ...prev,
-        [arioTicker]: formattedIOBalance,
-      }));
-    } catch (error) {
-      console.error('Error fetching wallet details:', error);
-    }
+    const [formattedIOBalance] = [ioBalance].map((balance: string | number) =>
+      Intl.NumberFormat('en-US', {
+        notation: 'compact',
+        maximumFractionDigits: 2,
+        compactDisplay: 'short',
+      }).format(+balance),
+    );
+    setWalletDetails({
+      [arioTicker]: formattedIOBalance,
+      'Turbo Credits': turboCreditBalance,
+    });
   }
 
   function handleClickOutside(e: any) {
@@ -251,7 +228,6 @@ function NavMenuCard() {
                     }}
                   />
 
-                  {/* Wallet Details Section */}
                   <div
                     className="flex flex-column"
                     style={{
