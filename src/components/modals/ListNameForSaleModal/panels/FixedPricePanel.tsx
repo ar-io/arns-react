@@ -1,6 +1,4 @@
 import { mARIOToken } from '@ar.io/sdk';
-import { Tooltip } from '@src/components/data-display';
-import { InfoIcon } from '@src/components/icons';
 import DateTimePicker from '@src/components/inputs/DateTimePicker/DateTimePicker';
 import { useArNSDomainPriceList } from '@src/hooks/useArNSDomainPriceList';
 import { formatARIOWithCommas } from '@src/utils';
@@ -105,6 +103,24 @@ function FixedPricePanel({
 
   return (
     <div className="flex flex-col p-6 gap-6">
+      {/* Listing Expiration */}
+      <div className="flex flex-col gap-2">
+        <label className="text-white text-sm font-medium">
+          Listing Expiration
+        </label>
+        <DateTimePicker
+          value={expirationDate}
+          onChange={setExpirationDate}
+          placeholder="Select expiration date and time"
+          minDate={new Date(Date.now() + 24 * 60 * 60 * 1000)} // Minimum 1 day from now
+          className="w-full"
+        />
+        <span className="text-xs text-grey">
+          Your listing will automatically expire at the selected date and time
+          (max 30 days)
+        </span>
+      </div>
+
       {/* Market Value Display */}
       {marketPriceDisplay && !isPricesLoading && (
         <div className="flex items-center justify-between p-3 bg-dark-grey rounded border border-grey">
@@ -210,47 +226,6 @@ function FixedPricePanel({
                 {formatUsdValue(Number(customValue))}
               </div>
             )}
-        </div>
-      </div>
-
-      {/* Listing Duration */}
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-1">
-            <label className="text-white text-sm font-medium">
-              Listing Expiration
-            </label>
-            <Tooltip
-              message="Dates and times are based on your local timezone and use the 24-hour time system (e.g., 14:30 for 2:30 PM)"
-              icon={
-                <InfoIcon
-                  style={{
-                    fontSize: '14px',
-                    fill: 'var(--text-grey)',
-                    width: '14px',
-                    cursor: 'pointer',
-                  }}
-                />
-              }
-              tooltipOverrides={{
-                overlayInnerStyle: {
-                  padding: '12px',
-                  maxWidth: '280px',
-                },
-              }}
-            />
-          </div>
-          <DateTimePicker
-            value={expirationDate}
-            onChange={setExpirationDate}
-            placeholder="Select expiration date and time"
-            minDate={new Date(Date.now() + 24 * 60 * 60 * 1000)} // Minimum 1 day from now
-            className="w-full"
-          />
-          <span className="text-xs text-grey">
-            Your listing will automatically expire at the selected date and time
-            (max 30 days)
-          </span>
         </div>
       </div>
 

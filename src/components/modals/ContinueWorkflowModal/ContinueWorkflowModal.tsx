@@ -18,6 +18,7 @@ import { InterruptedWorkflowType } from '@src/hooks/useInterruptedWorkflows';
 import { useMarketplaceOrder } from '@src/hooks/useMarketplaceOrder';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { useGlobalState, useWalletState } from '@src/state';
+import { isArweaveTransactionID } from '@src/utils';
 import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { useQueryClient } from '@tanstack/react-query';
@@ -261,34 +262,38 @@ function ContinueWorkflowModal({
         {/* Content */}
         <div className="flex flex-col p-6 gap-4 text-white">
           {/* Workflow Type Detection */}
-          {workflowType && domainInfo?.state?.Owner && (
-            <div className="flex flex-col gap-3 p-4 bg-blue-900/20 rounded-lg border border-dark-grey">
-              <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-blue-400" />
-                <span className="text-sm font-medium text-blue-400">
-                  Workflow Analysis
-                </span>
+          {workflowType &&
+            domainInfo?.state?.Owner &&
+            isArweaveTransactionID(domainInfo.state.Owner) && (
+              <div className="flex flex-col gap-3 p-4 bg-blue-900/20 rounded-lg border border-dark-grey">
+                <div className="flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-blue-400" />
+                  <span className="text-sm font-medium text-blue-400">
+                    Workflow Analysis
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 text-sm">
+                  <span className="text-grey whitespace-nowrap">
+                    ANT Owner:
+                  </span>
+                  <ArweaveID
+                    id={new ArweaveTransactionID(domainInfo.state.Owner)}
+                    type={ArweaveIdTypes.ADDRESS}
+                    characterCount={8}
+                  />
+                  <ArrowRight className="w-3 h-3 text-grey" />
+                  <span className="text-grey">Expected:</span>
+                  <ArweaveID
+                    id={new ArweaveTransactionID(marketplaceProcessId)}
+                    type={ArweaveIdTypes.ADDRESS}
+                    characterCount={8}
+                  />
+                </div>
+                <div className="text-xs text-grey">
+                  Marketplace Order: {marketplaceOrder ? 'Found' : 'Not Found'}
+                </div>
               </div>
-              <div className="flex items-center gap-3 text-sm">
-                <span className="text-grey whitespace-nowrap">ANT Owner:</span>
-                <ArweaveID
-                  id={new ArweaveTransactionID(domainInfo.state.Owner)}
-                  type={ArweaveIdTypes.ADDRESS}
-                  characterCount={8}
-                />
-                <ArrowRight className="w-3 h-3 text-grey" />
-                <span className="text-grey">Expected:</span>
-                <ArweaveID
-                  id={new ArweaveTransactionID(marketplaceProcessId)}
-                  type={ArweaveIdTypes.ADDRESS}
-                  characterCount={8}
-                />
-              </div>
-              <div className="text-xs text-grey">
-                Marketplace Order: {marketplaceOrder ? 'Found' : 'Not Found'}
-              </div>
-            </div>
-          )}
+            )}
           {/* Order Configuration from Intent */}
           {orderConfig && (
             <MarketplaceOrderInfoCard config={orderConfig} name={domainName} />

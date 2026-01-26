@@ -6,7 +6,6 @@ import nodePolyfills from 'vite-plugin-node-stdlib-browser';
 import svgr from 'vite-plugin-svgr';
 
 // https://vitejs.dev/config/
-
 export default defineConfig({
   base: '',
   esbuild: false,
@@ -26,7 +25,9 @@ export default defineConfig({
     react(),
     nodePolyfills(),
     // if we are building for permaweb deploy we dont want sentry
-    ...(process.env.VITE_NODE_ENV && !process.env.VITE_ARNS_NAME
+    ...(process.env.VITE_SENTRY_ENABLED === 'true' &&
+    process.env.VITE_NODE_ENV &&
+    !process.env.VITE_ARNS_NAME
       ? [
           sentryVitePlugin({
             org: process.env.VITE_SENTRY_ORG,

@@ -4,13 +4,13 @@ import { Tooltip } from '@src/components/data-display';
 import { AntLogoIcon } from '@src/components/data-display/AntLogoIcon';
 import { InfoIcon } from '@src/components/icons';
 import { ArNSLogo } from '@src/components/icons';
-import { Checkbox } from '@src/components/inputs/Checkbox';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { useWalletState } from '@src/state';
 import { decodeDomainToASCII, isArweaveTransactionID } from '@src/utils';
 import { formatARIOWithCommas } from '@src/utils/common/common';
 import { DEFAULT_ANT_LOGO } from '@src/utils/constants';
 import { ReactNode, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export type ConfirmListingPanelProps = {
   domainName: string;
@@ -47,7 +47,6 @@ function ConfirmListingPanel({
   const { data: domainInfo } = useDomainInfo({
     antId: isArweaveTransactionID(antId) ? antId : undefined,
   });
-  const [agreementChecked, setAgreementChecked] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   const formatUsdValue = (arIOAmount: number): string => {
@@ -276,98 +275,90 @@ function ConfirmListingPanel({
           </div>
         </div>
 
-        {/* Agreement Checkbox */}
+        {/* Terms Agreement */}
         <div className="flex w-full bg-foreground rounded-b px-6 p-4">
-          <div className="flex items-start gap-3 w-full">
-            <Checkbox
-              id="marketplace-agreement"
-              checked={agreementChecked}
-              onCheckedChange={(checked) =>
-                setAgreementChecked(
-                  checked === 'indeterminate' ? false : checked,
-                )
-              }
-              label={
-                <div className="items-center justify-center gap-2 flex">
-                  <span className="text-sm text-white">
-                    I understand the fees and conditions for listing my name
-                  </span>
-                  <Popover.Root
-                    open={isPopoverOpen}
-                    onOpenChange={setIsPopoverOpen}
-                  >
-                    <Popover.Trigger asChild>
-                      <button
-                        type="button"
-                        className="inline-flex items-center justify-center"
-                        onMouseEnter={() => setIsPopoverOpen(true)}
-                        onMouseLeave={() => setIsPopoverOpen(false)}
-                      >
-                        <InfoIcon
-                          style={{
-                            fontSize: '16px',
-                            fill: 'var(--text-grey)',
-                            width: '16px',
-                            cursor: 'pointer',
-                          }}
-                        />
-                      </button>
-                    </Popover.Trigger>
+          <div className="flex items-center gap-1 w-full justify-center">
+            <span className="text-sm text-grey">
+              By continuing, you understand the fees and agree to our{' '}
+              <Link
+                to="https://ar.io/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-link hover:underline"
+              >
+                Terms & Conditions
+              </Link>
+            </span>
+            <Popover.Root open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+              <Popover.Trigger asChild>
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center"
+                  onMouseEnter={() => setIsPopoverOpen(true)}
+                  onMouseLeave={() => setIsPopoverOpen(false)}
+                >
+                  <InfoIcon
+                    style={{
+                      fontSize: '16px',
+                      fill: 'var(--text-grey)',
+                      width: '16px',
+                      cursor: 'pointer',
+                    }}
+                  />
+                </button>
+              </Popover.Trigger>
 
-                    <Popover.Portal>
-                      <Popover.Content
-                        className="w-[400px] rounded-lg border border-dark-grey bg-metallic-grey shadow-lg p-4"
-                        style={{ zIndex: 99999 }}
-                        sideOffset={8}
-                        align="center"
-                        onMouseEnter={() => setIsPopoverOpen(true)}
-                        onMouseLeave={() => setIsPopoverOpen(false)}
-                      >
-                        <div className="text-sm text-light-grey flex flex-col gap-3 p-2">
-                          <div className="font-medium text-white text-base">
-                            Important Notice:
-                          </div>
-                          <ul className="list-disc list-outside space-y-2 text-sm">
-                            <li>
-                              Fees and escrow:
-                              <ul className="list-decimal list-inside space-y-2 text-sm pl-4 pt-1">
-                                <li>
-                                  A listing fee will be charged upfront to list
-                                  your name for sale commensurate with the
-                                  scheduled duration of the listing.
-                                </li>
-                                <li>
-                                  Marketplace fees will be deducted from the
-                                  final sale amount and buyers will pay the full
-                                  listing price to purchase your domain
-                                </li>
-                                <li>
-                                  Your name will be escrowed until the sale is
-                                  completed.
-                                </li>
-                              </ul>
-                            </li>
-                            <li>
-                              Cancellation and modification policies:
-                              <ul className="list-decimal list-inside space-y-2 text-sm pl-4 pt-1">
-                                <li>
-                                  Fixed price and Dutch auction listings can be
-                                  cancelled.
-                                </li>
-                                <li>
-                                  English auction listings can be modified or
-                                  cancelled until the first bid is placed.
-                                </li>
-                              </ul>
-                            </li>
-                          </ul>
-                        </div>
-                      </Popover.Content>
-                    </Popover.Portal>
-                  </Popover.Root>
-                </div>
-              }
-            />
+              <Popover.Portal>
+                <Popover.Content
+                  className="w-[400px] rounded-lg border border-dark-grey bg-metallic-grey shadow-lg p-4"
+                  style={{ zIndex: 99999 }}
+                  sideOffset={8}
+                  align="center"
+                  onMouseEnter={() => setIsPopoverOpen(true)}
+                  onMouseLeave={() => setIsPopoverOpen(false)}
+                >
+                  <div className="text-sm text-light-grey flex flex-col gap-3 p-2">
+                    <div className="font-medium text-white text-base">
+                      Important Notice:
+                    </div>
+                    <ul className="list-disc list-outside space-y-2 text-sm">
+                      <li>
+                        Fees and escrow:
+                        <ul className="list-decimal list-inside space-y-2 text-sm pl-4 pt-1">
+                          <li>
+                            A listing fee will be charged upfront to list your
+                            name for sale commensurate with the scheduled
+                            duration of the listing.
+                          </li>
+                          <li>
+                            Marketplace fees will be deducted from the final
+                            sale amount and buyers will pay the full listing
+                            price to purchase your domain
+                          </li>
+                          <li>
+                            Your name will be escrowed until the sale is
+                            completed.
+                          </li>
+                        </ul>
+                      </li>
+                      <li>
+                        Cancellation and modification policies:
+                        <ul className="list-decimal list-inside space-y-2 text-sm pl-4 pt-1">
+                          <li>
+                            Fixed price and Dutch auction listings can be
+                            cancelled.
+                          </li>
+                          <li>
+                            English auction listings can be modified or
+                            cancelled until the first bid is placed.
+                          </li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </div>
+                </Popover.Content>
+              </Popover.Portal>
+            </Popover.Root>
           </div>
         </div>
       </div>
@@ -383,12 +374,12 @@ function ConfirmListingPanel({
         </button>
         <button
           className={`flex-1 px-6 py-3 rounded transition-colors ${
-            isLoading || !agreementChecked
+            isLoading
               ? 'bg-grey text-white cursor-not-allowed'
               : 'bg-primary text-black hover:bg-primary-dark'
           }`}
           onClick={onConfirm}
-          disabled={isLoading || !agreementChecked}
+          disabled={isLoading}
         >
           {isLoading ? 'Creating Listing...' : 'Confirm Listing'}
         </button>
