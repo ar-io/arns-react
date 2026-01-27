@@ -230,7 +230,7 @@ export const transactionByOwnerQuery = (address: ArweaveTransactionID) => {
 };
 
 export const LANDING_PAGE_TXID = new ArweaveTransactionID(
-  'oork_YifB3-JQQZg8EgMPQJytua_QCHKNmMqt5kmnCo',
+  'fdHHWvv-rVplgmMNxJ-JxyEAFmObQvKQGHn0fi3v9Ks',
 );
 
 export const RESERVED_BREADCRUMB_TITLES = new Set([
