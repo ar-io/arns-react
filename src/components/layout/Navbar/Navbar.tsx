@@ -42,7 +42,7 @@ function NavBar() {
             }}
           >
             <div style={{ position: 'relative' }}>
-              <BrandLogo width={'36px'} height={'36px'} fill={'white'} />
+              <BrandLogo width={'120px'} height={'36px'} />
 
               {/* TODO: Conditionally show tesnet/devnet depending on process id */}
               {bannerText && (
@@ -51,7 +51,7 @@ function NavBar() {
                   style={{
                     position: 'absolute',
                     top: '-6px',
-                    left: '24px',
+                    right: '-10px',
                   }}
                 >
                   {bannerText}

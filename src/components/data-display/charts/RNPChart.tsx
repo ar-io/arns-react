@@ -1,9 +1,9 @@
 import { AoGetCostDetailsParams, mARIOToken } from '@ar.io/sdk';
+import { ArioSpinner } from '@src/components/data-display/Spinner';
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import { useGlobalState, useWalletState } from '@src/state';
 import { formatARIOWithCommas, formatDateMDY } from '@src/utils';
 import { START_RNP_PREMIUM } from '@src/utils/constants';
-import Lottie from 'lottie-react';
 import { useEffect, useRef, useState } from 'react';
 import {
   Line,
@@ -15,8 +15,6 @@ import {
 } from 'recharts';
 import { CategoricalChartState } from 'recharts/types/chart/types';
 import { Coordinate } from 'recharts/types/util/types';
-
-import arioLoading from '../../icons/ario-spinner.json';
 
 export function RNPChart({
   name,
@@ -203,7 +201,7 @@ export function RNPChart({
   if (!chartData?.length)
     return (
       <span className="h-fit flex flex-col text-white w-full items-center p-5 justify-center m-auto">
-        <Lottie animationData={arioLoading} loop={true} className="h-[100px]" />
+        <ArioSpinner size={100} />
         <span>Loading Price Chart...</span>
       </span>
     );
