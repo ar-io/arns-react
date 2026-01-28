@@ -1,6 +1,7 @@
 import { ContractSigner, createAoSigner } from '@ar.io/sdk/web';
 import AntChangelog from '@src/components/cards/AntChangelog';
 import { Tooltip } from '@src/components/data-display';
+import { ArioSpinner } from '@src/components/data-display/Spinner';
 import { CloseIcon } from '@src/components/icons';
 import ArweaveID, {
   ArweaveIdTypes,
@@ -18,10 +19,8 @@ import { ANT_INTERACTION_TYPES } from '@src/types';
 import { formatForMaxCharCount, lowerCaseDomain, sleep } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { Checkbox } from 'antd';
-import Lottie from 'lottie-react';
 import { useState } from 'react';
 
-import arioLoading from '../../../icons/ario-spinner.json';
 import './styles.css';
 
 function UpgradeDomainModal({
@@ -200,11 +199,7 @@ function UpgradeDomainModal({
           </>
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center">
-            <Lottie
-              animationData={arioLoading}
-              loop={true}
-              className="h-[250px]"
-            />
+            <ArioSpinner size={250} />
           </div>
         )}
 

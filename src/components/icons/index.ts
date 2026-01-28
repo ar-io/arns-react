@@ -5,6 +5,7 @@ import { ReactComponent as AlertOctagonIcon } from './AlertOctagon.svg';
 import { ReactComponent as AlertTriangleIcon } from './AlertTriangle.svg';
 import { ReactComponent as ArIOTokenIcon } from './ArIOTokenIcon.svg';
 import { ReactComponent as ArNSLogo } from './ArNSLogo.svg';
+import { ReactComponent as ArioSpinnerLogo } from './ArioSpinnerLogo.svg';
 import { ReactComponent as ArrowLeft } from './ArrowLeft.svg';
 import { ReactComponent as ArrowRightIcon } from './ArrowRight.svg';
 import { ReactComponent as ArrowUpRight } from './ArrowUpRight.svg';
@@ -70,6 +71,7 @@ import { ReactComponent as TurboLogo } from './turbo_logo.svg';
 
 export {
   ArNSLogo,
+  ArioSpinnerLogo,
   AccountIcon,
   AlertOctagonIcon,
   AlertTriangleIcon,

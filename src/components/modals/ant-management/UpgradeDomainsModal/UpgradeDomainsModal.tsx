@@ -1,6 +1,7 @@
 import { ContractSigner, createAoSigner } from '@ar.io/sdk/web';
 import AntChangelog from '@src/components/cards/AntChangelog';
 import { Tooltip } from '@src/components/data-display';
+import { ArioSpinner } from '@src/components/data-display/Spinner';
 import { CloseIcon } from '@src/components/icons';
 import ArweaveID, {
   ArweaveIdTypes,
@@ -26,11 +27,9 @@ import {
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
 import { Checkbox } from 'antd';
-import Lottie from 'lottie-react';
 import { pLimit } from 'plimit-lit';
 import { useCallback, useEffect, useState } from 'react';
 
-import arioLoading from '../../../icons/ario-spinner.json';
 import './styles.css';
 
 function UpgradeDomainsModal({
@@ -285,11 +284,7 @@ function UpgradeDomainsModal({
               {arnsLoading ? (
                 <div className="flex h-full items-center justify-center">
                   <div className="text-center">
-                    <Lottie
-                      animationData={arioLoading}
-                      loop={true}
-                      className="h-[150px]"
-                    />
+                    <ArioSpinner size={150} />
                     <p className="mt-4 text-grey">
                       Loading domains and ANTs...
                     </p>
@@ -392,11 +387,7 @@ function UpgradeDomainsModal({
                         <span className="text-white text-sm">Waiting...</span>
                       )}
                       {status.status === 'in-progress' && (
-                        <Lottie
-                          animationData={arioLoading}
-                          loop={true}
-                          className="h-6 w-6"
-                        />
+                        <ArioSpinner size={24} />
                       )}
                       {status.status === 'completed' && (
                         <span className="text-success text-sm">

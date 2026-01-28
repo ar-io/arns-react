@@ -2,16 +2,15 @@ import { CheckCircleFilled } from '@ant-design/icons';
 import { AoArNSNameData } from '@ar.io/sdk/web';
 import DomainDetailsTip from '@src/components/Tooltips/DomainDetailsTip';
 import { Tooltip } from '@src/components/data-display';
+import { ArioSpinner } from '@src/components/data-display/Spinner';
 import { RNPChart } from '@src/components/data-display/charts/RNPChart';
 import { CircleCheckFilled, SearchIcon } from '@src/components/icons';
 import { useGlobalState } from '@src/state';
 import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
-import Lottie from 'lottie-react';
 import { ChevronRight, CircleAlert, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import arioLoading from '../../icons/ario-spinner.json';
 import DomainSearch from '../DomainSearch';
 import DomainPiceList from './DomainPriceList';
 
@@ -277,11 +276,9 @@ function HomeSearch() {
                   )}
                 </div>
                 {isSearching ? (
-                  <Lottie
-                    animationData={arioLoading}
-                    loop={true}
-                    className="h-[60px]"
-                  />
+                  <div className="flex w-full justify-center mt-4">
+                    <ArioSpinner size={60} />
+                  </div>
                 ) : isReturnedName ? (
                   <div className="flex flex-col w-full gap-2 mt-4 h-700px">
                     <div className="flex flex-row w-full justify-between ">

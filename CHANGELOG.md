@@ -8,6 +8,15 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.29.0] - 2025-01-23
+
+### Changed
+
+- Updated AR.IO logos to v2 design
+- Updated default ANT logo
+- Updated favicons
+- Replaced Lottie spinner with lightweight CSS-based ArioSpinner
+
 ## [1.28.1] - 2025-12-22
 
 ### Fixed
