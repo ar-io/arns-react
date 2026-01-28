@@ -276,7 +276,9 @@ function HomeSearch() {
                   )}
                 </div>
                 {isSearching ? (
-                  <ArioSpinner size={60} />
+                  <div className="flex w-full justify-center mt-4">
+                    <ArioSpinner size={60} />
+                  </div>
                 ) : isReturnedName ? (
                   <div className="flex flex-col w-full gap-2 mt-4 h-700px">
                     <div className="flex flex-row w-full justify-between ">
