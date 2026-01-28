@@ -5,6 +5,16 @@ export default {
   darkMode: 'selector', // or 'media' or 'class'
   theme: {
     extend: {
+      animation: {
+        'ario-spin': 'spin 1.5s linear infinite',
+        'ario-pulse': 'ario-pulse 2s ease-in-out infinite',
+      },
+      keyframes: {
+        'ario-pulse': {
+          '0%, 100%': { opacity: '0.7', transform: 'scale(1)' },
+          '50%': { opacity: '1', transform: 'scale(1.05)' },
+        },
+      },
       backgroundImage: {
         'primary-gradient':
           'linear-gradient(90deg, rgba(255, 185, 56, 0.1), #ffb938 100%)',
