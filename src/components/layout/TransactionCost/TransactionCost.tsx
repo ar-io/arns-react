@@ -47,7 +47,7 @@ function TransactionCost({
         }}
       >
         <div
-          className="flex flex-column"
+          className="flex flex-col gap-8"
           style={{
             gap: '0.2em',
             alignItems: 'flex-end',
@@ -56,7 +56,7 @@ function TransactionCost({
           }}
         >
           <span
-            className="flex flex-row text white flex-right whitespace-nowrap"
+            className="flex flex-row text text-foreground flex-right whitespace-nowrap"
             style={{
               gap: '5px',
               width: 'fit-content',

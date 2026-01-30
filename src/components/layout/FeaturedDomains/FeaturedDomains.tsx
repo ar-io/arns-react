@@ -22,9 +22,9 @@ function FeaturedDomains() {
   }
 
   return (
-    <div className="featured-domains flex-center fade-in">
+    <div className="featured-domains flex justify-center items-center fade-in">
       <span
-        className="text-medium center grey"
+        className="text-lg text-center justify-center items-center text-muted"
         style={{
           letterSpacing: '0.3em',
           fontWeight: 500,
@@ -32,7 +32,7 @@ function FeaturedDomains() {
       >
         FEATURED DOMAINS
       </span>
-      <div className="card-container flex-center">
+      <div className="card-container flex justify-center items-center">
         {Object.keys(FEATURED_DOMAINS).map((domain, index) => {
           if (
             index >= displayCount ||
@@ -48,21 +48,12 @@ function FeaturedDomains() {
           );
         })}
       </div>
-      <div className="flex flex-row mb-8 max-w-md gap-4">
-        <button
-          className="button-secondary center faded"
-          onClick={displayCount < MAX_COUNT ? showMore : showLess}
-          style={{
-            padding: 0,
-            fontSize: '15px',
-            width: '100%',
-            height: 50,
-            color: 'var(--text-white)',
-          }}
-        >
-          {displayCount < MAX_COUNT ? 'View More Domains' : 'View Less Domains'}
-        </button>
-      </div>
+      <button
+        className="button-secondary text-center justify-center items-center px-8 py-3"
+        onClick={displayCount < MAX_COUNT ? showMore : showLess}
+      >
+        {displayCount < MAX_COUNT ? 'View More Domains' : 'View Less Domains'}
+      </button>
     </div>
   );
 }

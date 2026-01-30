@@ -5,6 +5,7 @@ import ArweaveID, {
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import AddControllerModal from '@src/components/modals/ant-management/AddControllerModal/AddControllerModal';
 import RemoveControllersModal from '@src/components/modals/ant-management/RemoveControllerModal/RemoveControllerModal';
+import { Popover } from '@src/components/ui/Popover';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import {
@@ -12,7 +13,6 @@ import {
   isEthAddress,
   isValidAoAddress,
 } from '@src/utils';
-import { Tooltip } from 'antd';
 import { useState } from 'react';
 
 import DomainSettingsRow from './DomainSettingsRow';
@@ -101,25 +101,16 @@ export default function ControllersRow({
         editable={editable}
         action={[
           editable ? (
-            <Tooltip
+            <Popover
               key={1}
               open={showTooltip}
               onOpenChange={setShowTooltip}
-              placement="bottomRight"
-              color="var(--card-bg)"
-              autoAdjustOverflow
-              arrow={false}
-              overlayInnerStyle={{
-                width: 'fit-content',
-                border: '1px solid var(--text-faded)',
-                padding: '9px 12px',
-              }}
-              overlayStyle={{ width: 'fit-content' }}
-              trigger={'click'}
-              title={
+              side="bottom"
+              align="end"
+              content={
                 <div className="flex-col flex" style={{ gap: '10px' }}>
                   <button
-                    className="flex flex-right white pointer button"
+                    className="flex flex-right text-foreground pointer button"
                     onClick={() => {
                       setShowAddModal(true);
                       setShowTooltip(false);
@@ -128,7 +119,7 @@ export default function ControllersRow({
                     Add Controller
                   </button>
                   <button
-                    className="flex flex-right white pointer button"
+                    className="flex flex-right text-foreground pointer button"
                     onClick={() => {
                       setShowRemoveModal(true);
                       setShowTooltip(false);
@@ -138,14 +129,17 @@ export default function ControllersRow({
                   </button>
                 </div>
               }
+              contentClassName="p-3"
             >
-              <VerticalDotMenuIcon
-                width={'18px'}
-                height={'18px'}
-                fill="var(--text-grey)"
-                className="pointer"
-              />
-            </Tooltip>
+              <button className="p-0 bg-transparent border-none cursor-pointer">
+                <VerticalDotMenuIcon
+                  width={'18px'}
+                  height={'18px'}
+                  fill="var(--text-grey)"
+                  className="pointer"
+                />
+              </button>
+            </Popover>
           ) : null,
         ]}
       />

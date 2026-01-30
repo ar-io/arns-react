@@ -42,10 +42,10 @@ function AddControllerModal({
     >
       {/**modal header */}
       <DialogModal
-        title={<h2 className="white text-xl">Add Controller</h2>}
+        title={<h2 className="text-foreground text-xl">Add Controller</h2>}
         body={
           <div
-            className="flex flex-column"
+            className="flex flex-col gap-8"
             style={{ fontSize: '14px', maxWidth: '575px', minWidth: '475px' }}
           >
             <div className="flex flex-col gap-2">
@@ -56,11 +56,11 @@ function AddControllerModal({
               <span className="grey">Nickname:</span>
               <span className="white">{formatForMaxCharCount(name, 40)}</span>
             </div>
-            <div className="flex flex-column" style={{ paddingBottom: '30px' }}>
-              <div className="flex flex-column" style={{ gap: '10px' }}>
+            <div className="flex flex-col gap-8" style={{ paddingBottom: '30px' }}>
+              <div className="flex flex-col gap-8" style={{ gap: '10px' }}>
                 <span className="grey">Controller wallet address:</span>
                 <ValidationInput
-                  inputClassName="name-token-input white"
+                  inputClassName="name-token-input text-foreground"
                   inputCustomStyle={{ paddingLeft: '10px', fontSize: '16px' }}
                   wrapperCustomStyle={{
                     position: 'relative',

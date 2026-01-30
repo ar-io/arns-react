@@ -1,7 +1,2 @@
-.ant-notification-notice-close {
-  display: none !important;
-}
-
-.ant-notification-notice-message {
-  padding-inline-end: 0px !important;
-}
+/* Notifications styles - converted to use Radix Toast */
+/* Legacy ant notification styles removed */

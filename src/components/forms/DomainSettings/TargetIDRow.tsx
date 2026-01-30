@@ -13,7 +13,7 @@ import {
 import { isArweaveTransactionID } from '@src/utils';
 import { ARNS_TX_ID_ENTRY_REGEX } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
-import { Skeleton } from 'antd';
+import { Skeleton } from '@src/components/ui/Skeleton';
 import { useEffect, useState } from 'react';
 
 import DomainSettingsRow from './DomainSettingsRow';
@@ -97,13 +97,7 @@ export default function TargetIDRow({
               />
             )
           ) : (
-            <Skeleton.Input
-              active
-              style={{
-                backgroundColor: 'var(--card-bg)',
-                height: '16px',
-              }}
-            />
+            <Skeleton className="h-4 w-48 bg-surface" />
           )
         }
         editing={editing}

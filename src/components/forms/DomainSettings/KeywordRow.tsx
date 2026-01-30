@@ -1,10 +1,10 @@
-import { PlusCircleFilled } from '@ant-design/icons';
+import { PlusCircle } from 'lucide-react';
 import { Pill } from '@src/components/data-display/Pill';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import { KEYWORD_REGEX } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
-import { Skeleton } from 'antd';
+import { Skeleton } from '@src/components/ui/Skeleton';
 import { Check, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -54,9 +54,8 @@ function AddKeywordInput({ addCb }: { addCb: (word: string) => void }) {
           className="flex flex-row rounded-full bg-background border border-dark-grey shadow-3xl py-1 items-center justify-center px-[0.625rem] max-w-fit h-fit text-grey hover:text-white hover:border-grey transition-all"
           style={{ gap: '0.625rem' }}
         >
-          <PlusCircleFilled
-            width={'1.125rem'}
-            height={'1.125rem'}
+          <PlusCircle
+            size={18}
             className="text-success"
           />{' '}
           <span className="flex flex-row max-w-fit h-fit font-semibold items-center">
@@ -70,7 +69,7 @@ function AddKeywordInput({ addCb }: { addCb: (word: string) => void }) {
         >
           <input
             ref={inputRef}
-            className={`flex flex-row rounded-full bg-background border border-dark-grey shadow-3xl py-[0.125rem] items-center justify-center px-[0.625rem] w-fit text-white transition-all`}
+            className={`flex-row rounded-full bg-background border border-dark-grey shadow-3xl py-[0.125rem] items-center justify-center px-[0.625rem] w-fit text-white transition-all`}
             onChange={(e) => handleChange(e.target.value)}
             value={keyword}
             onKeyDown={(e) => {
@@ -208,13 +207,7 @@ export default function KeywordsRow({
               </div>
             )
           ) : (
-            <Skeleton.Input
-              active
-              style={{
-                backgroundColor: 'var(--card-bg)',
-                height: '16px',
-              }}
-            />
+            <Skeleton className="h-4 w-48 bg-surface" />
           )
         }
         editing={editing}

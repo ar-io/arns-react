@@ -434,21 +434,21 @@ const ReturnedNamesTable = ({
           isLoading={false}
           noDataFoundText={
             loading ? (
-              <div className="flex flex-column center white p-[100px]">
+              <div className="flex-col gap-8 text-center justify-center items-center text-foreground p-[100px]">
                 <Loader message="Loading assets..." />
               </div>
             ) : (
-              <div className="flex flex-column center p-[100px]">
+              <div className="flex-col gap-8 text-center justify-center items-center p-[100px]">
                 <>
-                  <span className="white bold" style={{ fontSize: '16px' }}>
+                  <span className="text-foreground bold" style={{ fontSize: '16px' }}>
                     No Returned Names Found
                   </span>
                 </>
 
-                <div className="flex flex-row center" style={{ gap: '16px' }}>
+                <div className="flex flex-row text-center justify-center items-center" style={{ gap: '16px' }}>
                   <Link
                     to="/"
-                    className="bg-primary rounded-md text-black center hover px-4 py-3 text-sm"
+                    className="bg-primary rounded-md text-black text-center justify-center items-center hover px-4 py-3 text-sm"
                   >
                     Search for a Name
                   </Link>

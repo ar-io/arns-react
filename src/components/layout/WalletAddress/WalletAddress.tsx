@@ -19,9 +19,9 @@ export function WalletAddress({ characterCount }: { characterCount?: number }) {
   return (
     <>
       {walletAddress ? (
-        <div className="flex-row" style={{ gap: '0.4em' }}>
+        <div className="flex flex-row" style={{ gap: '0.4em' }}>
           <span className="dot"></span>
-          <span className="text white">
+          <span className="text text-foreground">
             {handleText(walletAddress.toString())}
           </span>
         </div>

@@ -45,14 +45,6 @@
   gap: 2em;
 }
 
-.ant-descriptions-row {
-  opacity: 100;
-  animation: fade-in-animation 0.5s ease-in;
-}
-.ant-descriptions-row:nth-child(odd) > .ant-descriptions-item {
-  padding-bottom: 5px !important;
-}
-
 @keyframes fade-in-animation {
   0% {
     opacity: 0;

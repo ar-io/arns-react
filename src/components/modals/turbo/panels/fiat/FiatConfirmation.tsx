@@ -160,7 +160,7 @@ function FiatConfirmation({
           </>
         ) : (
           <div className="flex w-full flex-col items-center py-4">
-            <div className="center text-xl font-bold text-error">
+            <div className="text-center justify-center items-center text-xl font-bold text-error">
               {valueStringError}
             </div>
           </div>

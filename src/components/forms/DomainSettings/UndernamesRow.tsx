@@ -1,7 +1,7 @@
 import { Tooltip } from '@src/components/data-display';
 import { NewspaperIcon } from '@src/components/icons';
 import { lowerCaseDomain } from '@src/utils';
-import { Skeleton } from 'antd';
+import { Skeleton } from '@src/components/ui/Skeleton';
 import { useNavigate } from 'react-router-dom';
 
 import DomainSettingsRow from './DomainSettingsRow';
@@ -26,7 +26,7 @@ export default function UndernamesRow({
       editable={!!domain && domain.length > 0}
       value={
         <span
-          className="flex center"
+          className="flex text-center justify-center items-center"
           style={{
             justifyContent: 'flex-start',
             gap: '10px',
@@ -34,23 +34,11 @@ export default function UndernamesRow({
         >
           {`${
             undernameLimit ?? (
-              <Skeleton.Input
-                active
-                style={{
-                  backgroundColor: 'var(--card-bg)',
-                  height: '16px',
-                }}
-              />
+              <Skeleton className="h-4 w-16 bg-surface inline-block" />
             )
           } / ${
             undernameSupport.toLocaleString() ?? (
-              <Skeleton.Input
-                active
-                style={{
-                  backgroundColor: 'var(--card-bg)',
-                  height: '16px',
-                }}
-              />
+              <Skeleton className="h-4 w-16 bg-surface inline-block" />
             )
           }`}
           <NewspaperIcon

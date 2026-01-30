@@ -1,5 +1,5 @@
+import { Progress } from '@src/components/ui/Progress';
 import { useArNSState } from '@src/state';
-import { Progress } from 'antd';
 import { Outlet, useLocation } from 'react-router-dom';
 
 import Footer from '../Footer/Footer';
@@ -18,19 +18,11 @@ function Layout() {
   const showBanner = homeOrRegister && Date.now() < julyEigth2024;
 
   return (
-    <div
-      className="flex flex-col"
-      style={{
-        gap: 0,
-        position: 'relative',
-        boxSizing: 'border-box',
-        height: '100vh',
-      }}
-    >
+    <div className="flex flex-col relative min-h-screen bg-background">
       {showBanner && <TopBanner />}
       <div
         id="layout"
-        className="flex flex-row"
+        className="flex flex-row w-full justify-between"
         style={{
           backgroundColor: 'var(--card-bg)',
           boxSizing: 'border-box',
@@ -43,26 +35,20 @@ function Layout() {
 
       {percentLoaded > 0 && percentLoaded < 100 ? (
         <Progress
-          prefixCls="arns-state-progress animate-pulse"
-          type={'line'}
-          percent={percentLoaded}
-          strokeColor={{
-            '0%': '#F7C3A1',
-            '100%': '#DF9BE8',
-          }}
-          strokeLinecap="square"
-          trailColor={'transparent'}
-          format={() => <></>}
+          value={percentLoaded}
+          className="animate-pulse bg-transparent"
+          indicatorClassName="bg-gradient-to-r from-[#F7C3A1] to-[#DF9BE8]"
+          size="sm"
         />
       ) : (
         <div className="p-[4px]" />
       )}
 
-      <div className="flex flex-col flex-1 w-full h-fit">
+      <div className="flex flex-col flex-1 w-full">
         <Outlet />
         <Notifications />
       </div>
-      <Footer />
+      <Footer className="mt-auto" />
     </div>
   );
 }

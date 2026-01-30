@@ -1,5 +1,6 @@
 import { AntLogoIcon } from '@src/components/data-display/AntLogoIcon';
 import TurboTopUpModal from '@src/components/modals/turbo/TurboTopUpModal';
+import { Popover } from '@src/components/ui/Popover';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { useTurboCreditBalance } from '@src/hooks/useTurboCreditBalance';
@@ -10,14 +11,14 @@ import {
   buildIOBalanceQuery,
 } from '@src/utils/network';
 import { useQueryClient } from '@tanstack/react-query';
-import { Tooltip } from 'antd';
 import Ar from 'arweave/node/ar';
-import { Settings2Icon } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Moon, Settings2Icon, Sun } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDisconnect } from 'wagmi';
 
 import { useIsMobile } from '../../../hooks';
+import { useTheme } from '../../ThemeProvider';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../state/contexts/WalletState';
 import eventEmitter from '../../../utils/events';
@@ -52,6 +53,7 @@ function NavMenuCard() {
     );
   }, [turboCreditBalanceRes]);
   const isMobile = useIsMobile();
+  const { resolvedTheme, setTheme } = useTheme();
 
   const [showMenu, setShowMenu] = useState(false);
   const [walletDetails, setWalletDetails] = useState<{
@@ -63,7 +65,6 @@ function NavMenuCard() {
     // AR: undefined,
     [arioTicker]: undefined,
   });
-  const menuRef = useRef<HTMLDivElement>(null);
 
   const [turboTopUpModalOpen, setTurboTopUpModalOpen] = useState(false);
 
@@ -72,16 +73,7 @@ function NavMenuCard() {
       resetWalletDetails();
       fetchWalletDetails(walletAddress);
     }
-
-    if (!menuRef.current) {
-      return;
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [menuRef, showMenu, wallet, walletAddress, turboCreditBalance]);
+  }, [wallet, walletAddress, turboCreditBalance]);
 
   function resetWalletDetails() {
     setWalletDetails({
@@ -116,16 +108,6 @@ function NavMenuCard() {
     });
   }
 
-  function handleClickOutside(e: any) {
-    if (
-      menuRef.current &&
-      e.target !== menuRef.current &&
-      !menuRef.current.contains(e.target)
-    ) {
-      setShowMenu(false);
-    }
-  }
-
   async function logout() {
     try {
       setShowMenu(false);
@@ -154,34 +136,143 @@ function NavMenuCard() {
     }
   }
 
-  return (
-    <>
-      <Tooltip
-        rootClassName="menu-card"
-        open={showMenu}
-        placement="bottomRight"
-        color="var(--card-bg)"
-        autoAdjustOverflow
-        arrow={{ pointAtCenter: true }}
-        overlayInnerStyle={{
-          width: 'fit-content',
-          border: '1px solid var(--text-faded)',
-        }}
-        overlayStyle={{ width: 'fit-content', minWidth: '180px' }}
-        title={
+  const menuContent = (
+    <div
+      className="flex flex-col gap-8"
+      style={{ minWidth: '200px', gap: '15px', paddingBottom: '15px' }}
+    >
+      {!walletAddress || !wallet ? (
+        <div className="flex flex-col gap-8" style={{ padding: '15px' }}>
+          {Object.entries(ROUTES).map(([key, route]) => {
+            if (!route.protected)
+              return (
+                <NavBarLink
+                  path={route.path}
+                  linkText={route.text}
+                  target={route.external ? '_blank' : '_self'}
+                  key={key}
+                  onClick={() => {
+                    setShowMenu(false);
+                  }}
+                >
+                  <>
+                    {route.icon ? (
+                      route.icon({
+                        height: 16,
+                        width: 16,
+                        fill: 'var(--text-grey)',
+                      })
+                    ) : (
+                      <></>
+                    )}
+                  </>
+                </NavBarLink>
+              );
+          })}
+          <ConnectButton />
+        </div>
+      ) : (
+        <>
           <div
-            className="flex flex-column"
-            ref={menuRef}
-            style={{ minWidth: '200px', gap: '15px', paddingBottom: '15px' }}
+            className="flex flex-col gap-8"
+            style={{ padding: '15px', boxSizing: 'border-box' }}
           >
-            {!walletAddress || !wallet ? (
-              <div className="flex flex-column" style={{ padding: '15px' }}>
+            <ArweaveID
+              id={walletAddress}
+              type={ArweaveIdTypes.ADDRESS}
+              characterCount={14}
+              copyButtonStyle={{
+                padding: '10px',
+                background: 'var(--text-faded)',
+                borderRadius: '5px',
+                fill: 'var(--text-white)',
+              }}
+              wrapperStyle={{
+                width: '100%',
+                justifyContent: 'space-between',
+                boxSizing: 'border-box',
+                alignItems: 'center',
+              }}
+            />
+
+            <div
+              className="flex flex-col gap-8"
+              style={{
+                background: 'var(--box-color)',
+                borderRadius: '5px',
+                padding: '15px',
+                boxSizing: 'border-box',
+                gap: '10px',
+                borderBottom: '1px solid var(--text-faded)',
+              }}
+            >
+              {Object.entries(walletDetails).map(([key, value]) => {
+                return (
+                  <span
+                    key={key}
+                    className="flex flex-row text-muted"
+                    style={{
+                      fontSize: '13px',
+                      gap: '10px',
+                    }}
+                  >
+                    <span
+                      className="whitespace-nowrap"
+                      style={{ fontWeight: 400 }}
+                    >
+                      {key}:
+                    </span>
+                    {value ? (
+                      <span className="white">{value}</span>
+                    ) : (
+                      <Loader
+                        size={20}
+                        wrapperStyle={{ margin: '0px' }}
+                      />
+                    )}
+                    {key === 'Turbo Credits' && (
+                      <button
+                        className="text-xs text-foreground hover:text-primary-foreground bg-surface hover:bg-primary border border-dark-grey rounded px-2 py-[2px] transition-all duration-200"
+                        onClick={() => {
+                          setTurboTopUpModalOpen(true);
+                          setShowMenu(false);
+                        }}
+                      >
+                        Add
+                      </button>
+                    )}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+
+          <span
+            className="flex"
+            style={{
+              height: '1px',
+              width: '100%',
+              boxSizing: 'border-box',
+              background: 'var(--text-faded)',
+            }}
+          ></span>
+
+          <div
+            className="flex flex-col gap-8"
+            style={{
+              padding: '0px 15px',
+              boxSizing: 'border-box',
+              gap: '15px',
+            }}
+          >
+            {isMobile ? (
+              <>
                 {Object.entries(ROUTES).map(([key, route]) => {
-                  if (!route.protected)
+                  if (!route.index && (!route.protected || walletAddress))
                     return (
                       <NavBarLink
                         path={route.path}
-                        linkText={route.text}
+                        linkText=""
                         target={route.external ? '_blank' : '_self'}
                         key={key}
                         onClick={() => {
@@ -189,237 +280,140 @@ function NavMenuCard() {
                         }}
                       >
                         <>
-                          {route.icon ? (
-                            route.icon({
-                              height: 16,
-                              width: 16,
-                              fill: 'var(--text-grey)',
-                            })
-                          ) : (
-                            <></>
+                          {route.icon && (
+                            <route.icon className="text-muted size-3" />
                           )}
+                          <span className="text-sm pl-[.125rem]">
+                            {route.text}
+                          </span>
                         </>
                       </NavBarLink>
                     );
                 })}
-                <ConnectButton />
-              </div>
-            ) : (
-              <>
-                <div
-                  className="flex flex-column"
-                  style={{ padding: '15px', boxSizing: 'border-box' }}
-                >
-                  <ArweaveID
-                    id={walletAddress}
-                    type={ArweaveIdTypes.ADDRESS}
-                    characterCount={14}
-                    copyButtonStyle={{
-                      padding: '10px',
-                      background: 'var(--text-faded)',
-                      borderRadius: '5px',
-                      fill: 'var(--text-white)',
-                    }}
-                    wrapperStyle={{
-                      width: '100%',
-                      justifyContent: 'space-between',
-                      boxSizing: 'border-box',
-                      alignItems: 'center',
-                    }}
-                  />
-
-                  <div
-                    className="flex flex-column"
-                    style={{
-                      background: 'var(--box-color)',
-                      borderRadius: '5px',
-                      padding: '15px',
-                      boxSizing: 'border-box',
-                      gap: '10px',
-                      borderBottom: '1px solid var(--text-faded)',
-                    }}
-                  >
-                    {Object.entries(walletDetails).map(([key, value]) => {
-                      return (
-                        <span
-                          key={key}
-                          className="flex-row grey"
-                          style={{
-                            fontSize: '13px',
-                            gap: '10px',
-                          }}
-                        >
-                          <span
-                            className="whitespace-nowrap"
-                            style={{ fontWeight: 400 }}
-                          >
-                            {key}:
-                          </span>
-                          {value ? (
-                            <span className="white">{value}</span>
-                          ) : (
-                            <Loader
-                              size={20}
-                              wrapperStyle={{ margin: '0px' }}
-                            />
-                          )}
-                          {key === 'Turbo Credits' && (
-                            <button
-                              className="text-xs text-white hover:text-black bg-foreground hover:bg-white border border-dark-grey rounded px-2 py-[2px] transition-all duration-200"
-                              onClick={() => {
-                                setTurboTopUpModalOpen(true);
-                                setShowMenu(false);
-                              }}
-                            >
-                              Add
-                            </button>
-                          )}
-                        </span>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <span
-                  className="flex"
-                  style={{
-                    height: '1px',
-                    width: '100%',
-                    boxSizing: 'border-box',
-                    background: 'var(--text-faded)',
-                  }}
-                ></span>
-
-                <div
-                  className="flex flex-column"
-                  style={{
-                    padding: '0px 15px',
-                    boxSizing: 'border-box',
-                    gap: '15px',
-                  }}
-                >
-                  {isMobile ? (
-                    <>
-                      {Object.entries(ROUTES).map(([key, route]) => {
-                        if (!route.index && (!route.protected || walletAddress))
-                          return (
-                            <NavBarLink
-                              path={route.path}
-                              linkText=""
-                              target={route.external ? '_blank' : '_self'}
-                              key={key}
-                              onClick={() => {
-                                setShowMenu(false);
-                              }}
-                            >
-                              <>
-                                {route.icon && (
-                                  <route.icon className="grey size-3" />
-                                )}
-                                <span className="text-sm pl-[.125rem]">
-                                  {route.text}
-                                </span>
-                              </>
-                            </NavBarLink>
-                          );
-                      })}
-                    </>
-                  ) : (
-                    Object.entries(ROUTES).map(([key, route]) => {
-                      if (route.protected && walletAddress)
-                        return (
-                          <NavBarLink
-                            path={route.path}
-                            linkText={route.text}
-                            key={key}
-                            onClick={() => {
-                              setShowMenu(false);
-                            }}
-                          >
-                            <>
-                              {route.icon ? (
-                                route.icon({
-                                  height: 16,
-                                  width: 16,
-                                  fill: 'var(--text-grey)',
-                                })
-                              ) : (
-                                <></>
-                              )}
-                            </>
-                          </NavBarLink>
-                        );
-                    })
-                  )}
-                  <span className="flex flex-row" style={{ gap: '10px' }}>
-                    <TokenIcon
-                      fill={'var(--text-grey)'}
-                      width={'16px'}
-                      height={'16px'}
-                    />{' '}
-                    <Link
-                      to={'https://ar.io/token'}
-                      target={'_blank'}
-                      className={'flex-row navbar-link hover'}
-                      style={{
-                        gap: '10px',
-                        alignItems: 'center',
-                        color: 'var(--text-white)',
-                        fontSize: '14px',
-                      }}
-                    >
-                      What are ARIO tokens?
-                    </Link>
-                  </span>{' '}
-                  <span className="flex flex-row" style={{ gap: '10px' }}>
-                    <Settings2Icon
-                      className="text-grey"
-                      width={'16px'}
-                      height={'16px'}
-                    />{' '}
-                    <Link
-                      to={'/settings'}
-                      className={'flex-row navbar-link hover'}
-                      style={{
-                        gap: '10px',
-                        alignItems: 'center',
-                        color: 'var(--text-white)',
-                        fontSize: '14px',
-                      }}
-                    >
-                      Settings
-                    </Link>
-                  </span>
-                  {
-                    <button
-                      className="navbar-link hover flex-row"
-                      onClick={() => logout()}
-                      style={{
-                        cursor: 'pointer',
-                        padding: '0px',
-                        gap: '10px',
-                        fontSize: '14px',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <LogoutIcon
-                        style={{
-                          height: '16px',
-                          width: '16px',
-                          fill: 'var(--text-grey)',
-                        }}
-                      />
-                      <span className="flex">Log Out</span>
-                    </button>
-                  }
-                </div>
               </>
+            ) : (
+              Object.entries(ROUTES).map(([key, route]) => {
+                if (route.protected && walletAddress)
+                  return (
+                    <NavBarLink
+                      path={route.path}
+                      linkText={route.text}
+                      key={key}
+                      onClick={() => {
+                        setShowMenu(false);
+                      }}
+                    >
+                      <>
+                        {route.icon ? (
+                          route.icon({
+                            height: 16,
+                            width: 16,
+                            fill: 'var(--text-grey)',
+                          })
+                        ) : (
+                          <></>
+                        )}
+                      </>
+                    </NavBarLink>
+                  );
+              })
             )}
+            <span className="flex flex-row" style={{ gap: '10px' }}>
+              <TokenIcon
+                fill={'var(--text-grey)'}
+                width={'16px'}
+                height={'16px'}
+              />{' '}
+              <Link
+                to={'https://ar.io/token'}
+                target={'_blank'}
+                className={'flex flex-row navbar-link hover'}
+                style={{
+                  gap: '10px',
+                  alignItems: 'center',
+                  color: 'var(--text-white)',
+                  fontSize: '14px',
+                }}
+              >
+                What are ARIO tokens?
+              </Link>
+            </span>{' '}
+            <span className="flex flex-row" style={{ gap: '10px' }}>
+              <Settings2Icon
+                className="text-grey"
+                width={'16px'}
+                height={'16px'}
+              />{' '}
+              <Link
+                to={'/settings'}
+                className={'flex flex-row navbar-link hover'}
+                style={{
+                  gap: '10px',
+                  alignItems: 'center',
+                  color: 'var(--text-white)',
+                  fontSize: '14px',
+                }}
+              >
+                Settings
+              </Link>
+            </span>
+            <button
+              className="navbar-link hover flex flex-row items-center"
+              onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+              style={{
+                cursor: 'pointer',
+                padding: '0px',
+                gap: '10px',
+                fontSize: '14px',
+              }}
+            >
+              {resolvedTheme === 'dark' ? (
+                <Sun className="size-4 text-grey" />
+              ) : (
+                <Moon className="size-4 text-grey" />
+              )}
+              <span>{resolvedTheme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+            </button>
+            {
+              <button
+                className="navbar-link hover flex-row"
+                onClick={() => logout()}
+                style={{
+                  cursor: 'pointer',
+                  padding: '0px',
+                  gap: '10px',
+                  fontSize: '14px',
+                  alignItems: 'center',
+                }}
+              >
+                <LogoutIcon
+                  style={{
+                    height: '16px',
+                    width: '16px',
+                    fill: 'var(--text-grey)',
+                  }}
+                />
+                <span className="flex">Log Out</span>
+              </button>
+            }
           </div>
-        }
+        </>
+      )}
+    </div>
+  );
+
+  return (
+    <>
+      <Popover
+        open={showMenu}
+        onOpenChange={setShowMenu}
+        side="bottom"
+        align="end"
+        content={menuContent}
+        contentClassName="min-w-[180px] p-0"
+        showArrow
       >
         <MenuButton
-          setShow={setShowMenu}
           show={showMenu}
           className={
             walletAddress
@@ -464,7 +458,7 @@ function NavMenuCard() {
             )}
           </span>
         </MenuButton>
-      </Tooltip>
+      </Popover>
       {turboTopUpModalOpen && (
         <TurboTopUpModal onClose={() => setTurboTopUpModalOpen(false)} />
       )}

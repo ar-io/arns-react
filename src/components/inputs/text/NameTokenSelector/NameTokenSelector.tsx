@@ -1,6 +1,6 @@
 import { ANT, AOProcess, AoArNSNameData } from '@ar.io/sdk/web';
 import Tooltip from '@src/components/Tooltips/Tooltip';
-import { Pagination, PaginationProps } from 'antd';
+import { Pagination } from '@src/components/ui/Pagination';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsFocused } from '../../../../hooks';
@@ -308,33 +308,6 @@ function NameTokenSelector({
     }
   }
 
-  const customPreviousAndNextButtons: PaginationProps['itemRender'] = (
-    page,
-    type,
-    originalElement,
-  ) => {
-    if (!tokens) {
-      return;
-    }
-    if (type === 'next' || type === 'prev') {
-      return;
-    }
-    if (type === 'page') {
-      return (
-        <span
-          className="flex flex-row hover center"
-          style={{
-            color: listPage === page ? 'white' : 'var(--text-grey)',
-            width: '32px',
-          }}
-        >
-          {page}
-        </span>
-      );
-    }
-    return originalElement;
-  };
-
   function updatePage(page: number) {
     setListPage(page);
   }
@@ -342,7 +315,7 @@ function NameTokenSelector({
   return (
     <div
       ref={listRef}
-      className="flex flex-column radius"
+      className="flex-col gap-8 radius"
       style={{
         position: 'relative',
         height: 'fit-content',
@@ -395,7 +368,7 @@ function NameTokenSelector({
           }`}
         />
         <span
-          className={`flex flex-row text grey flex-center ${
+          className={`flex-row text text-muted flex justify-center items-center ${
             selectedToken ? 'bold' : ''
           } hover`}
           style={{
@@ -412,7 +385,7 @@ function NameTokenSelector({
             isArweaveTransactionID(searchText) &&
             !Object.keys(tokens ?? []).includes(searchText) ? (
             <button
-              className="outline-button flex flex-row center pointer"
+              className="outline-button flex flex-row text-center justify-center items-center pointer"
               style={{
                 borderRadius: '50px',
                 width: 'fit-content',
@@ -431,7 +404,7 @@ function NameTokenSelector({
             </button>
           ) : selectedToken ? (
             <button
-              className="outline-button flex flex-row center pointer"
+              className="outline-button flex flex-row text-center justify-center items-center pointer"
               style={{
                 gap: '3px',
                 borderRadius: '50px',
@@ -457,7 +430,7 @@ function NameTokenSelector({
       {/* selector dropdown */}
       {tokens && searchActive ? (
         <div
-          className="flex flex-column"
+          className="flex flex-col gap-8"
           style={{
             alignItems: 'flex-start',
             justifyContent: 'flex-start',
@@ -471,7 +444,7 @@ function NameTokenSelector({
         >
           {searchText && !filteredTokens?.length ? (
             <span
-              className="text-large center"
+              className="text-2xl text-center justify-center items-center"
               style={{
                 color: '#444547',
                 margin: 'auto',
@@ -521,7 +494,7 @@ function NameTokenSelector({
                         }
                         message={
                           <div
-                            className="flex flex-column"
+                            className="flex flex-col gap-8"
                             style={{
                               padding: '5px',
                               gap: '5px',
@@ -582,7 +555,7 @@ function NameTokenSelector({
                         }
                         message={
                           <div
-                            className="flex flex-column"
+                            className="flex flex-col gap-8"
                             style={{
                               padding: '5px',
                               boxSizing: 'border-box',
@@ -602,7 +575,7 @@ function NameTokenSelector({
               })
           )}
           <div
-            className="custom-next-pagination flex flex-column"
+            className="custom-next-pagination flex flex-col gap-8"
             style={{
               padding: '10px 25px',
               boxSizing: 'border-box',
@@ -610,7 +583,7 @@ function NameTokenSelector({
               justifyContent: 'flex-start',
             }}
           >
-            {tokens.length || filteredTokens?.length || !searchText ? (
+            {Object.keys(tokens).length || filteredTokens?.length || !searchText ? (
               <Pagination
                 total={
                   Object.keys(tokens).length && !filteredTokens
@@ -619,13 +592,10 @@ function NameTokenSelector({
                       ? filteredTokens.length
                       : 0
                 }
-                itemRender={customPreviousAndNextButtons}
-                showPrevNextJumpers={true}
-                showSizeChanger={false}
-                showQuickJumper={false}
+                showPrevNext={false}
                 onChange={updatePage}
                 current={listPage}
-                defaultPageSize={listItemCount}
+                pageSize={listItemCount}
               />
             ) : (
               <></>

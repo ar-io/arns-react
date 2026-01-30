@@ -264,7 +264,7 @@ function ConnectWalletModal(): JSX.Element {
         </button>
 
         <span
-          className="flex flex-row white flex-center text-sm"
+          className="flex flex-row text-foreground flex justify-center items-center text-sm"
           style={{ whiteSpace: 'nowrap', gap: '5px', paddingTop: '16px' }}
         >
           Don&apos;t have a wallet?&nbsp;

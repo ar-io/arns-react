@@ -1,4 +1,4 @@
-import { Tooltip } from 'antd';
+import { Tooltip } from '@src/components/ui/Tooltip';
 import { useNavigate } from 'react-router-dom';
 
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
@@ -20,16 +20,10 @@ function ManageAssetButtons({
   return (
     <>
       <div
-        className="flex-row"
+        className="flex flex-row"
         style={{ gap: '0.5em', justifyContent: 'flex-end' }}
       >
-        <Tooltip
-          title="Manage"
-          placement={'top'}
-          autoAdjustOverflow={true}
-          color="var(--text-faded)"
-          className="manage-asset-button-tooltip"
-        >
+        <Tooltip content="Manage" side="top">
           <button
             className="outline-button manage-button"
             onClick={() => navigate(`/manage/${assetType}/${id.toString()}`)}

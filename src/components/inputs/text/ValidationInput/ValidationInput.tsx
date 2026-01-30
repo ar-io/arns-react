@@ -1,4 +1,4 @@
-import { Tooltip } from 'antd';
+import { Tooltip } from '@src/components/ui/Tooltip';
 import {
   ChangeEvent,
   InputHTMLAttributes,
@@ -174,6 +174,31 @@ const ValidationInput = forwardRef<HTMLInputElement, ValidationInputProps>(
       setValidating(false);
     }
 
+    const validationIcon =
+      validationResults &&
+      showValidationIcon &&
+      valid !== undefined &&
+      value ? (
+        validating ? (
+          <Loader
+            size={20}
+            color="var(--text-grey)"
+            wrapperStyle={{
+              top: 0,
+              bottom: 0,
+              left: -40,
+              position: 'absolute',
+            }}
+          />
+        ) : warning ? (
+          <AlertTriangleIcon width={20} height={20} fill={'var(--accent)'} />
+        ) : valid === true ? (
+          <CircleCheck width={20} height={20} fill={'var(--success-green)'} />
+        ) : (
+          <CircleXIcon width={20} height={20} fill={'var(--error-red)'} />
+        )
+      ) : null;
+
     return (
       <>
         {/* eslint-disable-next-line */}
@@ -219,7 +244,7 @@ const ValidationInput = forwardRef<HTMLInputElement, ValidationInputProps>(
               pattern={customPattern?.source}
             />
             <div
-              className="flex center"
+              className="flex text-center justify-center items-center"
               style={{
                 position: 'absolute',
                 right: '10px',
@@ -233,59 +258,25 @@ const ValidationInput = forwardRef<HTMLInputElement, ValidationInputProps>(
               onMouseOver={() => setOpenTooltip(true)}
               onMouseLeave={() => setOpenTooltip(false)}
             >
-              <Tooltip
-                open={
-                  showValidationChecklist &&
-                  openTooltip &&
-                  validationResults!.length > 0
-                }
-                placement="right"
-                autoAdjustOverflow={true}
-                title={
-                  <ValidationList
-                    validations={validationResults ?? []}
-                    wrapperCustomStyle={{ gap: '1em' }}
-                  />
-                }
-              >
-                {validationResults &&
-                showValidationIcon &&
-                valid !== undefined &&
-                value ? (
-                  validating ? (
-                    <Loader
-                      size={20}
-                      color="var(--text-grey)"
-                      wrapperStyle={{
-                        top: 0,
-                        bottom: 0,
-                        left: -40,
-                        position: 'absolute',
-                      }}
+              {showValidationChecklist &&
+              openTooltip &&
+              validationResults &&
+              validationResults.length > 0 ? (
+                <Tooltip
+                  open={true}
+                  side="right"
+                  content={
+                    <ValidationList
+                      validations={validationResults ?? []}
+                      wrapperCustomStyle={{ gap: '1em' }}
                     />
-                  ) : warning ? (
-                    <AlertTriangleIcon
-                      width={20}
-                      height={20}
-                      fill={'var(--accent)'}
-                    />
-                  ) : valid === true ? (
-                    <CircleCheck
-                      width={20}
-                      height={20}
-                      fill={'var(--success-green)'}
-                    />
-                  ) : (
-                    <CircleXIcon
-                      width={20}
-                      height={20}
-                      fill={'var(--error-red)'}
-                    />
-                  )
-                ) : (
-                  <></>
-                )}
-              </Tooltip>
+                  }
+                >
+                  <span className="inline-flex">{validationIcon}</span>
+                </Tooltip>
+              ) : (
+                <span className="inline-flex">{validationIcon}</span>
+              )}
             </div>
           </div>
           {(showValidationChecklist && validationResults) ||

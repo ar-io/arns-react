@@ -27,7 +27,7 @@ import {
   SECONDS_IN_GRACE_PERIOD,
 } from '@src/utils/constants';
 import { useQueryClient } from '@tanstack/react-query';
-import { Skeleton } from 'antd';
+import { Skeleton } from '@src/components/ui/Skeleton';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -156,13 +156,7 @@ function DomainSettings({
               key={DomainSettingsRowTypes.EXPIRY_DATE}
               value={
                 isLoading ? (
-                  <Skeleton.Input
-                    active
-                    style={{
-                      backgroundColor: 'var(--card-bg)',
-                      height: '16px',
-                    }}
-                  />
+                  <Skeleton className="h-4 w-48 bg-surface" />
                 ) : data?.arnsRecord && isLeasedArNSRecord(data?.arnsRecord) ? (
                   formatExpiryDate(data?.arnsRecord?.endTimestamp)
                 ) : (
@@ -228,13 +222,7 @@ function DomainSettings({
               }
               value={
                 isLoading ? (
-                  <Skeleton.Input
-                    active
-                    style={{
-                      backgroundColor: 'var(--card-bg)',
-                      height: '16px',
-                    }}
-                  />
+                  <Skeleton className="h-4 w-48 bg-surface" />
                 ) : (
                   <LeaseDuration
                     startTimestamp={data?.arnsRecord?.startTimestamp}
@@ -258,13 +246,7 @@ function DomainSettings({
                     .map((d) => decodeDomainToASCII(d))
                     .join(', ') ?? 'N/A')
                 ) : (
-                  <Skeleton.Input
-                    active
-                    style={{
-                      backgroundColor: 'var(--card-bg)',
-                      height: '16px',
-                    }}
-                  />
+                  <Skeleton className="h-4 w-48 bg-surface" />
                 )
               }
               key={DomainSettingsRowTypes.ASSOCIATED_NAMES}
@@ -340,13 +322,7 @@ function DomainSettings({
                     type={ArweaveIdTypes.CONTRACT}
                   />
                 ) : (
-                  <Skeleton.Input
-                    active
-                    style={{
-                      backgroundColor: 'var(--card-bg)',
-                      height: '16px',
-                    }}
-                  />
+                  <Skeleton className="h-4 w-48 bg-surface" />
                 )
               }
               editable={isOwner}
@@ -367,7 +343,7 @@ function DomainSettings({
                           data?.isInGracePeriod
                         }
                         onClick={() => setShowReassignNameModal(true)}
-                        className={`flex flex-row text-[12px] rounded-[4px] p-[6px] px-[10px] border border-error bg-error-thin text-error whitespace-nowrap hover:scale-105 transition-all`}
+                        className={`flex-row text-[12px] rounded-[4px] p-[6px] px-[10px] border border-error bg-error-thin text-error whitespace-nowrap hover:scale-105 transition-all`}
                       >
                         Reassign
                       </button>

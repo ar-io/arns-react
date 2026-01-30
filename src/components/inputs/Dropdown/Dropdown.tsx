@@ -28,7 +28,7 @@ function Dropdown(props: DropdownProps) {
     <>
       {!showOptions ? (
         <button
-          className="data-dropdown center"
+          className="data-dropdown text-center justify-center items-center"
           onClick={() => setShowOptions(!showOptions)}
         >
           {selected}
@@ -47,7 +47,7 @@ function Dropdown(props: DropdownProps) {
         <>
           <div className="dropdown-options">
             <button
-              className="data-dropdown selected-dropdown-option center"
+              className="data-dropdown selected-dropdown-option text-center justify-center items-center"
               style={{ borderBottom: 'none' }}
               onClick={() => setShowOptions(!showOptions)}
             >
@@ -79,7 +79,7 @@ function Dropdown(props: DropdownProps) {
                   return (
                     <button
                       key={index}
-                      className="data-dropdown last-dropdown-option center"
+                      className="data-dropdown last-dropdown-option text-center justify-center items-center"
                       onClick={() => {
                         setSelected(value);
                         setShowOptions(!showOptions);
@@ -93,7 +93,7 @@ function Dropdown(props: DropdownProps) {
                   return (
                     <button
                       key={index}
-                      className="data-dropdown dropdown-option center"
+                      className="data-dropdown dropdown-option text-center justify-center items-center"
                       onClick={() => {
                         setSelected(value);
                         setShowOptions(!showOptions);
@@ -105,7 +105,7 @@ function Dropdown(props: DropdownProps) {
                 }
               })}
               {footerElement ? (
-                <div className="data-dropdown last-dropdown-option center">
+                <div className="data-dropdown last-dropdown-option text-center justify-center items-center">
                   {footerElement}
                 </div>
               ) : (

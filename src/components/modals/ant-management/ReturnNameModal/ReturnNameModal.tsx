@@ -14,7 +14,7 @@ import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { ANT_INTERACTION_TYPES } from '@src/types';
 import eventEmitter from '@src/utils/events';
 import { useQueryClient } from '@tanstack/react-query';
-import { Checkbox } from 'antd';
+import { Checkbox } from '@src/components/inputs/Checkbox';
 import { TriangleAlert } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -156,9 +156,8 @@ export function ReturnNameModal({
                 style={{ gap: '10px' }}
               >
                 <Checkbox
-                  rootClassName="accept-checkbox"
-                  onChange={(checked) => setAccepted(checked.target.checked)}
-                  value={accepted}
+                  checked={accepted}
+                  onCheckedChange={(checked) => setAccepted(checked === true)}
                 />
                 I understand that this action cannot be undone{' '}
               </span>

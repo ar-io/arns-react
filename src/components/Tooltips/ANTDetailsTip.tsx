@@ -1,4 +1,4 @@
-import { InfoCircleOutlined } from '@ant-design/icons';
+import { Info } from 'lucide-react';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { formatForMaxCharCount, isArweaveTransactionID } from '@src/utils';
 import { ReactNode } from 'react';
@@ -11,7 +11,7 @@ function ANTDetailsTip({
   targetId,
   owner,
   icon = (
-    <InfoCircleOutlined className="text-grey" width={'14px'} height={'14px'} />
+    <Info className="text-grey" size={14} />
   ),
 }: {
   antId?: string;

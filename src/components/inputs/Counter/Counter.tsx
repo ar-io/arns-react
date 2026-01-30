@@ -45,9 +45,9 @@ function Counter({
   } = useLongPress(() => (value > minValue ? setValue(--value) : null));
 
   return (
-    <div className="counter-container center" style={containerStyle}>
+    <div className="counter-container text-center justify-center items-center" style={containerStyle}>
       {title}
-      <div className="flex-column center">
+      <div className="flex flex-col gap-8 text-center justify-center items-center">
         <div className="counter">
           <button
             className={`counter-button ${minValue === value ? '' : 'hover'}`}
@@ -66,11 +66,11 @@ function Counter({
             -
           </button>
           <div
-            className="flex flex-column flex-center"
+            className="flex flex-col gap-8 justify-center items-center"
             style={{ width: 'fit-content', gap: '0px' }}
           >
             <span
-              className="text-large white center"
+              className="text-2xl text-foreground text-center justify-center items-center"
               style={{
                 fontWeight: 500,
                 ...valueStyle,
@@ -92,7 +92,7 @@ function Counter({
                   id="counter-input"
                   catchInvalidInput={false}
                   inputClassName="counter-input"
-                  wrapperClassName="flex center"
+                  wrapperClassName="flex text-center justify-center items-center"
                   validationPredicates={{}}
                 />
               ) : (
@@ -106,7 +106,7 @@ function Counter({
               )}
             </span>
             {detail ? (
-              <span className="text grey center" style={{ fontSize: '14px' }}>
+              <span className="text text-muted text-center justify-center items-center" style={{ fontSize: '14px' }}>
                 {detail}
               </span>
             ) : (

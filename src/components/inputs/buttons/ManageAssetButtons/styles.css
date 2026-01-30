@@ -10,8 +10,4 @@
   border: none;
 }
 
-.manage-button.ant-tooltip-disabled-compatible-wrapper {
-  padding: 0px !important;
-  border: none !important;
-  fill: var(--text-faded);
-}
+/* Removed antd tooltip styles */

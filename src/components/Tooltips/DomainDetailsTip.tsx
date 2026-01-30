@@ -1,4 +1,4 @@
-import { InfoCircleOutlined } from '@ant-design/icons';
+import { Info } from 'lucide-react';
 import { AoArNSNameData } from '@ar.io/sdk/web';
 import { useANT } from '@src/hooks/useANT/useANT';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
@@ -14,7 +14,7 @@ function DomainDetailsTip({
   domain,
   domainRecord,
   icon = (
-    <InfoCircleOutlined className="fill-grey" width={'14px'} height={'14px'} />
+    <Info className="text-grey" size={14} />
   ),
 }: {
   domain: string;

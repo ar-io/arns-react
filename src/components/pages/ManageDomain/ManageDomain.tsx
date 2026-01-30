@@ -58,7 +58,7 @@ function ManageDomain() {
             width: '100%',
           }}
         >
-          <h2 className="flex white center" style={{ gap: '16px' }}>
+          <h2 className="flex text-foreground text-center justify-center items-center" style={{ gap: '16px' }}>
             <AntLogoIcon id={logoId} />
 
             <div className="flex flex-col items-start justify-center">

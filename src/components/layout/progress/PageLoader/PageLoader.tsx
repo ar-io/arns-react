@@ -8,9 +8,9 @@ function PageLoader({
   message?: string | JSX.Element;
 }) {
   return loading ? (
-    <div className="modal-container center">
+    <div className="modal-container text-center justify-center items-center">
       <div
-        className="flex flex-column center white"
+        className="flex-col gap-8 text-center justify-center items-center text-foreground"
         style={{
           padding: '30px',
           width: '30%',

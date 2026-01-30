@@ -10,7 +10,7 @@ export function getTransactionHeader({
     case ARNS_INTERACTION_TYPES.EXTEND_LEASE:
       return (
         <h1
-          className="flex white text-[2rem]"
+          className="flex text-foreground text-[2rem]"
           style={{ width: '100%', paddingBottom: '30px' }}
         >
           Review

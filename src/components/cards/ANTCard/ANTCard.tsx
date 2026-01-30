@@ -1,7 +1,7 @@
 import { isLeasedArNSRecord } from '@ar.io/sdk/web';
 import { useANT } from '@src/hooks/useANT/useANT';
 import { PERMANENT_DOMAIN_MESSAGE } from '@src/utils/constants';
-import { Descriptions } from 'antd';
+import { Descriptions } from '@src/components/ui/Descriptions';
 import { startCase } from 'lodash';
 import { isValidElement, useEffect, useState } from 'react';
 
@@ -200,7 +200,7 @@ function ANTCard({
       style={{ gap: '20px' }}
     >
       <div
-        className="flex flex-center"
+        className="flex justify-center items-center"
         style={{ width: '100%', height: 'fit-content' }}
       >
         <Descriptions
@@ -289,7 +289,7 @@ function ANTCard({
       >
         {compact ? (
           <button
-            className="outline-button center faded"
+            className="outline-button text-center justify-center items-center faded"
             onClick={showMore}
             style={{
               padding: 0,

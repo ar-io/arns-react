@@ -1,6 +1,7 @@
 import React, { Suspense, useEffect, useState } from 'react';
 
 import ANTTools from './ANTTools';
+import JsonWalletLogin from './JsonWalletLogin';
 import TransferIO from './TransferIO';
 import UserAddress from './UserAddress';
 
@@ -39,6 +40,7 @@ const DevTools = () => {
       <div className="flex flex-row p-3 justify-between items-center">
         <h2 className="text-white text-lg font-semibold">Dev Tools</h2>
       </div>
+      <JsonWalletLogin />
       <UserAddress />
       <TransferIO />
       <ANTTools />

@@ -21,7 +21,7 @@ function TransactionSuccessCard({
   return (
     <div
       ref={cardRef}
-      className="flex flex-row success-container center fade-in"
+      className="flex flex-row success-container text-center justify-center items-center fade-in"
     >
       <CircleCheckFilled
         width={'20px'}
@@ -29,7 +29,7 @@ function TransactionSuccessCard({
         fill={'var(--success-green)'}
       />
       <div
-        className="flex-column"
+        className="flex flex-col gap-8"
         style={{
           width: '100%',
           justifyContent: 'flex-start',
@@ -47,7 +47,7 @@ function TransactionSuccessCard({
         />
       </div>
       {close ? (
-        <button className="button flex center pointer" onClick={close}>
+        <button className="button flex text-center justify-center items-center pointer" onClick={close}>
           <CloseIcon width={'20px'} height={'20px'} fill="white" />
         </button>
       ) : (

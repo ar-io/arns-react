@@ -1,4 +1,4 @@
-import { Tooltip } from 'antd';
+import { Popover } from '@src/components/ui/Popover';
 
 type PopupProps = {
   trigger?: string;
@@ -14,7 +14,6 @@ export type PopupMenuOption = {
 };
 
 export const Popup: React.FunctionComponent<PopupProps> = ({
-  trigger = 'hover',
   align = 'right',
   popupMenuOptions,
   title,
@@ -31,7 +30,7 @@ export const Popup: React.FunctionComponent<PopupProps> = ({
       {popupMenuOptions.map((option) => (
         <button
           key={option.title}
-          className="button popup-option center hover"
+          className="button popup-option text-center justify-center items-center hover"
           onClick={option.onClick}
           style={{ textAlign: align }}
         >
@@ -42,23 +41,14 @@ export const Popup: React.FunctionComponent<PopupProps> = ({
   );
 
   return (
-    <Tooltip
-      open={undefined}
-      placement="bottomRight"
-      color="var(--card-bg)"
-      autoAdjustOverflow
-      arrow={false}
-      overlayInnerStyle={{
-        width: 'fit-content',
-        border: '1px solid var(--text-faded)',
-        padding: '9px 12px',
-      }}
-      overlayStyle={{ width: 'fit-content' }}
-      trigger={trigger as any}
-      title={popupContents}
+    <Popover
+      content={popupContents}
+      side="bottom"
+      align="end"
+      contentClassName="p-3"
     >
       {children}
-    </Tooltip>
+    </Popover>
   );
 };
 export default Popup;

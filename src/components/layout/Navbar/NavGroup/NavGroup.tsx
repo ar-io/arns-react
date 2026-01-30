@@ -1,5 +1,5 @@
 import { useArNSState } from '@src/state';
-import { Tooltip } from 'antd';
+import { Tooltip } from '@src/components/ui/Tooltip';
 import { ReactNode, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -19,30 +19,20 @@ function NavGroup() {
   const location = useLocation();
 
   useEffect(() => {
-    // function getActivityDot(routeName: string): boolean | undefined {
-    //   switch (routeName) {
-    //     // return true to display activity dot on a link
-    //     //example:
-    //     // case 'manage': return true;
-    //     default:
-    //       return undefined;
-    //   }
-    // }
-
     const newLinks = Object.entries(ROUTES).map(([key, value]) => {
       if (!value.index && !value.protected && key !== 'settings')
         return (
           <Tooltip
             key={key}
-            title={value.text}
-            placement={'bottom'}
-            autoAdjustOverflow={true}
-            color="var(--text-faded)"
-            className="grey p-2"
-            openClassName="white rounded bg-white/20"
+            content={value.text}
+            side="bottom"
           >
-            <Link to={value.path} target={value.external ? '_blank' : '_self'}>
-              {value.icon && <value.icon className="size-4 " />}
+            <Link 
+              to={value.path} 
+              target={value.external ? '_blank' : '_self'}
+              className="text-muted p-2 hover:text-white rounded hover:bg-white/20 transition-colors"
+            >
+              {value.icon && <value.icon className="size-4" />}
             </Link>
           </Tooltip>
         );

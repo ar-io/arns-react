@@ -1,4 +1,4 @@
-import { Tooltip } from 'antd';
+import { Tooltip } from '@src/components/ui/Tooltip';
 import { useState } from 'react';
 
 import { CopyIcon } from '../../../icons';
@@ -38,7 +38,7 @@ function CopyTextButton({
   }
 
   return (
-    <div className="flex-row" style={{ position, ...wrapperStyle }}>
+    <div className="flex flex-row" style={{ position, ...wrapperStyle }}>
       <button
         className="button flex justify-center"
         style={{
@@ -49,27 +49,14 @@ function CopyTextButton({
         }}
         onClick={() => handleCopy()}
       >
-        <span className="flex white center" style={{ fontSize: 'inherit' }}>
+        <span className="flex text-foreground text-center justify-center items-center" style={{ fontSize: 'inherit' }}>
           {body}&nbsp;
         </span>
         <Tooltip
           open={textCopied}
-          title={'Copied!'}
-          placement="right"
-          autoAdjustOverflow={true}
-          arrow={false}
-          overlayClassName="copy-tooltip"
-          overlayInnerStyle={{
-            color: 'var(--text-black)',
-            boxShadow: 'var(--shadow)',
-            fontFamily: 'Rubik-Bold',
-            backgroundColor: 'var(--text-white)',
-            fontSize: '10px',
-            display: 'flex',
-            justifyContent: 'center',
-            borderRadius: 'var(--corner-radius)',
-            padding: '4px 8px',
-          }}
+          content="Copied!"
+          side="right"
+          contentClassName="px-2 py-1 text-xs font-bold bg-foreground text-primary-foreground"
         >
           <div
             className="flex items-center justify-center"

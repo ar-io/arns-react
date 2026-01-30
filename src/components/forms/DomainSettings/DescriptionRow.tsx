@@ -7,7 +7,7 @@ import {
   VALIDATION_INPUT_TYPES,
 } from '@src/types';
 import eventEmitter from '@src/utils/events';
-import { Skeleton } from 'antd';
+import { Skeleton } from '@src/components/ui/Skeleton';
 import { useEffect, useState } from 'react';
 
 import DomainSettingsRow from './DomainSettingsRow';
@@ -85,7 +85,7 @@ export default function DescriptionRow({
               />
             )
           ) : (
-            <Skeleton.Input active />
+            <Skeleton className="h-4 w-48" />
           )
         }
         editing={editing}

@@ -1,5 +1,5 @@
 import { SpawnANTState } from '@ar.io/sdk';
-import { StepProps } from 'antd';
+import { StepProps } from '@src/components/ui/Steps';
 import { Address, checksumAddress } from 'viem';
 
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
@@ -298,7 +298,7 @@ export function getARNSMappingByInteractionType(
               </span>
             </span>
           ) : (
-            <span className="add-box center">
+            <span className="add-box text-center justify-center items-center">
               {transactionData.qty + transactionData.oldQty!}
             </span>
           ),
@@ -365,7 +365,7 @@ export function getARNSMappingByInteractionType(
               </span>
             </span>
           ) : (
-            <span className="add-box center">
+            <span className="add-box text-center justify-center items-center">
               {transactionData.years} year{transactionData.years > 1 ? 's' : ''}
             </span>
           ),

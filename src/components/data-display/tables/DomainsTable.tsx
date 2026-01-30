@@ -564,7 +564,7 @@ const DomainsTable = ({
           }}
           noDataFoundText={
             !walletAddress ? (
-              <div className="flex flex-column text-medium center white p-[100px] box-border gap-[20px]">
+              <div className="flex flex-col gap-5 text-lg text-center justify-center items-center text-foreground p-24">
                 <button
                   onClick={() =>
                     navigate('/connect', {
@@ -572,52 +572,47 @@ const DomainsTable = ({
                       state: { from: '/manage', to: '/manage' },
                     })
                   }
-                  className="button-secondary center p-[10px] w-fit"
+                  className="button-secondary text-center justify-center items-center px-4 py-2"
                 >
                   Connect
                 </button>
-                &nbsp; Connect your wallet to view your assets.
+                <span>Connect your wallet to view your assets.</span>
               </div>
             ) : loading ? (
-              <div className="flex flex-column center white p-[100px]">
+              <div className="flex flex-col gap-5 text-center justify-center items-center text-foreground p-24">
                 <Loader message="Loading assets..." />
               </div>
             ) : // if a filter is provided, show the no data found message
             filter && filter.length > 0 ? (
-              <div className="flex flex-column center p-[100px]">
-                <span className="white bold" style={{ fontSize: '16px' }}>
+              <div className="flex flex-col gap-5 text-center justify-center items-center p-24">
+                <span className="text-foreground font-bold text-base">
                   No results found for &apos;{filter}&apos;
                 </span>
                 <button
                   onClick={() => {
                     setFilter('');
                   }}
-                  className="button-secondary center p-[10px] w-fit"
+                  className="button-secondary text-center justify-center items-center px-4 py-2"
                 >
                   Clear filter
                 </button>
               </div>
             ) : (
-              <div className="flex flex-column center p-[100px]">
-                <>
-                  <span className="white bold" style={{ fontSize: '16px' }}>
-                    No Registered Names Found
-                  </span>
-                  <span className={'grey text-sm max-w-[400px]'}>
-                    Arweave Names are friendly names for data on the Arweave
-                    blockchain. They serve to improve finding, sharing, and
-                    access to data, resistant to takedowns or losses.
-                  </span>
-                </>
-
-                <div className="flex flex-row center" style={{ gap: '16px' }}>
-                  <Link
-                    to="/"
-                    className="bg-primary rounded-md text-black center hover px-4 py-3 text-sm hover:scale-105"
-                  >
-                    Register a Name
-                  </Link>
-                </div>
+              <div className="flex flex-col gap-5 text-center justify-center items-center p-24">
+                <span className="text-foreground font-bold text-base">
+                  No Registered Names Found
+                </span>
+                <span className="text-muted text-sm max-w-[400px]">
+                  Arweave Names are friendly names for data on the Arweave
+                  blockchain. They serve to improve finding, sharing, and
+                  access to data, resistant to takedowns or losses.
+                </span>
+                <Link
+                  to="/"
+                  className="bg-primary rounded-md text-black text-center px-4 py-3 text-sm hover:scale-105 transition-transform"
+                >
+                  Register a Name
+                </Link>
               </div>
             )
           }

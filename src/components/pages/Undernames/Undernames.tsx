@@ -57,7 +57,7 @@ function Undernames() {
               className="flex flex-row"
               style={{ justifyContent: 'space-between' }}
             >
-              <h2 className="white text-[2rem] whitespace-nowrap">
+              <h2 className="text-foreground text-[2rem] whitespace-nowrap">
                 Manage Undernames
               </h2>
               <Tooltip
@@ -113,7 +113,7 @@ function Undernames() {
               />
               <button
                 onClick={() => refetchDomainInfo()}
-                className="button center pointer"
+                className="button text-center justify-center items-center pointer"
               >
                 <RefreshIcon height={16} width={16} fill="var(--text-white)" />
               </button>

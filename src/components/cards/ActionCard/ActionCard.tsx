@@ -8,7 +8,7 @@ function ActionCard({ to, body }: { to: string; body?: JSX.Element | string }) {
       style={{ textDecoration: 'none', width: '100%' }}
     >
       <div
-        className="flex flex-column center white radius"
+        className="flex-col gap-8 text-center justify-center items-center text-foreground radius"
         style={{
           minWidth: '175px',
           minHeight: '100px',

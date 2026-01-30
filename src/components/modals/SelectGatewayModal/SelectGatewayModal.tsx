@@ -25,7 +25,7 @@ function SelectGatewayModal({
             }
             body={
               <div
-                className="flex flex-column text-white max-h-[600px] min-h-[150px] overflow-auto scrollbar scrollbar-w-2 scrollbar-thumb-grey scrollbar-thumb-rounded-md px-2"
+                className="flex-col gap-8 text-white max-h-[600px] min-h-[150px] overflow-auto scrollbar scrollbar-w-2 scrollbar-thumb-grey scrollbar-thumb-rounded-md px-2"
                 style={{ gap: '10px' }}
               >
                 {loadingArIOGateways ? (

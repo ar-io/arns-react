@@ -267,7 +267,7 @@ function PrimaryNameModal({
     <div className="modal-container">
       <DialogModal
         title={
-          <h2 className="white text-xl">
+          <h2 className="text-foreground text-xl">
             {isRemovePrimaryNamesPayload(transactionData)
               ? 'Remove'
               : isPrimaryNameRequest(transactionData) && primaryNameData?.name
@@ -282,7 +282,7 @@ function PrimaryNameModal({
               <Loader message={'Loading Primary Name info, please wait'} />
             </div>
           ) : (
-            <div className="flex flex-col white justify-center items-center w-full min-w-[350px]">
+            <div className="flex flex-col text-foreground justify-center items-center w-full min-w-[350px]">
               <div className="flex flex-col w-full justify-center items-center gap-3">
                 {isPrimaryNameRequest(transactionData) &&
                   primaryNameData?.name && (

@@ -1,4 +1,4 @@
-import { PlusOutlined } from '@ant-design/icons';
+import { Plus } from 'lucide-react';
 import { lowerCaseDomain } from '@src/utils';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -73,13 +73,13 @@ function TransactionComplete() {
   }).trim();
 
   return (
-    <div className="page center">
+    <div className="page text-center justify-center items-center">
       <div
-        className="flex-column center"
+        className="flex flex-col gap-8 text-center justify-center items-center"
         style={{ gap: '20px', width: '700px' }}
       >
         <div
-          className="flex flex-row center radius"
+          className="flex flex-row text-center justify-center items-center radius"
           style={{
             width: '700px',
             height: '90px',
@@ -95,9 +95,9 @@ function TransactionComplete() {
           })}
         </div>
 
-        <div className="flex-column center" style={{ gap: '20px' }}>
+        <div className="flex flex-col gap-8 text-center justify-center items-center" style={{ gap: '20px' }}>
           <div
-            className="flex flex-row center"
+            className="flex flex-row text-center justify-center items-center"
             style={{
               justifyContent: 'space-between',
               boxSizing: 'border-box',
@@ -112,7 +112,7 @@ function TransactionComplete() {
               }
               body={
                 <div
-                  className="flex flex-column center"
+                  className="flex-col gap-8 text-center justify-center items-center"
                   style={{ gap: '15px' }}
                 >
                   <SettingsIcon width={'20px'} fill={'var(--text-grey)'} />
@@ -128,12 +128,10 @@ function TransactionComplete() {
               }
               body={
                 <div
-                  className="flex flex-column center"
+                  className="flex-col gap-8 text-center justify-center items-center"
                   style={{ gap: '15px' }}
                 >
-                  <PlusOutlined
-                    style={{ color: 'var(--text-grey)', fontSize: '20px' }}
-                  />
+                  <Plus className="text-grey" size={20} />
                   Add Undernames
                 </div>
               }
@@ -148,13 +146,13 @@ function TransactionComplete() {
             bordered
           />
           <div
-            className="flex flex-row center"
+            className="flex flex-row text-center justify-center items-center"
             style={{
               justifyContent: 'flex-start',
             }}
           >
             <button
-              className="flex button hover center white"
+              className="flex button hover text-center justify-center items-center text-foreground"
               onClick={() => navigate('/manage')}
               style={{ gap: '10px' }}
             >

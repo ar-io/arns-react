@@ -28,12 +28,12 @@ function NavBar() {
 
   return (
     <div
-      className="flex flex-column"
+      className="flex flex-col w-full"
       style={{ gap: '0px', position: 'relative' }}
     >
       <NetworkStatusBanner />
       <div className="navbar" style={{ position: 'relative' }}>
-        <div className="flex-row flex-left" style={{ width: 'fit-content' }}>
+        <div className="flex flex-row flex-left" style={{ width: 'fit-content' }}>
           <Link
             className="hover"
             to="/"

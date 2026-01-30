@@ -1,4 +1,4 @@
-import { CheckCircleFilled } from '@ant-design/icons';
+import { CheckCircle } from 'lucide-react';
 import { AoArNSNameData } from '@ar.io/sdk/web';
 import DomainDetailsTip from '@src/components/Tooltips/DomainDetailsTip';
 import { Tooltip } from '@src/components/data-display';
@@ -116,13 +116,13 @@ function HomeSearch() {
     validDomain: boolean;
   }) {
     if (!validDomain) {
-      return 'border-grey';
+      return 'border-muted';
     }
     if (domain.length === 0) {
       return 'border-dark-grey';
     }
     if (searching) {
-      return 'border-white';
+      return 'border-foreground';
     }
     if (availability) {
       return 'border-success';
@@ -130,241 +130,184 @@ function HomeSearch() {
       return 'border-error';
     }
   }
+
+  const hasResults = domainQuery.length > 0 && showResults;
+
   return (
-    <div
-      className={
-        domainQuery.length === 0 || !showResults
-          ? ``
-          : `modal-container relative`
-      }
-    >
-      <div
-        className={`flex flex-col w-full max-w-[800px] min-h-fit ${
-          domainQuery.length === 0 ? `` : `absolute mx-0 top-[240px]`
-        }`}
-      >
-        <div className="flex flex-col w-full h-full">
+    <div className="flex flex-col w-full">
+        {/* Status Header */}
+        <div className="min-h-[50px] flex items-center justify-center pb-2">
           {!isValidDomain && domainQuery.length ? (
-            <div
-              className="flex flex-row min-h-[50px] pb-2 text-xl font-semibold text-grey justify-center items-center"
+            <span
+              className="text-xl font-semibold text-muted"
               data-testid="home-search-invalid-header"
             >
               Invalid ArNS domain, {validationError}
-            </div>
-          ) : isSearching || domainQuery.length === 0 || !isAvailable ? (
-            <div
-              className="min-h-[50px]"
-              data-testid="home-search-spacer-header"
-            />
-          ) : (
-            <div
-              className="flex flex-row min-h-[50px] pb-2 text-2xl font-semibold text-white justify-center items-center flex-wrap"
-              style={{ gap: 0 }}
+            </span>
+          ) : isSearching || domainQuery.length === 0 || !isAvailable ? null : (
+            <span
+              className="text-2xl font-semibold text-foreground flex items-center gap-2 flex-wrap justify-center"
               data-testid="home-search-available-header"
             >
-              <span style={{ color: 'var(--success-green)' }}>
+              <span className="text-success">
                 {decodeDomainToASCII(domainQuery)}
               </span>
-              &nbsp;is available!&nbsp;
-              <CheckCircleFilled
-                style={{ fontSize: '20px', color: 'var(--success-green)' }}
-              />
-            </div>
+              is available!
+              <CheckCircle className="text-success" size={20} />
+            </span>
           )}
-          <DomainSearch
-            className={`flex flex-col w-full rounded-[4px] bg-foreground border-[1px] ${getBorderStyle(
-              {
-                availability: isAvailable,
-                searching: isSearching,
-                domain: domainQuery,
-                validDomain: isValidDomain,
-              },
-            )}`}
-            inputWrapperClass="flex flex-row w-full p-2 pr-[100px] relative gap-2"
-            inputClass="flex w-full pl-4 h-[50px] bg-foreground focus:outline-none placeholder:text-grey text-[14px] text-white text-lg"
-            buttonClass={`flex flex-row items-center justify-center absolute right-0 top-0 h-full max-w-[65px]`}
-            setIsSearching={(v) => setIsSearching(v)}
-            setIsAvailable={(v) => setIsAvailable(v)}
-            setIsReturnedName={(v) => setIsReturnedName(v)}
-            setDomainQuery={(v) => setDomainQuery(v)}
-            setDomainRecord={(v) => setDomainRecord(v)}
-            onClickOutside={() => {
-              setShowResults(false);
-            }}
-            onFocus={() => {
-              setShowResults(true);
-            }}
-            placeholder="Search for a name"
-            searchIcon={
-              <span className="flex w-full h-full items-center justify-center border-l-[1px] border-dark-grey">
-                <SearchIcon
-                  width={'18px'}
-                  height={'18px'}
-                  className="fill-white"
-                />
-              </span>
-            }
-            clearIcon={
-              <XIcon
-                width={'18px'}
-                height={'18px'}
-                className="fill-white text-white"
-              />
-            }
-          >
-            {domainQuery.length && showResults ? (
-              <div
-                className="flex flex-col w-full p-6 pt-4 border-t-[1px] border-dark-grey"
-                data-testid="home-search-child-container"
-              >
-                <div className="flex flew-row w-full justify-between">
-                  <span className="text-grey text-sm">
-                    {isSearching ? (
-                      <span>Searching...</span>
-                    ) : isAvailable ? (
-                      !isValidDomain ? (
-                        <span className="whitespace-nowrap flex items-start justify-center gap-2 text-error">
-                          INVALID{' '}
-                          <CircleAlert
-                            className="m-[2px]"
-                            width={'14px'}
-                            height={'14px'}
-                          />
-                        </span>
-                      ) : isReturnedName ? (
-                        <span className="whitespace-nowrap flex items-start justify-center gap-2 text-primary">
-                          RECENTLY RETURNED{' '}
-                          <Tooltip
-                            message={recentlyReturnedTooltipMessage}
-                            icon={
-                              <CircleAlert
-                                className="m-[2px]"
-                                width={'14px'}
-                                height={'14px'}
-                              />
-                            }
-                            tooltipOverrides={{
-                              overlayInnerStyle: {
-                                width: '338px',
-                                padding: '1rem',
-                              },
-                            }}
-                          />
-                        </span>
-                      ) : (
-                        <span className="whitespace-nowrap flex items-center gap-2">
-                          AVAILABLE{' '}
-                          <CircleCheckFilled
-                            className="fill-success"
-                            width={'14px'}
-                            height={'14px'}
-                          />
-                        </span>
-                      )
-                    ) : (
-                      <span className="whitespace-nowrap flex items-center gap-2">
-                        NOT AVAILABLE
-                        <DomainDetailsTip
-                          domain={domainQuery}
-                          domainRecord={domainRecord}
+        </div>
+
+        {/* Search Input */}
+        <DomainSearch
+          className={`flex flex-col w-full rounded bg-surface border ${getBorderStyle({
+            availability: isAvailable,
+            searching: isSearching,
+            domain: domainQuery,
+            validDomain: isValidDomain,
+          })}`}
+          inputWrapperClass="flex-row w-full p-2 pr-[100px] relative gap-2"
+          inputClass="flex w-full pl-4 h-[50px] bg-transparent focus:outline-none placeholder:text-muted text-lg text-foreground"
+          buttonClass="flex items-center justify-center absolute right-0 top-0 bottom-0 w-16"
+          setIsSearching={(v) => setIsSearching(v)}
+          setIsAvailable={(v) => setIsAvailable(v)}
+          setIsReturnedName={(v) => setIsReturnedName(v)}
+          setDomainQuery={(v) => setDomainQuery(v)}
+          setDomainRecord={(v) => setDomainRecord(v)}
+          onClickOutside={() => setShowResults(false)}
+          onFocus={() => setShowResults(true)}
+          placeholder="Search for a name"
+          searchIcon={
+            <span className="flex h-full items-center border-l border-dark-grey pl-4">
+              <SearchIcon width="18px" height="18px" className="fill-foreground" />
+            </span>
+          }
+          clearIcon={
+            <XIcon width="18px" height="18px" className="text-foreground" />
+          }
+        >
+          {/* Search Results */}
+          {hasResults && (
+            <div
+              className="flex flex-col w-full p-6 pt-4 border-t border-dark-grey bg-surface"
+              data-testid="home-search-child-container"
+            >
+              {/* Status Badge & Price */}
+              <div className="flex flex-row w-full justify-between items-start">
+                <span className="text-muted text-sm">
+                  {isSearching ? (
+                    <span>Searching...</span>
+                  ) : isAvailable ? (
+                    !isValidDomain ? (
+                      <span className="flex items-center gap-2 text-error">
+                        INVALID
+                        <CircleAlert size={14} />
+                      </span>
+                    ) : isReturnedName ? (
+                      <span className="flex items-center gap-2 text-primary">
+                        RECENTLY RETURNED
+                        <Tooltip
+                          message={recentlyReturnedTooltipMessage}
+                          icon={<CircleAlert size={14} />}
+                          tooltipOverrides={{
+                            overlayInnerStyle: { width: '338px', padding: '1rem' },
+                          }}
                         />
                       </span>
-                    )}
-                  </span>
-                  {isAvailable && !isSearching && isValidDomain && (
-                    <DomainPiceList domain={domainQuery} />
+                    ) : (
+                      <span className="flex items-center gap-2 text-success">
+                        AVAILABLE
+                        <CircleCheckFilled width="14px" height="14px" className="fill-success" />
+                      </span>
+                    )
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      NOT AVAILABLE
+                      <DomainDetailsTip domain={domainQuery} domainRecord={domainRecord} />
+                    </span>
                   )}
-                </div>
+                </span>
+                {isAvailable && !isSearching && isValidDomain && (
+                  <DomainPiceList domain={domainQuery} />
+                )}
+              </div>
+
+              {/* Results Content */}
+              <div className="mt-4">
                 {isSearching ? (
-                  <div className="flex w-full justify-center mt-4">
+                  <div className="flex w-full justify-center py-4">
                     <ArioSpinner size={60} />
                   </div>
                 ) : isReturnedName ? (
-                  <div className="flex flex-col w-full gap-2 mt-4 h-700px">
-                    <div className="flex flex-row w-full justify-between ">
-                      <span className="text-xl text-white">
+                  <div className="flex flex-col w-full gap-4">
+                    <div className="flex flex-row w-full justify-between items-center">
+                      <span className="text-xl text-foreground">
                         ar://{decodeDomainToASCII(domainQuery)}
                       </span>
                       <button
-                        className={`py-2 px-3 text-sm bg-primary font-bold rounded-[4px] text-black disabled:opacity-50 disabled:bg-grey`}
+                        className="py-2 px-4 text-sm bg-primary font-bold rounded text-primary-foreground disabled:opacity-50"
                         disabled={!isValidDomain}
-                        onClick={() => {
-                          navigate(`/register/${lowerCaseDomain(domainQuery)}`);
-                        }}
+                        onClick={() => navigate(`/register/${lowerCaseDomain(domainQuery)}`)}
                       >
                         Register
                       </button>
                     </div>
                     <div className="h-[200px]">
-                      {' '}
                       <RNPChart name={lowerCaseDomain(domainQuery)} />
                     </div>
                   </div>
                 ) : isAvailable ? (
-                  <div className="flex flex-row w-full justify-between mt-4">
-                    <span className="text-xl text-white">
+                  <div className="flex flex-row w-full justify-between items-center">
+                    <span className="text-xl text-foreground">
                       ar://{decodeDomainToASCII(domainQuery)}
                     </span>
                     <button
-                      className={`py-2 px-3 text-sm bg-primary font-bold rounded-[4px] text-black disabled:opacity-50 disabled:bg-grey`}
+                      className="py-2 px-4 text-sm bg-primary font-bold rounded text-primary-foreground disabled:opacity-50"
                       disabled={!isValidDomain}
-                      onClick={() => {
-                        navigate(`/register/${lowerCaseDomain(domainQuery)}`);
-                      }}
+                      onClick={() => navigate(`/register/${lowerCaseDomain(domainQuery)}`)}
                     >
                       Register
                     </button>
                   </div>
                 ) : (
-                  <div className="flex flex-row w-full justify-between mt-4">
-                    <span className="text-xl text-grey">
+                  <div className="flex flex-row w-full justify-between items-center">
+                    <span className="text-xl text-muted">
                       {decodeDomainToASCII(domainQuery)}.{gateway}
                     </span>
                     <button
-                      className="text-[12px] text-white whitespace-nowrap flex items-center"
-                      style={{ gap: 0 }}
-                      onClick={() => {
-                        navigate(
-                          `/manage/names/${lowerCaseDomain(domainQuery)}`,
-                        );
-                      }}
+                      className="text-sm text-foreground flex items-center gap-1 hover:text-primary transition-colors"
+                      onClick={() => navigate(`/manage/names/${lowerCaseDomain(domainQuery)}`)}
                     >
-                      View Details{' '}
-                      <ChevronRight width={'18px'} height={'18px'} />
+                      View Details
+                      <ChevronRight size={18} />
                     </button>
                   </div>
                 )}
               </div>
-            ) : (
-              <></>
-            )}
-          </DomainSearch>
-          {/* validation notes */}
-          <div className="flex flex-wrap justify-center gap-2 w-full mt-2">
-            {domainQuery.length ? (
-              Object.entries(validations).map(([name, isValid], index) => (
-                <span
-                  key={index}
-                  className={
-                    `inline-flex items-center justify-center shrink-0 basis-auto w-auto whitespace-nowrap text-sm ` +
-                    (isValid ? 'text-grey' : 'animate-pulse text-grey')
-                  }
-                  style={{ gap: '5px' }}
-                >
-                  <CircleCheckFilled
-                    width={'14px'}
-                    height={'14px'}
-                    fill={isValid ? 'var(--success-green)' : 'var(--text-grey)'}
-                  />{' '}
-                  {name}
-                </span>
-              ))
-            ) : (
-              <></>
-            )}
+            </div>
+          )}
+        </DomainSearch>
+
+        {/* Validation Notes */}
+        {domainQuery.length > 0 && (
+          <div className="flex flex-wrap justify-center gap-3 w-full mt-3">
+            {Object.entries(validations).map(([name, isValid], index) => (
+              <span
+                key={index}
+                className={`inline-flex items-center gap-1.5 text-sm ${
+                  isValid ? 'text-muted' : 'text-muted animate-pulse'
+                }`}
+              >
+                <CircleCheckFilled
+                  width="14px"
+                  height="14px"
+                  fill={isValid ? 'rgb(var(--color-success))' : 'rgb(var(--color-muted))'}
+                />
+                {name}
+              </span>
+            ))}
           </div>
-        </div>
-      </div>
+        )}
     </div>
   );
 }

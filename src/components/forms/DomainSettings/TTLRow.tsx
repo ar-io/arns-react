@@ -12,7 +12,7 @@ import {
   MIN_TTL_SECONDS,
 } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
-import { Skeleton } from 'antd';
+import { Skeleton } from '@src/components/ui/Skeleton';
 import { useState } from 'react';
 
 import DomainSettingsRow from './DomainSettingsRow';
@@ -89,13 +89,7 @@ export default function TTLRow({
               }
             />
           ) : (
-            <Skeleton.Input
-              active
-              style={{
-                backgroundColor: 'var(--card-bg)',
-                height: '16px',
-              }}
-            />
+            <Skeleton className="h-4 w-48 bg-surface" />
           )
         }
         editable={editable}

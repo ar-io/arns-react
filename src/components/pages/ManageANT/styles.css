@@ -151,12 +151,7 @@ thead > tr > td[class~="manage-ant-table-header"] {
   box-sizing: border-box;
 }
 
-.ant-spin-blur::after {
-  background-color: rgb(0, 0, 0, 0.7) !important;
-  backdrop-filter: blur(2px) !important;
-  opacity: 100% !important;
-  border-radius: var(--corner-radius);
-}
+/* Removed antd spin blur styles */
 
 .whitespace-no-wrap {
   white-space: nowrap;

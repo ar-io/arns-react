@@ -132,13 +132,13 @@ function ExtendLease() {
 
   if (domainData?.arnsRecord && !isLeasedArNSRecord(domainData.arnsRecord)) {
     return (
-      <div className="page center">
+      <div className="page text-center justify-center items-center">
         <DialogModal
           showClose={false}
           cancelText="Manage"
           body={
             <span
-              className="flex flex-column white center"
+              className="flex-col gap-8 text-foreground text-center justify-center items-center"
               style={{
                 height: '100%',
               }}
@@ -153,16 +153,16 @@ function ExtendLease() {
   }
 
   return (
-    <div className="page center">
-      <div className="flex flex-column" style={{ maxWidth: '1000px' }}>
+    <div className="page text-center justify-center items-center">
+      <div className="flex flex-col gap-8" style={{ maxWidth: '1000px' }}>
         <div
-          className="flex flex-row center"
+          className="flex flex-row text-center justify-center items-center"
           style={{ justifyContent: 'space-between' }}
         >
-          <h1 className="white text-[2rem]">Extend Lease</h1>
+          <h1 className="text-foreground text-[2rem]">Extend Lease</h1>
 
           <div
-            className="flex flex-row center white"
+            className="flex flex-row text-center justify-center items-center text-foreground"
             style={{
               border: 'solid 1px var(--text-faded)',
               borderRadius: 'var(--corner-radius)',
@@ -183,7 +183,7 @@ function ExtendLease() {
           style={{ gap: '25px' }}
         >
           <button
-            className="flex flex-row center text-medium bold pointer"
+            className="flex flex-row text-center justify-center items-center text-lg bold pointer"
             onClick={() => setRegistrationType(TRANSACTION_TYPES.LEASE)}
             style={{
               position: 'relative',
@@ -219,7 +219,7 @@ function ExtendLease() {
             )}
           </button>
           <button
-            className="flex flex-row center text-medium bold pointer"
+            className="flex flex-row text-center justify-center items-center text-lg bold pointer"
             style={{
               position: 'relative',
               background:
@@ -269,7 +269,7 @@ function ExtendLease() {
               )}
               {/* maxxed out duration overlay */}
               {!loadingDomainData && maxIncrease < 1 && (
-                <div className="flex flex-col center  rounded-md  bg-[rgb(0,0,0,0.5)] h-full w-full absolute top-0 left-0">
+                <div className="flex flex-col text-center justify-center items-center  rounded-md  bg-[rgb(0,0,0,0.5)] h-full w-full absolute top-0 left-0">
                   <div className="flex flex-row items-center justify-center max-w-fit h-fit rounded-md border border-error text-white bg-foreground p-6 gap-2">
                     {' '}
                     <InfoIcon
@@ -314,13 +314,13 @@ function ExtendLease() {
             </>
           ) : (
             <div
-              className="flex flex-column flex-center"
+              className="flex flex-col gap-8 justify-center items-center"
               style={{ gap: '1em' }}
             >
-              <span className="text-medium grey center">
+              <span className="text-lg text-muted text-center justify-center items-center">
                 Registration Period
               </span>
-              <span className="text-medium white center">Permanent</span>
+              <span className="text-lg text-foreground text-center justify-center items-center">Permanent</span>
             </div>
           )}
         </div>

@@ -17,7 +17,7 @@ import {
   getImageDimensions,
   validateImageFile,
 } from '@src/utils/imageUtils';
-import { Progress } from 'antd';
+import { Progress } from '@src/components/ui/Progress';
 import { AlertCircleIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -343,7 +343,7 @@ function LogoUploadModal({
     return (
       <div className="modal-container">
         <DialogModal
-          title={<h2 className="white text-xl">Update Logo</h2>}
+          title={<h2 className="text-foreground text-xl">Update Logo</h2>}
           body={
             <div className="flex flex-col gap-3 p-4 rounded bg-card-bg border border-primary">
               <div className="flex items-center gap-2 text-primary">
@@ -378,7 +378,7 @@ function LogoUploadModal({
   return (
     <div className="modal-container">
       <DialogModal
-        title={<h2 className="white text-xl">Update Logo</h2>}
+        title={<h2 className="text-foreground text-xl">Update Logo</h2>}
         body={
           <div className="flex flex-col gap-4" style={{ maxWidth: '40rem' }}>
             {/* Error State */}
@@ -559,10 +559,9 @@ function LogoUploadModal({
             {uploadStatus === 'uploading' && (
               <div className="flex flex-col gap-2">
                 <Progress
-                  percent={uploadProgress}
-                  strokeColor="var(--primary)"
-                  trailColor="var(--card-bg)"
-                  showInfo={false}
+                  value={uploadProgress}
+                  className="bg-surface"
+                  indicatorClassName="bg-primary"
                 />
                 <span className="text-sm text-grey text-center">
                   Uploading... {uploadProgress}%

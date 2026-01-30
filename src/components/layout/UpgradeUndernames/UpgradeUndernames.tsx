@@ -67,18 +67,18 @@ function UpgradeUndernames() {
   } = domainData ?? {};
   if (!arnsRecord || !antContract || !name) {
     return (
-      <div className="page center">
+      <div className="page text-center justify-center items-center">
         <Loader size={80} message="Loading domain record" />
       </div>
     );
   }
 
   return (
-    <div className="page center">
-      <div className="flex flex-column" style={{ maxWidth: '1000px' }}>
-        <h1 className="flex white text-[2rem]">Increase Undernames</h1>
+    <div className="page text-center justify-center items-center">
+      <div className="flex flex-col gap-8" style={{ maxWidth: '1000px' }}>
+        <h1 className="flex text-foreground text-[2rem]">Increase Undernames</h1>
         <div
-          className="flex center"
+          className="flex text-center justify-center items-center"
           style={{
             justifyContent: 'space-between',
             border: '1px solid var(--text-faded)',
@@ -89,20 +89,20 @@ function UpgradeUndernames() {
           }}
         >
           <div
-            className="flex flex-column"
+            className="flex flex-col gap-8"
             style={{ fontSize: '16px', width: 'fit-content', gap: '5px' }}
           >
             <span
-              className="flex grey center"
+              className="flex text-muted text-center justify-center items-center"
               style={{ gap: '8px', whiteSpace: 'nowrap' }}
             >
               Total Undernames:{' '}
               <span className="white">{arnsRecord.undernameLimit}</span>
-              <span className="flex add-box center" style={{}}>
+              <span className="flex add-box text-center justify-center items-center" style={{}}>
                 +{newUndernameCount}
               </span>
             </span>
-            <span className="flex grey">
+            <span className="flex text-muted">
               Used:&nbsp;
               <span className="white"> {undernameCount}</span>
             </span>

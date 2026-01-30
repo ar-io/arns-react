@@ -1,4 +1,4 @@
-import { CheckCircleFilled } from '@ant-design/icons';
+import { CheckCircle } from 'lucide-react';
 import { ANT, AOProcess, mARIOToken } from '@ar.io/sdk/web';
 import Tooltip from '@src/components/Tooltips/Tooltip';
 import { Accordion } from '@src/components/data-display';
@@ -222,24 +222,8 @@ function RegisterNameForm() {
           isLoadingAntVersion
         }
       />
-      <div
-        className="flex flex-column flex-center"
-        style={{
-          maxWidth: '900px',
-          width: '100%',
-          padding: '0px',
-
-          gap: '50px',
-          boxSizing: 'border-box',
-        }}
-      >
-        <div
-          className="flex flex-row flex-center"
-          style={{
-            paddingBottom: '20px',
-            borderBottom: 'solid 1px var(--text-faded)',
-          }}
-        >
+      <div className="flex flex-col gap-12 justify-center items-center w-full max-w-[900px]">
+        <div className="flex w-full pb-5 border-b border-dark-grey">
           <StepProgressBar
             stages={[
               { title: 'Choose', description: 'Pick a name', status: 'finish' },
@@ -258,89 +242,38 @@ function RegisterNameForm() {
           />
         </div>
 
-        <span
-          className="text-medium white center"
-          style={{ fontWeight: '500px', fontSize: '23px', gap: '15px' }}
-        >
-          <span style={{ color: 'var(--success-green)' }}>
-            {decodeDomainToASCII(domain)}{' '}
-            <span className={'white'}>is available!</span>
-          </span>{' '}
-          <CheckCircleFilled
-            style={{ fontSize: '20px', color: 'var(--success-green)' }}
-          />
+        <span className="flex items-center gap-2 text-xl font-medium text-foreground">
+          <span className="text-success">{decodeDomainToASCII(domain)}</span>
+          <span>is available!</span>
+          <CheckCircle className="text-success" size={20} />
         </span>
-        <div className="flex flex-column flex-center">
-          <div
-            className="flex flex-column flex-center"
-            style={{
-              width: '100%',
-              height: 'fit-content',
-              gap: '15px',
-            }}
-          >
-            <div
-              className="flex flex-row flex-space-between"
-              style={{ gap: '25px' }}
-            >
+        <div className="flex flex-col gap-6 justify-center items-center w-full">
+          <div className="flex flex-col gap-4 justify-center items-center w-full">
+            <div className="flex flex-row w-full gap-4">
               <button
-                className="flex flex-row center text-medium bold pointer"
+                className={`relative flex-1 flex items-center justify-center h-14 text-lg font-bold rounded border-2 cursor-pointer transition-colors ${
+                  registrationType === TRANSACTION_TYPES.LEASE
+                    ? 'bg-foreground text-background border-foreground'
+                    : 'bg-transparent text-foreground border-dark-grey'
+                }`}
                 onClick={() =>
                   dispatchRegisterState({
                     type: 'setRegistrationType',
                     payload: TRANSACTION_TYPES.LEASE,
                   })
                 }
-                style={{
-                  position: 'relative',
-                  background:
-                    registrationType === TRANSACTION_TYPES.LEASE
-                      ? 'var(--text-white)'
-                      : '',
-                  color:
-                    registrationType === TRANSACTION_TYPES.LEASE
-                      ? 'var(--text-black)'
-                      : 'var(--text-white)',
-                  border: 'solid 2px var(--text-faded)',
-                  borderRadius: 'var(--corner-radius)',
-                  height: '56px',
-                  borderBottomWidth: '0.5px',
-                }}
               >
-                Lease{' '}
-                {registrationType === TRANSACTION_TYPES.LEASE ? (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      bottom: '-6px',
-                      left: '50%',
-                      transform: 'rotate(45deg)',
-                      width: '11px',
-                      height: '11px',
-                      background: 'var(--text-white)',
-                    }}
-                  ></div>
-                ) : (
-                  <></>
+                Lease
+                {registrationType === TRANSACTION_TYPES.LEASE && (
+                  <div className="absolute -bottom-1.5 left-1/2 w-3 h-3 bg-foreground rotate-45" />
                 )}
               </button>
               <button
-                className="flex flex-row center text-medium bold pointer"
-                style={{
-                  position: 'relative',
-                  background:
-                    registrationType === TRANSACTION_TYPES.BUY
-                      ? 'var(--text-white)'
-                      : '',
-                  color:
-                    registrationType === TRANSACTION_TYPES.BUY
-                      ? 'var(--text-black)'
-                      : 'var(--text-white)',
-                  border: 'solid 2px var(--text-faded)',
-                  borderRadius: 'var(--corner-radius)',
-                  height: '56px',
-                  borderBottomWidth: '0.5px',
-                }}
+                className={`relative flex-1 flex items-center justify-center h-14 text-lg font-bold rounded border-2 cursor-pointer transition-colors ${
+                  registrationType === TRANSACTION_TYPES.BUY
+                    ? 'bg-foreground text-background border-foreground'
+                    : 'bg-transparent text-foreground border-dark-grey'
+                }`}
                 onClick={() =>
                   dispatchRegisterState({
                     type: 'setRegistrationType',
@@ -348,39 +281,14 @@ function RegisterNameForm() {
                   })
                 }
               >
-                Buy{' '}
-                {registrationType === TRANSACTION_TYPES.BUY ? (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      bottom: -6,
-                      left: '50%',
-                      transform: 'rotate(45deg)',
-                      width: '11px',
-                      height: '11px',
-                      background: 'var(--text-white)',
-                    }}
-                  ></div>
-                ) : (
-                  <></>
+                Buy
+                {registrationType === TRANSACTION_TYPES.BUY && (
+                  <div className="absolute -bottom-1.5 left-1/2 w-3 h-3 bg-foreground rotate-45" />
                 )}
               </button>
             </div>
 
-            <div
-              className="flex flex-column flex-center card"
-              style={{
-                width: '100%',
-                minHeight: '0px',
-                height: 'fit-content',
-                maxWidth: 'unset',
-                padding: '25px',
-                boxSizing: 'border-box',
-                borderTopWidth: '0.2px',
-                borderRadius: 'var(--corner-radius)',
-                justifyContent: 'flex-start',
-              }}
-            >
+            <div className="flex flex-col items-center w-full p-6 bg-surface border border-dark-grey rounded">
               {registrationType === TRANSACTION_TYPES.LEASE ? (
                 <Counter
                   value={leaseDuration}
@@ -393,42 +301,35 @@ function RegisterNameForm() {
                   // TODO: move this to a helper function
                   minValue={MIN_LEASE_DURATION}
                   maxValue={MAX_LEASE_DURATION}
-                  valueStyle={{ padding: '20px 120px' }}
+                  valueStyle={{ padding: '20px 40px' }}
                   valueName={leaseDuration > 1 ? 'years' : 'year'}
                   detail={`Until ${formatDate(
                     Date.now() + leaseDuration * 365 * 24 * 60 * 60 * 1000,
                   )}`}
                   title={
-                    <span
-                      className="white"
-                      style={{
-                        padding: '0px 10px 10px 10px',
-                        fontWeight: '500',
-                      }}
-                    >{`Registration period (between ${MIN_LEASE_DURATION}-${MAX_LEASE_DURATION} years)`}</span>
+                    <span className="text-foreground font-medium px-2 pb-2">
+                      {`Registration period (between ${MIN_LEASE_DURATION}-${MAX_LEASE_DURATION} years)`}
+                    </span>
                   }
                 />
               ) : registrationType === TRANSACTION_TYPES.BUY ? (
-                <div
-                  className="flex flex-column flex-center"
-                  style={{ gap: '1em' }}
-                >
-                  <span className="text-medium grey center">
+                <div className="flex flex-col gap-4 justify-center items-center">
+                  <span className="text-lg text-muted text-center">
                     Registration Period
                   </span>
-                  <span className="text-medium white center">Permanent</span>
+                  <span className="text-lg text-foreground text-center">Permanent</span>
                 </div>
               ) : (
                 <></>
               )}
             </div>
           </div>
-          <div className="flex flex-column" style={{ gap: '1em' }}>
+          <div className="flex flex-col gap-4 w-full">
             <Accordion
-              title={<span className="text-medium">Advanced Options</span>}
+              title={<span className="text-lg">Advanced Options</span>}
               key="1"
             >
-              <div className="flex flex-column" style={{ gap: '1em' }}>
+              <div className="flex flex-col gap-4">
                 <div
                   className="name-token-input-wrapper"
                   style={{
@@ -481,15 +382,7 @@ function RegisterNameForm() {
                     }}
                   />
 
-                  <span
-                    className="flex flex-row text grey flex-center"
-                    style={{
-                      width: 'fit-content',
-                      height: 'fit-content',
-                      wordBreak: 'keep-all',
-                      // padding: '1px',
-                    }}
-                  >
+                  <span className="flex items-center text-muted">
                     <Tooltip message="The Target ID is the Arweave Transaction ID that will be resolved at the root of this ArNS name" />
                   </span>
                 </div>
@@ -502,7 +395,7 @@ function RegisterNameForm() {
             <div className="text-white flex w-full items-center justify-end pb-4 border-b border-dark-grey whitespace-nowrap">
               {formatedPriceString}
             </div>
-            <div style={{ marginTop: '0px' }}>
+            <div className="flex w-full justify-end">
               <WorkflowButtons
                 nextText="Next"
                 backText="Back"
@@ -514,7 +407,7 @@ function RegisterNameForm() {
                   });
                   navigate('/', { state: `/register/${domain}` });
                 }}
-                customBackStyle={{ fontSize: '.875rem', padding: '.625rem' }}
+                customBackStyle={{ fontSize: '.875rem', padding: '.625rem 1.5rem' }}
                 customNextStyle={{
                   width: '100px',
                   fontSize: '.875rem',

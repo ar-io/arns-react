@@ -1,3 +1,4 @@
+/* Stage circle is still used for custom step icons */
 .stage-circle {
   display: flex;
   justify-content: center;
@@ -13,116 +14,10 @@
   text-align: center;
 }
 
-.step-finish
-  > .ant-steps-item-container
-  > .ant-steps-item-content
-  > .ant-steps-item-title::after {
-  background-color: var(--accent) !important;
-}
-.step-finish
-  > .ant-steps-item-container
-  > .ant-steps-item-content
-  > .ant-steps-item-title {
-  color: var(--text-white) !important;
-  font-family: "Rubik";
-  font-weight: 400;
-  font-size: 16px;
-}
-.step-finish
-  > .ant-steps-item-container
-  > .ant-steps-item-content
-  > .ant-steps-item-description {
-  color: var(--text-grey) !important;
-  font-family: "Rubik";
-  font-weight: 400;
-  font-size: 13px;
-  white-space: nowrap;
-}
-
-.step-process
-  > .ant-steps-item-container
-  > .ant-steps-item-content
-  > .ant-steps-item-title::after {
-  background-color: var(--text-grey) !important;
-}
-.step-process
-  > .ant-steps-item-container
-  > .ant-steps-item-content
-  > .ant-steps-item-title {
-  color: var(--text-white) !important;
-  font-family: "Rubik";
-  font-weight: 400;
-  font-size: 16px;
-}
-.step-process
-  > .ant-steps-item-container
-  > .ant-steps-item-content
-  > .ant-steps-item-description {
-  color: var(--text-white) !important;
-  font-family: "Rubik";
-  font-weight: 400;
-  font-size: 13px;
-  white-space: nowrap;
-}
-
-.step-wait
-  > .ant-steps-item-container
-  > .ant-steps-item-content
-  > .ant-steps-item-title::after {
-  background-color: var(--text-grey) !important;
-}
-.step-wait
-  > .ant-steps-item-container
-  > .ant-steps-item-content
-  > .ant-steps-item-title {
-  color: var(--text-grey) !important;
-  font-family: "Rubik";
-  font-weight: 400;
-  font-size: 16px;
-}
-.step-wait
-  > .ant-steps-item-container
-  > .ant-steps-item-content
-  > .ant-steps-item-description {
-  color: var(--text-grey) !important;
-  font-family: "Rubik";
-  font-weight: 400;
-  font-size: 13px;
-  white-space: nowrap;
-}
-
 @media screen and (max-width: 600px) {
   .stage-circle {
     width: 24px;
     height: 24px;
     font-size: 12px;
-  }
-  .step-wait
-    > .ant-steps-item-container
-    > .ant-steps-item-content
-    > .ant-steps-item-title,
-  .step-process
-    > .ant-steps-item-container
-    > .ant-steps-item-content
-    > .ant-steps-item-title,
-  .step-finish
-    > .ant-steps-item-container
-    > .ant-steps-item-content
-    > .ant-steps-item-title {
-    font-size: 13px;
-  }
-  .step-wait
-    > .ant-steps-item-container
-    > .ant-steps-item-content
-    > .ant-steps-item-description,
-  .step-process
-    > .ant-steps-item-container
-    > .ant-steps-item-content
-    > .ant-steps-item-description,
-  .step-finish
-    > .ant-steps-item-container
-    > .ant-steps-item-content
-    > .ant-steps-item-description {
-    font-size: 10px;
   }
 }

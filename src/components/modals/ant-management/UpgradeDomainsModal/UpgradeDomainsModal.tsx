@@ -26,7 +26,7 @@ import {
 } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
-import { Checkbox } from 'antd';
+import { Checkbox } from '@src/components/inputs/Checkbox';
 import { pLimit } from 'plimit-lit';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -305,11 +305,10 @@ function UpgradeDomainsModal({
                       style={{ gap: '10px' }}
                     >
                       <Checkbox
-                        rootClassName="accept-checkbox"
-                        onChange={(checked) =>
-                          setAccepted(checked.target.checked)
+                        checked={accepted}
+                        onCheckedChange={(checked) =>
+                          setAccepted(checked === true)
                         }
-                        value={accepted}
                       />
                       I understand and wish to proceed{' '}
                       <Tooltip

@@ -1,7 +1,7 @@
 import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
 import { useGlobalState } from '@src/state';
+import { Tooltip } from '@src/components/ui/Tooltip';
 import { useQueryClient } from '@tanstack/react-query';
-import { Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 import { useLocation, useMatches } from 'react-router-dom';
 import { Link } from 'react-router-dom';
@@ -127,20 +127,17 @@ function Breadcrumbs() {
             );
 
             return (
-              <span key={index} className="center faded flex">
+              <span key={index} className="text-center justify-center items-center faded flex">
                 {crumbTitle === item.name ? (
                   crumbLink
                 ) : (
                   <Tooltip
-                    title={
-                      <span className="center text-md flex w-fit">
+                    content={
+                      <span className="text-center justify-center items-center text-md flex w-fit">
                         {item.name}
                       </span>
                     }
-                    placement={'top'}
-                    autoAdjustOverflow={true}
-                    overlayClassName="w-fit max-w-fit h-fit"
-                    color="var(--bg-color)"
+                    side="top"
                   >
                     {crumbLink}
                   </Tooltip>

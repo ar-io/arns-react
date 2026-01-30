@@ -7,38 +7,23 @@ function Home() {
   const isMobile = useIsMobile();
 
   return (
-    <div
-      className="page"
-      style={{ padding: isMobile ? '15px' : '0px', boxSizing: 'border-box' }}
-    >
-      <div
-        className={'white pb-2'}
-        style={{
-          fontSize: isMobile ? 26 : 50,
-          paddingTop: '10px',
-          fontWeight: 500,
-          whiteSpace: isMobile ? undefined : 'nowrap',
-        }}
+    <div className={`page flex flex-col items-center pb-8 ${isMobile ? 'px-4' : ''}`}>
+      {/* Hero Section */}
+      <h1
+        className="text-foreground pb-4 pt-3 font-medium text-center"
+        style={{ fontSize: isMobile ? 26 : 50 }}
       >
         Get your own smart domain
-      </div>
-      <span className="flex flex-col items-center pb-2 justify-center align-center text-center gap-[5px] text-md min-h-[45px] text-grey max-w-[500px]">
+      </h1>
+      
+      <p className="text-muted text-center text-base max-w-[500px] pb-6">
         The Arweave Name System (ArNS) connects friendly names to permanent
         applications, pages, data, or identities.
-      </span>
-      <div
-        className="flex flex-column flex-center"
-        style={{
-          width: '100%',
-          maxWidth: '900px',
-          gap: '2rem',
-          minWidth: isMobile ? '100%' : '750px',
-        }}
-      >
-        <div className="flex flex-col w-full max-w-[800px] h-[200px]">
-          <HomeSearch />
-        </div>
+      </p>
 
+      {/* Search Section */}
+      <div className="flex flex-col items-center w-full max-w-[800px] gap-8">
+        <HomeSearch />
         <FeaturedDomains />
       </div>
     </div>

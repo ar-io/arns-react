@@ -100,6 +100,7 @@ export enum WALLET_TYPES {
   ARWEAVE_APP = 'ArweaveApp',
   ETHEREUM = 'Ethereum',
   BEACON = 'Beacon',
+  JSON = 'JSON',
 }
 
 export interface KVCache {

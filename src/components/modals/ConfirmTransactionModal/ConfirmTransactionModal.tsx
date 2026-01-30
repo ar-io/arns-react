@@ -22,10 +22,10 @@ function ConfirmTransactionModal({
   return (
     <div className="modal-container">
       <DialogModal
-        title={<h2 className="white text-xl">{interactionType}</h2>}
+        title={<h2 className="text-foreground text-xl">{interactionType}</h2>}
         body={
           <div
-            className="flex flex-column white text-sm"
+            className="flex-col gap-8 text-foreground text-sm"
             style={{
               gap: '20px',
               padding: '15px 0px',

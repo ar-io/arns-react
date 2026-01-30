@@ -23,7 +23,7 @@ import {
   getWorkflowStepsForInteraction,
 } from '@src/utils';
 import eventEmitter from '@src/utils/events';
-import { StepProps } from 'antd';
+import { StepProps } from '@src/components/ui/Steps';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -164,7 +164,7 @@ function TransactionReview() {
   return (
     <div className="page">
       <div
-        className="flex flex-column center"
+        className="flex-col gap-8 text-center justify-center items-center"
         style={isMobile ? {} : { gap: '0px', maxWidth: '900px', width: '100%' }}
       >
         {steps && steps.length ? (
@@ -183,7 +183,7 @@ function TransactionReview() {
 
         {typeof header === 'string' ? (
           <div
-            className="flex flex-row text-large white bold center"
+            className="flex flex-row text-large text-foreground bold text-center justify-center items-center"
             style={{
               height: '100%',
               padding: '50px 0px',

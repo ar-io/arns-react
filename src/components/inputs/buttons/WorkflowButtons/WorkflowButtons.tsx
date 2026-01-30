@@ -1,3 +1,4 @@
+import React from 'react';
 import './styles.css';
 
 function WorkflowButtons({
@@ -9,8 +10,8 @@ function WorkflowButtons({
   onBack,
   detail,
 }: {
-  customNextStyle?: any;
-  customBackStyle?: any;
+  customNextStyle?: React.CSSProperties;
+  customBackStyle?: React.CSSProperties;
   backText?: string;
   nextText?: string;
   onBack?: () => void;
@@ -18,47 +19,31 @@ function WorkflowButtons({
   detail?: JSX.Element | string;
 }) {
   return (
-    <>
-      <div
-        className="flex-row flex flex-space-between"
-        style={{ boxSizing: 'border-box' }}
-      >
-        {detail}
-        <div
-          className="flex-row flex-right"
-          style={{ padding: '0', boxSizing: 'border-box', gap: '20px' }}
-        >
-          {backText && backText.length ? (
-            <button
-              className="outline-button center"
-              style={customBackStyle}
-              disabled={!onBack}
-              onClick={onBack ? () => onBack() : undefined}
-            >
-              {backText}
-            </button>
-          ) : (
-            <></>
-          )}
-          {nextText && nextText.length ? (
-            <button
-              className={
-                !onNext
-                  ? 'accent-button disabled-button center'
-                  : 'accent-button center'
-              }
-              style={customNextStyle}
-              disabled={!onNext}
-              onClick={onNext ? () => onNext() : undefined}
-            >
-              {nextText}
-            </button>
-          ) : (
-            <></>
-          )}
-        </div>
+    <div className="flex flex-row justify-between items-center gap-5">
+      {detail}
+      <div className="flex flex-row gap-5">
+        {backText && backText.length ? (
+          <button
+            className="button-secondary flex items-center justify-center"
+            style={customBackStyle}
+            disabled={!onBack}
+            onClick={onBack ? () => onBack() : undefined}
+          >
+            {backText}
+          </button>
+        ) : null}
+        {nextText && nextText.length ? (
+          <button
+            className={`button-primary flex items-center justify-center ${!onNext ? 'opacity-50 cursor-not-allowed' : ''}`}
+            style={customNextStyle}
+            disabled={!onNext}
+            onClick={onNext ? () => onNext() : undefined}
+          >
+            {nextText}
+          </button>
+        ) : null}
       </div>
-    </>
+    </div>
   );
 }
 

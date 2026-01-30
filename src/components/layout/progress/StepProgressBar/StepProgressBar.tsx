@@ -1,100 +1,74 @@
-import { StepProps, Steps } from 'antd';
-
+import { Steps, StepProps } from '@src/components/ui/Steps';
 import { useIsMobile } from '../../../../hooks';
 import { AlertOctagonIcon, CheckIcon } from '../../../icons';
 import './styles.css';
 
-function StepProgressBar({
-  stages,
-  stage,
-}: {
-  stages: StepProps[];
+interface StepProgressBarProps {
+  stages: Array<{
+    title?: React.ReactNode;
+    description?: React.ReactNode;
+    status?: 'wait' | 'process' | 'finish' | 'error';
+  }>;
   stage: number;
-}) {
+}
+
+function StepProgressBar({ stages, stage }: StepProgressBarProps) {
   const isMobile = useIsMobile();
-  function handleIcon(status: string | undefined, index: number) {
+
+  const items: StepProps[] = stages.map((step, index) => {
+    const status = step.status || (index < stage ? 'finish' : index === stage ? 'process' : 'wait');
+    
+    let icon: React.ReactNode = undefined;
+    
     switch (status) {
       case 'finish':
-        return (
-          <span
-            className="stage-circle"
-            style={{
-              color: 'var(--text-black)',
-              border: '1px solid var(--accent)',
-            }}
-          >
+        icon = (
+          <span className="flex items-center justify-center size-8 rounded-full border border-primary text-primary">
             <CheckIcon
-              fill={'var(--accent)'}
+              fill="currentColor"
               width={isMobile ? '13px' : '16px'}
               height={isMobile ? '13px' : '16px'}
             />
           </span>
         );
+        break;
       case 'error':
-        return (
-          <AlertOctagonIcon width={'18px'} height={'18px'} fill={'#444444'} />
+        icon = (
+          <span className="flex items-center justify-center size-8 rounded-full border border-error text-error">
+            <AlertOctagonIcon width="18px" height="18px" fill="currentColor" />
+          </span>
         );
+        break;
       case 'process':
-        return (
-          <span
-            className="stage-circle flex"
-            style={{
-              backgroundColor: 'var(--accent)',
-              color: 'var(--text-black)',
-              border: '1px solid var(--accent)',
-              alignItems: 'center',
-              fontWeight: 700,
-              justifyContent: 'center',
-            }}
-          >
-            <span
-              style={{
-                height: '30px',
-              }}
-            >
-              {index + 1}
-            </span>
+        icon = (
+          <span className="flex items-center justify-center size-8 rounded-full bg-primary border border-primary text-primary-foreground font-bold text-sm">
+            {index + 1}
           </span>
         );
+        break;
       case 'wait':
-        return (
-          <span
-            className="stage-circle flex"
-            style={{
-              fontWeight: 700,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <span
-              style={{
-                height: '30px',
-              }}
-            >
-              {index + 1}
-            </span>
+        icon = (
+          <span className="flex items-center justify-center size-8 rounded-full border border-muted text-muted font-bold text-sm">
+            {index + 1}
           </span>
         );
-      default:
-        return undefined;
+        break;
     }
-  }
+
+    return {
+      title: step.title,
+      description: step.description,
+      status,
+      icon,
+    };
+  });
+
   return (
-    <>
-      <Steps
-        current={stage}
-        responsive={false}
-        items={
-          stages.map((step, index) => {
-            return {
-              ...step,
-              className: `step-${step.status}`,
-              icon: handleIcon(step.status, index),
-            };
-          }) ?? []
-        }
-      />
-    </>
+    <Steps
+      current={stage}
+      items={items}
+      size={isMobile ? 'sm' : 'md'}
+    />
   );
 }
 

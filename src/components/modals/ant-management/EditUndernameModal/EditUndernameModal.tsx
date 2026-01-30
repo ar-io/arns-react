@@ -89,22 +89,22 @@ function EditUndernameModal({
       {/**modal header */}
       <DialogModal
         title={
-          <h2 className="white text-xl">
+          <h2 className="text-foreground text-xl">
             Edit {formatForMaxCharCount(undername, 40)}
           </h2>
         }
         body={
           <div
-            className="flex flex-column"
+            className="flex flex-col gap-8"
             style={{ fontSize: '14px', maxWidth: '575px', minWidth: '475px' }}
           >
-            <div className="flex flex-column" style={{ paddingBottom: '30px' }}>
+            <div className="flex flex-col gap-8" style={{ paddingBottom: '30px' }}>
               <div className="flex flex-col gap-2">
                 <span className="grey">Target ID:</span>
                 <ValidationInput
                   key={'targetId'}
                   ref={targetIdRef}
-                  inputClassName="name-token-input white"
+                  inputClassName="name-token-input text-foreground"
                   inputCustomStyle={{
                     paddingLeft: '10px',
                     fontSize: '14px',
@@ -138,7 +138,7 @@ function EditUndernameModal({
                 <ValidationInput
                   key={'ttlSeconds'}
                   ref={ttlRef}
-                  inputClassName="name-token-input white"
+                  inputClassName="name-token-input text-foreground"
                   inputCustomStyle={{ paddingLeft: '10px', fontSize: '14px' }}
                   wrapperCustomStyle={{
                     position: 'relative',

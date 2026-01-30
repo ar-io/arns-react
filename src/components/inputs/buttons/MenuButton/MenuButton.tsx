@@ -1,33 +1,37 @@
-import { Dispatch, SetStateAction } from 'react';
+import React, { forwardRef } from 'react';
 
 import './styles.css';
 
-function MenuButton({
-  show,
-  setShow,
-  className,
-  style,
-  children,
-}: {
+interface MenuButtonProps {
   show: boolean;
-  setShow: Dispatch<SetStateAction<boolean>>;
+  setShow?: (show: boolean) => void;
   className?: string;
-  style?: any;
+  style?: React.CSSProperties;
   children?: JSX.Element;
-}): JSX.Element {
-  return (
-    <>
+  onClick?: (e: React.MouseEvent) => void;
+}
+
+const MenuButton = forwardRef<HTMLButtonElement, MenuButtonProps>(
+  ({ show, setShow, className, style, children, onClick, ...props }, ref) => {
+    return (
       <button
+        ref={ref}
         className={
           show ? `hover highlight-button ${className}` : `hover ${className}`
         }
-        onClick={() => setShow(!show)}
+        onClick={(e) => {
+          onClick?.(e);
+          setShow?.(!show);
+        }}
         style={style}
+        {...props}
       >
         {children}
       </button>
-    </>
-  );
-}
+    );
+  }
+);
+
+MenuButton.displayName = 'MenuButton';
 
 export default MenuButton;

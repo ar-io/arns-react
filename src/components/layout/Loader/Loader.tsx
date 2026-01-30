@@ -1,5 +1,4 @@
-import { LoadingOutlined } from '@ant-design/icons';
-import { Spin } from 'antd';
+import { Spinner } from '@src/components/ui/Spinner';
 
 export default function Loader({
   size = 80,
@@ -10,17 +9,11 @@ export default function Loader({
   size?: number;
   color?: string;
   message?: string;
-  wrapperStyle?: any;
+  wrapperStyle?: React.CSSProperties;
 }) {
   return (
-    <Spin
-      tip={message}
-      style={{ fontSize: '18px', color: color }}
-      indicator={
-        <LoadingOutlined
-          style={{ fontSize: size, margin: '15px', ...wrapperStyle }}
-        />
-      }
-    />
+    <div style={{ margin: '15px', ...wrapperStyle }}>
+      <Spinner size={size} color={color} message={message} />
+    </div>
   );
 }

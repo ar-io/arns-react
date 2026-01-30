@@ -2,7 +2,7 @@ import ValidationInput from '@src/components/inputs/text/ValidationInput/Validat
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import eventEmitter from '@src/utils/events';
-import { Skeleton } from 'antd';
+import { Skeleton } from '@src/components/ui/Skeleton';
 import { useEffect, useState } from 'react';
 
 import DomainSettingsRow from './DomainSettingsRow';
@@ -68,13 +68,7 @@ export default function TickerRow({
               maxCharLength={(str) => str.length <= 100}
             />
           ) : (
-            <Skeleton.Input
-              active
-              style={{
-                backgroundColor: 'var(--card-bg)',
-                height: '16px',
-              }}
-            />
+            <Skeleton className="h-4 w-48 bg-surface" />
           )
         }
         editable={editable}

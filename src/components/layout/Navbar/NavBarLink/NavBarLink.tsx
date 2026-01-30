@@ -21,26 +21,19 @@ function NavBarLink({
   children,
 }: navBarLink) {
   return (
-    <div className="relative">
+    <div className="relative flex items-center">
       <Link
         to={path}
         target={target}
         onClick={() => (onClick ? onClick() : null)}
-        className={
-          children ? 'navbar-link hover flex-row' : 'navbar-link hover'
-        }
-        style={{
-          gap: '10px',
-          alignItems: 'center',
-          color: 'var(--text-white)',
-        }}
+        className="navbar-link hover flex flex-row items-center gap-2.5 text-foreground"
         state={{ from: target, to: target }}
       >
         {children}
         {linkText}
       </Link>
       {activityDot && (
-        <div className="absolute right-[-8px] top-[0px] h-2 w-2 animate-ping rounded-full bg-primary" />
+        <div className="absolute right-[-8px] top-1/2 -translate-y-1/2 h-2 w-2 animate-ping rounded-full bg-primary" />
       )}
     </div>
   );

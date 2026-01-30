@@ -35,7 +35,7 @@ export default function DomainSettingsRow({
         ...customStyle,
       }}
     >
-      <div className="flex flex-col xl:flex-row w-full mr-[120px] gap-2">
+      <div className="flex flex-col xl:flex flex-row w-full mr-[120px] gap-2">
         {/* Label section */}
         <div className="flex text-xs gap-2 text-grey w-[30%] items-center">
           <div className="flex gap-1 items-start whitespace-nowrap">

@@ -1,4 +1,4 @@
-import { Tooltip } from 'antd';
+import { Tooltip } from '@src/components/ui/Tooltip';
 
 import { RECOMMENDED_TRANSACTION_CONFIRMATIONS } from '../../../utils/constants';
 import {
@@ -63,21 +63,20 @@ function TransactionStatus({
 
   return (
     <span
-      className="text white bold"
+      className="text text-foreground bold"
       style={{ alignItems: 'center', ...wrapperStyle }}
     >
       <Tooltip
-        title={
-          <span className=" flex center">
+        content={
+          <span className="flex text-center justify-center items-center">
             {getTooltipText(confirmations, errorMessage)}
           </span>
         }
-        placement={'top'}
-        autoAdjustOverflow={true}
-        color="var(--text-faded)"
-        className="manage-asset-button-tooltip"
+        side="top"
       >
-        {getStatusIcon(confirmations)}
+        <span className="inline-flex cursor-pointer">
+          {getStatusIcon(confirmations)}
+        </span>
       </Tooltip>
     </span>
   );

@@ -1,13 +1,15 @@
 import { RainbowKitProvider, getDefaultConfig } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ConfigProvider } from 'antd';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { WagmiProvider } from 'wagmi';
 import { base, mainnet, polygon } from 'wagmi/chains';
 
 import App from './App';
+import { ThemeProvider } from './components/ThemeProvider';
+import { ToastProvider } from './components/ui/Toast';
+import { TooltipProvider } from './components/ui/Tooltip';
 import './index.css';
 import {
   ArNSStateProvider,
@@ -38,62 +40,35 @@ const config = getDefaultConfig({
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <WagmiProvider config={config}>
-      <QueryClientProvider
-        client={queryClient}
-        // persistOptions={{
-        //   persister: createIDBPersister(),
-        // }}
-      >
-        <RainbowKitProvider>
-          <GlobalStateProvider reducer={reducer}>
-            <WalletStateProvider reducer={walletReducer}>
-              <ArNSStateProvider reducer={arnsReducer}>
-                <TransactionStateProvider reducer={transactionReducer}>
-                  <RegistrationStateProvider reducer={registrationReducer}>
-                    <ConfigProvider
-                      theme={{
-                        // algorithm: theme.darkAlgorithm,
-                        token: {
-                          colorBgBase: 'var(--primary)',
-                        },
-                        components: {
-                          Button: {
-                            colorBgBase: 'var(--primary)',
-                          },
-                          Progress: {
-                            colorText: 'var(--text-white)',
-                          },
-                          Input: {
-                            addonBg: 'var(--card-bg)',
-                            colorBgContainer: 'var(--bg-color)',
-                            activeBg: 'var(--bg-color)',
-                            hoverBg: 'var(--bg-color)',
-                            colorText: 'var(--text-white)',
-                            colorTextPlaceholder: 'var(--text-grey)',
-                            activeBorderColor: 'var(--primary)',
-                            hoverBorderColor: 'var(--bg-color)',
-                            colorIcon: 'var(--text-grey)',
-                            colorPrimary: 'var(--primary)',
-                            borderRadius: 3,
-                            lineWidth: 0.5,
-                            lineWidthFocus: 1,
-                            lineWidthBold: 0,
-                          },
-                        },
-                      }}
-                    >
+    <ThemeProvider>
+      <WagmiProvider config={config}>
+        <QueryClientProvider
+          client={queryClient}
+          // persistOptions={{
+          //   persister: createIDBPersister(),
+          // }}
+        >
+          <RainbowKitProvider>
+            <GlobalStateProvider reducer={reducer}>
+              <WalletStateProvider reducer={walletReducer}>
+                <ArNSStateProvider reducer={arnsReducer}>
+                  <TransactionStateProvider reducer={transactionReducer}>
+                    <RegistrationStateProvider reducer={registrationReducer}>
                       <ModalStateProvider reducer={modalReducer}>
-                        <App />
+                        <ToastProvider>
+                          <TooltipProvider delayDuration={200}>
+                            <App />
+                          </TooltipProvider>
+                        </ToastProvider>
                       </ModalStateProvider>
-                    </ConfigProvider>
-                  </RegistrationStateProvider>
-                </TransactionStateProvider>
-              </ArNSStateProvider>
-            </WalletStateProvider>
-          </GlobalStateProvider>
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+                    </RegistrationStateProvider>
+                  </TransactionStateProvider>
+                </ArNSStateProvider>
+              </WalletStateProvider>
+            </GlobalStateProvider>
+          </RainbowKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
+    </ThemeProvider>
   </React.StrictMode>,
 );

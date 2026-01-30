@@ -556,7 +556,7 @@ function Checkout() {
   return (
     <div className="page">
       <div
-        className="flex flex-col center"
+        className="flex flex-col text-center justify-center items-center"
         style={isMobile ? {} : { gap: '0px', maxWidth: '900px', width: '100%' }}
       >
         <div className="flex flex-row border-b border-dark-grey pb-6 w-full mb-10">
@@ -586,7 +586,7 @@ function Checkout() {
           )}
         </div>
 
-        <div className="flex md:flex-row flex-col gap-6 w-full h-full">
+        <div className="flex md:flex flex-row flex-col gap-6 w-full h-full">
           <div className="md:w-1/2 w-full flex flex-col order-1 md:order-1">
             <PaymentOptionsForm
               paymentMethod={paymentMethod}

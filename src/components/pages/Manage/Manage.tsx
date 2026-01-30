@@ -33,7 +33,7 @@ function Manage() {
       <div className="flex flex-col gap-[10px]">
         <div className="flex justify-between items-center">
           <h1
-            className="flex white text-[2rem]"
+            className="flex text-foreground text-[2rem]"
             style={{
               width: 'fit-content',
               whiteSpace: 'nowrap',
@@ -104,7 +104,7 @@ function Manage() {
                   )}
                 <button
                   className={
-                    'button center pointer transition-transform duration-200 ease-in-out hover:scale-105'
+                    'button text-center justify-center items-center pointer transition-transform duration-200 ease-in-out hover:scale-105'
                   }
                   onClick={() =>
                     walletAddress

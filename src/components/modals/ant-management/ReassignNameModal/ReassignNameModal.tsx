@@ -30,7 +30,8 @@ import {
 } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { useQueryClient } from '@tanstack/react-query';
-import { Checkbox, Skeleton } from 'antd';
+import { Checkbox } from '@src/components/inputs/Checkbox';
+import { Skeleton } from '@src/components/ui/Skeleton';
 import { TriangleAlert, XIcon } from 'lucide-react';
 import { useState } from 'react';
 
@@ -339,14 +340,7 @@ export function ReassignNameModal({
                             } else return c;
                           })
                         ) : (
-                          <Skeleton.Input
-                            size="small"
-                            className="w-full bg-[rgb(255,255,255,0.05)] rounded"
-                            active
-                            style={{
-                              width: '100%',
-                            }}
-                          />
+                          <Skeleton className="h-4 w-full bg-white/5 rounded" />
                         )}
                       </div>
                     </div>
@@ -364,14 +358,7 @@ export function ReassignNameModal({
                             shouldLink
                           />
                         ) : (
-                          <Skeleton.Input
-                            size="small"
-                            className="w-full bg-[rgb(255,255,255,0.05)] rounded"
-                            active
-                            style={{
-                              width: '100%',
-                            }}
-                          />
+                          <Skeleton className="h-4 w-full bg-white/5 rounded" />
                         )}
                       </span>
                     </div>
@@ -379,14 +366,7 @@ export function ReassignNameModal({
                       <span className=" text-grey">Undernames</span>
                       <span className=" text-white">
                         {domainData?.undernameCount ?? (
-                          <Skeleton.Input
-                            size="small"
-                            className="w-full bg-[rgb(255,255,255,0.05)] rounded"
-                            active
-                            style={{
-                              width: '100%',
-                            }}
-                          />
+                          <Skeleton className="h-4 w-full bg-white/5 rounded" />
                         )}
                       </span>
                     </div>
@@ -397,17 +377,15 @@ export function ReassignNameModal({
                   reassignment?
                 </span>
                 <span
-                  className={`flex flex-row ${accepted ? 'white' : 'grey'}`}
+                  className={`flex-row ${accepted ? 'white' : 'grey'}`}
                   style={{
                     gap: 10,
                     alignItems: 'center',
                   }}
                 >
                   <Checkbox
-                    rootClassName="accept-checkbox"
-                    onChange={(e) => setAccepted(e.target.checked)}
                     checked={accepted}
-                    style={{ color: 'white' }}
+                    onCheckedChange={(checked) => setAccepted(checked === true)}
                     disabled={
                       !isArweaveTransactionID(newAntProcessId) &&
                       antType === REASSIGN_NAME_WORKFLOWS.EXISTING
@@ -466,7 +444,7 @@ export function ReassignNameModal({
               <div className="flex flex-col gap-4">
                 <span className="grey">Enter destination ANT Process ID:</span>
                 <ValidationInput
-                  inputClassName="name-token-input white"
+                  inputClassName="name-token-input text-foreground"
                   inputCustomStyle={{ paddingLeft: '10px', fontSize: '16px' }}
                   wrapperCustomStyle={{
                     position: 'relative',

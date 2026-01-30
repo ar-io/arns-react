@@ -18,7 +18,7 @@ import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { ANT_INTERACTION_TYPES } from '@src/types';
 import { formatForMaxCharCount, lowerCaseDomain, sleep } from '@src/utils';
 import eventEmitter from '@src/utils/events';
-import { Checkbox } from 'antd';
+import { Checkbox } from '@src/components/inputs/Checkbox';
 import { useState } from 'react';
 
 import './styles.css';
@@ -163,9 +163,8 @@ function UpgradeDomainModal({
                   style={{ gap: '10px' }}
                 >
                   <Checkbox
-                    rootClassName="accept-checkbox"
-                    onChange={(checked) => setAccepted(checked.target.checked)}
-                    value={accepted}
+                    checked={accepted}
+                    onCheckedChange={(checked) => setAccepted(checked === true)}
                   />
                   I understand and wish to proceed{' '}
                   <Tooltip

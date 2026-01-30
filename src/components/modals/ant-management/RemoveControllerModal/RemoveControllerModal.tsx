@@ -1,15 +1,12 @@
+import { Checkbox } from '@src/components/inputs/Checkbox';
 import { useANT } from '@src/hooks/useANT/useANT';
 import { AoAddress } from '@src/types';
-import { Checkbox, Table } from 'antd';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
-import {
-  formatForMaxCharCount,
-  getCustomPaginationButtons,
-  isEthAddress,
-} from '../../../../utils';
+import { formatForMaxCharCount, isEthAddress } from '../../../../utils';
 import DialogModal from '../../DialogModal/DialogModal';
 import './styles.css';
 
@@ -30,6 +27,7 @@ function RemoveControllersModal({
   );
   const [tablePage, setTablePage] = useState<number>(1);
   const { name = 'N/A' } = useANT(antId.toString());
+  const pageSize = 8;
   const [rows, setRows] = useState<{ controller: AoAddress }[]>(
     controllers.map((controller) => ({
       controller: isEthAddress(controller)
@@ -54,9 +52,11 @@ function RemoveControllersModal({
     });
   }
 
-  function updatePage(page: number) {
-    setTablePage(page);
-  }
+  const totalPages = Math.ceil(rows.length / pageSize);
+  const paginatedRows = rows.slice(
+    (tablePage - 1) * pageSize,
+    tablePage * pageSize,
+  );
 
   return (
     <div
@@ -65,10 +65,10 @@ function RemoveControllersModal({
     >
       {/**modal header */}
       <DialogModal
-        title={<h2 className="white text-xl">Remove Controller</h2>}
+        title={<h2 className="text-foreground text-xl">Remove Controller</h2>}
         body={
           <div
-            className="flex flex-column"
+            className="flex flex-col gap-8"
             style={{ fontSize: '14px', maxWidth: '575px', minWidth: '475px' }}
           >
             <div className="flex flex-col gap-2">
@@ -107,86 +107,87 @@ function RemoveControllersModal({
                 </span>
               </div>
             </div>
-            <div className="flex flex-column" style={{ paddingBottom: '30px' }}>
-              <div className="flex flex-column" style={{ gap: '10px' }}>
+            <div className="flex flex-col gap-8" style={{ paddingBottom: '30px' }}>
+              <div className="flex flex-col gap-8" style={{ gap: '10px' }}>
                 {rows.length ? (
-                  <>
-                    <Table
-                      prefixCls="remove-controller-table"
-                      columns={[
-                        {
-                          title: '',
-                          dataIndex: 'action',
-                          key: 'action',
-                          align: 'left',
-                          width: '5%',
-                          className: 'grey whitespace-no-wrap',
-                          // eslint-disable-next-line
-                          render: (_value: string, row: any) => (
-                            <Checkbox
-                              key={row.controller}
-                              prefixCls="remove-controller-checkbox"
-                              // TODO: remove once we have support for multi remove of controllers
-                              checked={controllersToRemove
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-2">
+                      {paginatedRows.map((row) => (
+                        <div
+                          key={row.controller.toString()}
+                          className="flex items-center gap-3 p-2 rounded hover:bg-surface/50 cursor-pointer"
+                          onClick={() => {
+                            if (
+                              controllersToRemove
                                 .map((c) => c.toString())
-                                .includes(row.controller.toString())}
-                              style={{ color: 'white' }}
-                              onChange={() => {
-                                if (
-                                  controllersToRemove.includes(row.controller)
-                                ) {
-                                  setControllersToRemove([]);
-                                  return;
-                                }
-                                setControllersToRemove([row.controller]);
-                              }}
-                            />
-                          ),
-                        },
-                        {
-                          title: '',
-                          dataIndex: 'controller',
-                          key: 'controller',
-                          align: 'left',
-                          width: '00%',
-                          className: 'grey whitespace-no-wrap',
-                          render: (value: AoAddress) => (
-                            <span
-                              className={
-                                controllersToRemove.includes(value)
-                                  ? 'white'
-                                  : 'grey'
+                                .includes(row.controller.toString())
+                            ) {
+                              setControllersToRemove([]);
+                              return;
+                            }
+                            setControllersToRemove([row.controller]);
+                          }}
+                        >
+                          <Checkbox
+                            checked={controllersToRemove
+                              .map((c) => c.toString())
+                              .includes(row.controller.toString())}
+                            onCheckedChange={() => {
+                              if (
+                                controllersToRemove
+                                  .map((c) => c.toString())
+                                  .includes(row.controller.toString())
+                              ) {
+                                setControllersToRemove([]);
+                                return;
                               }
-                            >
-                              {value?.toString()}
-                            </span>
-                          ),
-                        },
-                      ]}
-                      dataSource={rows}
-                      pagination={{
-                        position: ['bottomLeft'],
-                        rootClassName:
-                          'table-pagination remove-controller-pagination',
-                        itemRender: (page, type, originalElement) =>
-                          getCustomPaginationButtons({
-                            page,
-                            type,
-                            originalElement,
-                            currentPage: tablePage,
-                          }),
-                        onChange: updatePage,
-                        showPrevNextJumpers: true,
-                        showSizeChanger: false,
-                        current: tablePage,
-                        pageSize: 8,
-                      }}
-                    />
-                  </>
+                              setControllersToRemove([row.controller]);
+                            }}
+                          />
+                          <span
+                            className={
+                              controllersToRemove
+                                .map((c) => c.toString())
+                                .includes(row.controller.toString())
+                                ? 'text-white'
+                                : 'text-grey'
+                            }
+                          >
+                            {row.controller.toString()}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    {totalPages > 1 && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <button
+                          className="p-1 rounded hover:bg-surface/50 disabled:opacity-30 disabled:cursor-not-allowed"
+                          onClick={() =>
+                            setTablePage((p) => Math.max(1, p - 1))
+                          }
+                          disabled={tablePage === 1}
+                        >
+                          <ChevronLeft className="size-4 text-white" />
+                        </button>
+                        <span className="text-grey text-sm">
+                          {tablePage} / {totalPages}
+                        </span>
+                        <button
+                          className="p-1 rounded hover:bg-surface/50 disabled:opacity-30 disabled:cursor-not-allowed"
+                          onClick={() =>
+                            setTablePage((p) => Math.min(totalPages, p + 1))
+                          }
+                          disabled={tablePage === totalPages}
+                        >
+                          <ChevronRight className="size-4 text-white" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 ) : (
-                  <div className="flex flex-column flex-center">
+                  <div className="flex flex-col gap-8 justify-center items-center">
                     <span
-                      className="flex flex-row warning-container center"
+                      className="flex flex-row warning-container text-center justify-center items-center"
                       style={{ boxSizing: 'border-box' }}
                     >
                       {`This ANT token has no controllers to remove.`}

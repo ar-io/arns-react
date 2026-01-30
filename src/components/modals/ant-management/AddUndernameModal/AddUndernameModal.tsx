@@ -57,15 +57,15 @@ function AddUndernameModal({
     >
       {/**modal header */}
       <DialogModal
-        title={<h2 className="white text-xl">Add Undername</h2>}
+        title={<h2 className="text-foreground text-xl">Add Undername</h2>}
         body={
           <form>
             <div
-              className="flex flex-column"
+              className="flex flex-col gap-8"
               style={{ fontSize: '14px', width: '500px' }}
             >
               <div
-                className="flex flex-column"
+                className="flex flex-col gap-8"
                 style={{ paddingBottom: '30px' }}
               >
                 <div className="flex flex-col gap-2">
@@ -77,7 +77,7 @@ function AddUndernameModal({
                     <ValidationInput
                       key={'undername'}
                       ref={nameRef}
-                      inputClassName="name-token-input white"
+                      inputClassName="name-token-input text-foreground"
                       inputCustomStyle={{
                         paddingLeft: '10px',
                         fontSize: '14px',
@@ -110,7 +110,7 @@ function AddUndernameModal({
                       }}
                     />
                     <span
-                      className="flex flex-row grey"
+                      className="flex flex-row text-muted"
                       style={{
                         position: 'absolute',
                         top: '0px',
@@ -144,7 +144,7 @@ function AddUndernameModal({
                   <ValidationInput
                     key={'targetId'}
                     ref={targetIdRef}
-                    inputClassName="name-token-input white"
+                    inputClassName="name-token-input text-foreground"
                     inputCustomStyle={{
                       paddingLeft: '10px',
                       fontSize: '14px',
@@ -182,7 +182,7 @@ function AddUndernameModal({
                   <ValidationInput
                     key={'ttlSeconds'}
                     ref={ttlRef}
-                    inputClassName="name-token-input white"
+                    inputClassName="name-token-input text-foreground"
                     inputCustomStyle={{ paddingLeft: '10px', fontSize: '14px' }}
                     wrapperCustomStyle={{
                       position: 'relative',

@@ -272,7 +272,7 @@ function CardPanel({
               </div>
             </FormEntry>
           )}
-          <div className="flex size-full flex-col gap-8">
+          <div className="flex size-full flex flex-col gap-8">
             <FormEntry
               name="email"
               label="Enter email for a receipt"

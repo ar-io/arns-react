@@ -1,4 +1,4 @@
-import { CheckCircleFilled } from '@ant-design/icons';
+import { CheckCircle } from 'lucide-react';
 import { ANT_INTERACTION_TYPES, ARNS_INTERACTION_TYPES } from '@src/types';
 import { decodeDomainToASCII } from '@src/utils';
 
@@ -11,20 +11,16 @@ export const getTransactionCompleteAnnouncement = ({
   switch (interactionType) {
     case ARNS_INTERACTION_TYPES.INCREASE_UNDERNAMES: {
       return (
-        <span className="white center">
-          <CheckCircleFilled
-            style={{ fontSize: 18, color: 'var(--success-green)' }}
-          />
+        <span className="text-foreground text-center justify-center items-center">
+          <CheckCircle className="text-success" size={18} />
           &nbsp; Undernames Increased
         </span>
       );
     }
     case ARNS_INTERACTION_TYPES.EXTEND_LEASE: {
       return (
-        <span className="white center">
-          <CheckCircleFilled
-            style={{ fontSize: 18, color: 'var(--success-green)' }}
-          />
+        <span className="text-foreground text-center justify-center items-center">
+          <CheckCircle className="text-success" size={18} />
           &nbsp; Your lease has been extended
         </span>
       );
@@ -32,7 +28,7 @@ export const getTransactionCompleteAnnouncement = ({
     case ARNS_INTERACTION_TYPES.BUY_RECORD: {
       return (
         <span
-          className="flex white center"
+          className="flex text-foreground text-center justify-center items-center"
           style={{ gap: '8px', width: '100%', padding: '0px 24px' }}
         >
           <span>
@@ -46,7 +42,7 @@ export const getTransactionCompleteAnnouncement = ({
       );
     }
     default: {
-      return <span className="flex white center">Transaction Success</span>;
+      return <span className="flex text-foreground text-center justify-center items-center">Transaction Success</span>;
     }
   }
 };
