@@ -24,6 +24,7 @@ import {
   useInterruptedWorkflows,
 } from '@src/hooks/useInterruptedWorkflows';
 import { useMarketplaceOrder } from '@src/hooks/useMarketplaceOrder';
+import { useMarketplaceOrders } from '@src/hooks/useMarketplaceOrders';
 import {
   PendingWorkflow,
   usePendingWorkflows,
@@ -69,7 +70,7 @@ import {
   ExternalLink,
   Star,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -477,6 +478,19 @@ const DomainsTable = ({
     domainData.ants,
     domainData.names,
   );
+  const { data: marketplaceOrdersData } = useMarketplaceOrders({
+    limit: 500,
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
+  });
+  const marketplaceOrderByAntId = useMemo(() => {
+    const map: Record<string, { dateCreated: number }> = {};
+    marketplaceOrdersData?.items?.forEach((o: any) => {
+      if (o?.dominantToken)
+        map[o.dominantToken] = { dateCreated: o.dateCreated ?? 0 };
+    });
+    return map;
+  }, [marketplaceOrdersData?.items]);
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<TableData[]>([]);
   const [showUpgradeDomainModal, setShowUpgradeDomainModal] =
@@ -588,10 +602,16 @@ const DomainsTable = ({
     }
   }, [
     domainData,
+    domainData?.ants,
+    domainData?.names,
     loading,
     loadingArnsState,
     primaryNameData,
     dispatchArNSState,
+    latestAntVersion?.moduleId,
+    walletAddress?.toString(),
+    marketplaceProcessId,
+    minimumANTVersionForMarketplace,
   ]);
 
   useEffect(() => {
@@ -747,6 +767,22 @@ const DomainsTable = ({
                 </span>
               );
             if (rowValue instanceof ANTStateError && walletAddress) {
+              const orderInfo = marketplaceOrderByAntId[processId];
+              const listedWithin5Min =
+                orderInfo && Date.now() - orderInfo.dateCreated < 5 * 60 * 1000;
+              if (row.original.role === 'marketplace' && listedWithin5Min) {
+                return (
+                  <Tooltip
+                    message="Listing was created less than 5 minutes ago. Status may update shortly."
+                    icon={
+                      <span className="text-warning text-sm whitespace-nowrap flex items-center gap-1">
+                        <Loader size={16} color="var(--text-warning)" />
+                        Pending
+                      </span>
+                    }
+                  />
+                );
+              }
               return (
                 <button
                   className="flex whitespace-nowrap justify-center align-center gap-2 text-center"

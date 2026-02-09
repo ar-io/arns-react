@@ -20,7 +20,7 @@ import {
   XIcon,
 } from 'lucide-react';
 import { Tabs } from 'radix-ui';
-import { ReactNode, useCallback, useMemo, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
   AOProcess,
@@ -191,6 +191,16 @@ function ListNameForSaleModal({
     >(defaultWorkflowSteps);
   const [workflowComplete, setWorkflowComplete] = useState(false);
   const [workflowError, setWorkflowError] = useState(false);
+
+  // Reset modal state when opening (e.g. when listing another name) so we don't stay on "Listing Complete"
+  useEffect(() => {
+    if (show) {
+      setPanelState('configure');
+      setWorkflowSteps(defaultWorkflowSteps);
+      setWorkflowComplete(false);
+      setWorkflowError(false);
+    }
+  }, [show]);
 
   const updateWorkflowSteps = useCallback(
     ({
@@ -537,12 +547,45 @@ function ListNameForSaleModal({
         throw error;
       }
 
-      // Step 4: Complete
+      // Step 4: Poll for marketplace/ANT state so resync "just works" and name shows as listed
       if (result.antTransferResult?.id) {
         updateWorkflowSteps({
           step: 'complete',
+          status: 'processing',
+          description: 'Waiting for listing to appear...',
+        });
+
+        const maxPollAttempts = 24; // ~2 min at 5s interval
+        const pollIntervalMs = 5000;
+        let listed = false;
+        for (let attempt = 0; attempt < maxPollAttempts && !listed; attempt++) {
+          await sleep(pollIntervalMs);
+          try {
+            const ordersResult =
+              await writeMarketplaceContract.getPaginatedOrders({
+                limit: 100,
+                sortBy: 'createdAt',
+                sortOrder: 'desc',
+              });
+            const items = (ordersResult as any)?.items ?? [];
+            const orderForName = items.find(
+              (o: any) => o?.dominantToken === antId || o?.name === domainName,
+            );
+            if (orderForName) {
+              listed = true;
+              break;
+            }
+          } catch {
+            // ignore poll errors, keep trying
+          }
+        }
+
+        updateWorkflowSteps({
+          step: 'complete',
           status: 'success',
-          description: 'Listing complete!',
+          description: listed
+            ? 'Listing complete!'
+            : 'Listing submitted. It may appear in a few minutes.',
         });
 
         setWorkflowComplete(true);
@@ -552,8 +595,8 @@ function ListNameForSaleModal({
           name: 'List Name for Sale',
           message: (
             <span>
-              Listed {domainName} for sale for {listingPrice} {arioTicker}. This
-              may take a few minutes to complete.
+              Listed {domainName} for sale for {listingPrice} {arioTicker}.
+              {listed ? ' ' : ' It may take a few minutes to appear.'}
               <br />
               <Link
                 to={`/marketplace/names/${domainName}`}
@@ -574,6 +617,17 @@ function ListNameForSaleModal({
             </span>
           ),
         });
+
+        // Resync ArNS state so the name shows as listed in manage table
+        dispatchArNSUpdate({
+          dispatch: dispatchArNSState,
+          walletAddress: walletAddress,
+          arioProcessId: arioProcessId,
+          marketplaceProcessId: marketplaceProcessId,
+          antRegistryProcessId: antRegistryProcessId,
+          aoNetworkSettings: aoNetwork,
+          hyperbeamUrl: hyperbeamUrl,
+        });
       } else {
         updateWorkflowSteps({
           step: 'complete',
@@ -593,15 +647,6 @@ function ListNameForSaleModal({
       queryClient.invalidateQueries({
         predicate: (query) =>
           query.queryKey?.[0]?.toString().includes('marketplace') ?? false,
-      });
-      dispatchArNSUpdate({
-        dispatch: dispatchArNSState,
-        walletAddress: walletAddress,
-        arioProcessId: arioProcessId,
-        marketplaceProcessId: marketplaceProcessId,
-        antRegistryProcessId: antRegistryProcessId,
-        aoNetworkSettings: aoNetwork,
-        hyperbeamUrl: hyperbeamUrl,
       });
     } catch (error) {
       setWorkflowComplete(true);

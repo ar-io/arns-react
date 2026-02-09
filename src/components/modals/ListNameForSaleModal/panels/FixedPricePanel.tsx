@@ -3,7 +3,6 @@ import DateTimePicker from '@src/components/inputs/DateTimePicker/DateTimePicker
 import { useArNSDomainPriceList } from '@src/hooks/useArNSDomainPriceList';
 import { formatARIOWithCommas } from '@src/utils';
 import { useCallback, useEffect, useState } from 'react';
-import { isNumeric } from 'validator';
 
 const MIN_LISTING_PRICE = 1;
 const MAX_LISTING_PRICE = 1000000;
@@ -66,14 +65,19 @@ function FixedPricePanel({
     }
   }, [listingPrice]);
 
+  // Allow digits, optional decimal point, and optional decimal digits (e.g. 200, 200.5, 0.5)
   const isValidCustomFormat = useCallback((value: string): boolean => {
     if (value === '') return true;
-    return isNumeric(value) && !value.includes('e') && !value.includes('E');
+    return (
+      /^\d*\.?\d*$/.test(value) && !value.includes('e') && !value.includes('E')
+    );
   }, []);
 
   const isValidCustomAmount = useCallback(
     (value: string): string => {
+      if (value === '' || value === '.') return '';
       const numValue = Number(value);
+      if (Number.isNaN(numValue)) return `Enter a valid number`;
       if (numValue < MIN_LISTING_PRICE) {
         return `Minimum listing price is ${MIN_LISTING_PRICE} ${arioTicker}`;
       }
@@ -197,13 +201,14 @@ function FixedPricePanel({
                 const val = e.target.value;
                 if (isValidCustomFormat(val)) {
                   const numVal = Number(val);
-                  const clampedVal = Math.min(numVal, MAX_LISTING_PRICE);
-                  setCustomValue(clampedVal.toString());
+                  const clampedVal = Math.min(
+                    Number.isNaN(numVal) ? 0 : numVal,
+                    MAX_LISTING_PRICE,
+                  );
+                  setCustomValue(val);
                   setListingPrice(clampedVal);
                   setButtonSelected(undefined);
-                  setCustomValueError(
-                    isValidCustomAmount(clampedVal.toString()),
-                  );
+                  setCustomValueError(isValidCustomAmount(val));
                 }
               }}
             />
@@ -219,7 +224,7 @@ function FixedPricePanel({
 
           {/* USD Conversion for Custom Input */}
           {customValue &&
-            isNumeric(customValue) &&
+            !Number.isNaN(Number(customValue)) &&
             Number(customValue) > 0 &&
             arIoPrice && (
               <div className="text-white text-sm">
