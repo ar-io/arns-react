@@ -68,6 +68,7 @@ import {
   Copy,
   DollarSign,
   ExternalLink,
+  Lock,
   Star,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -214,15 +215,13 @@ function ErrorStateTooltip({
 function MarketplaceActionIcon({
   domainName,
   processId,
-}: { domainName: string; processId: string }) {
+  hasOrder,
+}: {
+  domainName: string;
+  processId: string;
+  hasOrder: boolean;
+}) {
   const { hasIntent } = useANTIntent(processId);
-
-  const { data: order, error: orderError } = useMarketplaceOrder({
-    antId: processId,
-  });
-
-  // If there's an intent but no order (or order fetch failed), show Activity icon
-  const hasOrder = order && !orderError;
 
   // Error state: no intent and no order (marketplace owns ANT but nothing exists)
   if (!hasIntent && !hasOrder) {
@@ -992,6 +991,7 @@ const DomainsTable = ({
                         <MarketplaceActionIcon
                           domainName={domainName}
                           processId={processId}
+                          hasOrder={!!marketplaceOrderByAntId[processId]}
                         />
                       );
                     }
@@ -1026,48 +1026,84 @@ const DomainsTable = ({
                       );
                     }
 
-                    // Only show marketplace listing icon for owners
+                    // Only show marketplace/listing icons for owners
                     if (role !== 'owner') {
                       return null;
                     }
 
-                    // Show marketplace listing icon
-                    return (
-                      <Tooltip
-                        message={
-                          isMarketplaceCompatible(row.original.version)
-                            ? 'List for Sale'
-                            : `Upgrade to version ${minimumANTVersionForMarketplace}+ to list for sale`
-                        }
-                        icon={
-                          <button
-                            onClick={() => {
-                              if (
-                                isMarketplaceCompatible(row.original.version)
-                              ) {
-                                // ANT is marketplace compatible, proceed with listing
-                                setSelectedDomainForSale({
-                                  name: domainName,
-                                  antId: processId,
-                                });
-                                setShowListForSaleModal(true);
-                              } else {
-                                // ANT needs upgrade for marketplace compatibility
+                    const hasOrder = !!marketplaceOrderByAntId[processId];
+                    const processMeta = domainData.ants[processId]?.processMeta;
+                    const version = row.original.version;
+                    const isCompatible = isMarketplaceCompatible(version);
+
+                    // 1. Order exists → link to listing (marketplace icon)
+                    if (hasOrder) {
+                      return (
+                        <Tooltip
+                          message="View in Marketplace"
+                          icon={
+                            <Link
+                              to={`/marketplace/names/${domainName}`}
+                              className="flex items-center justify-center w-[18px] h-[18px] text-primary hover:text-primary-dark transition-colors"
+                            >
+                              <StoreIcon className="w-[18px] h-[18px]" />
+                            </Link>
+                          }
+                        />
+                      );
+                    }
+
+                    // 2. No process meta → unable to read version (lock icon)
+                    if (!processMeta) {
+                      return (
+                        <Tooltip
+                          message="Marketplace activity disabled - unable to read process version"
+                          icon={
+                            <span className="flex items-center justify-center w-[18px] h-[18px] text-grey">
+                              <Lock className="w-[18px] h-[18px]" />
+                            </span>
+                          }
+                        />
+                      );
+                    }
+
+                    // 3. Version data but not marketplace compatible → upgrade for marketplace
+                    if (!isCompatible) {
+                      return (
+                        <Tooltip
+                          message={`Upgrade to version ${minimumANTVersionForMarketplace}+ to list for sale`}
+                          icon={
+                            <button
+                              onClick={() => {
                                 setDomainToUpgradeForMarketplace({
                                   domain: lowerCaseDomain(domainName),
                                   processId: processId,
                                 });
                                 setShowUpgradeForMarketplaceModal(true);
-                              }
+                              }}
+                            >
+                              <DollarSign className="w-[18px] transition-colors text-warning hover:text-warning-light" />
+                            </button>
+                          }
+                        />
+                      );
+                    }
+
+                    // 4. Min version and no order → list for sale
+                    return (
+                      <Tooltip
+                        message="List for Sale"
+                        icon={
+                          <button
+                            onClick={() => {
+                              setSelectedDomainForSale({
+                                name: domainName,
+                                antId: processId,
+                              });
+                              setShowListForSaleModal(true);
                             }}
                           >
-                            <DollarSign
-                              className={`w-[18px] transition-colors ${
-                                isMarketplaceCompatible(row.original.version)
-                                  ? 'text-grey hover:text-white'
-                                  : 'text-warning hover:text-warning-light'
-                              }`}
-                            />
+                            <DollarSign className="w-[18px] transition-colors text-grey hover:text-white" />
                           </button>
                         }
                       />

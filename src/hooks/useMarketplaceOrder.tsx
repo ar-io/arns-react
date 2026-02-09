@@ -26,7 +26,6 @@ export function buildMarketplaceOrderQuery({
       const res = await marketplaceContract
         .getOrderByANTId(antId)
         .catch((error) => {
-          console.error('Error fetching marketplace order', error);
           throw error;
         });
       if (res.dominantToken !== antId) throw new Error('Order not found');
