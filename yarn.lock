@@ -104,10 +104,10 @@
     eventemitter3 "^5.0.1"
     prompts "^2.4.2"
 
-"@ar.io/sdk@^3.23.0-alpha.3":
-  version "3.23.0-alpha.3"
-  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-3.23.0-alpha.3.tgz#cfb7b6c0638e2652f723e9324645dcebcf373007"
-  integrity sha512-VaA/5SPdv8QCODllBETrMb0bJVIbm2b0yTefOE+A8FMS1uhe5Jy4bGyByk5S9UDSG/GiZmJqDkiQ/1spFP/jDw==
+"@ar.io/sdk@^3.23.0-alpha.7":
+  version "3.23.0-alpha.7"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-3.23.0-alpha.7.tgz#b8761f66a6bfe91073f51e2f9a19c7fcafbdd878"
+  integrity sha512-2tbf+SNQ5rFbtr7lL7VIlXveOh6go0ZhpMkbU3AE7AL30YQg6MIG9CWPkfNdjyOzZ5R8P4M6iObaWNycw3qThQ==
   dependencies:
     "@dha-team/arbundles" "^1.0.1"
     "@permaweb/aoconnect" "0.0.68"
@@ -2690,7 +2690,7 @@
   resolved "https://registry.npmjs.org/@radix-ui/rect/-/rect-1.1.1.tgz#78244efe12930c56fd255d7923865857c41ac8cb"
   integrity sha512-HPwpGIzkl28mWyZqG52jiqDJ12waP11Pa1lGoiyUkIEuMLBP0oeK/C89esbXrxsky5we7dfd8U58nm0SgAWpVw==
 
-"@rainbow-me/rainbowkit@^2.2.9":
+"@rainbow-me/rainbowkit@^2.2.10":
   version "2.2.10"
   resolved "https://registry.npmjs.org/@rainbow-me/rainbowkit/-/rainbowkit-2.2.10.tgz#e50bb4a61c3c5b73a7f6f00a63c89e2f34c28c7a"
   integrity sha512-8+E4die1A2ovN9t3lWxWnwqTGEdFqThXDQRj+E4eDKuUKyymYD+66Gzm6S9yfg8E95c6hmGlavGUfYPtl1EagA==
@@ -3352,21 +3352,7 @@
   dependencies:
     buffer "~6.0.3"
 
-"@solana/codecs-core@2.3.0":
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/@solana/codecs-core/-/codecs-core-2.3.0.tgz#6bf2bb565cb1ae880f8018635c92f751465d8695"
-  integrity sha512-oG+VZzN6YhBHIoSKgS5ESM9VIGzhWjEHEGNPSibiDTxFhsFWxNaz8LbMDPjBUE69r9wmdGLkrQ+wVPbnJcZPvw==
-  dependencies:
-    "@solana/errors" "2.3.0"
-
-"@solana/codecs-core@3.0.3":
-  version "3.0.3"
-  resolved "https://registry.npmjs.org/@solana/codecs-core/-/codecs-core-3.0.3.tgz#c85130c2afdc98a1508809dfe596f970cc6094bb"
-  integrity sha512-emKykJ3h1DmnDOY29Uv9eJXP8E/FHzvlUBJ6te+5EbKdFjj7vdlKYPfDxOI6iGdXTY+YC/ELtbNBh6QwF2uEDQ==
-  dependencies:
-    "@solana/errors" "3.0.3"
-
-"@solana/codecs-core@5.1.0":
+"@solana/codecs-core@2.3.0", "@solana/codecs-core@3.0.3", "@solana/codecs-core@5.1.0":
   version "5.1.0"
   resolved "https://registry.npmjs.org/@solana/codecs-core/-/codecs-core-5.1.0.tgz#2ac0cc56b1264898dbdaffa3e395f3f0557d9578"
   integrity sha512-vDwi03mxWeWCS5Il6BCdNdifYdOoHVz97YOmbWGIt45b77Ivu5NUYeSD2+ccl6fSw8eYQ6QaqqKXMjbSfsXv4g==

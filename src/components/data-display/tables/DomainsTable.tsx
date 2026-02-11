@@ -24,6 +24,7 @@ import {
   useInterruptedWorkflows,
 } from '@src/hooks/useInterruptedWorkflows';
 import { useMarketplaceOrder } from '@src/hooks/useMarketplaceOrder';
+import { useMarketplaceOrders } from '@src/hooks/useMarketplaceOrders';
 import {
   PendingWorkflow,
   usePendingWorkflows,
@@ -67,9 +68,10 @@ import {
   Copy,
   DollarSign,
   ExternalLink,
+  Lock,
   Star,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -213,15 +215,13 @@ function ErrorStateTooltip({
 function MarketplaceActionIcon({
   domainName,
   processId,
-}: { domainName: string; processId: string }) {
+  hasOrder,
+}: {
+  domainName: string;
+  processId: string;
+  hasOrder: boolean;
+}) {
   const { hasIntent } = useANTIntent(processId);
-
-  const { data: order, error: orderError } = useMarketplaceOrder({
-    antId: processId,
-  });
-
-  // If there's an intent but no order (or order fetch failed), show Activity icon
-  const hasOrder = order && !orderError;
 
   // Error state: no intent and no order (marketplace owns ANT but nothing exists)
   if (!hasIntent && !hasOrder) {
@@ -477,6 +477,19 @@ const DomainsTable = ({
     domainData.ants,
     domainData.names,
   );
+  const { data: marketplaceOrdersData } = useMarketplaceOrders({
+    limit: 500,
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
+  });
+  const marketplaceOrderByAntId = useMemo(() => {
+    const map: Record<string, { dateCreated: number }> = {};
+    marketplaceOrdersData?.items?.forEach((o: any) => {
+      if (o?.dominantToken)
+        map[o.dominantToken] = { dateCreated: o.dateCreated ?? 0 };
+    });
+    return map;
+  }, [marketplaceOrdersData?.items]);
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<TableData[]>([]);
   const [showUpgradeDomainModal, setShowUpgradeDomainModal] =
@@ -588,10 +601,16 @@ const DomainsTable = ({
     }
   }, [
     domainData,
+    domainData?.ants,
+    domainData?.names,
     loading,
     loadingArnsState,
     primaryNameData,
     dispatchArNSState,
+    latestAntVersion?.moduleId,
+    walletAddress?.toString(),
+    marketplaceProcessId,
+    minimumANTVersionForMarketplace,
   ]);
 
   useEffect(() => {
@@ -747,6 +766,22 @@ const DomainsTable = ({
                 </span>
               );
             if (rowValue instanceof ANTStateError && walletAddress) {
+              const orderInfo = marketplaceOrderByAntId[processId];
+              const listedWithin5Min =
+                orderInfo && Date.now() - orderInfo.dateCreated < 5 * 60 * 1000;
+              if (row.original.role === 'marketplace' && listedWithin5Min) {
+                return (
+                  <Tooltip
+                    message="Listing was created less than 5 minutes ago. Status may update shortly."
+                    icon={
+                      <span className="text-warning text-sm whitespace-nowrap flex items-center gap-1">
+                        <Loader size={16} color="var(--text-warning)" />
+                        Pending
+                      </span>
+                    }
+                  />
+                );
+              }
               return (
                 <button
                   className="flex whitespace-nowrap justify-center align-center gap-2 text-center"
@@ -956,6 +991,7 @@ const DomainsTable = ({
                         <MarketplaceActionIcon
                           domainName={domainName}
                           processId={processId}
+                          hasOrder={!!marketplaceOrderByAntId[processId]}
                         />
                       );
                     }
@@ -990,48 +1026,84 @@ const DomainsTable = ({
                       );
                     }
 
-                    // Only show marketplace listing icon for owners
+                    // Only show marketplace/listing icons for owners
                     if (role !== 'owner') {
                       return null;
                     }
 
-                    // Show marketplace listing icon
-                    return (
-                      <Tooltip
-                        message={
-                          isMarketplaceCompatible(row.original.version)
-                            ? 'List for Sale'
-                            : `Upgrade to version ${minimumANTVersionForMarketplace}+ to list for sale`
-                        }
-                        icon={
-                          <button
-                            onClick={() => {
-                              if (
-                                isMarketplaceCompatible(row.original.version)
-                              ) {
-                                // ANT is marketplace compatible, proceed with listing
-                                setSelectedDomainForSale({
-                                  name: domainName,
-                                  antId: processId,
-                                });
-                                setShowListForSaleModal(true);
-                              } else {
-                                // ANT needs upgrade for marketplace compatibility
+                    const hasOrder = !!marketplaceOrderByAntId[processId];
+                    const processMeta = domainData.ants[processId]?.processMeta;
+                    const version = row.original.version;
+                    const isCompatible = isMarketplaceCompatible(version);
+
+                    // 1. Order exists → link to listing (marketplace icon)
+                    if (hasOrder) {
+                      return (
+                        <Tooltip
+                          message="View in Marketplace"
+                          icon={
+                            <Link
+                              to={`/marketplace/names/${domainName}`}
+                              className="flex items-center justify-center w-[18px] h-[18px] text-primary hover:text-primary-dark transition-colors"
+                            >
+                              <StoreIcon className="w-[18px] h-[18px]" />
+                            </Link>
+                          }
+                        />
+                      );
+                    }
+
+                    // 2. No process meta → unable to read version (lock icon)
+                    if (!processMeta) {
+                      return (
+                        <Tooltip
+                          message="Marketplace activity disabled - unable to read process version"
+                          icon={
+                            <span className="flex items-center justify-center w-[18px] h-[18px] text-grey">
+                              <Lock className="w-[18px] h-[18px]" />
+                            </span>
+                          }
+                        />
+                      );
+                    }
+
+                    // 3. Version data but not marketplace compatible → upgrade for marketplace
+                    if (!isCompatible) {
+                      return (
+                        <Tooltip
+                          message={`Upgrade to version ${minimumANTVersionForMarketplace}+ to list for sale`}
+                          icon={
+                            <button
+                              onClick={() => {
                                 setDomainToUpgradeForMarketplace({
                                   domain: lowerCaseDomain(domainName),
                                   processId: processId,
                                 });
                                 setShowUpgradeForMarketplaceModal(true);
-                              }
+                              }}
+                            >
+                              <DollarSign className="w-[18px] transition-colors text-warning hover:text-warning-light" />
+                            </button>
+                          }
+                        />
+                      );
+                    }
+
+                    // 4. Min version and no order → list for sale
+                    return (
+                      <Tooltip
+                        message="List for Sale"
+                        icon={
+                          <button
+                            onClick={() => {
+                              setSelectedDomainForSale({
+                                name: domainName,
+                                antId: processId,
+                              });
+                              setShowListForSaleModal(true);
                             }}
                           >
-                            <DollarSign
-                              className={`w-[18px] transition-colors ${
-                                isMarketplaceCompatible(row.original.version)
-                                  ? 'text-grey hover:text-white'
-                                  : 'text-warning hover:text-warning-light'
-                              }`}
-                            />
+                            <DollarSign className="w-[18px] transition-colors text-grey hover:text-white" />
                           </button>
                         }
                       />

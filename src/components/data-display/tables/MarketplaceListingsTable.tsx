@@ -396,6 +396,16 @@ function MarketplaceListingsTable({
     [arioTicker, gateway],
   );
 
+  // Show loading whenever a fetch is in progress (initial load or refresh) so we never show retry while still loading
+  if (loadingTableData) {
+    return (
+      <div className="flex flex-col items-center justify-center border border-dark-grey rounded py-16 text-center">
+        <ARIOLoadingSpinner />
+        <p className="text-grey mt-4">Loading marketplace listings...</p>
+      </div>
+    );
+  }
+
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center">
@@ -417,28 +427,20 @@ function MarketplaceListingsTable({
     <div>
       <TableView
         columns={columns as ColumnDef<MarketplaceListing>[]}
-        data={loadingTableData ? [] : filteredData}
-        isLoading={false}
+        data={filteredData}
+        isLoading={isFetching}
         defaultSortingState={{ id: 'listedAt', desc: true }}
         noDataFoundText={
-          loadingTableData ? (
-            <div className="flex flex-col items-center justify-center p-8 text-center">
-              <ARIOLoadingSpinner />
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center p-8 text-center">
-              <div className="text-grey mb-4">
-                No marketplace listings found
-              </div>
-              <button
-                onClick={() => refetch()}
-                className="flex items-center gap-2 px-4 py-2 border-white text-white rounded transition-colors"
-              >
-                <RefreshIcon className="w-4 h-4 fill-white" />
-                Retry
-              </button>
-            </div>
-          )
+          <div className="flex flex-col items-center justify-center p-8 text-center">
+            <div className="text-grey mb-4">No marketplace listings found</div>
+            <button
+              onClick={() => refetch()}
+              className="flex items-center gap-2 px-4 py-2 border-white text-white rounded transition-colors"
+            >
+              <RefreshIcon className="w-4 h-4 fill-white" />
+              Retry
+            </button>
+          </div>
         }
       />
     </div>

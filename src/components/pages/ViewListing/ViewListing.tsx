@@ -433,11 +433,14 @@ function ViewListing() {
         ario: arioContract as AoARIOWrite,
       });
 
-      // Step 1: Cancel the order
+      // Step 1: Cancel the order (or retrieve asset if expired)
+      const isRetrievingExpired = isExpired;
       updateWorkflowSteps({
         step: 'cancel',
         status: 'processing',
-        description: 'Cancelling listing...',
+        description: isRetrievingExpired
+          ? 'Retrieving your asset...'
+          : 'Cancelling listing...',
       });
 
       const result = await marketplaceContract.cancelOrder(orderData.id);
@@ -448,14 +451,18 @@ function ViewListing() {
       updateWorkflowSteps({
         step: 'cancel',
         status: 'success',
-        description: 'Listing cancelled',
+        description: isRetrievingExpired
+          ? 'Asset retrieved'
+          : 'Listing cancelled',
       });
 
       // Step 2: Complete
       updateWorkflowSteps({
         step: 'complete',
         status: 'success',
-        description: 'Cancellation complete!',
+        description: isRetrievingExpired
+          ? 'Your name has been returned to your wallet.'
+          : 'Cancellation complete!',
       });
 
       setWorkflowComplete(true);
@@ -578,7 +585,7 @@ function ViewListing() {
     );
   }
 
-  // Convert price from mARIO to ARIO
+  // Convert price from mARIO to ARIO for display (never show raw mARIO or it can appear as 200k instead of 200)
   const priceInArio = orderData?.price
     ? new mARIOToken(Number(orderData.price)).toARIO().valueOf()
     : 0;
@@ -611,7 +618,11 @@ function ViewListing() {
         {isExpired && (
           <div className="mb-6">
             <WarningCard
-              text="This listing has expired and is no longer available for purchase."
+              text={
+                isUserSeller
+                  ? 'This listing has expired. As the lister, you can retrieve your name back to your wallet.'
+                  : 'This listing has expired and is no longer available for purchase.'
+              }
               wrapperStyle={{ maxWidth: '100%' }}
             />
           </div>
@@ -662,11 +673,13 @@ function ViewListing() {
                       </div>
                     )}
 
-                    {domainInfo?.undernameCount !== undefined && (
+                    {(domainInfo?.undernameCount !== undefined ||
+                      domainInfo?.arnsRecord?.undernameLimit != null) && (
                       <div className="text-grey text-sm flex items-center justify-between">
                         <span>Undernames: </span>
                         <span className="text-white flex justify-end items-center">
-                          {domainInfo.undernameCount}
+                          {domainInfo.undernameCount ?? 0}/
+                          {domainInfo?.arnsRecord?.undernameLimit ?? 10}
                         </span>
                       </div>
                     )}
@@ -806,39 +819,61 @@ function ViewListing() {
 
               {/* Buy/Cancel Button / Processing Panel */}
               {!showProcessing ? (
-                <button
-                  className={`w-full font-semibold py-3 px-6 rounded transition-colors flex items-center justify-center gap-2 mt-8 ${
-                    isBuying || isExpired
-                      ? 'bg-grey text-white cursor-not-allowed'
-                      : isUserSeller
-                        ? 'bg-error-thin hover:bg-error text-white'
-                        : 'bg-primary hover:bg-warning text-black'
-                  }`}
-                  onClick={isUserSeller ? handleCancel : handleBuy}
-                  disabled={isBuying || isExpired}
-                >
-                  {isExpired ? (
-                    <>
-                      <XIcon className="w-5 h-5" />
-                      Listing Expired
-                    </>
-                  ) : isBuying ? (
-                    <>
-                      <Loader size={20} />
-                      Processing...
-                    </>
-                  ) : isUserSeller ? (
-                    <>
-                      <XIcon className="w-5 h-5" />
-                      Cancel Listing
-                    </>
+                <>
+                  {isExpired && isUserSeller ? (
+                    <button
+                      className="w-full font-semibold py-3 px-6 rounded transition-colors flex items-center justify-center gap-2 mt-8 bg-primary hover:bg-primary-dark text-black"
+                      onClick={handleCancel}
+                      disabled={isBuying}
+                    >
+                      {isBuying ? (
+                        <>
+                          <Loader size={20} />
+                          Retrieving...
+                        </>
+                      ) : (
+                        <>
+                          <ArrowLeftIcon className="w-5 h-5" />
+                          Retrieve your asset
+                        </>
+                      )}
+                    </button>
                   ) : (
-                    <>
-                      <ShoppingCart className="w-5 h-5" />
-                      Buy Now
-                    </>
+                    <button
+                      className={`w-full font-semibold py-3 px-6 rounded transition-colors flex items-center justify-center gap-2 mt-8 ${
+                        isBuying || isExpired
+                          ? 'bg-grey text-white cursor-not-allowed'
+                          : isUserSeller
+                            ? 'bg-error-thin hover:bg-error text-white'
+                            : 'bg-primary hover:bg-warning text-black'
+                      }`}
+                      onClick={isUserSeller ? handleCancel : handleBuy}
+                      disabled={isBuying || isExpired}
+                    >
+                      {isExpired ? (
+                        <>
+                          <XIcon className="w-5 h-5" />
+                          Listing Expired
+                        </>
+                      ) : isBuying ? (
+                        <>
+                          <Loader size={20} />
+                          Processing...
+                        </>
+                      ) : isUserSeller ? (
+                        <>
+                          <XIcon className="w-5 h-5" />
+                          Cancel Listing
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingCart className="w-5 h-5" />
+                          Buy Now
+                        </>
+                      )}
+                    </button>
                   )}
-                </button>
+                </>
               ) : (
                 <div className="flex flex-col gap-4 pt-6">
                   <div className="flex flex-col gap-2 mb-2">

@@ -20,9 +20,10 @@ import {
   XIcon,
 } from 'lucide-react';
 import { Tabs } from 'radix-ui';
-import { ReactNode, useCallback, useMemo, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
+  ANT,
   AOProcess,
   ARIOToken,
   AoARIOWrite,
@@ -191,6 +192,16 @@ function ListNameForSaleModal({
     >(defaultWorkflowSteps);
   const [workflowComplete, setWorkflowComplete] = useState(false);
   const [workflowError, setWorkflowError] = useState(false);
+
+  // Reset modal state when opening (e.g. when listing another name) so we don't stay on "Listing Complete"
+  useEffect(() => {
+    if (show) {
+      setPanelState('configure');
+      setWorkflowSteps(defaultWorkflowSteps);
+      setWorkflowComplete(false);
+      setWorkflowError(false);
+    }
+  }, [show]);
 
   const updateWorkflowSteps = useCallback(
     ({
@@ -440,9 +451,11 @@ function ListNameForSaleModal({
       // Step 2: Create intent and transfer ANT
       updateWorkflowSteps({ step: 'createIntent', status: 'processing' });
 
-      let result: Awaited<
-        ReturnType<typeof writeMarketplaceContract.listNameForSale>
-      >;
+      let result:
+        | Awaited<ReturnType<typeof writeMarketplaceContract.listNameForSale>>
+        | undefined;
+      let listNameForSaleOrderNotFoundError = false;
+      let intentCreatedInProgress = false;
 
       try {
         switch (listingType) {
@@ -461,25 +474,35 @@ function ListNameForSaleModal({
               type: 'fixed',
               walletAddress: walletAddress.toString(),
               onProgress: (event: ListNameForSaleProgressEvent) => {
-                console.log('event', event);
-                switch (event.step) {
-                  case 'transferring-ant': {
-                    // Intent created successfully
-                    updateWorkflowSteps({
-                      step: 'createIntent',
-                      status: 'success',
-                      description: 'Intent created',
-                    });
-                    updateWorkflowSteps({
-                      step: 'transferANT',
-                      status: 'processing',
-                      description: 'Transferring ANT to marketplace...',
-                    });
-                    break;
+                try {
+                  switch (event.step) {
+                    case 'transferring-ant': {
+                      intentCreatedInProgress = true;
+                      updateWorkflowSteps({
+                        step: 'createIntent',
+                        status: 'success',
+                        description: 'Intent created',
+                      });
+                      updateWorkflowSteps({
+                        step: 'transferANT',
+                        status: 'processing',
+                        description: 'Transferring ANT to marketplace...',
+                      });
+                      break;
+                    }
+                    case 'error':
+                      // SDK may emit error while transfer is still in flight; keep polling
+                      updateWorkflowSteps({
+                        step: 'transferANT',
+                        status: 'processing',
+                        description: 'Transfer in progress...',
+                      });
+                      break;
+                    default:
+                      break;
                   }
-                  default: {
-                    return;
-                  }
+                } catch {
+                  // Ignore errors in progress callback so they don't crash the modal
                 }
               },
             });
@@ -528,53 +551,190 @@ function ListNameForSaleModal({
           default:
             throw new Error('Invalid listing type');
         }
-      } catch (error) {
-        updateWorkflowSteps({
-          step: 'createIntent',
-          status: 'error',
-          description: 'Failed to create listing',
-        });
-        throw error;
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        const isOrderNotFound = /no order found|failed to get order/i.test(
+          message,
+        );
+        // Only treat "order not found" as recoverable after intent was created (transfer phase); otherwise fail the workflow
+        if (isOrderNotFound && intentCreatedInProgress) {
+          listNameForSaleOrderNotFoundError = true;
+          updateWorkflowSteps({
+            step: 'transferANT',
+            status: 'processing',
+            description: 'Transfer in progress. Checking ANT state...',
+          });
+        } else {
+          updateWorkflowSteps({
+            step: 'createIntent',
+            status: 'error',
+            description: 'Failed to create listing',
+          });
+          throw error;
+        }
       }
 
-      // Step 4: Complete
-      if (result.antTransferResult?.id) {
-        updateWorkflowSteps({
-          step: 'complete',
-          status: 'success',
-          description: 'Listing complete!',
-        });
+      // Step 4: Poll for marketplace/ANT state (run when we have transferId or SDK threw "order not found" — transfer may still be in flight)
+      const transferId = result?.antTransferResult?.id;
+      const shouldPollForOwnership =
+        antId &&
+        marketplaceProcessId &&
+        (transferId || listNameForSaleOrderNotFoundError);
+      if (shouldPollForOwnership) {
+        try {
+          updateWorkflowSteps({
+            step: 'complete',
+            status: 'processing',
+            description:
+              'Waiting for listing to appear on the marketplace (this may take 1–2 minutes)...',
+          });
 
-        setWorkflowComplete(true);
-        setWorkflowError(false);
+          const pollIntervalMs = 8000; // 8s between checks
+          const maxPollAttempts = 15; // ~2 min total
+          const initialDelayMs = 8000; // show waiting state before first check
 
-        eventEmitter.emit('success', {
-          name: 'List Name for Sale',
-          message: (
-            <span>
-              Listed {domainName} for sale for {listingPrice} {arioTicker}. This
-              may take a few minutes to complete.
-              <br />
-              <Link
-                to={`/marketplace/names/${domainName}`}
-                className="text-link"
-              >
-                View on Marketplace
-              </Link>
-              <br />
+          await sleep(initialDelayMs);
+
+          // Poll until the marketplace owns the ANT (transfer confirmed); ignore errors each attempt
+          let marketplaceOwnsAnt = false;
+          for (
+            let attempt = 1;
+            attempt <= maxPollAttempts && !marketplaceOwnsAnt;
+            attempt++
+          ) {
+            updateWorkflowSteps({
+              step: 'complete',
+              status: 'processing',
+              description: `Checking ANT state... (${attempt}/${maxPollAttempts})`,
+            });
+            try {
+              if (antId && marketplaceProcessId) {
+                const ant = ANT.init({
+                  process: new AOProcess({
+                    processId: antId,
+                    ao: aoClient,
+                  }),
+                  hyperbeamUrl,
+                });
+                const antState = await ant.getState();
+                if (antState?.Owner === marketplaceProcessId) {
+                  marketplaceOwnsAnt = true;
+                  break;
+                }
+              }
+            } catch {
+              // Ignore poll errors (e.g. transient read failures), keep trying
+            }
+            if (!marketplaceOwnsAnt && attempt < maxPollAttempts) {
+              await sleep(pollIntervalMs);
+            }
+          }
+
+          updateWorkflowSteps({
+            step: 'complete',
+            status: 'processing',
+            description: 'Updating state...',
+          });
+
+          queryClient.resetQueries({
+            predicate: (query) =>
+              (Array.isArray(query.queryKey) &&
+                query.queryKey[0] === 'marketplace-orders') ||
+              (typeof query.queryKey[0] === 'string' &&
+                query.queryKey[0].startsWith('marketplace')),
+          });
+          queryClient.resetQueries({
+            predicate: (query) =>
+              query.queryKey[0] === 'domainInfo' ||
+              query.queryKey[0] === 'ant' ||
+              query.queryKey[0] === 'ant-info',
+          });
+
+          await dispatchArNSUpdate({
+            dispatch: dispatchArNSState,
+            walletAddress: walletAddress,
+            arioProcessId: arioProcessId,
+            marketplaceProcessId: marketplaceProcessId,
+            antRegistryProcessId: antRegistryProcessId,
+            aoNetworkSettings: aoNetwork,
+            hyperbeamUrl: hyperbeamUrl,
+          });
+
+          updateWorkflowSteps({
+            step: 'complete',
+            status: 'success',
+            description: marketplaceOwnsAnt
+              ? 'Listing complete!'
+              : 'Listing submitted. It may appear in a few minutes.',
+          });
+
+          setWorkflowComplete(true);
+          setWorkflowError(false);
+
+          eventEmitter.emit('success', {
+            name: 'List Name for Sale',
+            message: (
               <span>
-                View transfer on aolink{' '}
-                <ArweaveID
-                  id={new ArweaveTransactionID(result.antTransferResult.id)}
-                  type={ArweaveIdTypes.INTERACTION}
-                  shouldLink
-                  characterCount={8}
-                />
+                Listed {domainName} for sale for {listingPrice} {arioTicker}.
+                {marketplaceOwnsAnt
+                  ? ' '
+                  : ' It may take a few minutes to appear.'}
+                <br />
+                <Link
+                  to={`/marketplace/names/${domainName}`}
+                  className="text-link"
+                >
+                  View on Marketplace
+                </Link>
+                {transferId && (
+                  <>
+                    <br />
+                    <span>
+                      View transfer on aolink{' '}
+                      <ArweaveID
+                        id={new ArweaveTransactionID(transferId)}
+                        type={ArweaveIdTypes.INTERACTION}
+                        shouldLink
+                        characterCount={8}
+                      />
+                    </span>
+                  </>
+                )}
               </span>
-            </span>
-          ),
-        });
-      } else {
+            ),
+          });
+        } catch (pollOrUpdateError) {
+          // Don't crash the modal: transfer may have succeeded; show completion so user can close
+          console.warn(
+            'List name for sale: error during poll/state update',
+            pollOrUpdateError,
+          );
+          updateWorkflowSteps({
+            step: 'complete',
+            status: 'success',
+            description:
+              'Listing submitted. It may take a few minutes to appear.',
+          });
+          setWorkflowComplete(true);
+          setWorkflowError(false);
+          eventEmitter.emit('success', {
+            name: 'List Name for Sale',
+            message: (
+              <span>
+                Listed {domainName} for sale for {listingPrice} {arioTicker}. It
+                may take a few minutes to appear.
+                <br />
+                <Link
+                  to={`/marketplace/names/${domainName}`}
+                  className="text-link"
+                >
+                  View on Marketplace
+                </Link>
+              </span>
+            ),
+          });
+        }
+      } else if (!listNameForSaleOrderNotFoundError) {
         updateWorkflowSteps({
           step: 'complete',
           status: 'error',
@@ -593,15 +753,6 @@ function ListNameForSaleModal({
       queryClient.invalidateQueries({
         predicate: (query) =>
           query.queryKey?.[0]?.toString().includes('marketplace') ?? false,
-      });
-      dispatchArNSUpdate({
-        dispatch: dispatchArNSState,
-        walletAddress: walletAddress,
-        arioProcessId: arioProcessId,
-        marketplaceProcessId: marketplaceProcessId,
-        antRegistryProcessId: antRegistryProcessId,
-        aoNetworkSettings: aoNetwork,
-        hyperbeamUrl: hyperbeamUrl,
       });
     } catch (error) {
       setWorkflowComplete(true);

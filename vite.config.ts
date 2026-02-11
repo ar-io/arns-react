@@ -55,6 +55,11 @@ export default defineConfig({
   resolve: {
     alias: {
       '@src': path.resolve(__dirname) + '/src',
+      // Force all @solana/codecs-core to use root copy (5.1.0 has bytesEqual); nested copies are 5.0.0 and break the build
+      '@solana/codecs-core': path.resolve(
+        __dirname,
+        'node_modules/@solana/codecs-core',
+      ),
     },
   },
 });
