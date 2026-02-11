@@ -104,10 +104,10 @@
     eventemitter3 "^5.0.1"
     prompts "^2.4.2"
 
-"@ar.io/sdk@^3.23.0-alpha.3":
-  version "3.23.0-alpha.3"
-  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-3.23.0-alpha.3.tgz#cfb7b6c0638e2652f723e9324645dcebcf373007"
-  integrity sha512-VaA/5SPdv8QCODllBETrMb0bJVIbm2b0yTefOE+A8FMS1uhe5Jy4bGyByk5S9UDSG/GiZmJqDkiQ/1spFP/jDw==
+"@ar.io/sdk@^3.23.0-alpha.7":
+  version "3.23.0-alpha.7"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-3.23.0-alpha.7.tgz#b8761f66a6bfe91073f51e2f9a19c7fcafbdd878"
+  integrity sha512-2tbf+SNQ5rFbtr7lL7VIlXveOh6go0ZhpMkbU3AE7AL30YQg6MIG9CWPkfNdjyOzZ5R8P4M6iObaWNycw3qThQ==
   dependencies:
     "@dha-team/arbundles" "^1.0.1"
     "@permaweb/aoconnect" "0.0.68"
