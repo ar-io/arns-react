@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.29.1] - 2026-02-25
+
+### Added
+
+- AO migration banner informing on features being temporarily disabled
+
 ## [1.29.0] - 2025-01-23
 
 ### Changed
