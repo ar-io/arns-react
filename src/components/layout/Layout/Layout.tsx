@@ -15,8 +15,7 @@ function Layout() {
   const homeOrRegister =
     location.pathname === '/' || location.pathname.startsWith('/register');
   // TODO: Remove banner once Hyperbeam migration is complete and purchases are re-enabled
-  const hyperbeamMigrationEnd = new Date('2026-03-02T00:00:00Z').getTime();
-  const showBanner = homeOrRegister && Date.now() < hyperbeamMigrationEnd;
+  const showBanner = homeOrRegister;
 
   return (
     <div
