@@ -40,6 +40,8 @@ import {
 import { formatARIOWithCommas } from '@src/utils';
 import { getBaseChainId } from '@src/utils/baseNetwork';
 import {
+  ARNS_PURCHASES_DISABLED,
+  ARNS_PURCHASES_DISABLED_TOOLTIP,
   BASE_ARIO_CONTRACT,
   BASE_TOKEN_CONFIG,
   BASE_USDC_CONTRACT,
@@ -49,6 +51,7 @@ import {
 } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
+import { Tooltip as AntdTooltip } from 'antd';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAccount, useBalance, useConfig } from 'wagmi';
@@ -636,26 +639,42 @@ function Checkout() {
             >
               Back
             </button>
-            <button
-              disabled={
+            {(() => {
+              const payDisabled =
+                ARNS_PURCHASES_DISABLED ||
                 isInsufficientBalance ||
                 isLoadingCostDetail ||
                 isLoadingIntentPrice ||
                 !isValid ||
                 (!paymentInformation && paymentMethod === 'card') ||
-                isProcessingBaseToken
-              }
-              className="p-[0.625rem] bg-primary rounded w-[100px] min-w-fit disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={handleNext}
-            >
-              {isProcessingBaseToken
-                ? getBaseTokenButtonText()
-                : isLoadingCostDetail
-                  ? 'Loading...'
-                  : isInsufficientBalance
-                    ? 'Insufficient balance'
-                    : 'Pay now'}
-            </button>
+                isProcessingBaseToken;
+              const button = (
+                <button
+                  disabled={payDisabled}
+                  className="p-[0.625rem] bg-primary rounded w-[100px] min-w-fit disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleNext}
+                >
+                  {isProcessingBaseToken
+                    ? getBaseTokenButtonText()
+                    : isLoadingCostDetail
+                      ? 'Loading...'
+                      : isInsufficientBalance
+                        ? 'Insufficient balance'
+                        : 'Pay now'}
+                </button>
+              );
+              return ARNS_PURCHASES_DISABLED && !isProcessingBaseToken ? (
+                <AntdTooltip
+                  title={ARNS_PURCHASES_DISABLED_TOOLTIP}
+                  color="var(--box-color)"
+                  overlayInnerStyle={{ padding: '15px' }}
+                >
+                  <span style={{ display: 'inline-block' }}>{button}</span>
+                </AntdTooltip>
+              ) : (
+                button
+              );
+            })()}
           </div>
         </div>
       </div>
