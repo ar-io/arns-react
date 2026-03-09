@@ -25,7 +25,7 @@ export const APP_VERSION = __NPM_PACKAGE_VERSION__ || '1.0.0';
 /** When true, all ArNS name purchase flows (buy, extend, upgrade undernames) are disabled. */
 export const ARNS_PURCHASES_DISABLED = true;
 export const ARNS_PURCHASES_DISABLED_TOOLTIP =
-  'ArNS Name purchases currently disabled for duration of mainnet migration.';
+  'ArNS registrations are temporarily disabled while the ar.io registry migrates to HyperBEAM. Existing names continue to function normally.';
 
 // This is the minimum version all workflows are currently compatible with (including reassign, release, etc)
 export const MIN_ANT_VERSION = 16;
