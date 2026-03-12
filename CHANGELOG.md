@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.30.0] - 2026-03-12
+
+### Added
+
+- Disabled registration workflow access and added feature flag with tooltips explaining why
+
 ## [1.29.1] - 2026-02-25
 
 ### Added
