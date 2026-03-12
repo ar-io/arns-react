@@ -27,6 +27,8 @@ import {
   lowerCaseDomain,
 } from '../../../utils';
 import {
+  ARNS_PURCHASES_DISABLED,
+  ARNS_PURCHASES_DISABLED_TOOLTIP,
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
   YEAR_IN_MILLISECONDS,
@@ -331,6 +333,11 @@ function ExtendLease() {
         <WorkflowButtons
           backText="Cancel"
           nextText="Continue"
+          nextButtonTooltip={
+            ARNS_PURCHASES_DISABLED
+              ? ARNS_PURCHASES_DISABLED_TOOLTIP
+              : undefined
+          }
           customNextStyle={{
             background:
               maxIncrease < 1 &&
@@ -345,7 +352,7 @@ function ExtendLease() {
             navigate(`/manage/names/${lowerCaseDomain(name!)}`);
           }}
           onNext={
-            !arioFee || arioFee <= 0
+            ARNS_PURCHASES_DISABLED || !arioFee || arioFee <= 0
               ? undefined
               : () => {
                   if (

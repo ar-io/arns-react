@@ -19,9 +19,14 @@ import {
   isArweaveTransactionID,
   lowerCaseDomain,
 } from '@src/utils';
-import { START_RNP_PREMIUM } from '@src/utils/constants';
+import {
+  ARNS_PURCHASES_DISABLED,
+  ARNS_PURCHASES_DISABLED_TOOLTIP,
+  START_RNP_PREMIUM,
+} from '@src/utils/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { ColumnDef, Row, createColumnHelper } from '@tanstack/react-table';
+import { Tooltip as AntdTooltip } from 'antd';
 import { CircleAlertIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { ReactNode } from 'react-markdown';
@@ -352,19 +357,35 @@ const ReturnedNamesTable = ({
           }
 
           case 'action': {
+            const registerButton = (
+              <button
+                className="p-2 py-[0.4rem] text-center size-fit rounded text-black bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={ARNS_PURCHASES_DISABLED}
+                onClick={() => {
+                  if (!ARNS_PURCHASES_DISABLED) {
+                    navigate(`/register/${lowerCaseDomain(row.original.name)}`);
+                  }
+                }}
+              >
+                Register
+              </button>
+            );
             return (
               <div className="flex justify-end w-full ">
                 <span className="flex pr-3 w-fit h-fit gap-3 items-center justify-center overflow-visible max-h-[15px]">
-                  <button
-                    className="p-2 py-[0.4rem] text-center size-fit rounded text-black bg-primary"
-                    onClick={() => {
-                      navigate(
-                        `/register/${lowerCaseDomain(row.original.name)}`,
-                      );
-                    }}
-                  >
-                    Register
-                  </button>
+                  {ARNS_PURCHASES_DISABLED ? (
+                    <AntdTooltip
+                      title={ARNS_PURCHASES_DISABLED_TOOLTIP}
+                      color="var(--box-color)"
+                      overlayInnerStyle={{ padding: '15px' }}
+                    >
+                      <span style={{ display: 'inline-block' }}>
+                        {registerButton}
+                      </span>
+                    </AntdTooltip>
+                  ) : (
+                    registerButton
+                  )}
                 </span>
               </div>
             );

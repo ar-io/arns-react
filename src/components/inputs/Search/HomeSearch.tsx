@@ -7,6 +7,11 @@ import { RNPChart } from '@src/components/data-display/charts/RNPChart';
 import { CircleCheckFilled, SearchIcon } from '@src/components/icons';
 import { useGlobalState } from '@src/state';
 import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
+import {
+  ARNS_PURCHASES_DISABLED,
+  ARNS_PURCHASES_DISABLED_TOOLTIP,
+} from '@src/utils/constants';
+import { Tooltip as AntdTooltip } from 'antd';
 import { ChevronRight, CircleAlert, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -285,15 +290,34 @@ function HomeSearch() {
                       <span className="text-xl text-white">
                         ar://{decodeDomainToASCII(domainQuery)}
                       </span>
-                      <button
-                        className={`py-2 px-3 text-sm bg-primary font-bold rounded-[4px] text-black disabled:opacity-50 disabled:bg-grey`}
-                        disabled={!isValidDomain}
-                        onClick={() => {
-                          navigate(`/register/${lowerCaseDomain(domainQuery)}`);
-                        }}
-                      >
-                        Register
-                      </button>
+                      {ARNS_PURCHASES_DISABLED ? (
+                        <AntdTooltip
+                          title={ARNS_PURCHASES_DISABLED_TOOLTIP}
+                          color="var(--box-color)"
+                          overlayInnerStyle={{ padding: '15px' }}
+                        >
+                          <span style={{ display: 'inline-block' }}>
+                            <button
+                              className="py-2 px-3 text-sm bg-primary font-bold rounded-[4px] text-black disabled:opacity-50 disabled:bg-grey"
+                              disabled
+                            >
+                              Register
+                            </button>
+                          </span>
+                        </AntdTooltip>
+                      ) : (
+                        <button
+                          className={`py-2 px-3 text-sm bg-primary font-bold rounded-[4px] text-black disabled:opacity-50 disabled:bg-grey`}
+                          disabled={!isValidDomain}
+                          onClick={() => {
+                            navigate(
+                              `/register/${lowerCaseDomain(domainQuery)}`,
+                            );
+                          }}
+                        >
+                          Register
+                        </button>
+                      )}
                     </div>
                     <div className="h-[200px]">
                       {' '}
@@ -305,15 +329,32 @@ function HomeSearch() {
                     <span className="text-xl text-white">
                       ar://{decodeDomainToASCII(domainQuery)}
                     </span>
-                    <button
-                      className={`py-2 px-3 text-sm bg-primary font-bold rounded-[4px] text-black disabled:opacity-50 disabled:bg-grey`}
-                      disabled={!isValidDomain}
-                      onClick={() => {
-                        navigate(`/register/${lowerCaseDomain(domainQuery)}`);
-                      }}
-                    >
-                      Register
-                    </button>
+                    {ARNS_PURCHASES_DISABLED ? (
+                      <AntdTooltip
+                        title={ARNS_PURCHASES_DISABLED_TOOLTIP}
+                        color="var(--box-color)"
+                        overlayInnerStyle={{ padding: '15px' }}
+                      >
+                        <span style={{ display: 'inline-block' }}>
+                          <button
+                            className="py-2 px-3 text-sm bg-primary font-bold rounded-[4px] text-black disabled:opacity-50 disabled:bg-grey"
+                            disabled
+                          >
+                            Register
+                          </button>
+                        </span>
+                      </AntdTooltip>
+                    ) : (
+                      <button
+                        className={`py-2 px-3 text-sm bg-primary font-bold rounded-[4px] text-black disabled:opacity-50 disabled:bg-grey`}
+                        disabled={!isValidDomain}
+                        onClick={() => {
+                          navigate(`/register/${lowerCaseDomain(domainQuery)}`);
+                        }}
+                      >
+                        Register
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <div className="flex flex-row w-full justify-between mt-4">

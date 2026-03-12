@@ -1,3 +1,5 @@
+import { Tooltip as AntdTooltip } from 'antd';
+
 import './styles.css';
 
 function WorkflowButtons({
@@ -8,6 +10,7 @@ function WorkflowButtons({
   onNext,
   onBack,
   detail,
+  nextButtonTooltip,
 }: {
   customNextStyle?: any;
   customBackStyle?: any;
@@ -16,7 +19,24 @@ function WorkflowButtons({
   onBack?: () => void;
   onNext?: () => void;
   detail?: JSX.Element | string;
+  /** Shown when the next button is disabled (e.g. purchases disabled for migration). */
+  nextButtonTooltip?: string;
 }) {
+  const nextButton = (
+    <button
+      className={
+        !onNext
+          ? 'accent-button disabled-button center'
+          : 'accent-button center'
+      }
+      style={customNextStyle}
+      disabled={!onNext}
+      onClick={onNext ? () => onNext() : undefined}
+    >
+      {nextText}
+    </button>
+  );
+
   return (
     <>
       <div
@@ -41,18 +61,17 @@ function WorkflowButtons({
             <></>
           )}
           {nextText && nextText.length ? (
-            <button
-              className={
-                !onNext
-                  ? 'accent-button disabled-button center'
-                  : 'accent-button center'
-              }
-              style={customNextStyle}
-              disabled={!onNext}
-              onClick={onNext ? () => onNext() : undefined}
-            >
-              {nextText}
-            </button>
+            nextButtonTooltip && !onNext ? (
+              <AntdTooltip
+                title={nextButtonTooltip}
+                color="var(--box-color)"
+                overlayInnerStyle={{ padding: '15px' }}
+              >
+                <span style={{ display: 'inline-block' }}>{nextButton}</span>
+              </AntdTooltip>
+            ) : (
+              nextButton
+            )
           ) : (
             <></>
           )}

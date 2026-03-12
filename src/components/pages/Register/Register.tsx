@@ -31,6 +31,8 @@ import {
   isArweaveTransactionID,
 } from '../../../utils';
 import {
+  ARNS_PURCHASES_DISABLED,
+  ARNS_PURCHASES_DISABLED_TOOLTIP,
   MAX_LEASE_DURATION,
   MIN_LEASE_DURATION,
 } from '../../../utils/constants';
@@ -506,7 +508,16 @@ function RegisterNameForm() {
               <WorkflowButtons
                 nextText="Next"
                 backText="Back"
-                onNext={validatingNext ? undefined : handleNext}
+                onNext={
+                  ARNS_PURCHASES_DISABLED || validatingNext
+                    ? undefined
+                    : handleNext
+                }
+                nextButtonTooltip={
+                  ARNS_PURCHASES_DISABLED
+                    ? ARNS_PURCHASES_DISABLED_TOOLTIP
+                    : undefined
+                }
                 onBack={() => {
                   // reset the state when going back to the home page
                   dispatchRegisterState({

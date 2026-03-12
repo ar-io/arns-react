@@ -17,6 +17,10 @@ import {
   formatARIOWithCommas,
   lowerCaseDomain,
 } from '../../../utils';
+import {
+  ARNS_PURCHASES_DISABLED,
+  ARNS_PURCHASES_DISABLED_TOOLTIP,
+} from '../../../utils/constants';
 import Counter from '../../inputs/Counter/Counter';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import Loader from '../Loader/Loader';
@@ -137,9 +141,14 @@ function UpgradeUndernames() {
         <WorkflowButtons
           backText="Cancel"
           nextText="Confirm"
+          nextButtonTooltip={
+            ARNS_PURCHASES_DISABLED
+              ? ARNS_PURCHASES_DISABLED_TOOLTIP
+              : undefined
+          }
           onBack={() => navigate(`/manage/names/${lowerCaseDomain(name)}`)}
           onNext={
-            !arioFee || arioFee < 0
+            ARNS_PURCHASES_DISABLED || !arioFee || arioFee < 0
               ? undefined
               : () => {
                   const increaseUndernamePayload: IncreaseUndernamesPayload = {
