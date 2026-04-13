@@ -1,17 +1,33 @@
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
 import { ARNSMapping } from '../../../types';
 import { NETWORK_DEFAULTS } from '../../../utils/constants';
 import './styles.css';
 
+function getBaseGateway(): string {
+  const hostname = window.location.hostname;
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return NETWORK_DEFAULTS.ARNS.HOST;
+  }
+  // strip the first subdomain (e.g. "arns.ar.io" -> "ar.io")
+  const parts = hostname.split('.');
+  if (parts.length > 2) {
+    return parts.slice(1).join('.');
+  }
+  return hostname;
+}
+
 function ARNSCard({
   domain,
   imageUrl,
 }: Omit<ARNSMapping, 'processId'> & { imageUrl: string }) {
+  const baseGateway = useMemo(() => getBaseGateway(), []);
+
   return (
     <Link
       target="_blank"
-      to={`https://${domain}.${NETWORK_DEFAULTS.ARNS.HOST}`}
+      to={`https://${domain}.${baseGateway}`}
       className="arns-card hover"
       rel="noreferrer"
     >
