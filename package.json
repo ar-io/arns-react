@@ -30,8 +30,6 @@
   "dependencies": {
     "@ant-design/icons": "5.4.0",
     "@ar.io/sdk": "^3.22.1",
-    "@ar.io/wayfinder-core": "^1.9.0",
-    "@ar.io/wayfinder-react": "^1.0.27",
     "@ardrive/turbo-sdk": "1.39.2",
     "@permaweb/aoconnect": "0.0.69",
     "@radix-ui/react-checkbox": "^1.1.4",

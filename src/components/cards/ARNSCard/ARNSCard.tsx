@@ -1,27 +1,17 @@
-import { useWayfinderUrl } from '@ar.io/wayfinder-react';
-import { useGlobalState } from '@src/state';
-import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
 import { ARNSMapping } from '../../../types';
+import { NETWORK_DEFAULTS } from '../../../utils/constants';
 import './styles.css';
 
 function ARNSCard({
   domain,
   imageUrl,
 }: Omit<ARNSMapping, 'processId'> & { imageUrl: string }) {
-  const [{ gateway }] = useGlobalState();
-  const params = useMemo(() => ({ arnsName: domain }), [domain]);
-  const { resolvedUrl, error } = useWayfinderUrl(params);
-
-  if (error) {
-    console.error(error);
-  }
-
   return (
     <Link
       target="_blank"
-      to={resolvedUrl?.toString() ?? `https://${domain}.${gateway}`}
+      to={`https://${domain}.${NETWORK_DEFAULTS.ARNS.HOST}`}
       className="arns-card hover"
       rel="noreferrer"
     >
