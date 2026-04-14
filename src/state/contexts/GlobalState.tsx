@@ -6,14 +6,6 @@ import {
   AoARIOWrite,
   AoClient,
 } from '@ar.io/sdk/web';
-import {
-  CompositeGatewaysProvider,
-  LocalStorageGatewaysProvider,
-  NetworkGatewaysProvider,
-  RandomRoutingStrategy,
-  StaticGatewaysProvider,
-} from '@ar.io/wayfinder-core';
-import { WayfinderProvider } from '@ar.io/wayfinder-react';
 import { connect } from '@permaweb/aoconnect';
 import { SETTINGS_STORAGE_KEY } from '@src/hooks';
 import eventEmitter from '@src/utils/events';
@@ -28,10 +20,8 @@ import React, {
 import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import {
-  APP_VERSION,
   ARIO_AO_CU_URL,
   ARIO_PROCESS_ID,
-  ARWEAVE_HOST,
   DEFAULT_ARWEAVE,
   NETWORK_DEFAULTS,
 } from '../../utils/constants';
@@ -58,7 +48,7 @@ function loadSettingsFromStorage(): {
       );
 
       return {
-        gateway: settings.network?.gateway || ARWEAVE_HOST,
+        gateway: settings.network?.gateway || NETWORK_DEFAULTS.ARNS.HOST,
         aoNetwork: settings.network?.aoNetwork || NETWORK_DEFAULTS.AO,
         turboNetwork: settings.network?.turboNetwork || NETWORK_DEFAULTS.TURBO,
         arioProcessId: settings.arns?.arioProcessId || ARIO_PROCESS_ID,
@@ -78,7 +68,7 @@ export const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);
 
 // Load saved settings or use defaults
 const savedSettings = loadSettingsFromStorage();
-const initialGateway = savedSettings?.gateway || ARWEAVE_HOST;
+const initialGateway = savedSettings?.gateway || NETWORK_DEFAULTS.ARNS.HOST;
 const initialAoNetwork = savedSettings?.aoNetwork || NETWORK_DEFAULTS.AO;
 const initialTurboNetwork =
   savedSettings?.turboNetwork || NETWORK_DEFAULTS.TURBO;
@@ -186,34 +176,7 @@ export function GlobalStateProvider({
 
   return (
     <GlobalStateContext.Provider value={[state, dispatchGlobalState]}>
-      <WayfinderProvider
-        routingSettings={{
-          strategy: new RandomRoutingStrategy({
-            gatewaysProvider: new CompositeGatewaysProvider({
-              providers: [
-                // cache the network list
-                new LocalStorageGatewaysProvider({
-                  gatewaysProvider: new NetworkGatewaysProvider({
-                    ario: state.arioContract,
-                  }),
-                }),
-                // fallback to user-defined static gateway
-                new StaticGatewaysProvider({
-                  gateways: ['https://' + state.gateway],
-                }),
-              ],
-            }),
-          }),
-        }}
-        telemetrySettings={{
-          enabled: true,
-          clientName: 'arns-app',
-          clientVersion: APP_VERSION,
-          sampleRate: 1,
-        }}
-      >
-        {children}
-      </WayfinderProvider>
+      {children}
     </GlobalStateContext.Provider>
   );
 }

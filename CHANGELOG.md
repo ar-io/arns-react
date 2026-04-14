@@ -8,6 +8,13 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.30.1] - 2026-04-13
+
+### Changed
+
+- Updated gateway URLs: ArNS name links use ar.io, transaction/data fetching uses turbo-gateway.com, GraphQL remains on arweave.net
+- Allow lease extensions and undername upgrades when ArNS purchases are disabled (only new name registrations and name upgrades that create new ANTs are blocked)
+
 ## [1.30.0] - 2026-03-12
 
 ### Added
