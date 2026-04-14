@@ -50,7 +50,7 @@ export const ARWEAVE_GRAPHQL_URL =
 export const HYPERBEAM_URL = import.meta.env.VITE_HYPERBEAM_URL;
 export const WALLETCONNECT_PROJECT_ID = '692e2917daed8533f0f59cd604c3751a';
 export const DEFAULT_ARWEAVE = new Arweave({
-  host: ARWEAVE_HOST,
+  host: 'turbo-gateway.com',
   protocol: 'https',
   port: 443,
 });
@@ -168,7 +168,7 @@ export const NETWORK_DEFAULTS = {
   TURBO: {
     UPLOAD_URL: 'https://turbo.ardrive.io',
     PAYMENT_URL: `https://${PAYMENT_SERVICE_FQDN}`,
-    GATEWAY_URL: 'https://arweave.net',
+    GATEWAY_URL: 'https://turbo-gateway.com',
     WALLETS_URL: `https://${PAYMENT_SERVICE_FQDN}/info`,
     STRIPE_PUBLISHABLE_KEY,
   },

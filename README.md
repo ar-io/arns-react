@@ -28,7 +28,7 @@ yarn test
 
 ### ArNS name purchases (`ARNS_PURCHASES_DISABLED`)
 
-When enabled, all ArNS name purchase flows are blocked: Register (buy new name), Checkout (pay), Extend Lease, Increase Undernames, and Register buttons on the home search and returned names table. Disabled buttons show a tooltip: *"ArNS Name purchases currently disabled for duration of mainnet migration."*
+When enabled, new ArNS name purchase flows are blocked: Register (buy new name), Checkout (pay), and Register buttons on the home search and returned names table. Disabled buttons show a tooltip explaining the temporary restriction. Lease extensions and undername upgrades for existing names are **not** affected.
 
 - **Location:** `src/utils/constants.ts`
 - **To disable purchases (block users):** set `ARNS_PURCHASES_DISABLED = true`

@@ -640,8 +640,11 @@ function Checkout() {
               Back
             </button>
             {(() => {
+              const isNewPurchase =
+                workflowName === ARNS_INTERACTION_TYPES.BUY_RECORD ||
+                workflowName === ARNS_INTERACTION_TYPES.UPGRADE_NAME;
               const payDisabled =
-                ARNS_PURCHASES_DISABLED ||
+                (ARNS_PURCHASES_DISABLED && isNewPurchase) ||
                 isInsufficientBalance ||
                 isLoadingCostDetail ||
                 isLoadingIntentPrice ||
@@ -663,7 +666,9 @@ function Checkout() {
                         : 'Pay now'}
                 </button>
               );
-              return ARNS_PURCHASES_DISABLED && !isProcessingBaseToken ? (
+              return ARNS_PURCHASES_DISABLED &&
+                isNewPurchase &&
+                !isProcessingBaseToken ? (
                 <AntdTooltip
                   title={ARNS_PURCHASES_DISABLED_TOOLTIP}
                   color="var(--box-color)"

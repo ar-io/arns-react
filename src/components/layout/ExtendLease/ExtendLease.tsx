@@ -334,7 +334,8 @@ function ExtendLease() {
           backText="Cancel"
           nextText="Continue"
           nextButtonTooltip={
-            ARNS_PURCHASES_DISABLED
+            ARNS_PURCHASES_DISABLED &&
+            registrationType === TRANSACTION_TYPES.BUY
               ? ARNS_PURCHASES_DISABLED_TOOLTIP
               : undefined
           }
@@ -352,7 +353,10 @@ function ExtendLease() {
             navigate(`/manage/names/${lowerCaseDomain(name!)}`);
           }}
           onNext={
-            ARNS_PURCHASES_DISABLED || !arioFee || arioFee <= 0
+            (ARNS_PURCHASES_DISABLED &&
+              registrationType === TRANSACTION_TYPES.BUY) ||
+            !arioFee ||
+            arioFee <= 0
               ? undefined
               : () => {
                   if (
