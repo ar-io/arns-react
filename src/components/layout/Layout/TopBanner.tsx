@@ -1,5 +1,5 @@
 import { useIsMobile } from '@src/hooks';
-import { ARIO_DISCORD_LINK } from '@src/utils/constants';
+import { SOLANA_MIGRATION_LINK } from '@src/utils/constants';
 import { Link } from 'react-router-dom';
 
 const TopBanner = () => {
@@ -15,11 +15,11 @@ const TopBanner = () => {
         fontSize: '14px',
       }}
     >
-      ArNS name purchases and upgrades are temporarily unavailable during the
-      migration to Hyperbeam (AO Mainnet). Existing names can still be modified.
-      Follow updates in{' '}
+      <strong>AR.IO is migrating to Solana!</strong> ArNS name purchases are
+      paused and will resume after launch. All names will be snapshotted May 15,
+      2026.{' '}
       <Link
-        to={ARIO_DISCORD_LINK}
+        to={SOLANA_MIGRATION_LINK}
         target="_blank"
         rel="noreferrer"
         className="link hover"
@@ -30,9 +30,8 @@ const TopBanner = () => {
           fontWeight: 600,
         }}
       >
-        Discord
+        Learn More &rarr;
       </Link>
-      .
     </div>
   );
 };

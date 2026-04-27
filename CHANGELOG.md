@@ -8,6 +8,14 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.30.2] - 2026-04-27
+
+### Changed
+
+- Updated top banner to announce Solana migration with May 15, 2026 snapshot date and "Learn More" link
+- Updated purchase-disabled tooltip to reference Solana migration
+- Banner now displays on all pages (except settings)
+
 ## [1.30.1] - 2026-04-13
 
 ### Changed
