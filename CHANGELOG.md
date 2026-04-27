@@ -12,7 +12,7 @@ and this project adheres to
 
 ### Changed
 
-- Updated top banner to announce Solana migration with May 15, 2026 snapshot date and "Learn More" link
+- Updated top banner to announce Solana migration with May 15, 2026 snapshot date, registration call-to-action, and "Learn More" link
 - Updated purchase-disabled tooltip to reference Solana migration
 - Banner now displays on all pages (except settings)
 

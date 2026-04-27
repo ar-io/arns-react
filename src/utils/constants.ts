@@ -25,7 +25,7 @@ export const APP_VERSION = __NPM_PACKAGE_VERSION__ || '1.0.0';
 /** When true, all ArNS name purchase flows (buy, extend, upgrade undernames) are disabled. */
 export const ARNS_PURCHASES_DISABLED = true;
 export const ARNS_PURCHASES_DISABLED_TOOLTIP =
-  'ArNS name purchases are paused during the migration to Solana and will resume after launch.';
+  'Purchases are paused during the migration to Solana and will resume shortly.';
 export const SOLANA_MIGRATION_LINK = 'https://ar.io/solana-migration/';
 
 // This is the minimum version all workflows are currently compatible with (including reassign, release, etc)
