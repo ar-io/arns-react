@@ -1,5 +1,6 @@
 import { useIsMobile } from '@src/hooks';
 import { SOLANA_MIGRATION_LINK } from '@src/utils/constants';
+import { ExternalLinkIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const TopBanner = () => {
@@ -29,7 +30,11 @@ const TopBanner = () => {
           fontWeight: 600,
         }}
       >
-        Learn More &rarr;
+        Learn More{' '}
+        <ExternalLinkIcon
+          size={14}
+          style={{ display: 'inline', verticalAlign: 'middle' }}
+        />
       </Link>
     </div>
   );
