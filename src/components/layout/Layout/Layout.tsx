@@ -12,10 +12,8 @@ function Layout() {
   const location = useLocation();
   const [{ percentLoaded }] = useArNSState();
 
-  const homeOrRegister =
-    location.pathname === '/' || location.pathname.startsWith('/register');
-  // TODO: Remove banner once Hyperbeam migration is complete and purchases are re-enabled
-  const showBanner = homeOrRegister;
+  // TODO: Remove banner once Solana migration is complete and purchases are re-enabled
+  const showBanner = location.pathname !== '/settings';
 
   return (
     <div

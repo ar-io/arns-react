@@ -16,7 +16,9 @@ TypeScript, and TailwindCSS.
 ```bash
 yarn                  # Install dependencies
 yarn dev              # Start development server (sets NODE_ENV=prod, VITE_GITHUB_HASH=local)
-yarn build            # Build for production (includes TypeScript compilation and Vite build with increased memory)
+yarn build            # Build for production (Vite build with increased memory)
+yarn build:production # Build with VITE_ENVIRONMENT=production
+yarn build:develop    # Build with VITE_ENVIRONMENT=develop
 yarn preview          # Preview production build
 ```
 
@@ -114,9 +116,24 @@ The app integrates with the AO (Arweave Operating System) ecosystem:
 Hash-based routing using React Router v6 (`createHashRouter`):
 
 - Routes defined in `src/App.tsx` with lazy loading for pages
-- Main routes: `/`, `/register`, `/manage`, `/manage/:domain`,
-  `/undernames/:domain`, `/ant/:antId`, `/prices`, `/settings/*`
 - Sentry integration via `wrapCreateBrowserRouter`
+- Main routes:
+  - `/` — Home/search
+  - `/connect` — Wallet connection modal
+  - `/register/:name` — Name registration
+  - `/checkout` — Payment checkout
+  - `/manage` — Redirects to `/manage/names`
+  - `/manage/:path` — Asset management (names or ants tab)
+  - `/manage/ants/:id` — Manage specific ANT
+  - `/manage/ants/:id/undernames` — ANT undernames
+  - `/manage/names/:name` — Manage specific domain
+  - `/manage/names/:name/extend` — Extend lease
+  - `/manage/names/:name/upgrade-undernames` — Increase undernames
+  - `/manage/names/:name/undernames` — Domain undernames
+  - `/transaction/review`, `/transaction/complete` — Transaction flow
+  - `/returned-names` — Returned Names Protocol page
+  - `/prices` — Pricing info
+  - `/settings/network`, `/settings/devtools` — Settings (separate layout)
 
 ### Wallet Integration
 
@@ -167,6 +184,13 @@ wallet type
 - **Radix UI** for headless components (checkbox, radio, select, switch)
 - **Framer Motion** for animations
 - CSS modules pattern: component folders contain `styles.css`
+
+### Linting (Biome)
+
+- Single quotes for JavaScript/TypeScript (`quoteStyle: "single"`)
+- Import organization enabled (auto-sorted on format)
+- `noExplicitAny` and `noEmptyBlockStatements` are turned off
+- `noUnusedVariables` is an error — clean up unused imports/vars
 
 ## File Organization Rules
 
@@ -235,6 +259,8 @@ Use `NotificationOnlyError` for expected/user-facing errors. Use standard
 - Defined in Vite config, not exposed via process.env for security
 - Key variables: `VITE_ARWEAVE_HOST`, `VITE_ARWEAVE_GRAPHQL_URL`,
   `VITE_HYPERBEAM_URL`, `VITE_SENTRY_*`, `VITE_ARNS_NAME`
+- Build-time variables: `VITE_ENVIRONMENT` (production/develop),
+  `VITE_NODE_ENV`, `VITE_GITHUB_HASH` (set to `local` in dev)
 
 ### Arweave Deployment
 
