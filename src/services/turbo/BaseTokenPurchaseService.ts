@@ -1,3 +1,9 @@
+// NOTE (de-AO refactor): This service drives Base/Ethereum token top-ups via
+// wagmi + ethers. After the Solana-only wallet refactor no UI surface can
+// invoke it — Ethereum wallet connectors were removed and the BaseToken UI
+// is unreachable. The implementation is preserved for reference; future work
+// should either delete it outright or migrate top-ups to the Solana adapter
+// (`TurboFactory.authenticated({ walletAdapter: window.solana, token: 'solana' })`).
 import {
   ETHToTokenAmount,
   EthereumWalletAdapter,

@@ -1,23 +1,21 @@
 import { useGlobalState } from '@src/state';
 import { isARNSDomainNameValid } from '@src/utils';
+import { arioContractCacheKey } from '@src/utils/sdk-init';
 import { useQuery } from '@tanstack/react-query';
 
 export function useReturnedNames() {
-  const [{ arioContract, arioProcessId, aoNetwork }] = useGlobalState();
+  const [{ arioContract }] = useGlobalState();
   return useQuery({
-    queryKey: ['get-returned-names', arioProcessId, aoNetwork],
-    queryFn: () => {
-      return arioContract.getArNSReturnedNames();
-    },
+    queryKey: ['get-returned-names', arioContractCacheKey(arioContract)],
+    queryFn: () => arioContract.getArNSReturnedNames(),
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useReturnedName(name?: string) {
-  const [{ arioContract, arioProcessId, aoNetwork }] = useGlobalState();
-
+  const [{ arioContract }] = useGlobalState();
   return useQuery({
-    queryKey: ['get-returned-name', arioProcessId, aoNetwork, name],
+    queryKey: ['get-returned-name', arioContractCacheKey(arioContract), name],
     queryFn: async () => {
       if (!name || !isARNSDomainNameValid({ name }))
         throw new Error('Invalid ArNS name');

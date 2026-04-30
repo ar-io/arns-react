@@ -72,7 +72,7 @@ function UserAddress() {
           showValidationOutline={false}
           showValidationChecklist={false}
           validationListStyle={{ display: 'none' }}
-          maxCharLength={43}
+          maxCharLength={44}
           value={newUserAddress}
           setValue={setNewWalletAddress}
           validityCallback={(validity: boolean) => setIsValidAddress(validity)}

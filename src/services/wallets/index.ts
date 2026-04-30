@@ -1,11 +1,3 @@
-import { ArweaveAppWalletConnector } from './ArweaveAppWalletConnector';
-import { BeaconWalletConnector } from './BeaconWalletConnector';
-import { EthWalletConnector } from './EthWalletConnector';
-import { WanderWalletConnector } from './WanderWalletConnector';
+import { SolanaWalletConnector } from './SolanaWalletConnector';
 
-export {
-  WanderWalletConnector,
-  ArweaveAppWalletConnector,
-  EthWalletConnector,
-  BeaconWalletConnector,
-};
+export { SolanaWalletConnector };

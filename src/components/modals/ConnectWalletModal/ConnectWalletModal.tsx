@@ -1,24 +1,13 @@
-import { useConnectModal } from '@rainbow-me/rainbowkit';
-import {
-  BeaconWalletConnector,
-  EthWalletConnector,
-  WanderWalletConnector,
-} from '@src/services/wallets';
-import { ArweaveAppWalletConnector } from '@src/services/wallets/ArweaveAppWalletConnector';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
+import { SolanaWalletConnector } from '@src/services/wallets';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAccount, useConfig, useDisconnect } from 'wagmi';
 
 import { useWalletState } from '../../../state/contexts/WalletState';
-import { AoAddress, ArNSWalletConnector, WALLET_TYPES } from '../../../types';
+import { AoAddress, WALLET_TYPES } from '../../../types';
 import eventEmitter from '../../../utils/events';
-import {
-  ArweaveAppIcon,
-  BeaconIcon,
-  CloseIcon,
-  MetamaskIcon,
-  WanderIcon,
-} from '../../icons';
+import { CloseIcon } from '../../icons';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
@@ -33,46 +22,63 @@ function ConnectWalletModal(): JSX.Element {
   const [connecting, setConnecting] = useState(false);
   const [loading, setLoading] = useState(!walletStateInitialized);
 
-  const config = useConfig();
-  const ethAccount = useAccount();
-  const { openConnectModal } = useConnectModal();
-  const { disconnectAsync } = useDisconnect();
+  const solanaWallet = useWallet();
+  const { setVisible: setSolanaModalVisible } = useWalletModal();
 
-  // Handle Ethereum wallet connection - detect when wagmi becomes connected
+  // Detect when the @solana/wallet-adapter-react picker has finished
+  // connecting a Solana wallet — wrap the adapter into our connector and
+  // hand it off to the global wallet state.
+  //
+  // Notes on the gating:
+  // - We require `publicKey` (signals the user picked a wallet AND approved
+  //   the connect prompt) but tolerate `signTransaction` being undefined at
+  //   first render: some adapters (Phantom included) attach signing methods a
+  //   tick after `connected` flips, and waiting for `signTransaction` here
+  //   would race the picker closing. The `SolanaWalletConnector` re-binds
+  //   the signer lazily once it's available.
   useEffect(() => {
+    console.debug('[solana-connect] state', {
+      connected: solanaWallet.connected,
+      connecting: solanaWallet.connecting,
+      hasPublicKey: !!solanaWallet.publicKey,
+      hasSignTx: !!solanaWallet.signTransaction,
+      currentWalletType: wallet?.tokenType,
+    });
     if (
-      ethAccount.isConnected &&
-      ethAccount.address &&
-      ethAccount.connector &&
-      !wallet
+      solanaWallet.connected &&
+      solanaWallet.publicKey &&
+      (!wallet || wallet.tokenType !== 'solana')
     ) {
       try {
-        localStorage.setItem('walletType', WALLET_TYPES.ETHEREUM);
-
-        const walletConnector = new EthWalletConnector(
-          config,
-          ethAccount.connector,
+        const connector = new SolanaWalletConnector({
+          publicKey: solanaWallet.publicKey,
+          connected: solanaWallet.connected,
+          connecting: solanaWallet.connecting,
+          disconnect: solanaWallet.disconnect,
+          signTransaction: solanaWallet.signTransaction as never,
+        });
+        localStorage.setItem('walletType', WALLET_TYPES.SOLANA);
+        console.info(
+          '[solana-connect] wiring SolanaWalletConnector for',
+          solanaWallet.publicKey.toBase58(),
         );
-
         dispatchWalletState({
           type: 'setWalletAndAddress',
           payload: {
-            wallet: walletConnector,
-            walletAddress: ethAccount.address,
+            wallet: connector,
+            walletAddress: solanaWallet.publicKey.toBase58() as never,
           },
         });
       } catch (error) {
-        console.error('Failed to create Ethereum wallet connector:', error);
-        localStorage.removeItem('walletType');
+        console.error('[solana-connect] failed to wire connector', error);
         eventEmitter.emit('error', error);
       }
     }
   }, [
-    ethAccount.isConnected,
-    ethAccount.address,
-    ethAccount.connector,
+    solanaWallet.connected,
+    solanaWallet.publicKey,
+    solanaWallet.signTransaction,
     wallet,
-    config,
     dispatchWalletState,
   ]);
 
@@ -119,51 +125,8 @@ function ConnectWalletModal(): JSX.Element {
     }
   }
 
-  async function connect(walletConnector: ArNSWalletConnector) {
-    try {
-      setConnecting(true);
-
-      // Disconnect existing wallet before connecting new one
-      if (wallet) {
-        try {
-          await wallet.disconnect();
-        } catch {
-          // Ignore disconnect errors - wallet may already be disconnected
-        }
-      }
-
-      // Disconnect wagmi if switching to a non-Ethereum wallet
-      if (ethAccount.isConnected) {
-        try {
-          await disconnectAsync();
-        } catch {
-          // Ignore disconnect errors
-        }
-      }
-
-      await walletConnector.connect();
-
-      const address = await walletConnector.getWalletAddress();
-      dispatchWalletState({
-        type: 'setWalletAndAddress',
-        payload: {
-          wallet: walletConnector,
-          walletAddress: address,
-        },
-      });
-
-      closeModal({ next: true, address });
-    } catch (error: any) {
-      if (walletConnector) {
-        eventEmitter.emit('error', error);
-      }
-    } finally {
-      setConnecting(false);
-    }
-  }
-
   if (loading) {
-    return <PageLoader loading={true} message={'Connecting to Wallet'} />; // Replace with your loading component
+    return <PageLoader loading={true} message={'Connecting to Wallet'} />;
   }
 
   return (
@@ -175,92 +138,35 @@ function ConnectWalletModal(): JSX.Element {
     >
       <div className="connect-wallet-modal">
         <p className="section-header mb-4 font-bold">
-          Connect with an Arweave wallet
+          Connect with a Solana wallet
         </p>
         <button
-          // className="modal-close-button"
           className="absolute top-5 right-[1.875rem]"
           onClick={() => closeModal({ next: false })}
         >
           <CloseIcon className="fill-white size-6" />
         </button>
-        <button
-          disabled={connecting}
-          className="wallet-connect-button text-base"
-          onClick={() => {
-            connect(new WanderWalletConnector());
-          }}
-        >
-          <WanderIcon className="external-icon size-12 p-3" />
-          Wander
-        </button>
 
-        <button
-          className="wallet-connect-button text-base"
-          onClick={() => {
-            connect(new ArweaveAppWalletConnector());
-          }}
-        >
-          <img
-            className="external-icon size-12 p-3"
-            src={ArweaveAppIcon}
-            alt=""
-          />
-          Arweave.app
-        </button>
-
-        <button
-          className="wallet-connect-button text-base"
-          onClick={() => {
-            connect(new BeaconWalletConnector());
-          }}
-        >
-          <BeaconIcon className="external-icon size-12 p-3" />
-          Beacon
-        </button>
-
-        <p className="section-header mb-4">Connect with an Ethereum wallet</p>
         <button
           type="button"
           className="wallet-connect-button text-base"
           disabled={connecting}
           onClick={async () => {
-            // If already connected via wagmi and user wants to use same wallet
-            // they can click again after Rainbow Kit shows "Already connected"
-            // For wallet switching, we disconnect first then open modal
-            if (ethAccount.isConnected) {
-              try {
-                // Disconnect existing wagmi connection to allow fresh wallet selection
-                await disconnectAsync();
-              } catch {
-                // Ignore disconnect errors
-              }
-            }
-
-            // Disconnect any existing non-Ethereum wallet
-            if (wallet && !(wallet instanceof EthWalletConnector)) {
-              try {
-                await wallet.disconnect();
-                dispatchWalletState({
-                  type: 'setWalletAndAddress',
-                  payload: {
-                    wallet: undefined,
-                    walletAddress: undefined,
-                  },
-                });
-              } catch {
-                // Ignore disconnect errors
-              }
-            }
-
-            // Open Rainbow Kit modal for wallet selection
-            if (openConnectModal) {
-              openConnectModal();
+            setConnecting(true);
+            try {
+              // Open the wallet-adapter-react-ui picker. Once the user picks
+              // a wallet and approves connection, the useEffect above wraps
+              // it in our SolanaWalletConnector and pushes it into state.
+              setSolanaModalVisible(true);
+            } finally {
+              setConnecting(false);
             }
           }}
         >
-          <MetamaskIcon className="external-icon size-12 p-3" />
-          Ethereum Wallets
+          <span className="external-icon flex size-12 items-center justify-center p-3 text-2xl font-bold">
+            ◎
+          </span>
+          Solana Wallets
         </button>
 
         <span
@@ -270,7 +176,7 @@ function ConnectWalletModal(): JSX.Element {
           Don&apos;t have a wallet?&nbsp;
           <a
             target="_blank"
-            href="https://ar.io/wallet"
+            href="https://solana.com/solana-wallets"
             style={{
               color: 'inherit',
               textDecoration: 'underline',

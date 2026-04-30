@@ -1,16 +1,13 @@
 import { useGlobalState } from '@src/state';
+import { arioContractCacheKey } from '@src/utils/sdk-init';
 import { useQuery } from '@tanstack/react-query';
 
 export function useDemandFactor() {
-  const [{ arioProcessId, arioContract }] = useGlobalState();
+  const [{ arioContract }] = useGlobalState();
   return useQuery({
-    queryKey: ['demand-factor', arioProcessId],
-    queryFn: async () => {
-      const demandFactor = await arioContract.getDemandFactor();
-
-      return demandFactor;
-    },
-    enabled: !!arioProcessId && !!arioContract?.getDemandFactor,
+    queryKey: ['demand-factor', arioContractCacheKey(arioContract)],
+    queryFn: async () => arioContract.getDemandFactor(),
+    enabled: !!arioContract?.getDemandFactor,
     staleTime: 1000 * 60 * 3,
   });
 }

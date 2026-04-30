@@ -95,8 +95,8 @@ const ReturnedNamesTable = ({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
-  const [{ arioProcessId, arioTicker, arioContract, gateway }] =
-    useGlobalState();
+  const [{ arioTicker, arioContract, gateway }] = useGlobalState();
+  const arioProcessId = '';
   const [{ walletAddress }] = useWalletState();
 
   const [tableData, setTableData] = useState<Array<TableData>>([]);
@@ -157,7 +157,7 @@ const ReturnedNamesTable = ({
             years: 1,
             fromAddress: walletAddress?.toString(),
           },
-          { arioContract, arioProcessId },
+          { arioContract },
         ),
       );
 

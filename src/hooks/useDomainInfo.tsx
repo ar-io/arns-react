@@ -1,6 +1,4 @@
 import {
-  ANT,
-  AOProcess,
   AoANTRead,
   AoANTRecord,
   AoANTState,
@@ -8,13 +6,11 @@ import {
   AoARIORead,
   AoArNSNameData,
 } from '@ar.io/sdk/web';
-import { connect } from '@permaweb/aoconnect';
 import { captureException } from '@sentry/react';
 import { isInGracePeriod } from '@src/components/layout/Navbar/NotificationMenu/NotificationMenu';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { ArNSWalletConnector } from '@src/types';
-import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import { ANTStateError } from '@src/utils/errors';
 import {
   buildAntStateQuery,
@@ -23,9 +19,6 @@ import {
 } from '@src/utils/network';
 import { useQuery } from '@tanstack/react-query';
 import { TransactionEdge } from 'arweave-graphql';
-
-import { buildANTVersionsQuery } from './useANTVersions';
-import { buildGraphQLQuery } from './useGraphQL';
 
 export type DomainInfo = {
   arnsRecord?: AoArNSNameData;
@@ -46,8 +39,19 @@ export type DomainInfo = {
   records?: Record<string, AoANTRecord>;
   state: AoANTState | null;
   isInGracePeriod?: boolean;
+  /**
+   * Arweave GraphQL meta describing the ANT's Lua-process spawn tx. Always
+   * `null` on Solana — Metaplex Core NFTs don't have an Arweave tx. Kept
+   * in the type for compatibility with existing consumers; remove in a
+   * follow-up refactor.
+   */
   processMeta?: TransactionEdge['node'] | null;
   errors: Error[];
+  /**
+   * ANT-module version. Always `0` on Solana — schema migration is
+   * surfaced through `ANT.upgrade()` and the AntConfig PDA's `version: u8`
+   * field, not via a module registry. Kept for consumer compatibility.
+   */
   version: number;
 };
 
@@ -55,43 +59,29 @@ export function buildDomainInfoQuery({
   domain,
   antId,
   arioContract,
-  arioProcessId,
-  aoNetwork,
   wallet,
-  hyperbeamUrl,
-  antRegistryProcessId,
 }: {
   domain?: string;
   antId?: string;
   arioContract?: AoARIORead;
-  arioProcessId?: string;
-  antRegistryProcessId: string;
-  aoNetwork: typeof NETWORK_DEFAULTS.AO;
   wallet?: ArNSWalletConnector;
+  // Legacy AO args — accepted but ignored.
+  arioProcessId?: string;
+  antRegistryProcessId?: string;
+  aoNetwork?: unknown;
   hyperbeamUrl?: string;
 }): Parameters<typeof useQuery<DomainInfo>>[0] {
   return {
-    // we are verbose here to enable predictable keys. Passing in the entire params as a single object can have unpredictable side effects
-    queryKey: [
-      'domainInfo',
-      domain,
-      antId,
-      arioProcessId,
-      aoNetwork,
-      hyperbeamUrl,
-    ],
+    queryKey: ['domainInfo', domain, antId],
     queryFn: async () => {
       const errors: Error[] = [];
-      const antAo = connect(aoNetwork.ANT);
 
       const arnsRecords =
-        domain && arioContract && arioProcessId
+        domain && arioContract
           ? await queryClient.fetchQuery(
               buildArNSRecordsQuery({
                 arioContract,
-                filters: {
-                  processId: antId,
-                },
+                filters: { processId: antId },
               }),
             )
           : undefined;
@@ -106,23 +96,16 @@ export function buildDomainInfoQuery({
         throw new Error('No ANT id or record found');
       }
       const processId = antId || record?.processId;
-      const signer = wallet?.contractSigner;
 
       if (!processId) {
         throw new Error('No processId found');
       }
 
-      const antProcess = ANT.init({
-        hyperbeamUrl,
-        process: new AOProcess({
-          processId,
-          ao: antAo,
-        }),
-        ...(signer !== undefined ? { signer: signer as any } : {}),
-      });
+      const { buildAnt } = await import('@src/utils/sdk-init');
+      const antProcess = await buildAnt({ wallet, processId });
 
       const state = await queryClient
-        .fetchQuery(buildAntStateQuery({ processId, ao: antAo, hyperbeamUrl }))
+        .fetchQuery(buildAntStateQuery({ processId, solana: true } as any))
         .catch((e) => {
           captureException(e);
           errors.push(
@@ -130,16 +113,6 @@ export function buildDomainInfoQuery({
               e?.message ?? 'Unknown Error - Unable to fetch ANT state',
             ),
           );
-          return null;
-        });
-
-      const processMeta = await queryClient
-        .fetchQuery(
-          buildGraphQLQuery(aoNetwork.ANT.GRAPHQL_URL, { ids: [processId] }),
-        )
-        .then((res) => res?.transactions.edges[0].node)
-        .catch((e) => {
-          console.error(e);
           return null;
         });
 
@@ -161,17 +134,6 @@ export function buildDomainInfoQuery({
         (k) => k !== '@',
       ).length;
 
-      const antVersions = await queryClient.fetchQuery(
-        buildANTVersionsQuery({ aoNetwork, antRegistryProcessId }),
-      );
-
-      const moduleId =
-        processMeta?.tags.find((tag) => tag.name === 'Module')?.value ?? '';
-
-      const version = Object.keys(antVersions ?? {}).find(
-        (versionNumber) => antVersions[versionNumber].moduleId === moduleId,
-      );
-
       const results: DomainInfo = {
         arnsRecord: record,
         associatedNames,
@@ -187,12 +149,11 @@ export function buildDomainInfoQuery({
         records: state?.Records,
         state,
         errors,
-        // TODO: staletime for this hook can be configured around the endTimestamp on the record
         isInGracePeriod: record ? isInGracePeriod(record) : false,
-        processMeta: processMeta
-          ? (processMeta as TransactionEdge['node'])
-          : null,
-        version: version ? parseInt(version) : 0,
+        // Always null on Solana (no Arweave tx behind a Metaplex Core NFT).
+        processMeta: null,
+        // Always 0 on Solana (no Lua module registry).
+        version: 0,
       };
 
       return results;
@@ -210,27 +171,14 @@ export default function useDomainInfo({
   domain?: string;
   antId?: string;
 }) {
-  const [
-    {
-      arioContract,
-      arioProcessId,
-      aoNetwork,
-      hyperbeamUrl,
-      antRegistryProcessId,
-    },
-  ] = useGlobalState();
+  const [{ arioContract }] = useGlobalState();
   const [{ wallet }] = useWalletState();
 
-  // TODO: this should be modified or removed
   const query = useQuery(
     buildDomainInfoQuery({
       domain,
       antId,
-      aoNetwork,
       arioContract,
-      arioProcessId,
-      antRegistryProcessId,
-      hyperbeamUrl,
       wallet,
     }),
   );
@@ -238,17 +186,14 @@ export default function useDomainInfo({
   return {
     ...query,
     refetch: () => {
-      // invalidate all the queries that are related to the current domain or antId
       const keyNames = ['ant', 'ant-info', 'domainInfo'];
       const keyVals = [antId, domain];
-      // match key name AND key value
       queryClient.invalidateQueries({
         predicate: (query) =>
           keyNames.some((name) => query.queryKey.includes(name)) &&
           keyVals.some((value) => query.queryKey.includes(value)),
       });
 
-      // force the refresh to trigger rerendering of depending components
       return query.refetch();
     },
   };

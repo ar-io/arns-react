@@ -40,7 +40,8 @@ import DialogModal from '../../modals/DialogModal/DialogModal';
 
 function ExtendLease() {
   // TODO: remove use of source contract
-  const [{ arioTicker, arioProcessId }] = useGlobalState();
+  const [{ arioTicker }] = useGlobalState();
+  const arioProcessId = '';
   const [{ walletAddress }] = useWalletState();
 
   const [, dispatchTransactionState] = useTransactionState();

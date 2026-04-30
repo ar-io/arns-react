@@ -117,7 +117,7 @@ function CryptoManualTopup({
         quote.tokenAmount,
         turboWalletAddress,
       );
-      setTransferResult(response);
+      setTransferResult(response as any);
     } catch (e: unknown) {
       console.error(e);
       setPaymentError(

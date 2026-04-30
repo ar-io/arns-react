@@ -55,9 +55,12 @@ export function ReassignNameModal({
   name: string;
 }) {
   const queryClient = useQueryClient();
-  const [
-    { arioProcessId, aoClient, aoNetwork, hyperbeamUrl, antRegistryProcessId },
-  ] = useGlobalState();
+  const [{ arioContract }] = useGlobalState();
+  const arioProcessId = '';
+  const aoClient = undefined as unknown as undefined;
+  const aoNetwork = { ARIO: { SCHEDULER: '' } } as const;
+  const hyperbeamUrl = '' as string;
+  const antRegistryProcessId = '';
   const [, dispatchArNSState] = useArNSState();
   const { data: antVersion } = useLatestANTVersion();
   const antModuleId = antVersion?.moduleId ?? null;
@@ -117,6 +120,7 @@ export function ReassignNameModal({
       };
       const result = await dispatchANTInteraction({
         signer: wallet.contractSigner,
+        wallet,
         payload: {
           name,
           arioProcessId,
@@ -167,6 +171,8 @@ export function ReassignNameModal({
 
       dispatchArNSUpdate({
         walletAddress: walletAddress,
+        wallet,
+        arioContract,
         arioProcessId,
         antRegistryProcessId,
         dispatch: dispatchArNSState,
@@ -197,12 +203,14 @@ export function ReassignNameModal({
           </span>
           <div className="flex flex-row w-full items-center justify-center text-sm">
             <button
+              data-testid="reassign-workflow-create-new"
               className="bg-primary-thin p-3 rounded"
               onClick={() => setWorkflow(REASSIGN_NAME_WORKFLOWS.NEW_EXISTING)}
             >
               Create new ANT
             </button>
             <button
+              data-testid="reassign-workflow-use-existing"
               className="bg-primary-thin p-3 rounded"
               onClick={() => setWorkflow(REASSIGN_NAME_WORKFLOWS.EXISTING)}
             >
@@ -466,6 +474,7 @@ export function ReassignNameModal({
               <div className="flex flex-col gap-4">
                 <span className="grey">Enter destination ANT Process ID:</span>
                 <ValidationInput
+                  inputId="reassign-name-target-ant-input"
                   inputClassName="name-token-input white"
                   inputCustomStyle={{ paddingLeft: '10px', fontSize: '16px' }}
                   wrapperCustomStyle={{
@@ -477,7 +486,7 @@ export function ReassignNameModal({
                   showValidationOutline={true}
                   showValidationChecklist={true}
                   validationListStyle={{ display: 'none' }}
-                  maxCharLength={43}
+                  maxCharLength={44}
                   value={newAntProcessId}
                   catchInvalidInput={true}
                   customPattern={ARNS_TX_ID_ENTRY_REGEX}

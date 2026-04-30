@@ -1,14 +1,19 @@
 import { useGlobalState, useWalletState } from '@src/state';
+import { arioContractCacheKey } from '@src/utils/sdk-init';
 import { useQuery } from '@tanstack/react-query';
 
 export function useArIOLiquidBalance(address?: string) {
-  const [{ arioContract, arioProcessId }] = useGlobalState();
+  const [{ arioContract }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
 
   const userAddress = address ?? walletAddress?.toString();
 
   return useQuery({
-    queryKey: ['ario-liquid-balance', userAddress, arioProcessId.toString()],
+    queryKey: [
+      'ario-liquid-balance',
+      userAddress,
+      arioContractCacheKey(arioContract),
+    ],
     queryFn: async () => {
       if (!userAddress) throw new Error('No address provided to fetch balance');
       const arioBalance = await arioContract.getBalance({
@@ -22,13 +27,17 @@ export function useArIOLiquidBalance(address?: string) {
 }
 
 export function useArIOStakedAndVaultedBalance(address?: string) {
-  const [{ arioContract, arioProcessId }] = useGlobalState();
+  const [{ arioContract }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
 
   const userAddress = address ?? walletAddress?.toString();
 
   return useQuery({
-    queryKey: ['ario-delegated-stake', userAddress, arioProcessId.toString()],
+    queryKey: [
+      'ario-delegated-stake',
+      userAddress,
+      arioContractCacheKey(arioContract),
+    ],
     queryFn: async () => {
       if (!userAddress) throw new Error('No address provided to fetch balance');
       let cursor = undefined;

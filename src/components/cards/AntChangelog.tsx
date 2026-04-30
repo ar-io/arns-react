@@ -29,7 +29,7 @@ function AntChangelog({ className }: { className?: string }) {
   const FORMATTED_CHANGELOG = Object.entries(versions ?? {})
     .sort(([a], [b]) => Number(b) - Number(a))
     .map(
-      ([version, { moduleId, notes, releaseTimestamp }]) =>
+      ([version, { moduleId, notes, releaseTimestamp }]: [string, any]) =>
         `## [${version}] - ${moduleId} - ${new Date(
           releaseTimestamp,
         ).toLocaleDateString('en-US', {

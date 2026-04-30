@@ -70,6 +70,7 @@ function TransferANTModal({
               <div className="flex flex-column" style={{ gap: '15px' }}>
                 <span className="grey">Recipient wallet address:</span>
                 <ValidationInput
+                  inputId="transfer-ant-target-input"
                   inputClassName="name-token-input white"
                   inputCustomStyle={{ paddingLeft: '10px', fontSize: '16px' }}
                   wrapperCustomStyle={{
@@ -81,7 +82,7 @@ function TransferANTModal({
                   showValidationOutline={true}
                   showValidationChecklist={true}
                   validationListStyle={{ display: 'none' }}
-                  maxCharLength={43}
+                  maxCharLength={44}
                   value={toAddress}
                   setValue={setToAddress}
                   validityCallback={(validity: boolean) =>
@@ -153,7 +154,7 @@ function TransferANTModal({
                   }}
                 >
                   <Checkbox
-                    rootClassName="accept-checkbox"
+                    rootClassName="accept-checkbox transfer-ant-accept-checkbox"
                     onChange={(e) => setAccepted(e.target.checked)}
                     checked={accepted && isValidAoAddress(toAddress)}
                     style={{ color: 'white' }}

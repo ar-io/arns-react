@@ -54,23 +54,27 @@ import { queryClient } from '@src/utils/network';
 import { Tooltip as AntdTooltip } from 'antd';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAccount, useBalance, useConfig } from 'wagmi';
+// NOTE (de-AO refactor): wagmi hooks crash without a `WagmiProvider`, which
+// the Solana-only refactor removed. Stub them out — the resulting `undefined`
+// values flow into the EVM-funded checkout branches that are unreachable
+// from the Solana-only UI anyway. Re-import from 'wagmi' if/when EVM
+// wallets come back.
+const useAccount = () => ({ connector: undefined, address: undefined }) as any;
+const useBalance = (_args?: unknown) => ({ data: undefined }) as any;
+const useConfig = () => undefined as any;
 
 // page on route transaction/review
 // on completion routes to transaction/complete
 function Checkout() {
   const navigate = useNavigate();
-  const [
-    {
-      arioContract,
-      arioProcessId,
-      aoNetwork,
-      aoClient,
-      arioTicker,
-      hyperbeamUrl,
-      antRegistryProcessId,
-    },
-  ] = useGlobalState();
+  const [{ arioContract, arioTicker }] = useGlobalState();
+  // Legacy AO routing fields kept as no-op placeholders to satisfy the
+  // existing dispatch payloads; ignored by the Solana backend.
+  const arioProcessId = '';
+  const antRegistryProcessId = '';
+  const aoClient = undefined as unknown as undefined;
+  const aoNetwork = { ARIO: { SCHEDULER: '' } } as const;
+  const hyperbeamUrl = '' as string;
   const turbo = useTurboArNSClient();
   const [, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
@@ -431,7 +435,14 @@ function Checkout() {
 
   async function handleNext() {
     try {
-      if (!(arioContract instanceof ARIOWriteable)) {
+      // ARIOWriteable is the AO write impl; on Solana the writeable
+      // instance is `SolanaARIOWriteable` which doesn't share that base.
+      // Both have a `.signer` slot so use that as a proxy for "writeable".
+      const isWriteable =
+        arioContract instanceof ARIOWriteable ||
+        (arioContract as { signer?: unknown } | undefined)?.signer !==
+          undefined;
+      if (!isWriteable) {
         throw new Error('Wallet must be connected to dispatch transactions.');
       }
       if (!transactionData || !workflowName) {
@@ -496,6 +507,7 @@ function Checkout() {
             processId: arioProcessId,
             dispatch: dispatchTransactionState,
             signer: wallet?.contractSigner,
+            wallet,
             ao: aoClient,
             scheduler: aoNetwork.ARIO.SCHEDULER,
             fundFrom: 'turbo', // Use turbo credits after top-up
@@ -524,6 +536,7 @@ function Checkout() {
           processId: arioProcessId,
           dispatch: dispatchTransactionState,
           signer: wallet?.contractSigner,
+          wallet,
           ao: aoClient,
           scheduler: aoNetwork.ARIO.SCHEDULER,
           fundFrom:
@@ -544,14 +557,27 @@ function Checkout() {
       eventEmitter.emit('error', error);
     } finally {
       if (walletAddress) {
+        // Refresh the user's ArNS / ANT slice (resets `domainInfo`,
+        // `ant`, `ant-info`, `arns-records`).
         dispatchArNSUpdate({
           dispatch: dispatchArNSState,
           arioProcessId,
           antRegistryProcessId,
           walletAddress,
+          wallet,
+          arioContract,
           aoNetworkSettings: aoNetwork,
           hyperbeamUrl,
         });
+        // The buy debits ARIO from the wallet's ATA — drop the cached
+        // liquid-balance / delegated-stake snapshots so the navbar
+        // pill and the next checkout's funding-source selector reflect
+        // the post-buy figures. Scoped here (vs. inside
+        // `dispatchArNSUpdate`) because these caches have ambient
+        // navbar subscribers that would refetch on every wallet
+        // connect otherwise.
+        queryClient.resetQueries({ queryKey: ['ario-liquid-balance'] });
+        queryClient.resetQueries({ queryKey: ['ario-delegated-stake'] });
       }
     }
   }
@@ -656,6 +682,7 @@ function Checkout() {
                   disabled={payDisabled}
                   className="p-[0.625rem] bg-primary rounded w-[100px] min-w-fit disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={handleNext}
+                  data-testid="checkout-pay-now-button"
                 >
                   {isProcessingBaseToken
                     ? getBaseTokenButtonText()

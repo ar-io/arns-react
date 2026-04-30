@@ -32,7 +32,9 @@ function EditUndernameModal({
   closeModal: () => void;
   payloadCallback: (payload: SetRecordPayload) => void;
 }) {
-  const [{ arweaveDataProvider, antAoClient, hyperbeamUrl }] = useGlobalState();
+  const [{ arweaveDataProvider }] = useGlobalState();
+  const antAoClient = undefined as unknown as undefined;
+  const hyperbeamUrl = '' as string;
   const isMobile = useIsMobile();
   const targetIdRef = useRef<HTMLInputElement>(null);
   const ttlRef = useRef<HTMLInputElement>(null);

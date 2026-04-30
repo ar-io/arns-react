@@ -1,13 +1,12 @@
 import { SpawnANTState } from '@ar.io/sdk';
+import { isAddress as isSolanaAddress } from '@solana/kit';
 import { StepProps } from 'antd';
-import { Address, checksumAddress } from 'viem';
 
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
 import {
   ARNSMapping,
   ARNS_INTERACTION_TYPES,
   BuyRecordPayload,
-  EthAddress,
   ExcludedValidInteractionType,
   ExtendLeasePayload,
   INTERACTION_TYPES,
@@ -47,17 +46,38 @@ export function isArweaveTransactionID(id?: string) {
   return true;
 }
 
-const ETH_REGEX = /^0x[a-fA-F0-9]{40}$/;
-
-/** Check that address is EIP-55 compatible ETH address */
-export function isEthAddress(address: string): address is EthAddress {
-  return (
-    ETH_REGEX.test(address) && checksumAddress(address as Address) === address
-  );
+/**
+ * Solana-only Ethereum-address shim. After de-AO, the app no longer
+ * accepts Ethereum wallets, but a few legacy import paths still call
+ * `isEthAddress(...)` to short-circuit ETH parsing — return false so the
+ * caller falls through to the Solana / Arweave branches. Phase 8 removes
+ * the call sites.
+ */
+export function isEthAddress(_address: string): _address is `0x${string}` {
+  return false;
 }
 
+/**
+ * True for any wallet identifier the Solana-only build accepts:
+ *   - Solana base58 pubkey (32–44 chars, must decode to 32 bytes)
+ *   - Arweave TX ID (43 base64url chars) — still accepted because the
+ *     wallet-address input fields are also reused for ANT/process IDs.
+ *
+ * Prefer `isValidSolanaAddress` in new code — it skips the Arweave branch
+ * and is unambiguous about what's actually being validated.
+ */
+export function isValidSolanaAddress(address: string): boolean {
+  return isSolanaAddress(address);
+}
+
+/**
+ * @deprecated Use `isValidSolanaAddress` for wallet inputs and
+ * `isArweaveTransactionID` for tx-id inputs. Kept as an alias so cross-
+ * phase call sites keep compiling — the de-AO refactor renamed the
+ * concept ("Ao" → Solana) but the behaviour is the same as before.
+ */
 export function isValidAoAddress(address: string) {
-  return isEthAddress(address) || isArweaveTransactionID(address);
+  return isValidSolanaAddress(address) || isArweaveTransactionID(address);
 }
 
 export function isObjectOfTransactionPayloadType<
@@ -759,6 +779,7 @@ export function createDefaultAntState(
       ['@']: {
         transactionId: LANDING_PAGE_TXID.toString(),
         ttlSeconds: 900,
+        targetProtocol: 0,
       },
     },
     logo: DEFAULT_ANT_LOGO,
@@ -775,6 +796,7 @@ export function createAntStateForOwner(owner: string, targetId?: string) {
       ['@']: {
         transactionId: targetId ?? LANDING_PAGE_TXID.toString(),
         ttlSeconds: 900,
+        targetProtocol: 0,
       },
     },
   });

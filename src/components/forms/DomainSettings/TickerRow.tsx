@@ -42,6 +42,7 @@ export default function TickerRow({
         value={
           typeof ticker === 'string' ? (
             <ValidationInput
+              inputId="domain-settings-ticker-input"
               catchInvalidInput={true}
               showValidationIcon={editing}
               onPressEnter={() => setShowModal(true)}

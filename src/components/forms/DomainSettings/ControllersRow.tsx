@@ -119,6 +119,7 @@ export default function ControllersRow({
               title={
                 <div className="flex-col flex" style={{ gap: '10px' }}>
                   <button
+                    data-testid="controllers-add-menu-button"
                     className="flex flex-right white pointer button"
                     onClick={() => {
                       setShowAddModal(true);
@@ -128,6 +129,7 @@ export default function ControllersRow({
                     Add Controller
                   </button>
                   <button
+                    data-testid="controllers-remove-menu-button"
                     className="flex flex-right white pointer button"
                     onClick={() => {
                       setShowRemoveModal(true);
@@ -139,12 +141,17 @@ export default function ControllersRow({
                 </div>
               }
             >
-              <VerticalDotMenuIcon
-                width={'18px'}
-                height={'18px'}
-                fill="var(--text-grey)"
-                className="pointer"
-              />
+              <span
+                data-testid="controllers-row-menu-trigger"
+                className="inline-flex"
+              >
+                <VerticalDotMenuIcon
+                  width={'18px'}
+                  height={'18px'}
+                  fill="var(--text-grey)"
+                  className="pointer"
+                />
+              </span>
             </Tooltip>
           ) : null,
         ]}

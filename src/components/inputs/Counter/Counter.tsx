@@ -50,6 +50,7 @@ function Counter({
       <div className="flex-column center">
         <div className="counter">
           <button
+            data-testid="counter-decrement"
             className={`counter-button ${minValue === value ? '' : 'hover'}`}
             disabled={value === minValue}
             onClick={decHandleOnClick}
@@ -114,6 +115,7 @@ function Counter({
             )}
           </div>
           <button
+            data-testid="counter-increment"
             className={`counter-button ${maxValue === value ? '' : 'hover'}`}
             disabled={value === maxValue}
             onClick={incHandleOnClick}

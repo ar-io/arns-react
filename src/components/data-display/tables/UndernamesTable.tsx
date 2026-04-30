@@ -67,9 +67,11 @@ const UndernamesTable = ({
   state?: AoANTState | null;
   isLoading: boolean;
 }) => {
-  const [
-    { arioProcessId, antAoClient, hyperbeamUrl, antRegistryProcessId, gateway },
-  ] = useGlobalState();
+  const [{ gateway }] = useGlobalState();
+  const arioProcessId = '';
+  const antAoClient = undefined as unknown as undefined;
+  const hyperbeamUrl = '' as string;
+  const antRegistryProcessId = '';
   const [, dispatchArNSState] = useArNSState();
 
   const [{ wallet, walletAddress }] = useWalletState();
@@ -110,7 +112,11 @@ const UndernamesTable = ({
         throw new Error('Unable to interact with ANT contract - missing ID.');
       }
 
-      if (!wallet?.contractSigner || !walletAddress) {
+      // Solana wallets don't carry an AO contractSigner — accept either.
+      const hasSigner =
+        !!wallet?.contractSigner ||
+        (wallet?.tokenType === 'solana' && !!wallet.solanaSigner);
+      if (!hasSigner || !walletAddress) {
         throw new Error(
           'Unable to interact with ANT contract - missing signer.',
         );
@@ -120,7 +126,8 @@ const UndernamesTable = ({
         processId,
         payload,
         workflowName,
-        signer: wallet?.contractSigner,
+        signer: wallet?.contractSigner as never,
+        wallet,
         owner: walletAddress?.toString(),
         dispatchTransactionState,
         dispatchArNSState,
@@ -433,6 +440,7 @@ const UndernamesTable = ({
           isAuthorized ? (
             <div className="w-full flex flex-row text-primary font-semibold border-t-[1px] border-dark-grey text-sm">
               <button
+                data-testid="add-undername-button"
                 className="flex flex-row w-full items-center p-3 bg-background hover:bg-primary-gradient text-primary hover:text-primary fill-primary hover:fill-black transition-all"
                 style={{ gap: '10px' }}
                 onClick={() => setAction(UNDERNAME_TABLE_ACTIONS.CREATE)}

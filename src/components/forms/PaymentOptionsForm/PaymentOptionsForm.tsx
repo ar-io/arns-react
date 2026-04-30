@@ -35,7 +35,12 @@ import {
 import { Tabs } from 'radix-ui';
 import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
 import { isEmail } from 'validator';
-import { useAccount, useBalance } from 'wagmi';
+// NOTE (de-AO refactor): wagmi hooks crash without a `WagmiProvider`, which
+// the Solana-only refactor removed. Stub them out — the EVM-funded payment
+// branches are unreachable from the Solana-only UI but the wagmi hook
+// calls themselves still ran on every render and crashed the form.
+const useAccount = () => ({ connector: undefined, address: undefined }) as any;
+const useBalance = (_args?: unknown) => ({ data: undefined }) as any;
 
 export type PaymentMethod = 'card' | 'crypto' | 'credits';
 export type ARIOCryptoOptions = 'ARIO' | 'dARIO' | 'tARIO';
@@ -504,14 +509,22 @@ function PaymentOptionsForm({
             defaultValue={'crypto'}
             className="flex w-full justify-center items-center gap-2 mb-6"
           >
-            {/* TODO: add tooltip and disable trigger if purchase amount is greated or equal to 2000 USD */}
+            {/*
+              Credit-card payments for ArNS purchases route through the Turbo
+              payment service, which still settles via AO. Until the service
+              ships Solana support the trigger is disabled — a payment would
+              clear without an on-chain mutation. See `TurboArNSClient.ts`.
+            */}
             <Tabs.Trigger
               value="card"
-              className="flex gap-3 p-3 data-[state=active]:bg-foreground rounded border border-[#222224] data-[state=active]:border-grey text-white items-center flex-1 whitespace-nowrap transition-all duration-300 disabled:opacity-50"
+              disabled
+              title="Credit-card payments for ArNS purchases are temporarily unavailable on Solana. The Turbo payment service needs Solana support before this option can be re-enabled. Use crypto or Turbo credits in the meantime."
+              className="flex gap-3 p-3 data-[state=active]:bg-foreground rounded border border-[#222224] data-[state=active]:border-grey text-white items-center flex-1 whitespace-nowrap transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="flex gap-3 items-center">
                 <CreditCard className="size-5 text-grey" />
-                Credit Card
+                Credit Card&nbsp;
+                <span className="text-xs text-grey italic">(unavailable)</span>
               </div>
             </Tabs.Trigger>
             <Tabs.Trigger

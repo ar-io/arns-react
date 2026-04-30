@@ -84,6 +84,7 @@ export default function OwnerRow({
               icon={
                 <button
                   key={1}
+                  data-testid="transfer-ant-button"
                   onClick={() => setShowTransferANTModal(true)}
                   className="p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all hover:scale-105"
                 >

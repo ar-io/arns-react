@@ -66,9 +66,9 @@ export async function switchToBaseNetwork(connector: Connector): Promise<void> {
       try {
         const networkParams = getBaseNetworkParams();
 
-        // Use window.ethereum to add the chain
-        if (window.ethereum) {
-          await window.ethereum.request({
+        // Use (window as any).ethereum to add the chain
+        if ((window as any).ethereum) {
+          await (window as any).ethereum.request({
             method: 'wallet_addEthereumChain',
             params: [networkParams],
           });

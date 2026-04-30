@@ -34,8 +34,10 @@ function UpgradeDomainModal({
   domain: string;
   processId: string;
 }) {
-  const [{ antAoClient, arioProcessId, antRegistryProcessId }] =
-    useGlobalState();
+  useGlobalState();
+  const antAoClient = undefined as unknown as undefined;
+  const arioProcessId = '';
+  const antRegistryProcessId = '';
   const [, dispatchArNSState] = useArNSState();
   const [{ wallet, walletAddress }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
@@ -45,7 +47,7 @@ function UpgradeDomainModal({
 
   const { data: antVersion } = useLatestANTVersion();
   const antModuleId = antVersion?.moduleId ?? null;
-  const luaSourceId = antVersion?.luaSourceId ?? null;
+  const luaSourceId = (antVersion as any)?.luaSourceId ?? null;
 
   function handleClose() {
     setVisible(false);
@@ -83,6 +85,7 @@ function UpgradeDomainModal({
         ao: antAoClient,
         antRegistryProcessId,
         signer,
+        wallet,
         dispatchTransactionState,
         dispatchArNSState,
         stepCallback: async (step?: string | Record<string, string>) => {

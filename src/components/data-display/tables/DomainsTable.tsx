@@ -119,9 +119,11 @@ const DomainsTable = ({
 }) => {
   const navigate = useNavigate();
   const [{ walletAddress }] = useWalletState();
-  const [
-    { arioProcessId, aoNetwork, hyperbeamUrl, antRegistryProcessId, gateway },
-  ] = useGlobalState();
+  const [{ gateway }] = useGlobalState();
+  const arioProcessId = '';
+  const aoNetwork = { ARIO: { SCHEDULER: '' } } as const;
+  const hyperbeamUrl = '' as string;
+  const antRegistryProcessId = '';
   const [{ loading: loadingArnsState }, dispatchArNSState] = useArNSState();
   const [, dispatchModalState] = useModalState();
   const [, dispatchTransactionState] = useTransactionState();

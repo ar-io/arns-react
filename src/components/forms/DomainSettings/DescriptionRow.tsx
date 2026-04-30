@@ -54,6 +54,7 @@ export default function DescriptionRow({
               description
             ) : (
               <ValidationInput
+                inputId="domain-settings-description-input"
                 showValidationIcon={false}
                 onPressEnter={() => setShowModal(true)}
                 wrapperClassName="flex w-full"

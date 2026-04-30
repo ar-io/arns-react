@@ -68,6 +68,7 @@ export default function UndernamesRow({
                 message={'Increase undername support'}
                 icon={
                   <button
+                    data-testid="increase-undernames-button"
                     className={
                       'p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap hover:scale-105'
                     }

@@ -1,7 +1,7 @@
-import { AoARIORead, AoARIOWrite, AoClient } from '@ar.io/sdk/web';
+import { AoARIORead, AoARIOWrite } from '@ar.io/sdk/web';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
 
-import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
+import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import { GlobalState } from '../contexts/GlobalState';
 
 export type GlobalAction =
@@ -9,32 +9,12 @@ export type GlobalAction =
       type: 'setGateway';
       payload: {
         gateway: string;
-        provider: ArweaveCompositeDataProvider;
+        provider: SimpleArweaveDataProvider;
       };
-    }
-  | {
-      type: 'setAONetwork';
-      payload: typeof NETWORK_DEFAULTS.AO;
     }
   | {
       type: 'setTurboNetwork';
       payload: typeof NETWORK_DEFAULTS.TURBO;
-    }
-  | {
-      type: 'setARIOAoClient';
-      payload: AoClient;
-    }
-  | {
-      type: 'setANTAoClient';
-      payload: AoClient;
-    }
-  | {
-      type: 'setIoProcessId';
-      payload: string;
-    }
-  | {
-      type: 'setAntRegistryProcessId';
-      payload: string;
     }
   | {
       type: 'setBlockHeight';
@@ -47,10 +27,6 @@ export type GlobalAction =
   | {
       type: 'setIoTicker';
       payload: string;
-    }
-  | {
-      type: 'setHyperbeamUrl';
-      payload: string | undefined;
     };
 
 export const reducer = (
@@ -64,14 +40,6 @@ export const reducer = (
         gateway: action.payload.gateway,
         arweaveDataProvider: action.payload.provider,
       };
-    case 'setAONetwork':
-      return {
-        ...state,
-        aoNetwork: {
-          ...state.aoNetwork,
-          ...action.payload,
-        },
-      };
     case 'setTurboNetwork':
       return {
         ...state,
@@ -79,16 +47,6 @@ export const reducer = (
           ...state.turboNetwork,
           ...action.payload,
         },
-      };
-    case 'setARIOAoClient':
-      return {
-        ...state,
-        aoClient: action.payload,
-      };
-    case 'setANTAoClient':
-      return {
-        ...state,
-        antAoClient: action.payload,
       };
     case 'setBlockHeight':
       return {
@@ -105,21 +63,6 @@ export const reducer = (
       return {
         ...state,
         arioContract: action.payload,
-      };
-    case 'setIoProcessId':
-      return {
-        ...state,
-        arioProcessId: action.payload,
-      };
-    case 'setAntRegistryProcessId':
-      return {
-        ...state,
-        antRegistryProcessId: action.payload,
-      };
-    case 'setHyperbeamUrl':
-      return {
-        ...state,
-        hyperbeamUrl: action.payload,
       };
     default:
       return state;

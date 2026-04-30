@@ -14,11 +14,9 @@ import {
   useTransactionState,
   useWalletState,
 } from '@src/state';
-import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { dispatchANTUpdate } from '@src/state/actions/dispatchANTUpdate';
 import dispatchArIOInteraction from '@src/state/actions/dispatchArIOInteraction';
 import {
-  ANT_INTERACTION_TYPES,
   ARNS_INTERACTION_TYPES,
   ContractInteraction,
   PrimaryNameRequestPayload,
@@ -47,7 +45,9 @@ import DialogModal from '../DialogModal/DialogModal';
 enum PRIMARY_NAME_WORKFLOWS {
   REQUEST = 'Set Primary Name',
   CHANGE = 'Change Primary Name',
-  REMOVE = 'Remove Primary Name',
+  // `REMOVE` was supported on AO via `removePrimaryNames` on the ANT — Solana
+  // doesn't model this on-chain (the protocol auto-approves and there's no
+  // removable approval to clear), so the option is gone after de-AO.
 }
 
 function isPrimaryNameRequest(
@@ -75,16 +75,7 @@ function PrimaryNameModal({
   setVisible: (visible: boolean) => void;
 }) {
   const queryClient = useQueryClient();
-  const [
-    {
-      arioProcessId,
-      arioContract,
-      aoClient,
-      aoNetwork,
-      hyperbeamUrl,
-      antRegistryProcessId,
-    },
-  ] = useGlobalState();
+  const [{ arioContract }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const { data: primaryNameData, isLoading: isLoadingPrimaryNameData } =
     usePrimaryName();
@@ -139,8 +130,6 @@ function PrimaryNameModal({
       primaryNameData !== undefined
     ) {
       setWorkflow(PRIMARY_NAME_WORKFLOWS.CHANGE);
-    } else if (isRemovePrimaryNamesPayload(transactionData)) {
-      setWorkflow(PRIMARY_NAME_WORKFLOWS.REMOVE);
     } else {
       setWorkflow(undefined);
     }
@@ -178,10 +167,10 @@ function PrimaryNameModal({
         // change and set are the same workflows interactions-wise so we fall thru here
         case PRIMARY_NAME_WORKFLOWS.CHANGE:
         case PRIMARY_NAME_WORKFLOWS.REQUEST: {
-          // ario contract and ant interactions
+          // ario contract and ant interactions — Solana-only after de-AO.
           result = await dispatchArIOInteraction({
             workflowName: ARNS_INTERACTION_TYPES.PRIMARY_NAME_REQUEST,
-            signer: wallet.contractSigner,
+            wallet,
             payload: {
               ...transactionPayload,
               name: encodePrimaryName(targetName),
@@ -189,34 +178,11 @@ function PrimaryNameModal({
             },
             owner: walletAddress,
             arioContract: arioContract as any,
-            processId: arioProcessId,
+            processId: domainData.processId,
             fundFrom: fundingSource,
             dispatch: dispatchTransactionState,
-            hyperbeamUrl,
           });
 
-          break;
-        }
-        case PRIMARY_NAME_WORKFLOWS.REMOVE: {
-          result = await dispatchANTInteraction({
-            signer: wallet.contractSigner,
-            owner: walletAddress.toString(),
-            processId: domainData.processId,
-            workflowName: ANT_INTERACTION_TYPES.REMOVE_PRIMARY_NAMES,
-            payload: {
-              arioProcessId: transactionPayload.arioProcessId,
-              names: [encodePrimaryName(targetName)],
-            },
-            dispatchTransactionState,
-            dispatchArNSState,
-            ao: aoClient,
-            hyperbeamUrl,
-            antRegistryProcessId,
-          });
-          queryClient.resetQueries({
-            queryKey: ['primary-name'],
-            exact: false,
-          });
           break;
         }
         default:
@@ -248,11 +214,9 @@ function PrimaryNameModal({
       dispatchANTUpdate({
         processId: domainData.processId,
         dispatch: dispatchArNSState,
-        aoNetwork: aoNetwork,
+        wallet,
         walletAddress,
         queryClient,
-        hyperbeamUrl,
-        antRegistryProcessId,
       });
 
       closeModal();
@@ -322,7 +286,7 @@ function PrimaryNameModal({
 
               {/* transaction details */}
               <div className="flex flex-col w-full">
-                {workflow !== PRIMARY_NAME_WORKFLOWS.REMOVE && (
+                {
                   <div className="flex w-full pt-10">
                     <TransactionDetails
                       details={{
@@ -333,7 +297,7 @@ function PrimaryNameModal({
                       fundingSourceCallback={(v) => setFundingSource(v)}
                     />
                   </div>
-                )}
+                }
               </div>
             </div>
           )
@@ -341,10 +305,7 @@ function PrimaryNameModal({
         onCancel={closeModal}
         onClose={closeModal}
         onNext={
-          (!isLoading &&
-            costDetail &&
-            costDetail.fundingPlan!.shortfall === 0) ||
-          workflow === PRIMARY_NAME_WORKFLOWS.REMOVE
+          !isLoading && costDetail && costDetail.fundingPlan!.shortfall === 0
             ? confirm
             : undefined
         }

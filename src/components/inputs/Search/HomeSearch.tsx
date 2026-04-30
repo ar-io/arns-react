@@ -348,6 +348,7 @@ function HomeSearch() {
                       <button
                         className={`py-2 px-3 text-sm bg-primary font-bold rounded-[4px] text-black disabled:opacity-50 disabled:bg-grey`}
                         disabled={!isValidDomain}
+                        data-testid="home-search-register-available"
                         onClick={() => {
                           navigate(`/register/${lowerCaseDomain(domainQuery)}`);
                         }}
@@ -364,6 +365,7 @@ function HomeSearch() {
                     <button
                       className="text-[12px] text-white whitespace-nowrap flex items-center"
                       style={{ gap: 0 }}
+                      data-testid="home-search-view-details"
                       onClick={() => {
                         navigate(
                           `/manage/names/${lowerCaseDomain(domainQuery)}`,

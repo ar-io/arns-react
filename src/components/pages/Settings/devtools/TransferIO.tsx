@@ -80,7 +80,7 @@ function TransferIO() {
             showValidationOutline={true}
             showValidationChecklist={true}
             validationListStyle={{ display: 'none' }}
-            maxCharLength={43}
+            maxCharLength={44}
             value={toAddress}
             setValue={setToAddress}
             validityCallback={(validity: boolean) =>

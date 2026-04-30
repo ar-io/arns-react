@@ -31,7 +31,9 @@ function NameTokenSelector({
 }: {
   selectedTokenCallback: (id: ArweaveTransactionID | undefined) => void;
 }) {
-  const [{ arweaveDataProvider, antAoClient, hyperbeamUrl }] = useGlobalState();
+  const [{ arweaveDataProvider }] = useGlobalState();
+  const antAoClient = undefined as unknown as undefined;
+  const hyperbeamUrl = '' as string;
   const [{ walletAddress }] = useWalletState();
 
   const [searchText, setSearchText] = useState<string>();
@@ -146,11 +148,13 @@ function NameTokenSelector({
       }
 
       const processIds = fetchedprocessIds.concat(validImports);
-      const associatedRecords = await arweaveDataProvider.getRecords({
-        filters: {
-          processId: processIds,
+      const associatedRecords = await (arweaveDataProvider as any).getRecords?.(
+        {
+          filters: {
+            processId: processIds,
+          },
         },
-      });
+      );
 
       const contracts: {
         processId: ArweaveTransactionID;

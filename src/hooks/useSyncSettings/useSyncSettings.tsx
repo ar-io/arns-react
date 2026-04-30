@@ -5,22 +5,6 @@ export const SETTINGS_STORAGE_KEY = 'arns-app-settings';
 
 interface NetworkSettings {
   gateway: string;
-  hyperbeamUrl?: string;
-  aoNetwork: {
-    ARIO: {
-      CU_URL: string;
-      MU_URL: string;
-      SCHEDULER: string;
-      HYPERBEAM_URL?: string;
-    };
-    ANT: {
-      CU_URL: string;
-      MU_URL: string;
-      SCHEDULER: string;
-      GRAPHQL_URL: string;
-      HYPERBEAM_URL?: string;
-    };
-  };
   turboNetwork: {
     UPLOAD_URL: string;
     PAYMENT_URL: string;
@@ -30,31 +14,20 @@ interface NetworkSettings {
   };
 }
 
-interface ArNSSettings {
-  arioProcessId: string;
-  antRegistryProcessId: string;
-}
-
 interface Settings {
   network: NetworkSettings;
-  arns: ArNSSettings;
 }
 
+/**
+ * Persist user-modified network settings to localStorage. Solana-only after
+ * the de-AO refactor — gateway + Turbo are the only knobs that survive; all
+ * AO process IDs / CU urls / hyperbeam URLs are gone.
+ */
 function useSyncSettings() {
-  const [
-    {
-      gateway,
-      hyperbeamUrl,
-      aoNetwork,
-      turboNetwork,
-      arioProcessId,
-      antRegistryProcessId,
-    },
-  ] = useGlobalState();
+  const [{ gateway, turboNetwork }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const isInitialLoad = useRef(true);
 
-  // Save settings when they change
   useEffect(() => {
     if (!walletAddress) {
       return;
@@ -65,35 +38,16 @@ function useSyncSettings() {
     const settings: Settings = {
       network: {
         gateway,
-        hyperbeamUrl: hyperbeamUrl || undefined,
-        aoNetwork,
         turboNetwork,
-      },
-      arns: {
-        arioProcessId,
-        antRegistryProcessId,
       },
     };
 
     try {
       localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
-      console.log(
-        'Settings saved to localStorage:',
-        SETTINGS_STORAGE_KEY,
-        settings,
-      );
     } catch (error) {
       console.error('Failed to save settings to localStorage:', error);
     }
-  }, [
-    walletAddress,
-    gateway,
-    hyperbeamUrl,
-    aoNetwork,
-    turboNetwork,
-    arioProcessId,
-    antRegistryProcessId,
-  ]);
+  }, [walletAddress, gateway, turboNetwork]);
 
   return null;
 }

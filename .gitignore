@@ -2,6 +2,8 @@ coverage
 dist
 node_modules
 .env
+.env.local
+.env.*.local
 vite.config.ts.*.mjs
 cache
 *.log
