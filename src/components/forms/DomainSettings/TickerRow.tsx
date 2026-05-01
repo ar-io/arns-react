@@ -31,8 +31,10 @@ export default function TickerRow({
       eventEmitter.emit('error', error);
     } finally {
       setEditing(false);
-      setNewTicker(ticker ?? '');
       setShowModal(false);
+      // See DescriptionRow for the rationale — don't reset `newTicker` to
+      // the stale `ticker` prop; the `useEffect([ticker])` above syncs
+      // when the cache refresh lands.
     }
   }
   return (

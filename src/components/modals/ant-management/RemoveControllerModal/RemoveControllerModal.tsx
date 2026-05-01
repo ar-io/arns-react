@@ -5,9 +5,11 @@ import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
+import { SolanaAddress } from '../../../../services/solana/SolanaAddress';
 import {
   formatForMaxCharCount,
   getCustomPaginationButtons,
+  isArweaveTransactionID,
   isEthAddress,
 } from '../../../../utils';
 import DialogModal from '../../DialogModal/DialogModal';
@@ -19,7 +21,9 @@ function RemoveControllersModal({
   closeModal,
   payloadCallback,
 }: {
-  antId: ArweaveTransactionID;
+  // ANT mint pubkey (Solana base58) or, on legacy AO, an Arweave tx id.
+  // The component only calls `.toString()` on it.
+  antId: ArweaveTransactionID | SolanaAddress;
   controllers: string[];
   closeModal: () => void;
   payloadCallback: (payload: { controller: string }) => void;
@@ -30,20 +34,26 @@ function RemoveControllersModal({
   );
   const [tablePage, setTablePage] = useState<number>(1);
   const { name = 'N/A' } = useANT(antId.toString());
+  // Wrap each controller in the right typed wrapper so the explorer link
+  // routes correctly: Arweave tx ids → Arweave explorer, Solana base58 →
+  // Solana explorer, Ethereum addresses kept as-is (no link).
+  const wrapController = (controller: string): AoAddress =>
+    isEthAddress(controller)
+      ? controller
+      : isArweaveTransactionID(controller)
+        ? new ArweaveTransactionID(controller)
+        : new SolanaAddress(controller);
+
   const [rows, setRows] = useState<{ controller: AoAddress }[]>(
     controllers.map((controller) => ({
-      controller: isEthAddress(controller)
-        ? controller
-        : new ArweaveTransactionID(controller),
+      controller: wrapController(controller),
     })),
   );
 
   useEffect(() => {
     setRows(
       controllers.map((controller) => ({
-        controller: isEthAddress(controller)
-          ? controller
-          : new ArweaveTransactionID(controller),
+        controller: wrapController(controller),
       })),
     );
   }, [controllers]);

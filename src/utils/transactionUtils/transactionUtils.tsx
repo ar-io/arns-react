@@ -3,6 +3,7 @@ import { isAddress as isSolanaAddress } from '@solana/kit';
 import { StepProps } from 'antd';
 
 import { ArweaveTransactionID } from '../../services/arweave/ArweaveTransactionID';
+import { SolanaAddress } from '../../services/solana/SolanaAddress';
 import {
   ARNSMapping,
   ARNS_INTERACTION_TYPES,
@@ -87,6 +88,17 @@ export function isObjectOfTransactionPayloadType<
     throw new Error('No keys were given for validation');
   }
   return requiredKeys.every((k) => Object.keys(x).includes(k));
+}
+
+/**
+ * Wrap a process / ANT id string in the right typed wrapper. Solana
+ * mainnet ids dominate post-migration; the Arweave branch exists only
+ * for legacy AO data still flowing through the UI. Throws if `id` is
+ * neither — callers should validate up front.
+ */
+export function wrapAntId(id: string): ArweaveTransactionID | SolanaAddress {
+  if (isArweaveTransactionID(id)) return new ArweaveTransactionID(id);
+  return new SolanaAddress(id);
 }
 
 export const WorkflowStepsForInteractions: Record<
@@ -273,7 +285,7 @@ export function getARNSMappingByInteractionType(
           : PERMANENT_DOMAIN_MESSAGE;
 
       const processId = transactionData.processId
-        ? new ArweaveTransactionID(transactionData.processId)
+        ? wrapAntId(transactionData.processId)
         : undefined;
 
       return {
@@ -307,7 +319,7 @@ export function getARNSMappingByInteractionType(
 
       return {
         domain: transactionData.name,
-        processId: new ArweaveTransactionID(transactionData.processId),
+        processId: wrapAntId(transactionData.processId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           maxUndernames: transactionData.deployedTransactionId ? (
@@ -412,7 +424,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        processId: new ArweaveTransactionID(transactionData.assetId),
+        processId: wrapAntId(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           name: transactionData.name,
@@ -442,7 +454,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        processId: new ArweaveTransactionID(transactionData.assetId),
+        processId: wrapAntId(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           ticker: transactionData.ticker,
@@ -472,7 +484,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        processId: new ArweaveTransactionID(transactionData.assetId),
+        processId: wrapAntId(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           undername: transactionData.subDomain,
@@ -501,7 +513,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        processId: new ArweaveTransactionID(transactionData.assetId),
+        processId: wrapAntId(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           undername: transactionData.subDomain,
@@ -532,7 +544,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        processId: new ArweaveTransactionID(transactionData.assetId),
+        processId: wrapAntId(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           targetId: transactionData.transactionId,
@@ -562,7 +574,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        processId: new ArweaveTransactionID(transactionData.assetId),
+        processId: wrapAntId(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           ttlSeconds: transactionData.ttlSeconds,
@@ -592,7 +604,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        processId: new ArweaveTransactionID(transactionData.assetId),
+        processId: wrapAntId(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           controllers: <span>{transactionData.target}</span>,
@@ -621,7 +633,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        processId: new ArweaveTransactionID(transactionData.assetId),
+        processId: wrapAntId(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           'New Owner': transactionData.target,
@@ -645,7 +657,7 @@ export function getARNSMappingByInteractionType(
       }
       return {
         domain: '',
-        processId: new ArweaveTransactionID(transactionData.assetId),
+        processId: wrapAntId(transactionData.assetId),
         deployedTransactionId: transactionData.deployedTransactionId,
         overrides: {
           'New Owner': transactionData.target,

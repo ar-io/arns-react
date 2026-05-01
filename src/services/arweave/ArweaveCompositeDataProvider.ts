@@ -7,6 +7,7 @@ import {
 import { lowerCaseDomain } from '@src/utils';
 
 import { AoAddress, ArweaveDataProvider } from '../../types';
+import { SolanaAddress } from '../solana/SolanaAddress';
 import { ArweaveTransactionID } from './ArweaveTransactionID';
 
 export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
@@ -122,7 +123,10 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
     filters,
   }: {
     filters: {
-      processId?: ArweaveTransactionID[];
+      // Accept either wrapper (or raw string) and match by string. ANT
+      // process ids are Solana base58 post-migration, but a few callers
+      // still pass `ArweaveTransactionID` for legacy AO records.
+      processId?: Array<ArweaveTransactionID | SolanaAddress | string>;
     };
   }): Promise<Record<string, AoArNSNameData>> {
     // TODO: check the cache for existing records and only fetch new ones
@@ -130,15 +134,17 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
       contract: this.contract,
     });
 
-    // filter by processId
+    // Compare process ids by their string representation. The previous
+    // `Array.includes(new ArweaveTransactionID(...))` never matched
+    // (object identity) and would now also throw on Solana mints because
+    // those don't pass the 43-char Arweave regex — using the string form
+    // both fixes the bug and avoids the wrapper-type mismatch.
     return Object.fromEntries(
-      Object.entries(records).filter(
-        ([, record]) =>
-          filters.processId === undefined ||
-          filters.processId.includes(
-            new ArweaveTransactionID(record.processId),
-          ),
-      ),
+      Object.entries(records).filter(([, record]) => {
+        if (filters.processId === undefined) return true;
+        const target = record.processId;
+        return filters.processId.some((p) => p.toString() === target);
+      }),
     );
   }
 

@@ -5,10 +5,11 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useIsFocused } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
+import { SolanaAddress } from '../../../../services/solana/SolanaAddress';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
 import { AoAddress, VALIDATION_INPUT_TYPES } from '../../../../types';
-import { isArweaveTransactionID } from '../../../../utils';
+import { isArweaveTransactionID, wrapAntId } from '../../../../utils';
 import { ARWEAVE_TX_LENGTH } from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
 import { CloseIcon, HamburgerOutlineIcon } from '../../../icons';
@@ -29,7 +30,9 @@ type NameTokenDetails = {
 function NameTokenSelector({
   selectedTokenCallback,
 }: {
-  selectedTokenCallback: (id: ArweaveTransactionID | undefined) => void;
+  selectedTokenCallback: (
+    id: ArweaveTransactionID | SolanaAddress | undefined,
+  ) => void;
 }) {
   const [{ arweaveDataProvider }] = useGlobalState();
   const antAoClient = undefined as unknown as undefined;
@@ -62,7 +65,7 @@ function NameTokenSelector({
 
   useEffect(() => {
     selectedTokenCallback(
-      selectedToken ? new ArweaveTransactionID(selectedToken.id) : undefined,
+      selectedToken ? wrapAntId(selectedToken.id) : undefined,
     );
     setListPage(1);
   }, [selectedToken]);
@@ -101,7 +104,7 @@ function NameTokenSelector({
 
   async function getTokenList(
     address: AoAddress | undefined,
-    imports: ArweaveTransactionID[] = [],
+    imports: Array<ArweaveTransactionID | SolanaAddress> = [],
   ) {
     try {
       setLoading(true);
@@ -303,7 +306,7 @@ function NameTokenSelector({
         throw new Error(`No ID provided for ${name ?? ticker ?? ''}`);
       }
       setSelectedToken({ id, name: name ?? '', ticker: ticker ?? '', names });
-      selectedTokenCallback(new ArweaveTransactionID(id));
+      selectedTokenCallback(wrapAntId(id));
       setListPage(1);
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -426,9 +429,7 @@ function NameTokenSelector({
                 border: '1px solid var(--text-grey)',
               }}
               onClick={() => {
-                getTokenList(walletAddress, [
-                  new ArweaveTransactionID(searchText),
-                ]);
+                getTokenList(walletAddress, [wrapAntId(searchText)]);
               }}
             >
               Import

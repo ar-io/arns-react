@@ -1,4 +1,6 @@
 import { ARIO } from '@ar.io/sdk/web';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { SolanaWalletConnector } from '@src/services/wallets';
 import {
   SOLANA_PROGRAM_IDS,
   getSolanaRpc,
@@ -13,7 +15,7 @@ import React, {
 } from 'react';
 
 import { useEffectOnce } from '../../hooks/useEffectOnce/useEffectOnce';
-import { AoAddress, ArNSWalletConnector } from '../../types';
+import { AoAddress, ArNSWalletConnector, WALLET_TYPES } from '../../types';
 import eventEmitter from '../../utils/events';
 import { dispatchArIOContract } from '../actions/dispatchArIOContract';
 import { WalletAction } from '../reducers/WalletReducer';
@@ -101,12 +103,66 @@ export function WalletStateProvider({
     });
   }, [walletAddress, wallet]);
 
+  // Bridge `@solana/wallet-adapter-react` → our `SolanaWalletConnector`.
+  //
+  // The adapter's `<WalletProvider autoConnect>` rehydrates the user's
+  // previously-selected wallet (Phantom etc.) on every mount, but emits its
+  // state via the `useWallet()` hook — it never knows about our connector
+  // wrapper. We used to do this bridging only inside `ConnectWalletModal`,
+  // which meant a page reload on any non-`/connect` route left the app in a
+  // disconnected state until the user navigated to `/connect`. Doing it
+  // here in `WalletStateProvider` (which wraps the whole app) makes
+  // reconnection happen on every mount, regardless of route.
+  //
+  // Gating notes:
+  // - `publicKey` is required (means the user picked AND approved); we
+  //   tolerate `signTransaction` being undefined for one tick (Phantom
+  //   attaches it slightly after `connected` flips). The connector re-binds
+  //   the signer when the next render fires with the method attached.
+  // - We bail when the wallet is already a Solana connector AND the address
+  //   matches, so we don't rebuild the connector on every adapter
+  //   re-render.
+  const solanaWallet = useWallet();
   useEffect(() => {
-    // Solana auto-reconnect lives inside `<WalletProvider autoConnect>` from
-    // `@solana/wallet-adapter-react`; the picker's `useEffect` in
-    // `ConnectWalletModal` then rehydrates our `SolanaWalletConnector`. So
-    // there's nothing to do here on mount — but we still mark the wallet
-    // state as initialized so gated UI (PageLoader) unblocks promptly.
+    if (!solanaWallet.connected || !solanaWallet.publicKey) return;
+    const addr = solanaWallet.publicKey.toBase58();
+    const alreadyWired =
+      wallet?.tokenType === 'solana' && walletAddress?.toString() === addr;
+    if (alreadyWired) return;
+
+    try {
+      const connector = new SolanaWalletConnector({
+        publicKey: solanaWallet.publicKey,
+        connected: solanaWallet.connected,
+        connecting: solanaWallet.connecting,
+        disconnect: solanaWallet.disconnect,
+        signTransaction: solanaWallet.signTransaction as never,
+      });
+      localStorage.setItem('walletType', WALLET_TYPES.SOLANA);
+      console.info(
+        '[WalletState] auto-reconnect SolanaWalletConnector for',
+        addr,
+      );
+      dispatchWalletState({
+        type: 'setWalletAndAddress',
+        payload: {
+          wallet: connector,
+          walletAddress: addr as never,
+        },
+      });
+    } catch (error) {
+      console.error('[WalletState] failed to wire connector', error);
+      eventEmitter.emit('error', error);
+    }
+  }, [
+    solanaWallet.connected,
+    solanaWallet.publicKey,
+    solanaWallet.signTransaction,
+    wallet,
+    walletAddress,
+  ]);
+
+  useEffect(() => {
     updateIfConnected();
   }, []);
 

@@ -8,7 +8,8 @@ import ArweaveID, {
 import { AddUndernameModal, EditUndernameModal } from '@src/components/modals';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { SolanaAddress } from '@src/services/solana/SolanaAddress';
+import { SolanaSignature } from '@src/services/solana/SolanaSignature';
 import {
   useArNSState,
   useGlobalState,
@@ -33,6 +34,7 @@ import {
 } from '@src/utils';
 import { MIN_ANT_VERSION } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
+import { queryClient } from '@src/utils/network';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { Plus, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -144,7 +146,7 @@ const UndernamesTable = ({
           >
             {workflowName} complete.{' '}
             <ArweaveID
-              id={new ArweaveTransactionID(id)}
+              id={new SolanaSignature(id)}
               type={ArweaveIdTypes.INTERACTION}
               shouldLink
               characterCount={8}
@@ -152,8 +154,18 @@ const UndernamesTable = ({
           </span>
         ),
       });
-      // refresh the row
-      setTableData(tableData);
+      // Invalidate cached ANT state / domain-info queries so the table
+      // reflects the on-chain change. The parent (`Undernames` page) reads
+      // undernames from `useDomainInfo`, which is keyed on the ArNS name —
+      // so invalidating only `['ant', processId, …]` isn't enough; we also
+      // have to invalidate `['domainInfo', name, …]`. `setTableData` alone
+      // is a no-op because `undernames` is owned by the parent.
+      const invalidationKeys = [processId, arnsRecord.name].filter(Boolean);
+      await queryClient.invalidateQueries({
+        predicate: ({ queryKey }) =>
+          invalidationKeys.some((k) => queryKey.includes(k)),
+        refetchType: 'all',
+      });
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {
@@ -473,7 +485,7 @@ const UndernamesTable = ({
       )}
       {action === UNDERNAME_TABLE_ACTIONS.EDIT && selectedUndername && (
         <EditUndernameModal
-          antId={new ArweaveTransactionID(arnsRecord.processId)}
+          antId={new SolanaAddress(arnsRecord.processId)}
           undername={selectedUndername}
           closeModal={() => setAction(undefined)}
           payloadCallback={(p) => {

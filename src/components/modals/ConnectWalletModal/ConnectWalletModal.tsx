@@ -1,86 +1,30 @@
-import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
-import { SolanaWalletConnector } from '@src/services/wallets';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useWalletState } from '../../../state/contexts/WalletState';
-import { AoAddress, WALLET_TYPES } from '../../../types';
-import eventEmitter from '../../../utils/events';
+import { AoAddress } from '../../../types';
 import { CloseIcon } from '../../icons';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function ConnectWalletModal(): JSX.Element {
   const modalRef = useRef<HTMLDivElement>(null);
-  const [
-    { wallet, walletAddress, walletStateInitialized },
-    dispatchWalletState,
-  ] = useWalletState();
+  const [{ wallet, walletAddress, walletStateInitialized }] = useWalletState();
   const navigate = useNavigate();
   const { state } = useLocation();
   const [connecting, setConnecting] = useState(false);
   const [loading, setLoading] = useState(!walletStateInitialized);
 
-  const solanaWallet = useWallet();
   const { setVisible: setSolanaModalVisible } = useWalletModal();
 
-  // Detect when the @solana/wallet-adapter-react picker has finished
-  // connecting a Solana wallet — wrap the adapter into our connector and
-  // hand it off to the global wallet state.
-  //
-  // Notes on the gating:
-  // - We require `publicKey` (signals the user picked a wallet AND approved
-  //   the connect prompt) but tolerate `signTransaction` being undefined at
-  //   first render: some adapters (Phantom included) attach signing methods a
-  //   tick after `connected` flips, and waiting for `signTransaction` here
-  //   would race the picker closing. The `SolanaWalletConnector` re-binds
-  //   the signer lazily once it's available.
-  useEffect(() => {
-    console.debug('[solana-connect] state', {
-      connected: solanaWallet.connected,
-      connecting: solanaWallet.connecting,
-      hasPublicKey: !!solanaWallet.publicKey,
-      hasSignTx: !!solanaWallet.signTransaction,
-      currentWalletType: wallet?.tokenType,
-    });
-    if (
-      solanaWallet.connected &&
-      solanaWallet.publicKey &&
-      (!wallet || wallet.tokenType !== 'solana')
-    ) {
-      try {
-        const connector = new SolanaWalletConnector({
-          publicKey: solanaWallet.publicKey,
-          connected: solanaWallet.connected,
-          connecting: solanaWallet.connecting,
-          disconnect: solanaWallet.disconnect,
-          signTransaction: solanaWallet.signTransaction as never,
-        });
-        localStorage.setItem('walletType', WALLET_TYPES.SOLANA);
-        console.info(
-          '[solana-connect] wiring SolanaWalletConnector for',
-          solanaWallet.publicKey.toBase58(),
-        );
-        dispatchWalletState({
-          type: 'setWalletAndAddress',
-          payload: {
-            wallet: connector,
-            walletAddress: solanaWallet.publicKey.toBase58() as never,
-          },
-        });
-      } catch (error) {
-        console.error('[solana-connect] failed to wire connector', error);
-        eventEmitter.emit('error', error);
-      }
-    }
-  }, [
-    solanaWallet.connected,
-    solanaWallet.publicKey,
-    solanaWallet.signTransaction,
-    wallet,
-    dispatchWalletState,
-  ]);
+  // The bridging of `@solana/wallet-adapter-react` → `SolanaWalletConnector`
+  // now lives in `WalletStateProvider` so reconnection happens on every
+  // mount regardless of route. This component only opens the picker; once
+  // the user approves, the global effect notices `useWallet().connected`
+  // flip and pushes the connector + address into wallet state, which
+  // triggers our `useEffect([wallet, walletAddress])` below to navigate
+  // away from `/connect`.
 
   useEffect(() => {
     if (walletStateInitialized) {

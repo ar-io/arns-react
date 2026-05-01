@@ -2,7 +2,7 @@ import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { SolanaSignature } from '@src/services/solana/SolanaSignature';
 import {
   dispatchArNSUpdate,
   useArNSState,
@@ -78,7 +78,7 @@ export function ReturnNameModal({
                 characterCount={8}
                 shouldLink={true}
                 type={ArweaveIdTypes.INTERACTION}
-                id={new ArweaveTransactionID(result.id)}
+                id={new SolanaSignature(result.id)}
               />
             </span>
           </div>

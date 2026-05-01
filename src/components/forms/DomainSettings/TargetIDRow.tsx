@@ -43,8 +43,10 @@ export default function TargetIDRow({
       eventEmitter.emit('error', error);
     } finally {
       setEditing(false);
-      setNewTargetId(targetId ?? '');
       setShowModal(false);
+      // See DescriptionRow for the rationale — don't reset `newTargetId`
+      // to the stale `targetId` prop; the `useEffect([targetId])` above
+      // syncs when the cache refresh lands.
     }
   }
   return (

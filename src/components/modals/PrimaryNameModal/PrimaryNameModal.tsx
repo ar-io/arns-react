@@ -7,7 +7,7 @@ import ArweaveID, {
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { SolanaSignature } from '@src/services/solana/SolanaSignature';
 import {
   useArNSState,
   useGlobalState,
@@ -198,7 +198,7 @@ function PrimaryNameModal({
                   characterCount={8}
                   shouldLink={true}
                   type={ArweaveIdTypes.INTERACTION}
-                  id={new ArweaveTransactionID(result.id)}
+                  id={new SolanaSignature(result.id)}
                 />
               </span>
             </div>

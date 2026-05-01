@@ -236,13 +236,24 @@ export default async function dispatchArIOInteraction({
     eventEmitter.emit('error', error);
   } finally {
     dispatch({ type: 'setSigning', payload: false });
+    // Invalidate balances + every cache that backs the affected name.
+    // `useDomainInfo` internally `fetchQuery`s both `arns-records` and
+    // `['ant', processId, …]` with long staleTimes, so just busting the
+    // outer `domainInfo` key isn't enough — the nested `fetchQuery`s
+    // would just return the stale cached values (e.g. an out-of-date
+    // `endTimestamp` after EXTEND_LEASE, or stale undername counts after
+    // INCREASE_UNDERNAMES). Bust the inner caches too.
     queryClient.invalidateQueries({
       predicate: ({ queryKey }) =>
         queryKey.includes('io-balance') ||
         queryKey.includes('ario-liquid-balance') ||
         queryKey.includes('ario-delegated-stake') ||
         queryKey.includes('turbo-credit-balance') ||
+        queryKey.includes('arns-records') ||
+        queryKey[0] === 'ant' ||
+        queryKey[0] === 'ant-info' ||
         queryKey.includes(lowerCaseDomain(payload.name)),
+      refetchType: 'all',
     });
   }
   if (!result) {

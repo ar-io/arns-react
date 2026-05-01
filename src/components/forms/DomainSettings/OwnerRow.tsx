@@ -6,12 +6,17 @@ import ArweaveID, {
 import { TransferANTModal } from '@src/components/modals';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { SolanaAddress } from '@src/services/solana/SolanaAddress';
 import {
   ANT_INTERACTION_TYPES,
   AoAddress,
   ContractInteraction,
 } from '@src/types';
-import { isArweaveTransactionID, isEthAddress } from '@src/utils';
+import {
+  isArweaveTransactionID,
+  isEthAddress,
+  isValidSolanaAddress,
+} from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { Skeleton } from 'antd';
 import { useState } from 'react';
@@ -62,6 +67,13 @@ export default function OwnerRow({
                 characterCount={16}
                 type={ArweaveIdTypes.ADDRESS}
               />
+            ) : isValidSolanaAddress(owner) ? (
+              <ArweaveID
+                id={new SolanaAddress(owner)}
+                shouldLink
+                characterCount={16}
+                type={ArweaveIdTypes.ADDRESS}
+              />
             ) : (
               <div>{owner}</div>
             )
@@ -98,13 +110,16 @@ export default function OwnerRow({
       {showTransferANTModal && (
         <TransferANTModal
           closeModal={() => setShowTransferANTModal(false)}
-          antId={new ArweaveTransactionID(processId)}
+          antId={new SolanaAddress(processId)}
           associatedNames={associatedNames}
           payloadCallback={(payload) => {
+            const targetStr = payload.target.toString();
             setTransactionData({
-              target: isEthAddress(payload.target)
-                ? payload.target
-                : new ArweaveTransactionID(payload.target.toString()),
+              target: isEthAddress(targetStr)
+                ? (targetStr as `0x${string}`)
+                : isValidSolanaAddress(targetStr)
+                  ? new SolanaAddress(targetStr)
+                  : new ArweaveTransactionID(targetStr),
               associatedNames: payload.associatedNames,
             });
             setShowConfirmModal(true);
@@ -122,7 +137,7 @@ export default function OwnerRow({
               <ANTCard
                 domain={payload.associatedNames?.[0] ?? ''}
                 mobileView
-                processId={new ArweaveTransactionID(processId)}
+                processId={new SolanaAddress(processId)}
                 overrides={{
                   'New Owner': payload.target.toString(),
                 }}

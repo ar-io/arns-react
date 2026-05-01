@@ -1,6 +1,11 @@
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { formatForMaxCharCount, isArweaveTransactionID } from '@src/utils';
+import { SolanaAddress } from '@src/services/solana/SolanaAddress';
+import {
+  formatForMaxCharCount,
+  isArweaveTransactionID,
+  isValidAoAddress,
+} from '@src/utils';
 import { ReactNode } from 'react';
 
 import { Tooltip } from '../data-display';
@@ -37,9 +42,13 @@ function ANTDetailsTip({
         <div className="flex flex-col p-2">
           <span className="flex text-sm text-grey pb-4 pt-0 border-b-[1px] border-dark-grey whitespace-nowrap gap-2">
             Process ID:{' '}
-            {isArweaveTransactionID(antId) ? (
+            {antId && isValidAoAddress(antId) ? (
               <ArweaveID
-                id={new ArweaveTransactionID(antId)}
+                id={
+                  isArweaveTransactionID(antId)
+                    ? new ArweaveTransactionID(antId)
+                    : new SolanaAddress(antId)
+                }
                 shouldLink={true}
                 characterCount={16}
                 type={ArweaveIdTypes.CONTRACT}
@@ -64,9 +73,13 @@ function ANTDetailsTip({
           </span>
           <span className="flex gap-2 text-sm text-grey pt-4 pb-0 whitespace-nowrap">
             Owner:{' '}
-            {isArweaveTransactionID(owner) ? (
+            {isValidAoAddress(owner ?? '') ? (
               <ArweaveID
-                id={new ArweaveTransactionID(owner)}
+                id={
+                  isArweaveTransactionID(owner)
+                    ? new ArweaveTransactionID(owner!)
+                    : new SolanaAddress(owner!)
+                }
                 shouldLink={true}
                 characterCount={16}
                 type={ArweaveIdTypes.ADDRESS}

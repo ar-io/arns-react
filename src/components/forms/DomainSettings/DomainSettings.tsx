@@ -9,7 +9,7 @@ import { ReturnNameModal } from '@src/components/modals/ant-management/ReturnNam
 import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { SolanaAddress } from '@src/services/solana/SolanaAddress';
 import { useArNSState, useGlobalState } from '@src/state';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
@@ -129,6 +129,21 @@ function DomainSettings({
         queryKey: ['domainInfo', data?.processId.toString()],
         refetchType: 'all',
       });
+
+      // `useDomainInfo` internally `fetchQuery`s `['ant', processId, 'solana']`
+      // with `staleTime: Infinity`. Without busting that inner cache the outer
+      // `domainInfo` refetch returns stale ANT state (e.g. the old ticker /
+      // logo / controllers / records). Invalidate by predicate so we catch
+      // both `['ant', processId, 'solana'|'ao']` and `['ant-info', …]` keys.
+      const antProcessId = data?.processId?.toString();
+      if (antProcessId) {
+        queryClient.invalidateQueries({
+          predicate: ({ queryKey }) =>
+            (queryKey[0] === 'ant' || queryKey[0] === 'ant-info') &&
+            queryKey.includes(antProcessId),
+          refetchType: 'all',
+        });
+      }
 
       refetch();
     }
@@ -340,7 +355,7 @@ function DomainSettings({
               value={
                 data?.processId && !isLoading ? (
                   <ArweaveID
-                    id={new ArweaveTransactionID(data.processId.toString())}
+                    id={new SolanaAddress(data.processId.toString())}
                     shouldLink
                     characterCount={16}
                     type={ArweaveIdTypes.CONTRACT}

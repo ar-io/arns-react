@@ -1,6 +1,7 @@
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { SolanaAddress } from '@src/services/solana/SolanaAddress';
 import { useWalletState } from '@src/state/contexts/WalletState';
-import { AoAddress, VALIDATION_INPUT_TYPES } from '@src/types';
+import { VALIDATION_INPUT_TYPES } from '@src/types';
 import { isArweaveTransactionID, isValidAoAddress } from '@src/utils';
 import { useState } from 'react';
 
@@ -25,7 +26,7 @@ function UserAddress() {
         type: 'setWalletAddress',
         payload: isArweaveTransactionID(id)
           ? new ArweaveTransactionID(id)
-          : (id as AoAddress),
+          : new SolanaAddress(id),
       });
     }
   }

@@ -10,6 +10,7 @@ import type { Dispatch, SetStateAction } from 'react';
 
 import { AntDetailKey } from './components/cards/ANTCard/ANTCard';
 import { ArweaveTransactionID } from './services/arweave/ArweaveTransactionID';
+import type { SolanaAddress as SolanaAddressType } from './services/solana/SolanaAddress';
 import { MAX_TTL_SECONDS, MIN_TTL_SECONDS } from './utils/constants';
 
 /**
@@ -49,7 +50,9 @@ export type TransactionTag = {
 export type ARNSMapping = {
   domain: string;
   record?: AoArNSNameData;
-  processId?: ArweaveTransactionID;
+  // ANT process / mint pubkey. On Solana this is a `SolanaAddress`
+  // (Metaplex Core asset pubkey); on legacy AO it's an `ArweaveTransactionID`.
+  processId?: ArweaveTransactionID | SolanaAddressType;
   overrides?: { [x: string]: JSX.Element | string | number };
   disabledKeys?: string[];
   compact?: boolean;
@@ -368,7 +371,10 @@ export type BuyRecordPayload = {
 export type ExtendLeasePayload = {
   name: string;
   years: number;
-  processId: ArweaveTransactionID;
+  // ANT process / mint pubkey. Solana base58 (Metaplex Core asset
+  // pubkey) for new records; legacy AO records are still wrapped in
+  // `ArweaveTransactionID`.
+  processId: ArweaveTransactionID | SolanaAddressType;
   qty?: number;
 };
 
@@ -579,20 +585,21 @@ export type ContractInteraction = {
   [x: string]: any;
 };
 
-/**
- * Branded alias for a Solana base58 address. Validation lives in
- * `utils/transactionUtils/transactionUtils.tsx` (`isValidSolanaAddress`,
- * backed by `isAddress` from `@solana/kit`). We use a string-typed alias
- * (rather than the kit's `Address<...>` opaque type) so existing call
- * sites that build addresses from form input keep compiling.
- */
-export type SolanaAddress = string;
+// Re-export the typed wrappers from a single canonical location. Call
+// sites should prefer these over raw strings — the type system can then
+// flag "wrong wrapper used" mistakes (e.g. wrapping a Solana mint in
+// `ArweaveTransactionID`, which would otherwise throw at runtime once the
+// regex check fires).
+export { SolanaAddress } from './services/solana/SolanaAddress';
+export { SolanaSignature } from './services/solana/SolanaSignature';
 
 /**
- * `AoAddress` is kept as an alias for cross-phase compatibility — most call
- * sites already assume "any wallet address string". On Solana this is a
- * base58 pubkey; on the legacy AO build it could also be an Arweave tx ID.
- *
- * New code should use `SolanaAddress` directly.
+ * `AoAddress` is the display-side union — most components only care about
+ * `.toString()`. Plain `string` is included so call sites that already
+ * hold a Solana address as a string (e.g. `walletAddress`) don't need to
+ * be wrapped just for display. New code should prefer the typed
+ * wrappers (`SolanaAddress`, `SolanaSignature`, `ArweaveTransactionID`)
+ * so the explorer-routing in `ArweaveID` picks the right URL without
+ * having to fall back to a length heuristic.
  */
-export type AoAddress = SolanaAddress | ArweaveTransactionID;
+export type AoAddress = SolanaAddressType | ArweaveTransactionID | string;

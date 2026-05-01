@@ -136,8 +136,10 @@ export default function KeywordsRow({
       eventEmitter.emit('error', error);
     } finally {
       setEditing(false);
-      setNewKeywords(keywords ?? []);
       setShowModal(false);
+      // See DescriptionRow for the rationale — don't reset `newKeywords`
+      // to the stale `keywords` prop; the `useEffect([keywords])` above
+      // syncs when the cache refresh lands.
     }
   }
 

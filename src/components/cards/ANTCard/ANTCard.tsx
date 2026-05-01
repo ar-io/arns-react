@@ -7,12 +7,14 @@ import { isValidElement, useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
+import { SolanaAddress } from '../../../services/solana/SolanaAddress';
 import { ARNSMapping } from '../../../types';
 import {
   decodeDomainToASCII,
   formatDate,
   getLeaseDurationFromEndTimestamp,
   isArweaveTransactionID,
+  isValidSolanaAddress,
 } from '../../../utils';
 import eventEmitter from '../../../utils/events';
 import { Loader } from '../../layout';
@@ -243,6 +245,13 @@ function ANTCard({
                 {isArweaveTransactionID(value) ? (
                   <ArweaveID
                     id={new ArweaveTransactionID(value)}
+                    type={handleLinkType(key)}
+                    shouldLink
+                    characterCount={isMobile ? 4 : undefined}
+                  />
+                ) : typeof value === 'string' && isValidSolanaAddress(value) ? (
+                  <ArweaveID
+                    id={new SolanaAddress(value)}
                     type={handleLinkType(key)}
                     shouldLink
                     characterCount={isMobile ? 4 : undefined}

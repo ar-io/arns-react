@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
+import { SolanaAddress } from '../../../../services/solana/SolanaAddress';
 import { TransferANTPayload, VALIDATION_INPUT_TYPES } from '../../../../types';
 import { formatForMaxCharCount, isValidAoAddress } from '../../../../utils';
 import { InfoIcon } from '../../../icons';
@@ -17,7 +18,9 @@ function TransferANTModal({
   payloadCallback,
   associatedNames,
 }: {
-  antId: ArweaveTransactionID; // process ID if asset type is a contract interaction
+  // ANT mint pubkey (Solana base58) or, on legacy AO, an Arweave tx id.
+  // The component only calls `.toString()` on it.
+  antId: ArweaveTransactionID | SolanaAddress;
   closeModal: () => void;
   payloadCallback: (payload: TransferANTPayload) => void;
   associatedNames: string[];
