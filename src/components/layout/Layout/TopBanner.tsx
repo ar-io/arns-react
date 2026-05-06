@@ -17,7 +17,7 @@ const TopBanner = () => {
       }}
     >
       <strong>Ar.io is migrating to Solana!</strong> Purchases are paused and
-      will resume shortly. Register before the May 15, 2026 snapshot!{' '}
+      will resume shortly. Register before the June 1, 2026 snapshot!{' '}
       <Link
         to={SOLANA_MIGRATION_LINK}
         target="_blank"
