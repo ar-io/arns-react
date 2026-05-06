@@ -18,13 +18,12 @@ import './styles.css';
 
 function Manage() {
   const navigate = useNavigate();
-  const [{ arioProcessId, aoNetwork, hyperbeamUrl, antRegistryProcessId }] =
-    useGlobalState();
+  const [{ arioContract }] = useGlobalState();
   const [{ loading: loadingArnsState, domains, ants }, dispatchArNSState] =
     useArNSState();
   const { data: antVersion } = useLatestANTVersion();
   const antModuleId = antVersion?.moduleId ?? null;
-  const [{ walletAddress }] = useWalletState();
+  const [{ walletAddress, wallet }] = useWalletState();
   const [, dispatchModalState] = useModalState();
   const [search, setSearch] = useState<string>('');
 
@@ -111,10 +110,14 @@ function Manage() {
                       ? dispatchArNSUpdate({
                           dispatch: dispatchArNSState,
                           walletAddress: walletAddress,
-                          arioProcessId,
-                          antRegistryProcessId,
-                          aoNetworkSettings: aoNetwork,
-                          hyperbeamUrl,
+                          // Forward the connected wallet + the global
+                          // ARIO instance so the refresh routes through
+                          // the active backend (Solana when the user
+                          // is connected with Phantom/Solflare, AO
+                          // otherwise) instead of always rebuilding a
+                          // fresh AO client.
+                          wallet: wallet ?? undefined,
+                          arioContract,
                         })
                       : eventEmitter.emit('error', {
                           name: 'Manage Assets',

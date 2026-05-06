@@ -24,7 +24,10 @@ export type NavItem = {
 export const ANT_FLAG = 'ant-flag';
 
 function Breadcrumbs() {
-  const [{ aoNetwork, hyperbeamUrl, antRegistryProcessId }] = useGlobalState();
+  useGlobalState();
+  const aoNetwork = undefined as unknown as undefined;
+  const hyperbeamUrl = '' as string;
+  const antRegistryProcessId = '';
   const queryClient = useQueryClient();
   const location = useLocation();
   const path = location.pathname.split('/');

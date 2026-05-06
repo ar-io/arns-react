@@ -51,6 +51,7 @@ function AddKeywordInput({ addCb }: { addCb: (word: string) => void }) {
       {!edit ? (
         <button
           onClick={() => setEdit(true)}
+          data-testid="add-keyword-button"
           className="flex flex-row rounded-full bg-background border border-dark-grey shadow-3xl py-1 items-center justify-center px-[0.625rem] max-w-fit h-fit text-grey hover:text-white hover:border-grey transition-all"
           style={{ gap: '0.625rem' }}
         >
@@ -70,6 +71,7 @@ function AddKeywordInput({ addCb }: { addCb: (word: string) => void }) {
         >
           <input
             ref={inputRef}
+            data-testid="add-keyword-input"
             className={`flex flex-row rounded-full bg-background border border-dark-grey shadow-3xl py-[0.125rem] items-center justify-center px-[0.625rem] w-fit text-white transition-all`}
             onChange={(e) => handleChange(e.target.value)}
             value={keyword}
@@ -84,6 +86,7 @@ function AddKeywordInput({ addCb }: { addCb: (word: string) => void }) {
             style={{ gap: '0.625rem' }}
           >
             <button
+              data-testid="add-keyword-confirm-button"
               onClick={() => {
                 handleAdd(keyword);
               }}
@@ -133,8 +136,10 @@ export default function KeywordsRow({
       eventEmitter.emit('error', error);
     } finally {
       setEditing(false);
-      setNewKeywords(keywords ?? []);
       setShowModal(false);
+      // See DescriptionRow for the rationale — don't reset `newKeywords`
+      // to the stale `keywords` prop; the `useEffect([keywords])` above
+      // syncs when the cache refresh lands.
     }
   }
 

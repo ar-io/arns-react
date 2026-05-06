@@ -1,13 +1,14 @@
-import { SpawnANTState } from '@ar.io/sdk';
+import { ANT } from '@ar.io/sdk/web';
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import RadioGroup from '@src/components/inputs/RadioGroup';
 import ValidationInput from '@src/components/inputs/text/ValidationInput/ValidationInput';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
-import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { SolanaAddress } from '@src/services/solana/SolanaAddress';
+import { SolanaSignature } from '@src/services/solana/SolanaSignature';
 import {
   dispatchArNSUpdate,
   useArNSState,
@@ -23,12 +24,13 @@ import {
   isEthAddress,
   isValidAoAddress,
 } from '@src/utils';
-import {
-  ARNS_TX_ID_ENTRY_REGEX,
-  DEFAULT_ANT_LOGO,
-  DEFAULT_ANT_LUA_ID,
-} from '@src/utils/constants';
+import { ARNS_TX_ID_ENTRY_REGEX } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
+import {
+  SOLANA_PROGRAM_IDS,
+  getSolanaRpc,
+  getSolanaRpcSubscriptions,
+} from '@src/utils/solana';
 import { useQueryClient } from '@tanstack/react-query';
 import { Checkbox, Skeleton } from 'antd';
 import { TriangleAlert, XIcon } from 'lucide-react';
@@ -55,12 +57,13 @@ export function ReassignNameModal({
   name: string;
 }) {
   const queryClient = useQueryClient();
-  const [
-    { arioProcessId, aoClient, aoNetwork, hyperbeamUrl, antRegistryProcessId },
-  ] = useGlobalState();
+  const [{ arioContract }] = useGlobalState();
+  const arioProcessId = '';
+  const aoClient = undefined as unknown as undefined;
+  const aoNetwork = { ARIO: { SCHEDULER: '' } } as const;
+  const hyperbeamUrl = '' as string;
+  const antRegistryProcessId = '';
   const [, dispatchArNSState] = useArNSState();
-  const { data: antVersion } = useLatestANTVersion();
-  const antModuleId = antVersion?.moduleId ?? null;
   const [{ signing }, dispatchTransactionState] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
 
@@ -70,7 +73,7 @@ export function ReassignNameModal({
   );
   const [newAntProcessId, setNewAntProcessId] = useState<string>('');
   const { data: newAntInfo, isLoading: loadingNewAntInfo } = useDomainInfo(
-    isArweaveTransactionID(newAntProcessId)
+    isValidAoAddress(newAntProcessId)
       ? {
           antId: newAntProcessId,
         }
@@ -87,53 +90,133 @@ export function ReassignNameModal({
   function handleClose() {
     setWorkflow(undefined);
     setNewAntProcessId('');
+    setAccepted(false);
     setShow(false);
   }
 
   async function handleReassign() {
     try {
-      if (!wallet?.contractSigner) {
-        throw new Error('No Wander Signer found');
+      // Solana wallets sign via `wallet.solanaSigner`, not `wallet.contractSigner`
+      // (which only exists on AO Wander/Wander-app/Beacon connectors). The
+      // de-AO refactor (see `dispatchANTInteraction.ts`) drives the ANT
+      // backend off `wallet.tokenType`, so accept either shape here.
+      const hasSigner =
+        !!wallet?.contractSigner ||
+        (wallet?.tokenType === 'solana' && !!wallet.solanaSigner);
+      if (!hasSigner) {
+        throw new Error(
+          'No wallet signer found — connect a Wander or Solana wallet to continue.',
+        );
       }
       if (!walletAddress)
         throw new Error('Must connect to Reassign the domain');
       if (!domainData?.state) throw new Error('Unable to get domain data');
 
-      if (!antModuleId) {
-        throw new Error('No ANT Module available, try again later');
+      // For the "create new ANT" flows on Solana, we spawn a fresh Metaplex
+      // Core asset first, optionally carry over state, then call
+      // `reassignName` with the new mint pubkey. The legacy AO
+      // `previousState` arg on the reassign instruction is gone — Solana
+      // expects the destination ANT to already exist on chain.
+      let destinationProcessId = newAntProcessId;
+      if (antType !== REASSIGN_NAME_WORKFLOWS.EXISTING) {
+        if (wallet?.tokenType !== 'solana' || !wallet.solanaSigner) {
+          throw new Error(
+            'Creating a new ANT requires a connected Solana wallet.',
+          );
+        }
+        const carryOver = antType === REASSIGN_NAME_WORKFLOWS.NEW_EXISTING;
+        const apex = domainData.state.Records?.['@'];
+
+        dispatchTransactionState({
+          type: 'setSigningMessage',
+          payload: 'Spawning new ANT, please wait...',
+        });
+        const spawnResult = await ANT.spawn({
+          backend: 'solana',
+          rpc: getSolanaRpc(),
+          rpcSubscriptions: getSolanaRpcSubscriptions(),
+          signer: wallet.solanaSigner,
+          antProgramId: SOLANA_PROGRAM_IDS.antProgramId,
+          state: {
+            // `name` is the only required field. We pass through the user-
+            // facing display name from the existing ANT when carrying over,
+            // otherwise use the ArNS name being reassigned. The on-chain
+            // ANT name is independent from the ArNS registration; either is
+            // a sensible default.
+            name: carryOver ? (domainData.state.Name ?? name) : name,
+            ticker: carryOver ? domainData.state.Ticker : undefined,
+            transactionId: carryOver ? apex?.transactionId : undefined,
+            logo: carryOver ? domainData.logo || undefined : undefined,
+            description: carryOver
+              ? (domainData.state.Description ?? undefined)
+              : undefined,
+            keywords: carryOver
+              ? (domainData.state.Keywords ?? undefined)
+              : undefined,
+          },
+        });
+        destinationProcessId = spawnResult.processId;
+
+        // Carry over controllers + non-apex undernames via separate writes.
+        // Spawn only sets the apex `@` record + ANT metadata; controllers
+        // and additional records are subsequent instructions on the new
+        // mint. We do this best-effort — if a single write fails we surface
+        // the error but continue, since the reassign itself can still
+        // succeed and the user can re-add anything that didn't carry over.
+        if (carryOver) {
+          const newAnt = await ANT.init({
+            backend: 'solana',
+            processId: destinationProcessId,
+            rpc: getSolanaRpc(),
+            rpcSubscriptions: getSolanaRpcSubscriptions(),
+            signer: wallet.solanaSigner,
+            antProgramId: SOLANA_PROGRAM_IDS.antProgramId,
+          });
+          const controllers = (domainData.state.Controllers ?? []).filter(
+            (c) => c && c !== walletAddress.toString(),
+          );
+          for (const controller of controllers) {
+            try {
+              dispatchTransactionState({
+                type: 'setSigningMessage',
+                payload: `Adding controller ${controller.slice(0, 8)}…`,
+              });
+              await (newAnt as any).addController({ controller });
+            } catch (err) {
+              eventEmitter.emit('error', err);
+            }
+          }
+          const records = Object.entries(domainData.state.Records ?? {}).filter(
+            ([undername]) => undername !== '@',
+          );
+          for (const [undername, record] of records) {
+            try {
+              dispatchTransactionState({
+                type: 'setSigningMessage',
+                payload: `Carrying over undername "${undername}"…`,
+              });
+              await (newAnt as any).setRecord({
+                undername,
+                transactionId: record.transactionId,
+                ttlSeconds: record.ttlSeconds,
+              });
+            } catch (err) {
+              eventEmitter.emit('error', err);
+            }
+          }
+        }
       }
 
-      const previousState: SpawnANTState = {
-        controllers: domainData.state.Controllers,
-        records: domainData.state.Records,
-        owner: walletAddress.toString(),
-        ticker: domainData.state.Ticker,
-        name: domainData.state.Name,
-        // We default to values to allow for upgrades to domains that didn't support description or keywords
-        description: domainData.state.Description ?? '',
-        keywords: domainData.state.Keywords ?? [],
-        balances: domainData.state.Balances ?? {},
-        logo: domainData.logo ?? DEFAULT_ANT_LOGO,
-      };
       const result = await dispatchANTInteraction({
-        signer: wallet.contractSigner,
+        wallet,
         payload: {
           name,
           arioProcessId,
-          // if we provide newAntProcessId it will skip spawning the ant and ignore previousState
-          newAntProcessId:
-            antType === REASSIGN_NAME_WORKFLOWS.EXISTING
-              ? newAntProcessId
-              : undefined,
-          previousState:
-            antType === REASSIGN_NAME_WORKFLOWS.NEW_BLANK
-              ? undefined
-              : previousState,
-          luaCodeTxId: DEFAULT_ANT_LUA_ID,
-          antModuleId,
+          newAntProcessId: destinationProcessId,
         },
         processId,
         workflowName: ANT_INTERACTION_TYPES.REASSIGN_NAME,
+        arioContract: arioContract as any,
         dispatchTransactionState,
         dispatchArNSState,
         antRegistryProcessId,
@@ -150,7 +233,7 @@ export function ReassignNameModal({
                 characterCount={8}
                 shouldLink={true}
                 type={ArweaveIdTypes.INTERACTION}
-                id={new ArweaveTransactionID(result.id)}
+                id={new SolanaSignature(result.id)}
               />
             </span>
           </div>
@@ -167,6 +250,8 @@ export function ReassignNameModal({
 
       dispatchArNSUpdate({
         walletAddress: walletAddress,
+        wallet,
+        arioContract,
         arioProcessId,
         antRegistryProcessId,
         dispatch: dispatchArNSState,
@@ -195,14 +280,16 @@ export function ReassignNameModal({
             You are about to reassign your name registration from one ANT
             (Arweave Name Token) to another.
           </span>
-          <div className="flex flex-row w-full items-center justify-center text-sm">
+          <div className="flex flex-row w-full items-center justify-center gap-3 text-sm">
             <button
+              data-testid="reassign-workflow-create-new"
               className="bg-primary-thin p-3 rounded"
               onClick={() => setWorkflow(REASSIGN_NAME_WORKFLOWS.NEW_EXISTING)}
             >
               Create new ANT
             </button>
             <button
+              data-testid="reassign-workflow-use-existing"
               className="bg-primary-thin p-3 rounded"
               onClick={() => setWorkflow(REASSIGN_NAME_WORKFLOWS.EXISTING)}
             >
@@ -233,7 +320,7 @@ export function ReassignNameModal({
                   <span className=" text-white">
                     {domainData?.processId ? (
                       <ArweaveID
-                        id={new ArweaveTransactionID(domainData.processId)}
+                        id={new SolanaAddress(domainData.processId)}
                         type={ArweaveIdTypes.CONTRACT}
                         shouldLink
                       />
@@ -254,7 +341,7 @@ export function ReassignNameModal({
                       <span className=" text-grey">Destination Process ID</span>
                       <span className=" text-white">
                         <ArweaveID
-                          id={new ArweaveTransactionID(newAntProcessId)}
+                          id={new SolanaAddress(newAntProcessId)}
                           type={ArweaveIdTypes.CONTRACT}
                           shouldLink
                         />
@@ -277,7 +364,11 @@ export function ReassignNameModal({
                           newAntInfo.owner &&
                           isValidAoAddress(newAntInfo.owner) ? (
                             <ArweaveID
-                              id={new ArweaveTransactionID(newAntInfo.owner)}
+                              id={
+                                isArweaveTransactionID(newAntInfo.owner)
+                                  ? new ArweaveTransactionID(newAntInfo.owner)
+                                  : new SolanaAddress(newAntInfo.owner)
+                              }
                               type={ArweaveIdTypes.ADDRESS}
                               shouldLink
                               linkStyle={{
@@ -314,29 +405,29 @@ export function ReassignNameModal({
                       <div className="flex gap-3  text-white">
                         {domainData && domainData.controllers ? (
                           domainData.controllers.map((c, index) => {
-                            if (isValidAoAddress(c)) {
-                              return (
-                                <ArweaveID
-                                  key={index}
-                                  id={
-                                    isEthAddress(c)
-                                      ? c
-                                      : new ArweaveTransactionID(c)
-                                  }
-                                  shouldLink={isArweaveTransactionID(c)}
-                                  type={ArweaveIdTypes.ADDRESS}
-                                  characterCount={
-                                    (domainData?.controllers?.length ?? 0) > 1
-                                      ? 8
-                                      : undefined
-                                  }
-                                  wrapperStyle={{
-                                    width: 'fit-content',
-                                    whiteSpace: 'nowrap',
-                                  }}
-                                />
-                              );
-                            } else return c;
+                            if (!isValidAoAddress(c)) return c;
+                            const id = isEthAddress(c)
+                              ? c
+                              : isArweaveTransactionID(c)
+                                ? new ArweaveTransactionID(c)
+                                : new SolanaAddress(c);
+                            return (
+                              <ArweaveID
+                                key={index}
+                                id={id}
+                                shouldLink={!isEthAddress(c)}
+                                type={ArweaveIdTypes.ADDRESS}
+                                characterCount={
+                                  (domainData?.controllers?.length ?? 0) > 1
+                                    ? 8
+                                    : undefined
+                                }
+                                wrapperStyle={{
+                                  width: 'fit-content',
+                                  whiteSpace: 'nowrap',
+                                }}
+                              />
+                            );
                           })
                         ) : (
                           <Skeleton.Input
@@ -409,7 +500,7 @@ export function ReassignNameModal({
                     checked={accepted}
                     style={{ color: 'white' }}
                     disabled={
-                      !isArweaveTransactionID(newAntProcessId) &&
+                      !isValidAoAddress(newAntProcessId) &&
                       antType === REASSIGN_NAME_WORKFLOWS.EXISTING
                     }
                   />
@@ -425,9 +516,9 @@ export function ReassignNameModal({
           }}
           onClose={!signing ? () => handleClose() : undefined}
           onNext={
-            ((isArweaveTransactionID(newAntProcessId) && !loadingNewAntInfo) ||
-              antType !== REASSIGN_NAME_WORKFLOWS.EXISTING) &&
-            accepted
+            (antType === REASSIGN_NAME_WORKFLOWS.EXISTING
+              ? isValidAoAddress(newAntProcessId) && !loadingNewAntInfo
+              : true) && accepted
               ? () => handleReassign()
               : undefined
           }
@@ -466,6 +557,7 @@ export function ReassignNameModal({
               <div className="flex flex-col gap-4">
                 <span className="grey">Enter destination ANT Process ID:</span>
                 <ValidationInput
+                  inputId="reassign-name-target-ant-input"
                   inputClassName="name-token-input white"
                   inputCustomStyle={{ paddingLeft: '10px', fontSize: '16px' }}
                   wrapperCustomStyle={{
@@ -477,7 +569,7 @@ export function ReassignNameModal({
                   showValidationOutline={true}
                   showValidationChecklist={true}
                   validationListStyle={{ display: 'none' }}
-                  maxCharLength={43}
+                  maxCharLength={44}
                   value={newAntProcessId}
                   catchInvalidInput={true}
                   customPattern={ARNS_TX_ID_ENTRY_REGEX}
@@ -487,14 +579,18 @@ export function ReassignNameModal({
                   validationPredicates={{
                     [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
                       fn: async (id: string) => {
-                        if (!isArweaveTransactionID(id)) {
+                        // Destination ANT id is a Solana mint pubkey (base58,
+                        // 32–44 chars) on Solana, or an Arweave tx id on AO.
+                        // `isValidAoAddress` accepts both — `isArweaveTransactionID`
+                        // alone would reject every Solana mint.
+                        if (!isValidAoAddress(id)) {
                           throw new Error('Invalid Process ID');
                         }
                       },
                     },
                   }}
                 />
-                {isArweaveTransactionID(newAntProcessId) === false &&
+                {!isValidAoAddress(newAntProcessId) &&
                 newAntProcessId.length ? (
                   <span className="text-error h-[10px]">
                     Invalid ANT Configuration
@@ -630,13 +726,11 @@ export function ReassignNameModal({
         }
         cancelText="Back"
         nextText="Next"
-        onCancel={() => {
-          setWorkflow(undefined);
-        }}
+        onCancel={() => setWorkflow(undefined)}
         onClose={!signing ? () => handleClose() : undefined}
         onNext={
           workflow === REASSIGN_NAME_WORKFLOWS.EXISTING
-            ? isArweaveTransactionID(newAntProcessId)
+            ? isValidAoAddress(newAntProcessId)
               ? () => {
                   setAntType(workflow);
                   setWorkflow(REASSIGN_NAME_WORKFLOWS.REVIEW);

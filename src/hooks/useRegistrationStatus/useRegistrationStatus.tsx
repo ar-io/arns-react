@@ -1,5 +1,6 @@
 import { useGlobalState } from '@src/state';
 import { isARNSDomainNameValid } from '@src/utils';
+import { arioContractCacheKey } from '@src/utils/sdk-init';
 import { useQuery } from '@tanstack/react-query';
 
 // NOTE: this is a hard coded list, if the reserved names are ever updated (requiring a multi-sig vote) we'll need to update this
@@ -16,19 +17,32 @@ const RESERVED_NAMES = ['www'];
 export function useRegistrationStatus(domain: string) {
   const [{ arioContract }] = useGlobalState();
   const isReserved = RESERVED_NAMES.includes(domain);
+  const arioCacheKey = arioContractCacheKey(arioContract);
 
-  // this query always runs if the name is not reserved
+  // this query always runs if the name is not reserved.
+  //   - AO `getArNSRecord` returns `undefined` for unregistered names.
+  //   - Solana `getArNSRecord` *throws* `"ArNS record not found: <name>"`.
+  // Both shapes are normalised to `null` so consumers can treat absence
+  // uniformly (and so we don't burn retries on negative search hits).
   const recordQuery = useQuery({
-    queryKey: ['arns-record', domain, arioContract.process.processId],
+    queryKey: ['arns-record', domain, arioCacheKey],
     queryFn: () => {
       if (domain.length === 0) {
         return null;
       }
 
-      // getArNSRecord returns undefined if the name is not registered, so convert that to null for caching purposes
       return arioContract
         .getArNSRecord({ name: domain })
-        .then((r) => (r === undefined ? null : r)); // null is serializable, undefined is not
+        .then((r) => (r === undefined ? null : r))
+        .catch((error: unknown) => {
+          if (
+            error instanceof Error &&
+            /arns record not found/i.test(error.message)
+          ) {
+            return null;
+          }
+          throw error;
+        });
     },
     enabled: !isReserved && isARNSDomainNameValid({ name: domain }),
     retry: false,
@@ -37,7 +51,7 @@ export function useRegistrationStatus(domain: string) {
 
   // this query only runs if the first query returned null, which means the name is not registered
   const returnedNameQuery = useQuery({
-    queryKey: ['arns-returned-name', domain, arioContract.process.processId],
+    queryKey: ['arns-returned-name', domain, arioCacheKey],
     queryFn: () => {
       if (domain.length === 0) {
         return null;

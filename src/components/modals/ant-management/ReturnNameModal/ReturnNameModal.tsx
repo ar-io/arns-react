@@ -2,7 +2,7 @@ import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { SolanaSignature } from '@src/services/solana/SolanaSignature';
 import {
   dispatchArNSUpdate,
   useArNSState,
@@ -34,15 +34,12 @@ export function ReturnNameModal({
 }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [
-    {
-      arioProcessId,
-      antAoClient,
-      aoNetwork,
-      hyperbeamUrl,
-      antRegistryProcessId,
-    },
-  ] = useGlobalState();
+  const [{ arioContract }] = useGlobalState();
+  const arioProcessId = '';
+  const antAoClient = undefined as unknown as undefined;
+  const aoNetwork = { ARIO: { SCHEDULER: '' } } as const;
+  const hyperbeamUrl = '' as string;
+  const antRegistryProcessId = '';
   const [, dispatchArNSState] = useArNSState();
   const [{ signing }, dispatchTransactionState] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
@@ -58,6 +55,7 @@ export function ReturnNameModal({
 
       const result = await dispatchANTInteraction({
         signer: wallet.contractSigner,
+        wallet,
         payload: {
           name,
           arioProcessId,
@@ -80,7 +78,7 @@ export function ReturnNameModal({
                 characterCount={8}
                 shouldLink={true}
                 type={ArweaveIdTypes.INTERACTION}
-                id={new ArweaveTransactionID(result.id)}
+                id={new SolanaSignature(result.id)}
               />
             </span>
           </div>
@@ -97,6 +95,8 @@ export function ReturnNameModal({
 
       dispatchArNSUpdate({
         walletAddress: walletAddress,
+        wallet,
+        arioContract,
         arioProcessId,
         antRegistryProcessId,
         dispatch: dispatchArNSState,

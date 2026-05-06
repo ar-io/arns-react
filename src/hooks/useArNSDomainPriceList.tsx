@@ -1,20 +1,21 @@
 import { useGlobalState } from '@src/state';
 import { isARNSDomainNameValid, lowerCaseDomain } from '@src/utils';
 import eventEmitter from '@src/utils/events';
+import { arioContractCacheKey } from '@src/utils/sdk-init';
 import { useQuery } from '@tanstack/react-query';
 
 import { useRegistrationStatus } from './useRegistrationStatus/useRegistrationStatus';
 import { useTurboArNSClient } from './useTurboArNSClient';
 
 export function useArNSDomainPriceList(domain: string) {
-  const [{ arioContract, arioProcessId }] = useGlobalState();
+  const [{ arioContract }] = useGlobalState();
   const turbo = useTurboArNSClient();
   const { isAvailable } = useRegistrationStatus(domain);
 
   return useQuery({
     queryKey: [
       `arnsDomainPriceList-${domain.length}`,
-      arioProcessId.toString(),
+      arioContractCacheKey(arioContract),
     ],
     queryFn: async () => {
       const prices: {

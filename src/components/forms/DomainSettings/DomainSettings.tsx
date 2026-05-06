@@ -9,7 +9,7 @@ import { ReturnNameModal } from '@src/components/modals/ant-management/ReturnNam
 import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { SolanaAddress } from '@src/services/solana/SolanaAddress';
 import { useArNSState, useGlobalState } from '@src/state';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
@@ -77,8 +77,11 @@ function DomainSettings({
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const [{ arioProcessId, antAoClient, hyperbeamUrl, antRegistryProcessId }] =
-    useGlobalState();
+  useGlobalState();
+  const arioProcessId = '';
+  const antAoClient = undefined as unknown as undefined;
+  const hyperbeamUrl = '' as string;
+  const antRegistryProcessId = '';
   const [{ interactionResult }, dispatchTransactionState] =
     useTransactionState();
   const [, dispatchArNSState] = useArNSState();
@@ -126,6 +129,21 @@ function DomainSettings({
         queryKey: ['domainInfo', data?.processId.toString()],
         refetchType: 'all',
       });
+
+      // `useDomainInfo` internally `fetchQuery`s `['ant', processId, 'solana']`
+      // with `staleTime: Infinity`. Without busting that inner cache the outer
+      // `domainInfo` refetch returns stale ANT state (e.g. the old ticker /
+      // logo / controllers / records). Invalidate by predicate so we catch
+      // both `['ant', processId, 'solana'|'ao']` and `['ant-info', …]` keys.
+      const antProcessId = data?.processId?.toString();
+      if (antProcessId) {
+        queryClient.invalidateQueries({
+          predicate: ({ queryKey }) =>
+            (queryKey[0] === 'ant' || queryKey[0] === 'ant-info') &&
+            queryKey.includes(antProcessId),
+          refetchType: 'all',
+        });
+      }
 
       refetch();
     }
@@ -193,6 +211,7 @@ function DomainSettings({
                       }
                       icon={
                         <button
+                          data-testid="return-name-button"
                           disabled={
                             primaryNameData?.name ===
                               lowerCaseDomain(domain ?? '') ||
@@ -210,6 +229,7 @@ function DomainSettings({
                       message={'Extend lease'}
                       icon={
                         <button
+                          data-testid="extend-lease-button"
                           className={`p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap hover `}
                           onClick={() =>
                             navigate(
@@ -317,6 +337,7 @@ function DomainSettings({
                   workflowName: ANT_INTERACTION_TYPES.SET_NAME,
                   processId: data!.processId,
                   signer: wallet!.contractSigner!,
+                  wallet,
                   owner: walletAddress!.toString(),
                   dispatchTransactionState,
                   dispatchArNSState,
@@ -334,7 +355,7 @@ function DomainSettings({
               value={
                 data?.processId && !isLoading ? (
                   <ArweaveID
-                    id={new ArweaveTransactionID(data.processId.toString())}
+                    id={new SolanaAddress(data.processId.toString())}
                     shouldLink
                     characterCount={16}
                     type={ArweaveIdTypes.CONTRACT}
@@ -362,6 +383,7 @@ function DomainSettings({
                     }
                     icon={
                       <button
+                        data-testid="reassign-name-button"
                         disabled={
                           (data?.version && data.version < MIN_ANT_VERSION) ||
                           data?.isInGracePeriod
@@ -390,6 +412,7 @@ function DomainSettings({
                   },
                   workflowName: ANT_INTERACTION_TYPES.SET_TARGET_ID,
                   signer: wallet!.contractSigner!,
+                  wallet,
                   owner: walletAddress!.toString(),
                   processId: data!.processId,
                   dispatchTransactionState,
@@ -411,6 +434,7 @@ function DomainSettings({
                   payload: { ticker },
                   workflowName: ANT_INTERACTION_TYPES.SET_TICKER,
                   signer: wallet!.contractSigner!,
+                  wallet,
                   owner: walletAddress!.toString(),
                   processId: data!.processId,
                   dispatchTransactionState,
@@ -441,6 +465,7 @@ function DomainSettings({
                   payload,
                   workflowName,
                   signer: wallet!.contractSigner!,
+                  wallet,
                   owner: walletAddress!.toString(),
                   processId: data!.processId,
                   dispatchTransactionState,
@@ -469,6 +494,7 @@ function DomainSettings({
                   },
                   workflowName: ANT_INTERACTION_TYPES.TRANSFER,
                   signer: wallet!.contractSigner!,
+                  wallet,
                   owner: walletAddress!.toString(),
                   processId: data!.processId,
                   dispatchTransactionState,
@@ -493,6 +519,7 @@ function DomainSettings({
                   },
                   workflowName: ANT_INTERACTION_TYPES.SET_TTL_SECONDS,
                   signer: wallet!.contractSigner!,
+                  wallet,
                   owner: walletAddress!.toString(),
                   processId: data!.processId,
                   dispatchTransactionState,
@@ -527,6 +554,7 @@ function DomainSettings({
                   },
                   workflowName: ANT_INTERACTION_TYPES.SET_LOGO,
                   signer: wallet!.contractSigner!,
+                  wallet,
                   owner: walletAddress!.toString(),
                   processId: data!.processId,
                   dispatchTransactionState,
@@ -550,6 +578,7 @@ function DomainSettings({
                   },
                   workflowName: ANT_INTERACTION_TYPES.SET_DESCRIPTION,
                   signer: wallet!.contractSigner!,
+                  wallet,
                   owner: walletAddress!.toString(),
                   processId: data!.processId,
                   dispatchTransactionState,
@@ -573,6 +602,7 @@ function DomainSettings({
                   },
                   workflowName: ANT_INTERACTION_TYPES.SET_KEYWORDS,
                   signer: wallet!.contractSigner!,
+                  wallet,
                   owner: walletAddress!.toString(),
                   processId: data!.processId,
                   dispatchTransactionState,

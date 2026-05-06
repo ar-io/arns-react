@@ -77,6 +77,7 @@ function AddUndernameModal({
                     <ValidationInput
                       key={'undername'}
                       ref={nameRef}
+                      inputId="add-undername-name-input"
                       inputClassName="name-token-input white"
                       inputCustomStyle={{
                         paddingLeft: '10px',
@@ -144,6 +145,7 @@ function AddUndernameModal({
                   <ValidationInput
                     key={'targetId'}
                     ref={targetIdRef}
+                    inputId="add-undername-target-input"
                     inputClassName="name-token-input white"
                     inputCustomStyle={{
                       paddingLeft: '10px',

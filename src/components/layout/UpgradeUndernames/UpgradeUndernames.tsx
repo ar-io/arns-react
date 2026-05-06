@@ -25,7 +25,8 @@ function UpgradeUndernames() {
   const isMobile = useIsMobile();
   const location = useLocation();
   const navigate = useNavigate();
-  const [{ arioTicker, arioProcessId }] = useGlobalState();
+  const [{ arioTicker }] = useGlobalState();
+  const arioProcessId = '';
   const name = location.pathname.split('/').at(-2);
   const [, dispatchTransactionState] = useTransactionState();
   const [newUndernameCount, setNewUndernameCount] = useState<number>(0);

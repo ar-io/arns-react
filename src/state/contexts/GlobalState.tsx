@@ -1,12 +1,4 @@
-import {
-  ANT_REGISTRY_ID,
-  AOProcess,
-  ARIO,
-  AoARIORead,
-  AoARIOWrite,
-  AoClient,
-} from '@ar.io/sdk/web';
-import { connect } from '@permaweb/aoconnect';
+import { ARIO, AoARIORead, AoARIOWrite } from '@ar.io/sdk/web';
 import { SETTINGS_STORAGE_KEY } from '@src/hooks';
 import eventEmitter from '@src/utils/events';
 import React, {
@@ -17,24 +9,15 @@ import React, {
   useReducer,
 } from 'react';
 
-import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
-import {
-  ARIO_AO_CU_URL,
-  ARIO_PROCESS_ID,
-  DEFAULT_ARWEAVE,
-  NETWORK_DEFAULTS,
-} from '../../utils/constants';
+import { DEFAULT_ARWEAVE, NETWORK_DEFAULTS } from '../../utils/constants';
+import { SOLANA_PROGRAM_IDS, getSolanaRpc } from '../../utils/solana';
 import type { GlobalAction } from '../reducers/GlobalReducer';
 
 // Function to load settings from localStorage
 function loadSettingsFromStorage(): {
   gateway: string;
-  aoNetwork: typeof NETWORK_DEFAULTS.AO;
   turboNetwork: typeof NETWORK_DEFAULTS.TURBO;
-  arioProcessId: string;
-  antRegistryProcessId: string;
-  hyperbeamUrl?: string;
 } | null {
   try {
     const savedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
@@ -49,12 +32,7 @@ function loadSettingsFromStorage(): {
 
       return {
         gateway: settings.network?.gateway || NETWORK_DEFAULTS.ARNS.HOST,
-        aoNetwork: settings.network?.aoNetwork || NETWORK_DEFAULTS.AO,
         turboNetwork: settings.network?.turboNetwork || NETWORK_DEFAULTS.TURBO,
-        arioProcessId: settings.arns?.arioProcessId || ARIO_PROCESS_ID,
-        antRegistryProcessId:
-          settings.arns?.antRegistryProcessId || ANT_REGISTRY_ID,
-        hyperbeamUrl: settings.network?.hyperbeamUrl || undefined,
       };
     }
   } catch (error) {
@@ -69,64 +47,46 @@ export const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);
 // Load saved settings or use defaults
 const savedSettings = loadSettingsFromStorage();
 const initialGateway = savedSettings?.gateway || NETWORK_DEFAULTS.ARNS.HOST;
-const initialAoNetwork = savedSettings?.aoNetwork || NETWORK_DEFAULTS.AO;
 const initialTurboNetwork =
   savedSettings?.turboNetwork || NETWORK_DEFAULTS.TURBO;
-const initialArioProcessId = savedSettings?.arioProcessId || ARIO_PROCESS_ID;
-const initialAntRegistryProcessId =
-  savedSettings?.antRegistryProcessId || ANT_REGISTRY_ID;
-const initialHyperbeamUrl = savedSettings?.hyperbeamUrl;
 
+/**
+ * Default ARIO contract used by every read-only path before a wallet
+ * connects. The SDK now defaults to Solana, so the bootstrap client is
+ * `SolanaARIOReadable` pointed at the configured RPC + program ids.
+ *
+ * `WalletState` swaps this for a `SolanaARIOWriteable` once a wallet is
+ * connected.
+ */
 export const defaultArIO = ARIO.init({
-  paymentUrl: initialTurboNetwork.PAYMENT_URL,
-  hyperbeamUrl: initialHyperbeamUrl,
-  process: new AOProcess({
-    processId: initialArioProcessId,
-    ao: connect({
-      CU_URL: ARIO_AO_CU_URL,
-      MODE: 'legacy',
-    }),
-  }),
+  backend: 'solana',
+  rpc: getSolanaRpc(),
+  ...SOLANA_PROGRAM_IDS,
 });
 
 export type GlobalState = {
   arioTicker: string;
   gateway: string;
-  aoNetwork: typeof NETWORK_DEFAULTS.AO;
   turboNetwork: typeof NETWORK_DEFAULTS.TURBO;
-  aoClient: AoClient;
-  antAoClient: AoClient;
-  arioProcessId: string;
-  antRegistryProcessId: string;
   blockHeight?: number;
   lastBlockUpdateTimestamp?: number;
-  arweaveDataProvider: ArweaveCompositeDataProvider;
+  /**
+   * Arweave-only data provider used for tx-id validation, block-height
+   * polling, AR-price lookups, and (legacy) ANT record discovery via
+   * GraphQL. Stays Arweave-bound — the AR.IO Solana protocol still uses
+   * Arweave TX IDs as content-target identifiers.
+   */
+  arweaveDataProvider: SimpleArweaveDataProvider;
   arioContract: AoARIORead | AoARIOWrite;
-  hyperbeamUrl?: string;
 };
 
 const initialState: GlobalState = {
-  arioProcessId: initialArioProcessId,
-  antRegistryProcessId: initialAntRegistryProcessId,
   arioTicker: 'ARIO',
   gateway: initialGateway,
-  aoNetwork: initialAoNetwork,
   turboNetwork: initialTurboNetwork,
-  aoClient: connect({
-    ...initialAoNetwork.ARIO,
-    GATEWAY_URL: 'https://' + initialGateway,
-  }),
-  antAoClient: connect({
-    ...initialAoNetwork.ANT,
-    GATEWAY_URL: 'https://' + initialGateway,
-  }),
-  hyperbeamUrl: initialHyperbeamUrl,
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,
-  arweaveDataProvider: new ArweaveCompositeDataProvider({
-    arweave: defaultArweave,
-    contract: defaultArIO,
-  }),
+  arweaveDataProvider: defaultArweave,
   arioContract: defaultArIO,
 };
 
@@ -140,7 +100,7 @@ export const useGlobalState = (): [GlobalState, Dispatch<GlobalAction>] =>
 type StateProviderProps = {
   reducer: React.Reducer<GlobalState, GlobalAction>;
   children: React.ReactNode;
-  arweaveDataProvider?: ArweaveCompositeDataProvider;
+  arweaveDataProvider?: SimpleArweaveDataProvider;
 };
 
 /** Create provider to wrap app in */

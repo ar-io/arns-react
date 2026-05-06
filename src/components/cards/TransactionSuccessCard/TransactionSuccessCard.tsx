@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
+import { SolanaSignature } from '../../../services/solana/SolanaSignature';
 import { CircleCheckFilled, CloseIcon } from '../../icons';
 import ArweaveID, { ArweaveIdTypes } from '../../layout/ArweaveID/ArweaveID';
 
@@ -9,7 +10,10 @@ function TransactionSuccessCard({
   title,
   close,
 }: {
-  txId: ArweaveTransactionID;
+  // Transaction signature/id. On Solana this is a `SolanaSignature`; on
+  // legacy AO it's an `ArweaveTransactionID`. The card just passes it
+  // through to `ArweaveID` for display + explorer link routing.
+  txId: ArweaveTransactionID | SolanaSignature;
   close?: () => void;
   title?: string;
 }) {

@@ -40,10 +40,14 @@ export interface TurboArNSClientConfig {
   paymentUrl?: string;
   gatewayUrl?: string;
   walletsUrl?: string;
+  // `signer` and `ao` are vestigial after the de-AO refactor — the Stripe-
+  // funded ArNS purchase flow (`executeArNSIntent`) is currently AO-coupled
+  // and gated behind a tooltip in the UI. Phase 9 keeps the field for
+  // back-compat; Solana support requires the Turbo payment service update.
   signer?: ContractSigner;
   walletAddress?: string;
   stripe: Stripe;
-  ao: AoClient;
+  ao?: AoClient;
 }
 
 export type TurboArNSInteractionParams = {
@@ -302,6 +306,24 @@ export class TurboArNSClient {
     return res.json();
   }
 
+  /**
+   * Stripe-funded direct ArNS purchase ("buy a name with a credit card").
+   *
+   * **Currently disabled on the Solana-only build.**
+   *
+   * The Turbo payment service still settles ArNS purchases by emitting an
+   * AO message (`Buy-Name`/`Extend-Lease`/`Increase-Undername-Limit`) on
+   * the AO ARIO process. Until the service learns to relay those intents
+   * to the Solana ARIO programs, this flow can't complete on Solana — the
+   * payment would clear but no on-chain mutation would happen, leaving
+   * the user with neither funds nor a name.
+   *
+   * The UI gates this behind a tooltip on the credit-card payment option
+   * (see `TransactionDetails`/`PaymentDetails`), and the dispatcher
+   * (`dispatchArIOInteraction`) throws if `fundFrom === 'fiat'` is reached
+   * on Solana. The class method is preserved as documentation + a hook
+   * for re-enabling once the service ships Solana support.
+   */
   public async executeArNSIntent({
     paymentMethodId,
     email,
@@ -312,61 +334,32 @@ export class TurboArNSClient {
     email?: string;
     address: string;
   }): Promise<AoMessageResult<MessageResult>> {
-    const intent = await this.getArNSPaymentIntent(intentParams);
-    if (!intent.paymentSession.client_secret) {
-      throw new Error('No client secret found on payment intent');
-    }
-    const result = await this.stripe.confirmCardPayment(
-      intent.paymentSession.client_secret,
-      {
-        payment_method: paymentMethodId,
-        receipt_email: email,
-      },
+    // Suppress unused-destructure warnings.
+    void paymentMethodId;
+    void email;
+    void intentParams;
+    throw new Error(
+      'Credit-card payments for ArNS purchases are temporarily unavailable on Solana. ' +
+        'The Turbo payment service still settles via AO and needs Solana support before this flow can be re-enabled.',
     );
-    if (result.error) {
-      throw new Error(result.error.message);
-    }
-
-    const maxTries = 10;
-    let tries = 0;
-    let isComplete = false;
-    let messageId: string | undefined;
-    while (!isComplete && tries <= maxTries) {
-      const res = await this.getIntentStatus(intent.purchaseQuote.nonce);
-      switch (res.status) {
-        case 'success':
-          isComplete = true;
-
-          messageId = res.messageId;
-
-          break;
-        case 'failed':
-          throw new Error('Turbo ArNS Interaction failed on payment service.');
-        case 'pending':
-          if (tries >= maxTries) {
-            throw new Error(
-              'Turbo ArNS Interaction exceeded max tries on payment service.',
-            );
-          }
-          await sleep(1000 * tries);
-
-          tries++;
-          break;
-        default:
-          throw new Error('Unknown status from payment service.');
-      }
-    }
-    if (!messageId) {
-      throw new Error('No message ID found on payment service.');
-    }
-    const messageResult = await this.ao.result({
-      process: this.arioProcessId,
-      message: messageId,
-    });
-    return {
-      id: messageId,
-      result: messageResult,
-    };
+    /* Original AO-coupled implementation preserved for reference once the
+     * Turbo payment service ships Solana support. Re-enable by deleting the
+     * throw above and uncommenting:
+     *
+     * const intent = await this.getArNSPaymentIntent(intentParams);
+     * if (!intent.paymentSession.client_secret) {
+     *   throw new Error('No client secret found on payment intent');
+     * }
+     * const result = await this.stripe.confirmCardPayment(
+     *   intent.paymentSession.client_secret,
+     *   { payment_method: paymentMethodId, receipt_email: email },
+     * );
+     * if (result.error) throw new Error(result.error.message);
+     *
+     * // poll getIntentStatus until success/failed, then:
+     * // const messageResult = await this.ao.result({ process: this.arioProcessId, message: messageId });
+     * // return { id: messageId, result: messageResult };
+     */
   }
 
   public async getWincForToken(

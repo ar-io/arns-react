@@ -33,16 +33,15 @@ import { getTransactionHeader } from './transaction-headers';
 // on completion routes to transaction/complete
 function TransactionReview() {
   const navigate = useNavigate();
-  const [
-    {
-      arioContract,
-      arioProcessId,
-      aoNetwork,
-      aoClient,
-      hyperbeamUrl,
-      antRegistryProcessId,
-    },
-  ] = useGlobalState();
+  const [{ arioContract }] = useGlobalState();
+  // Legacy AO routing/identifiers kept as no-op placeholders; the Solana
+  // dispatchers ignore them but the existing call shapes still reference
+  // them.
+  const arioProcessId = '';
+  const antRegistryProcessId = '';
+  const aoClient = undefined as unknown as undefined;
+  const aoNetwork = { ARIO: { SCHEDULER: '' } } as const;
+  const hyperbeamUrl = '' as string;
   const [, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
   const [
@@ -111,7 +110,13 @@ function TransactionReview() {
 
   async function handleNext() {
     try {
-      if (!(arioContract instanceof ARIOWriteable)) {
+      // SolanaARIOWriteable doesn't extend ARIOWriteable — accept either
+      // by checking for a signer slot, which both write impls populate.
+      const isWriteable =
+        arioContract instanceof ARIOWriteable ||
+        (arioContract as { signer?: unknown } | undefined)?.signer !==
+          undefined;
+      if (!isWriteable) {
         throw new Error('Wallet must be connected to dispatch transactions.');
       }
       if (!transactionData || !workflowName) {
@@ -130,6 +135,7 @@ function TransactionReview() {
         processId: arioProcessId,
         dispatch: dispatchTransactionState,
         signer: wallet?.contractSigner,
+        wallet,
         ao: aoClient,
         scheduler: aoNetwork.ARIO.SCHEDULER,
         fundFrom: fundingSource,
@@ -148,6 +154,8 @@ function TransactionReview() {
           arioProcessId,
           antRegistryProcessId,
           walletAddress,
+          wallet,
+          arioContract,
           aoNetworkSettings: aoNetwork,
           hyperbeamUrl,
         });

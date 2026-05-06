@@ -39,16 +39,12 @@ function UpgradeDomainsModal({
   visible: boolean;
   setVisible: (visible: boolean) => void;
 }) {
-  const [
-    {
-      antAoClient,
-      aoNetwork,
-      arioProcessId,
-      arioContract,
-      hyperbeamUrl,
-      antRegistryProcessId,
-    },
-  ] = useGlobalState();
+  const [{ arioContract }] = useGlobalState();
+  const antAoClient = undefined as unknown as undefined;
+  const aoNetwork = { ARIO: { SCHEDULER: '' } } as const;
+  const arioProcessId = '';
+  const hyperbeamUrl = '' as string;
+  const antRegistryProcessId = '';
   const [{ wallet, walletAddress }] = useWalletState();
   const [accepted, setAccepted] = useState(false);
   const [domainsToUpgrade, setDomainsToUpgrade] = useState<string[]>([]);
@@ -57,7 +53,7 @@ function UpgradeDomainsModal({
     useArNSState();
   const { data: antVersion } = useLatestANTVersion();
   const antModuleId = antVersion?.moduleId ?? null;
-  const luaSourceId = antVersion?.luaSourceId ?? null;
+  const luaSourceId = (antVersion as any)?.luaSourceId ?? null;
   // 0 or greater means loading, -1 means not loading
   const [progress, setProgress] = useState(-1);
   const isUpdatingAnts = useCallback(() => progress >= 0, [progress]);
@@ -175,6 +171,7 @@ function UpgradeDomainsModal({
                 ao: antAoClient,
                 antRegistryProcessId,
                 signer,
+                wallet,
                 dispatchTransactionState,
                 dispatchArNSState,
                 stepCallback: async (
@@ -245,6 +242,8 @@ function UpgradeDomainsModal({
       dispatchArNSUpdate({
         dispatch: dispatchArNSState,
         walletAddress: walletAddress!,
+        wallet,
+        arioContract,
         arioProcessId: arioProcessId,
         antRegistryProcessId,
         aoNetworkSettings: aoNetwork,

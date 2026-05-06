@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
+import { SolanaAddress } from '../../../../services/solana/SolanaAddress';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { SetRecordPayload, VALIDATION_INPUT_TYPES } from '../../../../types';
 import {
@@ -27,12 +28,16 @@ function EditUndernameModal({
   closeModal,
   payloadCallback,
 }: {
-  antId: ArweaveTransactionID; // process ID if asset type is a contract interaction
+  // ANT mint pubkey (Solana base58) or, on legacy AO, an Arweave tx id.
+  // The component only calls `.toString()` on it.
+  antId: ArweaveTransactionID | SolanaAddress;
   undername: string;
   closeModal: () => void;
   payloadCallback: (payload: SetRecordPayload) => void;
 }) {
-  const [{ arweaveDataProvider, antAoClient, hyperbeamUrl }] = useGlobalState();
+  const [{ arweaveDataProvider }] = useGlobalState();
+  const antAoClient = undefined as unknown as undefined;
+  const hyperbeamUrl = '' as string;
   const isMobile = useIsMobile();
   const targetIdRef = useRef<HTMLInputElement>(null);
   const ttlRef = useRef<HTMLInputElement>(null);
@@ -47,7 +52,7 @@ function EditUndernameModal({
     }
   }, [antId]);
 
-  async function load(id: ArweaveTransactionID) {
+  async function load(id: ArweaveTransactionID | SolanaAddress) {
     try {
       const contract = ANT.init({
         hyperbeamUrl,

@@ -1,56 +1,82 @@
 import {
   ANT,
-  AOProcess,
-  ARIO,
   AoANTState,
+  AoARIOWrite,
   AoArNSNameData,
-  AoClient,
   AoMessageResult,
-  ContractSigner,
   UpgradeAntProgressEvent,
-  createAoSigner,
 } from '@ar.io/sdk/web';
 import { buildArNSRecordQuery } from '@src/hooks/useArNSRecord';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
-import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
-import { lowerCaseDomain, sleep } from '@src/utils';
+import {
+  ANT_INTERACTION_TYPES,
+  ArNSWalletConnector,
+  ContractInteraction,
+} from '@src/types';
+import { lowerCaseDomain } from '@src/utils';
 import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
+import { buildAntStateQuery, queryClient } from '@src/utils/network';
 import {
-  buildAntStateQuery,
-  buildAntVersionQuery,
-  queryClient,
-} from '@src/utils/network';
+  SOLANA_PROGRAM_IDS,
+  getSolanaRpc,
+  getSolanaRpcSubscriptions,
+} from '@src/utils/solana';
 import { Dispatch } from 'react';
 
 import { ArNSAction } from '../reducers';
+
+/**
+ * Build a Solana ANT instance for the connected wallet. The de-AO refactor
+ * eliminated the Lua process backend; only the Solana Metaplex Core NFT
+ * backend remains.
+ */
+async function buildSolanaAnt(wallet: ArNSWalletConnector, processId: string) {
+  if (wallet.tokenType !== 'solana' || !wallet.solanaSigner) {
+    throw new Error(
+      'A connected Solana wallet with a signer is required for ANT interactions.',
+    );
+  }
+  return await ANT.init({
+    backend: 'solana',
+    processId,
+    rpc: getSolanaRpc(),
+    rpcSubscriptions: getSolanaRpcSubscriptions(),
+    signer: wallet.solanaSigner,
+    antProgramId: SOLANA_PROGRAM_IDS.antProgramId,
+  });
+}
 
 export default async function dispatchANTInteraction({
   payload,
   workflowName,
   processId,
-  signer,
   owner,
+  wallet,
+  arioContract,
   dispatchTransactionState,
   dispatchArNSState,
-  ao,
-  hyperbeamUrl,
-  antRegistryProcessId,
-  // this can allow for waiting on promise resolution for UI input on individual steps
   stepCallback,
 }: {
-  // TODO: this should be typed with specific ANT payloads vs. open ended, it's impossible to understand what is expected or exists here
   payload: Record<string, any>;
   workflowName: ANT_INTERACTION_TYPES;
-  signer: ContractSigner;
   owner: string;
   processId: string;
-  antRegistryProcessId: string;
+  /** Connected Solana wallet — required (no AO fallback). */
+  wallet?: ArNSWalletConnector;
+  /**
+   * Active ARIO writeable client. Required for `RELEASE_NAME`/`REASSIGN_NAME`
+   * because those instructions live on `ario-arns`, not the ANT program.
+   */
+  arioContract?: AoARIOWrite;
   dispatchTransactionState: Dispatch<TransactionAction>;
   dispatchArNSState: Dispatch<ArNSAction>;
-  ao: AoClient;
-  hyperbeamUrl?: string;
   stepCallback?: (step?: Record<string, string> | string) => Promise<void>;
+  // Legacy AO args — accepted but ignored to soften the cross-phase landing.
+  signer?: unknown;
+  ao?: unknown;
+  hyperbeamUrl?: string;
+  antRegistryProcessId?: string;
 }): Promise<ContractInteraction> {
   stepCallback ??= async (step) => {
     if (!step || typeof step === 'string') {
@@ -61,12 +87,21 @@ export default async function dispatchANTInteraction({
     }
   };
 
+  if (!wallet) throw new Error('Wallet is required');
   let result: AoMessageResult | undefined = undefined;
-  const antProcess = ANT.init({
-    hyperbeamUrl,
-    process: new AOProcess({ processId, ao }),
-    signer,
-  });
+  const antProcess = await buildSolanaAnt(wallet, processId);
+
+  // `APPROVE_PRIMARY_NAME` is not modeled on Solana — the protocol auto-
+  // approves on `setPrimaryName`. The corresponding modal/menu actions are
+  // removed in Phase 6; this guard catches any stragglers.
+  if (
+    workflowName === ANT_INTERACTION_TYPES.APPROVE_PRIMARY_NAME ||
+    workflowName === ANT_INTERACTION_TYPES.REMOVE_PRIMARY_NAMES
+  ) {
+    throw new Error(
+      `${workflowName} is not modeled on Solana — the protocol auto-approves and there is no removable approval to clear.`,
+    );
+  }
 
   try {
     if (!antProcess) throw new Error('ANT provider is not defined');
@@ -75,9 +110,7 @@ export default async function dispatchANTInteraction({
       case ANT_INTERACTION_TYPES.SET_NAME:
         await stepCallback('Setting Name, please wait...');
         result = await antProcess.setName(
-          {
-            name: payload.name,
-          },
+          { name: payload.name },
           WRITE_OPTIONS,
         );
         break;
@@ -113,41 +146,23 @@ export default async function dispatchANTInteraction({
       case ANT_INTERACTION_TYPES.SET_CONTROLLER:
         await stepCallback('Setting Controller, please wait...');
         result = await antProcess.addController(
-          {
-            controller: payload.controller,
-          },
+          { controller: payload.controller },
           WRITE_OPTIONS,
         );
         break;
       case ANT_INTERACTION_TYPES.REMOVE_CONTROLLER:
         await stepCallback('Removing Controller, please wait...');
         result = await antProcess.removeController(
-          {
-            controller: payload.controller,
-          },
+          { controller: payload.controller },
           WRITE_OPTIONS,
         );
         break;
       case ANT_INTERACTION_TYPES.TRANSFER:
         await stepCallback('Transferring Ownership, please wait...');
-        if (payload.arnsDomain && payload.arioProcessId) {
-          await stepCallback('Clearing Primary Names associated with ANT...');
-          await antProcess
-            .removePrimaryNames(
-              {
-                names: [payload.arnsDomain],
-                arioProcessId: payload.arioProcessId,
-              },
-              WRITE_OPTIONS,
-            )
-            .catch((e) => eventEmitter.emit('error', e));
-          queryClient.resetQueries({ queryKey: ['primary-name'] });
-        }
         result = await antProcess.transfer(
           { target: payload.target },
           WRITE_OPTIONS,
         );
-
         break;
       case ANT_INTERACTION_TYPES.SET_RECORD:
         await stepCallback('Setting Undername, please wait...');
@@ -174,67 +189,54 @@ export default async function dispatchANTInteraction({
       case ANT_INTERACTION_TYPES.REMOVE_RECORD:
         await stepCallback('Removing Undername, please wait...');
         result = await antProcess.removeRecord(
-          {
-            undername: lowerCaseDomain(payload.subDomain),
-          },
+          { undername: lowerCaseDomain(payload.subDomain) },
           WRITE_OPTIONS,
         );
         break;
 
       case ANT_INTERACTION_TYPES.RELEASE_NAME: {
+        // On Solana, releaseName lives on the ARIO program (ario-arns),
+        // not on the ANT. The ANT only proves ownership; the ARIO program
+        // is what removes the name from the registry.
+        if (!arioContract) {
+          throw new Error(
+            'releaseName requires the active ARIO writeable client — pass `arioContract` from `useGlobalState()`.',
+          );
+        }
         await stepCallback('Releasing ArNS Name, please wait...');
-        const arioContract = ARIO.init({
-          process: new AOProcess({
-            processId: payload.arioProcessId,
-            ao,
-          }),
-          hyperbeamUrl,
-        });
-
-        result = await antProcess.releaseName(
-          {
-            name: payload.name,
-            arioProcessId: payload.arioProcessId,
-          },
+        // `releaseName`/`reassignName` are Solana-only ARIO methods (live on
+        // `SolanaARIOWriteable`, not on the cross-backend `AoARIOWrite`
+        // interface). Cast to access — Phase 7 should hoist them onto the
+        // shared interface.
+        result = await (arioContract as any).releaseName(
+          { name: payload.name },
           WRITE_OPTIONS,
         );
         await stepCallback('Verifying Release, please wait...');
         const released = await arioContract
           .getArNSRecord({ name: payload.name })
           .catch((e: Error) => e);
-
-        if (released instanceof Error) {
-          throw new Error('Failed to release ArNS Name: ' + released.message);
+        if (!(released instanceof Error)) {
+          throw new Error('Failed to release ArNS Name: name still exists.');
         }
         break;
       }
       case ANT_INTERACTION_TYPES.REASSIGN_NAME: {
-        // TODO: use native upgrade + reassign flow from ar-io-sdk when it is available
-        let newAntProcessId = payload.newAntProcessId;
-        if (!newAntProcessId) {
-          await stepCallback('Spawning new ANT, please wait... 1/2');
-          newAntProcessId = await ANT.spawn({
-            ao,
-            signer: createAoSigner(signer),
-            state: payload.previousState,
-            luaCodeTxId: payload.luaCodeTxId,
-            module: payload.antModuleId,
-            hyperbeamUrl,
-            antRegistryId: antRegistryProcessId,
-          });
+        if (!arioContract) {
+          throw new Error(
+            'reassignName requires the active ARIO writeable client — pass `arioContract` from `useGlobalState()`.',
+          );
         }
-        await stepCallback(
-          'Reassigning ArNS name, please wait... ' +
-            (payload.newAntProcessId ? '' : '2/2'),
-        );
-        // for UX so the user sees the signing message
-        await sleep(2000);
-        result = await antProcess.reassignName(
-          {
-            name: payload.name,
-            arioProcessId: payload.arioProcessId,
-            antProcessId: newAntProcessId,
-          },
+        await stepCallback('Reassigning ArNS name, please wait...');
+        const newAntProcessId = payload.newAntProcessId;
+        if (!newAntProcessId) {
+          throw new Error(
+            'reassignName requires `newAntProcessId` (Solana mint pubkey of the target ANT). The legacy AO "spawn-then-reassign" flow has been removed.',
+          );
+        }
+        // `reassignName` is Solana-only — see comment on releaseName above.
+        result = await (arioContract as any).reassignName(
+          { name: payload.name, processId: newAntProcessId },
           WRITE_OPTIONS,
         );
         break;
@@ -242,63 +244,33 @@ export default async function dispatchANTInteraction({
       case ANT_INTERACTION_TYPES.SET_LOGO:
         await stepCallback('Setting Logo, please wait...');
         result = await antProcess.setLogo(
-          {
-            txId: payload.logo,
-          },
+          { txId: payload.logo },
           WRITE_OPTIONS,
         );
         break;
       case ANT_INTERACTION_TYPES.SET_DESCRIPTION:
         await stepCallback('Setting Description, please wait...');
         result = await antProcess.setDescription(
-          {
-            description: payload.description,
-          },
+          { description: payload.description },
           WRITE_OPTIONS,
         );
         break;
       case ANT_INTERACTION_TYPES.SET_KEYWORDS:
         await stepCallback('Setting Keywords, please wait...');
         result = await antProcess.setKeywords(
-          {
-            keywords: payload.keywords,
-          },
-          WRITE_OPTIONS,
-        );
-        break;
-      case ANT_INTERACTION_TYPES.APPROVE_PRIMARY_NAME:
-        await stepCallback('Approving Primary Name request, please wait...');
-        result = await antProcess.approvePrimaryNameRequest(
-          {
-            name: payload.name,
-            address: owner.toString(),
-            arioProcessId: payload.arioProcessId,
-          },
-          WRITE_OPTIONS,
-        );
-        break;
-      case ANT_INTERACTION_TYPES.REMOVE_PRIMARY_NAMES:
-        await stepCallback('Removing Primary Name, please wait...');
-
-        result = await antProcess.removePrimaryNames(
-          {
-            names: payload.names,
-            arioProcessId: payload.arioProcessId,
-          },
+          { keywords: payload.keywords },
           WRITE_OPTIONS,
         );
         break;
 
       case ANT_INTERACTION_TYPES.UPGRADE_ANT: {
-        console.log('UPGRADE_ANT', antProcess);
-        /**
-         * For now, we will reassign just the single name, but in the future we will reassign all names affiliated with the process id
-         * using reassignAllAffiliatedNames = true on this call.
-         */
-        const nameReassignment = await antProcess.upgrade({
+        // On Solana, "upgrade" means migrating this ANT's on-chain state
+        // to the latest schema version (per-ANT data migration), not
+        // forking a new Lua module. The mint pubkey stays the same.
+        await stepCallback('Migrating ANT to latest version, please wait...');
+        const upgradeResult = await antProcess.upgrade({
           names: [payload.name],
           arioProcessId: payload.arioProcessId,
-          antRegistryId: antRegistryProcessId,
           onSigningProgress: (
             step: keyof UpgradeAntProgressEvent,
             stepPayload: UpgradeAntProgressEvent[keyof UpgradeAntProgressEvent],
@@ -322,87 +294,57 @@ export default async function dispatchANTInteraction({
           },
         });
 
-        result = { id: nameReassignment.forkedProcessId };
+        // Solana `upgrade()` returns `{ id, needsMigration }`. The Lua-style
+        // `forkedProcessId`/`reassignedNames` shape is gone — the mint pubkey
+        // is the SAME after migration on Solana.
+        const migrationId = (upgradeResult as any)?.id ?? '';
+        result = { id: migrationId };
 
-        // invalidate all the queries for the names, processId, and forkedProcessId
-        await Promise.all(
-          [
-            ...Object.keys(nameReassignment.reassignedNames),
-            nameReassignment.forkedProcessId,
-            processId,
-          ].map((name) =>
-            queryClient.invalidateQueries({
-              predicate: ({ queryKey }) => queryKey.includes(name),
-              refetchType: 'all',
-            }),
-          ),
-        );
+        await queryClient.invalidateQueries({
+          predicate: ({ queryKey }) =>
+            queryKey.includes(processId) || queryKey.includes(payload.name),
+          refetchType: 'all',
+        });
 
-        /**
-         * Just some thoughts about this pattern:
-         *
-         * We are storing ant metadata and domain information in global state, while also trying to leverage tanstack query to efficiently cache, expire and keep it in sync.
-         *
-         * Ensuring the actual data and the cached data are in sync is brutal to understand and maintain, and a pattern we should move away from.
-         *
-         * To do so, we should look into leveraging `useMutation` for each interaction to properly send messages, handle retries and callback on success or failure
-         * and remove storing any state related to ArNS (records AND ants) in global state entirely. Let tanstack manage the caching of those values, and use all components that require it should
-         * leverage the `useQuery` hook to fetch the data they need.
-         *
-         */
-
-        const [record, newAntState, newAntVersion] = await Promise.all([
-          queryClient.fetchQuery<AoArNSNameData>(
-            buildArNSRecordQuery({
-              name: payload.name,
-              arioContract: ARIO.init({
-                process: new AOProcess({
-                  processId: payload.arioProcessId,
-                  ao,
+        if (arioContract) {
+          const [record, newAntState] = await Promise.all([
+            queryClient
+              .fetchQuery<AoArNSNameData>(
+                buildArNSRecordQuery({
+                  name: payload.name,
+                  arioContract,
                 }),
-                hyperbeamUrl,
-              }),
-            }),
-          ),
-          queryClient.fetchQuery<AoANTState>(
-            buildAntStateQuery({
-              processId: nameReassignment.forkedProcessId,
-              ao: ao,
-              hyperbeamUrl,
-            }),
-          ),
-          queryClient.fetchQuery(
-            buildAntVersionQuery({
-              processId: nameReassignment.forkedProcessId,
-              ao: ao,
-              hyperbeamUrl,
-              antRegistryId: antRegistryProcessId,
-            }),
-          ),
-        ]);
-        // override the old domain with the new one in global state
-        dispatchArNSState({
-          type: 'addDomains',
-          payload: { [payload.name]: record },
-        });
-
-        // override the old ant with the new one in global state
-        dispatchArNSState({
-          type: 'addAnts',
-          payload: {
-            [nameReassignment.forkedProcessId]: {
-              state: newAntState,
-              version: parseInt(newAntVersion),
-              processMeta: null, // TODO: remove this once we have a better way to handle this
-            },
-          },
-        });
-
-        // remove the old ant from global state - again this is brutal
-        dispatchArNSState({
-          type: 'removeAnts',
-          payload: [processId],
-        });
+              )
+              .catch(() => null),
+            queryClient
+              .fetchQuery<AoANTState>(
+                buildAntStateQuery({ processId, solana: true } as any),
+              )
+              .catch(() => null),
+          ]);
+          if (record) {
+            dispatchArNSState({
+              type: 'addDomains',
+              payload: { [payload.name]: record },
+            });
+          }
+          if (newAntState) {
+            dispatchArNSState({
+              type: 'addAnts',
+              payload: {
+                [processId]: {
+                  state: newAntState,
+                  // Bump the cached version count so the UI stops nagging
+                  // about an outdated ANT. We don't track an explicit
+                  // version number on Solana the way the Lua module
+                  // registry did.
+                  version: 1,
+                  processMeta: null,
+                },
+              },
+            });
+          }
+        }
 
         break;
       }

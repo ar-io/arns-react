@@ -47,16 +47,13 @@ import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function RegisterNameForm() {
-  const [
-    {
-      arweaveDataProvider,
-      arioTicker,
-      arioProcessId,
-      antAoClient,
-      antRegistryProcessId,
-      hyperbeamUrl,
-    },
-  ] = useGlobalState();
+  const [{ arweaveDataProvider, arioTicker }] = useGlobalState();
+  // Legacy AO fields kept as no-op placeholders for the existing payload
+  // shapes; the Solana dispatchers ignore them.
+  const arioProcessId = '';
+  const antAoClient = undefined as unknown as undefined;
+  const antRegistryProcessId = '';
+  const hyperbeamUrl = '' as string;
   const [
     { domain, leaseDuration, registrationType, antID, targetId },
     dispatchRegisterState,
@@ -82,7 +79,7 @@ function RegisterNameForm() {
     )} ${arioTicker} )`;
   }, [fiatPrice, costDetails]);
 
-  const [{ walletAddress }] = useWalletState();
+  const [{ walletAddress, wallet }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const { name } = useParams();
   const { isLoading: isValidatingRegistration } = useRegistrationStatus(
@@ -151,7 +148,13 @@ function RegisterNameForm() {
         return;
       }
 
-      if (!antModuleId) {
+      // NOTE (de-AO refactor): `antModuleId` is the AO Lua-module ID used
+      // to spawn legacy ANT processes. On Solana, ANTs are Metaplex Core
+      // NFTs spawned by `spawnSolanaANT` and there is no module ID — the
+      // `useLatestANTVersion` hook always returns `null`. Skip the legacy
+      // gate; the spawn path is selected downstream based on the connected
+      // wallet's `tokenType`.
+      if (!antModuleId && wallet?.tokenType !== 'solana') {
         await refetchAntVersion();
         if (!antModuleId) {
           throw new Error('No ANT Module available, try again later');
@@ -187,7 +190,11 @@ function RegisterNameForm() {
           : undefined,
       type: registrationType,
       targetId,
-      antModuleId,
+      // antModuleId is the AO Lua module ID; on Solana there's no module
+      // (ANTs are Metaplex Core NFTs). Cast through `any` to satisfy the
+      // legacy `BuyRecordPayload` shape until the consumer type is split
+      // by backend.
+      antModuleId: antModuleId as any,
       antRegistryId: antRegistryProcessId,
     };
 
@@ -286,6 +293,7 @@ function RegisterNameForm() {
               style={{ gap: '25px' }}
             >
               <button
+                data-testid="register-type-lease"
                 className="flex flex-row center text-medium bold pointer"
                 onClick={() =>
                   dispatchRegisterState({
@@ -327,6 +335,7 @@ function RegisterNameForm() {
                 )}
               </button>
               <button
+                data-testid="register-type-permabuy"
                 className="flex flex-row center text-medium bold pointer"
                 style={{
                   position: 'relative',

@@ -7,6 +7,7 @@ import ArweaveID, {
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import { buildCostDetailsQuery } from '@src/hooks/useCostDetails';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { SolanaAddress } from '@src/services/solana/SolanaAddress';
 import { useGlobalState, useWalletState } from '@src/state';
 import { TRANSACTION_TYPES } from '@src/types';
 import {
@@ -17,6 +18,7 @@ import {
   formatDate,
   formatForMaxCharCount,
   isArweaveTransactionID,
+  isValidAoAddress,
   lowerCaseDomain,
 } from '@src/utils';
 import {
@@ -95,8 +97,8 @@ const ReturnedNamesTable = ({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
-  const [{ arioProcessId, arioTicker, arioContract, gateway }] =
-    useGlobalState();
+  const [{ arioTicker, arioContract, gateway }] = useGlobalState();
+  const arioProcessId = '';
   const [{ walletAddress }] = useWalletState();
 
   const [tableData, setTableData] = useState<Array<TableData>>([]);
@@ -157,7 +159,7 @@ const ReturnedNamesTable = ({
             years: 1,
             fromAddress: walletAddress?.toString(),
           },
-          { arioContract, arioProcessId },
+          { arioContract },
         ),
       );
 
@@ -319,15 +321,20 @@ const ReturnedNamesTable = ({
             return formatDate(rowValue);
           }
           case 'initiator': {
-            return isArweaveTransactionID(rowValue) ? (
+            if (typeof rowValue !== 'string' || !isValidAoAddress(rowValue)) {
+              return rowValue;
+            }
+            return (
               <ArweaveID
-                id={new ArweaveTransactionID(rowValue)}
+                id={
+                  isArweaveTransactionID(rowValue)
+                    ? new ArweaveTransactionID(rowValue)
+                    : new SolanaAddress(rowValue)
+                }
                 shouldLink
                 characterCount={12}
                 type={ArweaveIdTypes.ADDRESS}
               />
-            ) : (
-              rowValue
             );
           }
           case 'leasePrice':

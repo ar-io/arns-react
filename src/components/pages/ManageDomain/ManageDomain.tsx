@@ -20,7 +20,12 @@ import './styles.css';
 function ManageDomain() {
   const { name } = useParams();
   const navigate = useNavigate();
-  const [{ arioProcessId }] = useGlobalState();
+  // arioProcessId was an AO process id used to route ArNS transactions; on
+  // Solana the protocol address comes from env-derived program IDs, but the
+  // legacy transaction payload schema still expects a string. Pass empty —
+  // the dispatcher ignores it for the Solana backend.
+  const arioProcessId = '';
+  useGlobalState();
   const [, dispatchTransactionState] = useTransactionState();
   const [, dispatchModalState] = useModalState();
   const { data: primaryNameData } = usePrimaryName();

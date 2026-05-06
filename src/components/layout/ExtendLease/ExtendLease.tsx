@@ -10,7 +10,6 @@ import useDomainInfo from '@src/hooks/useDomainInfo';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useTransactionState } from '../../../state/contexts/TransactionState';
 import { useWalletState } from '../../../state/contexts/WalletState';
@@ -25,6 +24,7 @@ import {
   formatDate,
   getLeaseDurationFromEndTimestamp,
   lowerCaseDomain,
+  wrapAntId,
 } from '../../../utils';
 import {
   ARNS_PURCHASES_DISABLED,
@@ -40,7 +40,8 @@ import DialogModal from '../../modals/DialogModal/DialogModal';
 
 function ExtendLease() {
   // TODO: remove use of source contract
-  const [{ arioTicker, arioProcessId }] = useGlobalState();
+  const [{ arioTicker }] = useGlobalState();
+  const arioProcessId = '';
   const [{ walletAddress }] = useWalletState();
 
   const [, dispatchTransactionState] = useTransactionState();
@@ -367,9 +368,7 @@ function ExtendLease() {
                     const payload: ExtendLeasePayload = {
                       name,
                       years: newLeaseDuration,
-                      processId: new ArweaveTransactionID(
-                        domainData?.arnsRecord.processId,
-                      ),
+                      processId: wrapAntId(domainData?.arnsRecord.processId),
                     };
 
                     dispatchTransactionState({
@@ -405,9 +404,7 @@ function ExtendLease() {
                         assetId: arioProcessId,
                         functionName: 'upgradeName',
                         name,
-                        processId: new ArweaveTransactionID(
-                          domainData.arnsRecord.processId,
-                        ),
+                        processId: wrapAntId(domainData.arnsRecord.processId),
 
                         arnsRecord: domainData.arnsRecord,
                         interactionPrice: arioFee,
