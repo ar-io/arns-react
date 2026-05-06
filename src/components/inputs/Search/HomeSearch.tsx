@@ -5,11 +5,11 @@ import { Tooltip } from '@src/components/data-display';
 import { ArioSpinner } from '@src/components/data-display/Spinner';
 import { RNPChart } from '@src/components/data-display/charts/RNPChart';
 import { CircleCheckFilled, SearchIcon } from '@src/components/icons';
-import { useGlobalState } from '@src/state';
 import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
 import {
   ARNS_PURCHASES_DISABLED,
   ARNS_PURCHASES_DISABLED_TOOLTIP,
+  NETWORK_DEFAULTS,
 } from '@src/utils/constants';
 import { Tooltip as AntdTooltip } from 'antd';
 import { ChevronRight, CircleAlert, XIcon } from 'lucide-react';
@@ -46,7 +46,6 @@ function HomeSearch() {
   const [domainRecord, setDomainRecord] = useState<AoArNSNameData>();
   const [showResults, setShowResults] = useState(true);
   const [isReturnedName, setIsReturnedName] = useState(false);
-  const [{ gateway }] = useGlobalState();
 
   useEffect(() => {
     validateDomain(domainQuery);
@@ -359,7 +358,8 @@ function HomeSearch() {
                 ) : (
                   <div className="flex flex-row w-full justify-between mt-4">
                     <span className="text-xl text-grey">
-                      {decodeDomainToASCII(domainQuery)}.{gateway}
+                      {decodeDomainToASCII(domainQuery)}.
+                      {NETWORK_DEFAULTS.ARNS.HOST}
                     </span>
                     <button
                       className="text-[12px] text-white whitespace-nowrap flex items-center"

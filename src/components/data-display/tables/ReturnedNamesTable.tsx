@@ -22,6 +22,7 @@ import {
 import {
   ARNS_PURCHASES_DISABLED,
   ARNS_PURCHASES_DISABLED_TOOLTIP,
+  NETWORK_DEFAULTS,
   START_RNP_PREMIUM,
 } from '@src/utils/constants';
 import { useQueryClient } from '@tanstack/react-query';
@@ -95,8 +96,7 @@ const ReturnedNamesTable = ({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
-  const [{ arioProcessId, arioTicker, arioContract, gateway }] =
-    useGlobalState();
+  const [{ arioProcessId, arioTicker, arioContract }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
 
   const [tableData, setTableData] = useState<Array<TableData>>([]);
@@ -302,7 +302,7 @@ const ReturnedNamesTable = ({
                     className="link gap-2 w-fit items-center"
                     to={`https://${encodeDomainToASCII(
                       row.getValue('name'),
-                    )}.${gateway}`}
+                    )}.${NETWORK_DEFAULTS.ARNS.HOST}`}
                     target="_blank"
                   >
                     {formatForMaxCharCount(decodeDomainToASCII(rowValue), 20)}{' '}
