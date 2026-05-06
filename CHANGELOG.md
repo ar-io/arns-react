@@ -8,11 +8,18 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.30.3] - 2026-05-06
+
+### Changed
+
+- Updated top banner snapshot date to June 1, 2026
+- Fixed ArNS name links in DomainsTable, UndernamesTable, ReturnedNamesTable, and HomeSearch to always use ar.io instead of the configurable data gateway (which could resolve to arweave.net)
+
 ## [1.30.2] - 2026-04-27
 
 ### Changed
 
-- Updated top banner to announce Solana migration with May 15, 2026 snapshot date, registration call-to-action, and "Learn More" link
+- Updated top banner to announce Solana migration with snapshot date, registration call-to-action, and "Learn More" link
 - Updated purchase-disabled tooltip to reference Solana migration
 - Banner now displays on all pages (except settings)
 
