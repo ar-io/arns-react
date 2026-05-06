@@ -145,6 +145,30 @@
     tweetnacl "^1.0.3"
     x402-fetch "^1.0.0"
 
+"@ardrive/turbo-sdk@^1.19.0":
+  version "1.41.2"
+  resolved "https://registry.npmjs.org/@ardrive/turbo-sdk/-/turbo-sdk-1.41.2.tgz#83637bae16214fa305f7d5e67d9ef95e327d5af5"
+  integrity sha512-SQUannhzLzW+YqoYNfJAod5VLuf30vd0JU+VT2wlAL47UMeCgdgBPbXIJG1NzuMmVu5epL5+JSEaCimpSXrvHw==
+  dependencies:
+    "@cosmjs/proto-signing" "^0.33.1"
+    "@cosmjs/stargate" "^0.33.1"
+    "@dha-team/arbundles" "^1.0.1"
+    "@ethersproject/signing-key" "^5.7.0"
+    "@permaweb/aoconnect" "0.0.57"
+    "@solana/web3.js" "^1.91.7"
+    arweave "^1.15.1"
+    bignumber.js "^9.1.2"
+    bs58 "^5.0.0"
+    cli-progress "^3.12.0"
+    commander "^12.1.0"
+    ethers "^6.12.0"
+    eventemitter3 "^5.0.1"
+    mime-types "^2.1.35"
+    plimit-lit "^3.0.1"
+    prompts "^2.4.2"
+    tweetnacl "^1.0.3"
+    x402-fetch "^1.0.0"
+
 "@ardrive/turbo-sdk@^1.28.2":
   version "1.30.0"
   resolved "https://registry.yarnpkg.com/@ardrive/turbo-sdk/-/turbo-sdk-1.30.0.tgz#8d02a955f5e95200ee96a9c354a97d72684827de"
