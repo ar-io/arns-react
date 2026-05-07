@@ -98,6 +98,23 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
+"@ar.io/sdk@4.0.0-solana.1":
+  version "4.0.0-solana.1"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.0-solana.1.tgz#b6051a043fd68c4548705caefd8fa0ddab8ee3d1"
+  integrity sha512-trvV+QoOMvJvHwNVsNqXPP3UQ5wdXoTMh2jdYvlZo0cYcB7SFKJ6nbOFCFpHF0EecASlC4e8Lw+OVnqx4AdPFg==
+  dependencies:
+    "@ardrive/turbo-sdk" "^1.19.0"
+    "@dha-team/arbundles" "^1.0.1"
+    "@permaweb/aoconnect" "0.0.68"
+    "@solana-program/compute-budget" "^0.15.0"
+    "@solana/kit" "^6.8.0"
+    arweave "1.15.5"
+    axios "^1.13.2"
+    bs58 "^6.0.0"
+    commander "^12.1.0"
+    eventemitter3 "^5.0.1"
+    prompts "^2.4.2"
+
 "@ar.io/sdk@^3.10.1":
   version "3.14.0"
   resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-3.14.0.tgz#aadfd03ca157d017265df39b12c8f57633303ee5"
@@ -115,10 +132,6 @@
     uuid "^11.1.0"
     winston "^3.13.0"
     zod "^3.23.8"
-
-"@ar.io/sdk@link:../sdk":
-  version "0.0.0"
-  uid ""
 
 "@ardrive/turbo-sdk@1.39.2":
   version "1.39.2"
@@ -4834,7 +4847,7 @@
     "@solana/nominal-types" "6.8.0"
     "@solana/promises" "6.8.0"
 
-"@solana/kit@6.8.0", "@solana/kit@^3.0.3", "@solana/kit@^5.0.0":
+"@solana/kit@6.8.0", "@solana/kit@^3.0.3", "@solana/kit@^5.0.0", "@solana/kit@^6.8.0":
   version "6.8.0"
   resolved "https://registry.npmjs.org/@solana/kit/-/kit-6.8.0.tgz#fdef61bfc237888f5129a1435ffbddff70e229f4"
   integrity sha512-+McC1aCgcUBdM7Cd7U6k2ZHJ9OKCy5mzpb0XWrhkrgsFxT0QoRr0AcWJc85o6tIDfG6Jz7vVhbS3l8ugYz2Vzw==
