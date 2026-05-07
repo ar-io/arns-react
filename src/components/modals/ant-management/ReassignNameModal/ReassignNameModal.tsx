@@ -27,7 +27,7 @@ import {
 import { ARNS_TX_ID_ENTRY_REGEX } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import {
-  SOLANA_PROGRAM_IDS,
+  getActiveSolanaConfig,
   getSolanaRpc,
   getSolanaRpcSubscriptions,
 } from '@src/utils/solana';
@@ -131,12 +131,13 @@ export function ReassignNameModal({
           type: 'setSigningMessage',
           payload: 'Spawning new ANT, please wait...',
         });
+        const { programIds: activeProgramIds } = getActiveSolanaConfig();
         const spawnResult = await ANT.spawn({
           backend: 'solana',
           rpc: getSolanaRpc(),
           rpcSubscriptions: getSolanaRpcSubscriptions(),
           signer: wallet.solanaSigner,
-          antProgramId: SOLANA_PROGRAM_IDS.antProgramId,
+          antProgramId: activeProgramIds.antProgramId,
           state: {
             // `name` is the only required field. We pass through the user-
             // facing display name from the existing ANT when carrying over,
@@ -170,7 +171,7 @@ export function ReassignNameModal({
             rpc: getSolanaRpc(),
             rpcSubscriptions: getSolanaRpcSubscriptions(),
             signer: wallet.solanaSigner,
-            antProgramId: SOLANA_PROGRAM_IDS.antProgramId,
+            antProgramId: activeProgramIds.antProgramId,
           });
           const controllers = (domainData.state.Controllers ?? []).filter(
             (c) => c && c !== walletAddress.toString(),

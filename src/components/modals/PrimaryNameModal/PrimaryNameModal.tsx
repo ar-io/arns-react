@@ -305,7 +305,7 @@ function PrimaryNameModal({
         onCancel={closeModal}
         onClose={closeModal}
         onNext={
-          !isLoading && costDetail && costDetail.fundingPlan!.shortfall === 0
+          !isLoading && costDetail && costDetail.fundingPlan?.shortfall === 0
             ? confirm
             : undefined
         }

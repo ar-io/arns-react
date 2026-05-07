@@ -1,11 +1,7 @@
 import { ARIO } from '@ar.io/sdk/web';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { SolanaWalletConnector } from '@src/services/wallets';
-import {
-  SOLANA_PROGRAM_IDS,
-  getSolanaRpc,
-  getSolanaRpcSubscriptions,
-} from '@src/utils/solana';
+import { getSolanaRpc, getSolanaRpcSubscriptions } from '@src/utils/solana';
 import React, {
   Dispatch,
   createContext,
@@ -59,8 +55,10 @@ export function WalletStateProvider({
 }: StateProviderProps): JSX.Element {
   const [state, dispatchWalletState] = useReducer(reducer, initialState);
 
-  const [{ blockHeight, arioTicker, arioContract }, dispatchGlobalState] =
-    useGlobalState();
+  const [
+    { blockHeight, arioTicker, arioContract, solanaConfig },
+    dispatchGlobalState,
+  ] = useGlobalState();
 
   const { walletAddress, wallet } = state;
 
@@ -70,18 +68,21 @@ export function WalletStateProvider({
       return;
     }
 
-    // Solana-only wallet path. `ARIO.init` with `backend: 'solana'` returns
-    // a `SolanaARIOWriteable` that issues on-chain instructions via
-    // `@solana/kit` and our wallet-adapter signer. When the adapter hasn't
-    // attached its `signTransaction` yet (Phantom does this a tick after
-    // `connected`), `solanaSigner` is undefined and we fall back to a
-    // read-only client so the rest of the app can render. The next render
-    // of this effect — fired when `wallet` mutates after the picker re-emits
-    // with the signer attached — promotes the client to a writeable instance.
+    const programIds: Record<string, any> = {};
+    if (solanaConfig.programIds.coreProgramId)
+      programIds.coreProgramId = solanaConfig.programIds.coreProgramId;
+    if (solanaConfig.programIds.garProgramId)
+      programIds.garProgramId = solanaConfig.programIds.garProgramId;
+    if (solanaConfig.programIds.arnsProgramId)
+      programIds.arnsProgramId = solanaConfig.programIds.arnsProgramId;
+    if (solanaConfig.programIds.antProgramId)
+      programIds.antProgramId = solanaConfig.programIds.antProgramId;
+
     const signer = wallet?.solanaSigner;
     console.debug('[WalletState] init Solana ARIO', {
       hasSigner: !!signer,
       walletAddress,
+      network: solanaConfig.network,
     });
     dispatchArIOContract({
       contract: ARIO.init(
@@ -91,17 +92,17 @@ export function WalletStateProvider({
               rpc: getSolanaRpc(),
               rpcSubscriptions: getSolanaRpcSubscriptions(),
               signer,
-              ...SOLANA_PROGRAM_IDS,
+              ...programIds,
             }
           : {
               backend: 'solana',
               rpc: getSolanaRpc(),
-              ...SOLANA_PROGRAM_IDS,
+              ...programIds,
             },
       ),
       dispatch: dispatchGlobalState,
     });
-  }, [walletAddress, wallet]);
+  }, [walletAddress, wallet, solanaConfig]);
 
   // Bridge `@solana/wallet-adapter-react` → our `SolanaWalletConnector`.
   //

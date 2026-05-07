@@ -19,7 +19,7 @@ import type {
 
 import { ArNSWalletConnector } from '../types';
 import {
-  SOLANA_PROGRAM_IDS,
+  getActiveSolanaConfig,
   getSolanaRpc,
   getSolanaRpcSubscriptions,
 } from './solana';
@@ -59,31 +59,42 @@ export function buildArio({
 }: {
   wallet?: ArNSWalletConnector;
 } = {}): AoARIORead | AoARIOWrite {
+  const { programIds } = getActiveSolanaConfig();
+  const ids: Record<string, any> = {};
+  if (programIds.coreProgramId) ids.coreProgramId = programIds.coreProgramId;
+  if (programIds.garProgramId) ids.garProgramId = programIds.garProgramId;
+  if (programIds.arnsProgramId) ids.arnsProgramId = programIds.arnsProgramId;
+  if (programIds.antProgramId) ids.antProgramId = programIds.antProgramId;
+
   if (isSolanaWallet(wallet)) {
     return ARIO.init({
       backend: 'solana',
       rpc: getSolanaRpc(),
       rpcSubscriptions: getSolanaRpcSubscriptions(),
       signer: wallet.solanaSigner,
-      ...SOLANA_PROGRAM_IDS,
+      ...ids,
     });
   }
   return ARIO.init({
     backend: 'solana',
     rpc: getSolanaRpc(),
-    ...SOLANA_PROGRAM_IDS,
+    ...ids,
   });
 }
 
 /** Read-only ARIO — Solana, no wallet required. */
 export function buildArioRead(_opts: Record<string, unknown> = {}): AoARIORead {
-  // The opts arg is ignored after de-AO; kept so existing call sites that
-  // pass `{ solana: true, processId, ao, hyperbeamUrl }` don't have to be
-  // updated in lockstep with this file. Phase 4/5 strips the call sites.
+  const { programIds } = getActiveSolanaConfig();
+  const ids: Record<string, any> = {};
+  if (programIds.coreProgramId) ids.coreProgramId = programIds.coreProgramId;
+  if (programIds.garProgramId) ids.garProgramId = programIds.garProgramId;
+  if (programIds.arnsProgramId) ids.arnsProgramId = programIds.arnsProgramId;
+  if (programIds.antProgramId) ids.antProgramId = programIds.antProgramId;
+
   return ARIO.init({
     backend: 'solana',
     rpc: getSolanaRpc(),
-    ...SOLANA_PROGRAM_IDS,
+    ...ids,
   });
 }
 
@@ -98,11 +109,9 @@ export async function buildAnt({
 }: {
   wallet?: ArNSWalletConnector;
   processId: string;
-  // Legacy AO `signer`/`ao`/`hyperbeamUrl` args are accepted but ignored —
-  // Phase 4/5 strips the call sites. Permissive to avoid a tsc regression
-  // while the dispatchers/hooks still pass them.
   [k: string]: unknown;
 }): Promise<AoANTRead | AoANTWrite> {
+  const { programIds } = getActiveSolanaConfig();
   if (isSolanaWallet(wallet)) {
     return await ANT.init({
       backend: 'solana',
@@ -110,14 +119,14 @@ export async function buildAnt({
       rpc: getSolanaRpc(),
       rpcSubscriptions: getSolanaRpcSubscriptions(),
       signer: wallet.solanaSigner,
-      antProgramId: SOLANA_PROGRAM_IDS.antProgramId,
+      antProgramId: programIds.antProgramId,
     });
   }
   return await ANT.init({
     backend: 'solana',
     processId,
     rpc: getSolanaRpc(),
-    antProgramId: SOLANA_PROGRAM_IDS.antProgramId,
+    antProgramId: programIds.antProgramId,
   });
 }
 
@@ -126,14 +135,13 @@ export async function buildAntRead({
   processId,
 }: {
   processId: string;
-  // Legacy positional args (`solana`, `ao`, `hyperbeamUrl`) are accepted but
-  // ignored — Phase 4/5 strips the call sites.
   [k: string]: unknown;
 }): Promise<AoANTRead> {
+  const { programIds } = getActiveSolanaConfig();
   return await ANT.init({
     backend: 'solana',
     processId,
     rpc: getSolanaRpc(),
-    antProgramId: SOLANA_PROGRAM_IDS.antProgramId,
+    antProgramId: programIds.antProgramId,
   });
 }

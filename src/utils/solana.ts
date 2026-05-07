@@ -1,15 +1,16 @@
 /**
  * Solana backend configuration for arns-react.
  *
- * Reads `VITE_SOLANA_*` env vars and produces a memoised RPC + subscriptions
- * client pair plus optional program-id overrides. Used by the wallet layer
+ * Reads `VITE_SOLANA_*` env vars and produces RPC + subscriptions client pairs
+ * plus optional program-id overrides. Used by the wallet layer
  * (`SolanaWalletConnector`, `WalletState`) to construct `ARIO`/`ANT` Solana
  * instances via `@ar.io/sdk/web`.
  *
- * On localnet the program ids must be supplied via env (Surfpool deploys at
- * keypair-derived addresses, not the placeholder constants in
- * `sdk/src/solana/constants.ts`). Source them from
- * `migration/localnet/out/localnet.env`.
+ * The active config is runtime-switchable via `setSolanaConfig()` — the
+ * Settings UI exposes presets for localnet / devnet / mainnet and allows
+ * manual overrides. Changing the config invalidates the memoised RPC clients
+ * so subsequent `getSolanaRpc()` / `getSolanaRpcSubscriptions()` calls return
+ * fresh instances pointed at the new endpoint.
  */
 import {
   type Address,
@@ -27,6 +28,14 @@ export type SolanaProgramIds = {
   garProgramId?: Address;
   arnsProgramId?: Address;
   antProgramId?: Address;
+};
+
+export type SolanaNetworkConfig = {
+  network: SolanaNetwork;
+  rpcUrl: string;
+  rpcWsUrl: string;
+  programIds: SolanaProgramIds;
+  mintAddress?: string;
 };
 
 const DEFAULT_RPC: Record<SolanaNetwork, { http: string; ws: string }> = {
@@ -48,39 +57,126 @@ const DEFAULT_RPC: Record<SolanaNetwork, { http: string; ws: string }> = {
   },
 };
 
+export { DEFAULT_RPC as SOLANA_DEFAULT_RPC };
+
+/**
+ * Per-network preset defaults. Program IDs and mint are blank for localnet
+ * (must be supplied via env or manually) and for mainnet/devnet (SDK bakes in
+ * its own defaults when omitted).
+ */
+export const SOLANA_NETWORK_PRESETS: Record<
+  SolanaNetwork,
+  SolanaNetworkConfig
+> = {
+  localnet: {
+    network: 'localnet',
+    rpcUrl: DEFAULT_RPC.localnet.http,
+    rpcWsUrl: DEFAULT_RPC.localnet.ws,
+    programIds: {},
+  },
+  devnet: {
+    network: 'devnet',
+    rpcUrl: DEFAULT_RPC.devnet.http,
+    rpcWsUrl: DEFAULT_RPC.devnet.ws,
+    programIds: {},
+  },
+  'mainnet-beta': {
+    network: 'mainnet-beta',
+    rpcUrl: DEFAULT_RPC['mainnet-beta'].http,
+    rpcWsUrl: DEFAULT_RPC['mainnet-beta'].ws,
+    programIds: {},
+  },
+  testnet: {
+    network: 'testnet',
+    rpcUrl: DEFAULT_RPC.testnet.http,
+    rpcWsUrl: DEFAULT_RPC.testnet.ws,
+    programIds: {},
+  },
+};
+
 const optAddress = (raw: string | undefined): Address | undefined =>
   raw && raw.length > 0 ? address(raw) : undefined;
 
-export const SOLANA_NETWORK: SolanaNetwork =
-  (import.meta.env.VITE_SOLANA_NETWORK as SolanaNetwork | undefined) ??
-  'localnet';
+const SOLANA_SETTINGS_KEY = 'arns-solana-settings';
 
-export const SOLANA_RPC_URL: string =
-  import.meta.env.VITE_SOLANA_RPC_URL ?? DEFAULT_RPC[SOLANA_NETWORK].http;
+function loadSolanaSettingsFromStorage(): SolanaNetworkConfig | null {
+  try {
+    const raw = localStorage.getItem(SOLANA_SETTINGS_KEY);
+    if (raw) return JSON.parse(raw) as SolanaNetworkConfig;
+  } catch {
+    /* ignore corrupt storage */
+  }
+  return null;
+}
 
-export const SOLANA_RPC_WS_URL: string =
-  import.meta.env.VITE_SOLANA_RPC_WS_URL ?? DEFAULT_RPC[SOLANA_NETWORK].ws;
+function saveSolanaSettingsToStorage(config: SolanaNetworkConfig) {
+  try {
+    localStorage.setItem(SOLANA_SETTINGS_KEY, JSON.stringify(config));
+  } catch {
+    /* storage full / private mode — non-fatal */
+  }
+}
 
+function buildInitialConfig(): SolanaNetworkConfig {
+  const saved = loadSolanaSettingsFromStorage();
+  if (saved) return saved;
+
+  const envNetwork =
+    (import.meta.env.VITE_SOLANA_NETWORK as SolanaNetwork | undefined) ??
+    'localnet';
+
+  return {
+    network: envNetwork,
+    rpcUrl: import.meta.env.VITE_SOLANA_RPC_URL ?? DEFAULT_RPC[envNetwork].http,
+    rpcWsUrl:
+      import.meta.env.VITE_SOLANA_RPC_WS_URL ?? DEFAULT_RPC[envNetwork].ws,
+    programIds: {
+      coreProgramId: optAddress(import.meta.env.VITE_ARIO_CORE_PROGRAM_ID),
+      garProgramId: optAddress(import.meta.env.VITE_ARIO_GAR_PROGRAM_ID),
+      arnsProgramId: optAddress(import.meta.env.VITE_ARIO_ARNS_PROGRAM_ID),
+      antProgramId: optAddress(import.meta.env.VITE_ARIO_ANT_PROGRAM_ID),
+    },
+    mintAddress: import.meta.env.VITE_ARIO_MINT_ADDRESS || undefined,
+  };
+}
+
+const _initialConfig = buildInitialConfig();
+
+// Mutable active config — updated via `setSolanaConfig()`.
+let _activeConfig: SolanaNetworkConfig = { ..._initialConfig };
+
+// Backwards-compat re-exports (read from the active config).
+export const SOLANA_NETWORK: SolanaNetwork = _initialConfig.network;
+export const SOLANA_RPC_URL: string = _initialConfig.rpcUrl;
+export const SOLANA_RPC_WS_URL: string = _initialConfig.rpcWsUrl;
 export const SOLANA_COMMITMENT: Commitment = 'confirmed';
-
-export const SOLANA_PROGRAM_IDS: SolanaProgramIds = {
-  coreProgramId: optAddress(import.meta.env.VITE_ARIO_CORE_PROGRAM_ID),
-  garProgramId: optAddress(import.meta.env.VITE_ARIO_GAR_PROGRAM_ID),
-  arnsProgramId: optAddress(import.meta.env.VITE_ARIO_ARNS_PROGRAM_ID),
-  antProgramId: optAddress(import.meta.env.VITE_ARIO_ANT_PROGRAM_ID),
-};
-
-/**
- * ARIO SPL mint address. Optional — only required by dev tools that mint test
- * ARIO into a connected wallet (the surfpool faucet). Read it from
- * `migration/localnet/out/localnet.env` when working against a local cluster.
- */
+export const SOLANA_PROGRAM_IDS: SolanaProgramIds = _initialConfig.programIds;
 export const ARIO_MINT_ADDRESS: Address | undefined = optAddress(
-  import.meta.env.VITE_ARIO_MINT_ADDRESS,
+  _initialConfig.mintAddress,
 );
 
-/** True when the configured Solana network is the local surfpool node. */
-export const IS_LOCALNET: boolean = SOLANA_NETWORK === 'localnet';
+export const IS_LOCALNET: boolean = _initialConfig.network === 'localnet';
+
+/** Return the live config snapshot (may have been changed at runtime). */
+export function getActiveSolanaConfig(): SolanaNetworkConfig {
+  return _activeConfig;
+}
+
+/** Return the initial config built from env vars (before any runtime changes). */
+export function getInitialSolanaConfig(): SolanaNetworkConfig {
+  return _initialConfig;
+}
+
+/**
+ * Apply a new Solana config at runtime. Invalidates the memoised RPC clients
+ * and persists to localStorage so the choice survives reloads.
+ */
+export function setSolanaConfig(config: SolanaNetworkConfig) {
+  _activeConfig = { ...config };
+  _rpc = undefined;
+  _rpcSubscriptions = undefined;
+  saveSolanaSettingsToStorage(config);
+}
 
 let _rpc: ReturnType<typeof createSolanaRpcFromTransport> | undefined;
 let _rpcSubscriptions:
@@ -98,15 +194,9 @@ let _rpcSubscriptions:
  * `TypeError: Cannot destructure property 'err' of 'data' as it is undefined.`
  * — masking the real transaction failure.
  *
- * We:
- *   1. Log the raw error to the console so you can see what surfpool *did*
- *      send (usually a stringified `TransactionError` in `message`).
- *   2. Inject a stub `data: { err: null, logs: null, accounts: null,
- *      unitsConsumed: null, returnData: null }` so kit's destructure
- *      succeeds and surfaces a proper `SolanaError` with the server message.
- *
- * This is a no-op for any response that already includes `error.data`, so
- * mainnet/devnet behaviour is unaffected.
+ * We inject a stub `data` so kit's destructure succeeds and surfaces a proper
+ * `SolanaError` with the server message. This is a no-op for any response that
+ * already includes `error.data`, so mainnet/devnet behaviour is unaffected.
  */
 function createSurfpoolFriendlyTransport(url: string) {
   const inner = createDefaultRpcTransport({ url });
@@ -142,20 +232,20 @@ function createSurfpoolFriendlyTransport(url: string) {
   };
 }
 
-/** Memoised kit RPC client. */
+/** Memoised kit RPC client — rebuilt after `setSolanaConfig()`. */
 export function getSolanaRpc() {
   if (!_rpc) {
     _rpc = createSolanaRpcFromTransport(
-      createSurfpoolFriendlyTransport(SOLANA_RPC_URL),
+      createSurfpoolFriendlyTransport(_activeConfig.rpcUrl),
     );
   }
   return _rpc;
 }
 
-/** Memoised kit RPC subscriptions client (required for `sendAndConfirm`). */
+/** Memoised kit RPC subscriptions client — rebuilt after `setSolanaConfig()`. */
 export function getSolanaRpcSubscriptions() {
   if (!_rpcSubscriptions) {
-    _rpcSubscriptions = createSolanaRpcSubscriptions(SOLANA_RPC_WS_URL);
+    _rpcSubscriptions = createSolanaRpcSubscriptions(_activeConfig.rpcWsUrl);
   }
   return _rpcSubscriptions;
 }

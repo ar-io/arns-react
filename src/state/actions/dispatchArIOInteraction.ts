@@ -21,7 +21,7 @@ import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
 import { arioContractCacheKey } from '@src/utils/sdk-init';
 import {
-  SOLANA_PROGRAM_IDS,
+  getActiveSolanaConfig,
   getSolanaRpc,
   getSolanaRpcSubscriptions,
 } from '@src/utils/solana';
@@ -98,12 +98,13 @@ export default async function dispatchArIOInteraction({
             type: 'setSigningMessage',
             payload: `Spawning new ANT for new ArNS name '${name}'`,
           });
+          const { programIds } = getActiveSolanaConfig();
           const spawnResult = await ANT.spawn({
             backend: 'solana',
             rpc: getSolanaRpc(),
             rpcSubscriptions: getSolanaRpcSubscriptions(),
             signer: wallet.solanaSigner,
-            antProgramId: SOLANA_PROGRAM_IDS.antProgramId,
+            antProgramId: programIds.antProgramId,
             state: {
               name,
               transactionId: payload.targetId,

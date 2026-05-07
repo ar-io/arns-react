@@ -18,7 +18,7 @@ import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { buildAntStateQuery, queryClient } from '@src/utils/network';
 import {
-  SOLANA_PROGRAM_IDS,
+  getActiveSolanaConfig,
   getSolanaRpc,
   getSolanaRpcSubscriptions,
 } from '@src/utils/solana';
@@ -37,13 +37,14 @@ async function buildSolanaAnt(wallet: ArNSWalletConnector, processId: string) {
       'A connected Solana wallet with a signer is required for ANT interactions.',
     );
   }
+  const { programIds } = getActiveSolanaConfig();
   return await ANT.init({
     backend: 'solana',
     processId,
     rpc: getSolanaRpc(),
     rpcSubscriptions: getSolanaRpcSubscriptions(),
     signer: wallet.solanaSigner,
-    antProgramId: SOLANA_PROGRAM_IDS.antProgramId,
+    antProgramId: programIds.antProgramId,
   });
 }
 

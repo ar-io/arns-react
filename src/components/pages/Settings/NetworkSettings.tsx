@@ -1,39 +1,29 @@
+import { address } from '@solana/kit';
 import SelectGatewayModal from '@src/components/modals/SelectGatewayModal/SelectGatewayModal';
 import { dispatchNewGateway, useGlobalState } from '@src/state';
+import { buildDefaultArIO } from '@src/state/contexts/GlobalState';
 import { isValidGateway, isValidURL } from '@src/utils';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import {
-  ARIO_MINT_ADDRESS,
-  SOLANA_NETWORK,
-  SOLANA_PROGRAM_IDS,
-  SOLANA_RPC_URL,
-  SOLANA_RPC_WS_URL,
+  SOLANA_NETWORK_PRESETS,
+  type SolanaNetwork,
+  type SolanaNetworkConfig,
+  getInitialSolanaConfig,
+  setSolanaConfig,
 } from '@src/utils/solana';
 import { List, RotateCcw } from 'lucide-react';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { SettingInput } from './SettingInput';
 import './styles.css';
 import { useNetworkSettings } from './useNetworkSettings';
 
-/**
- * Network settings page — Solana-only after the de-AO refactor.
- *
- * The Solana panel is read-only and sourced from `VITE_SOLANA_*` env vars
- * at build time. The mutable settings that survive de-AO are:
- *   - The Arweave gateway (still used for content-target tx-ID resolution
- *     and Turbo data uploads).
- *   - The Turbo payment URL (so ops can point at a staging payment service).
- *
- * Everything else — `aoNetwork.{ARIO,ANT}.{CU_URL, MU_URL, SCHEDULER}`,
- * `arioProcessId`, `antRegistryProcessId`, `hyperbeamUrl`, the `MODE: 'legacy'`
- * AO rebuild block, the `suConnect` SU resolution path, the
- * Testnet/Mainnet defaults toggles — was AO-specific and is gone.
- */
 function NetworkSettings() {
-  const [{ gateway, arioContract, turboNetwork }, dispatchGlobalState] =
-    useGlobalState();
+  const [
+    { gateway, arioContract, turboNetwork, solanaConfig },
+    dispatchGlobalState,
+  ] = useGlobalState();
 
   const { state, actions } = useNetworkSettings();
 
@@ -92,7 +82,21 @@ function NetworkSettings() {
   return (
     <div className="flex flex-col w-full h-full p-3 text-sm">
       <div className="flex flex-col w-full h-full gap-5 p-2 rounded-xl">
-        <SolanaNetworkPanel />
+        <SolanaNetworkPanel
+          config={solanaConfig}
+          onApply={(newConfig) => {
+            setSolanaConfig(newConfig);
+            const contract = buildDefaultArIO(newConfig);
+            dispatchGlobalState({
+              type: 'setSolanaConfig',
+              payload: { config: newConfig, contract },
+            });
+            eventEmitter.emit('success', {
+              message: `Switched to ${newConfig.network} (${newConfig.rpcUrl})`,
+              name: 'Solana Network',
+            });
+          }}
+        />
 
         <div className="flex flex-row justify-between items-center">
           <h2 className="text-white text-lg font-semibold">
@@ -183,37 +187,171 @@ function NetworkSettings() {
   );
 }
 
-/**
- * Read-only summary of the active Solana backend configuration.
- *
- * The values are sourced from `VITE_SOLANA_*` env vars at build time
- * (see `src/utils/solana.ts`). Switching networks requires editing
- * `.env.local` and restarting the dev server — they're surfaced here so the
- * user can confirm which RPC + program ids the app is talking to.
- */
-function SolanaNetworkPanel() {
-  const rows: Array<{ label: string; value: string | undefined }> = [
-    { label: 'Solana Network', value: SOLANA_NETWORK },
-    { label: 'RPC URL', value: SOLANA_RPC_URL },
-    { label: 'RPC WebSocket', value: SOLANA_RPC_WS_URL },
-    { label: 'ARIO Mint', value: ARIO_MINT_ADDRESS?.toString() },
-    {
-      label: 'ario-core Program',
-      value: SOLANA_PROGRAM_IDS.coreProgramId?.toString(),
-    },
-    {
-      label: 'ario-gar Program',
-      value: SOLANA_PROGRAM_IDS.garProgramId?.toString(),
-    },
-    {
-      label: 'ario-arns Program',
-      value: SOLANA_PROGRAM_IDS.arnsProgramId?.toString(),
-    },
-    {
-      label: 'ario-ant Program',
-      value: SOLANA_PROGRAM_IDS.antProgramId?.toString(),
-    },
-  ];
+const PRESET_NETWORKS: SolanaNetwork[] = ['localnet', 'devnet', 'mainnet-beta'];
+
+const PRESET_LABELS: Record<SolanaNetwork, string> = {
+  localnet: 'Localnet (Surfpool)',
+  devnet: 'Devnet',
+  testnet: 'Testnet',
+  'mainnet-beta': 'Mainnet',
+};
+
+type SolanaFieldKey =
+  | 'rpcUrl'
+  | 'rpcWsUrl'
+  | 'mintAddress'
+  | 'coreProgramId'
+  | 'garProgramId'
+  | 'arnsProgramId'
+  | 'antProgramId';
+
+const FIELD_DEFS: Array<{
+  key: SolanaFieldKey;
+  label: string;
+  placeholder: string;
+}> = [
+  {
+    key: 'rpcUrl',
+    label: 'RPC URL',
+    placeholder: 'https://api.mainnet-beta.solana.com',
+  },
+  {
+    key: 'rpcWsUrl',
+    label: 'RPC WebSocket',
+    placeholder: 'wss://api.mainnet-beta.solana.com',
+  },
+  { key: 'mintAddress', label: 'ARIO Mint', placeholder: 'Address (optional)' },
+  {
+    key: 'coreProgramId',
+    label: 'ario-core Program',
+    placeholder: 'Address (optional — uses SDK default)',
+  },
+  {
+    key: 'garProgramId',
+    label: 'ario-gar Program',
+    placeholder: 'Address (optional — uses SDK default)',
+  },
+  {
+    key: 'arnsProgramId',
+    label: 'ario-arns Program',
+    placeholder: 'Address (optional — uses SDK default)',
+  },
+  {
+    key: 'antProgramId',
+    label: 'ario-ant Program',
+    placeholder: 'Address (optional — uses SDK default)',
+  },
+];
+
+function getFieldValue(
+  config: SolanaNetworkConfig,
+  key: SolanaFieldKey,
+): string {
+  switch (key) {
+    case 'rpcUrl':
+      return config.rpcUrl;
+    case 'rpcWsUrl':
+      return config.rpcWsUrl;
+    case 'mintAddress':
+      return config.mintAddress ?? '';
+    case 'coreProgramId':
+      return config.programIds.coreProgramId?.toString() ?? '';
+    case 'garProgramId':
+      return config.programIds.garProgramId?.toString() ?? '';
+    case 'arnsProgramId':
+      return config.programIds.arnsProgramId?.toString() ?? '';
+    case 'antProgramId':
+      return config.programIds.antProgramId?.toString() ?? '';
+  }
+}
+
+function setFieldValue(
+  config: SolanaNetworkConfig,
+  key: SolanaFieldKey,
+  value: string,
+): SolanaNetworkConfig {
+  const trimmed = value.trim();
+  const optAddr = trimmed.length > 0 ? address(trimmed) : undefined;
+
+  switch (key) {
+    case 'rpcUrl':
+      return { ...config, rpcUrl: trimmed };
+    case 'rpcWsUrl':
+      return { ...config, rpcWsUrl: trimmed };
+    case 'mintAddress':
+      return { ...config, mintAddress: trimmed || undefined };
+    case 'coreProgramId':
+      return {
+        ...config,
+        programIds: { ...config.programIds, coreProgramId: optAddr },
+      };
+    case 'garProgramId':
+      return {
+        ...config,
+        programIds: { ...config.programIds, garProgramId: optAddr },
+      };
+    case 'arnsProgramId':
+      return {
+        ...config,
+        programIds: { ...config.programIds, arnsProgramId: optAddr },
+      };
+    case 'antProgramId':
+      return {
+        ...config,
+        programIds: { ...config.programIds, antProgramId: optAddr },
+      };
+  }
+}
+
+function SolanaNetworkPanel({
+  config,
+  onApply,
+}: {
+  config: SolanaNetworkConfig;
+  onApply: (config: SolanaNetworkConfig) => void;
+}) {
+  const [draft, setDraft] = useState<SolanaNetworkConfig>(config);
+  const [dirty, setDirty] = useState(false);
+
+  useEffect(() => {
+    setDraft(config);
+    setDirty(false);
+  }, [config]);
+
+  const applyPreset = useCallback((network: SolanaNetwork) => {
+    const envConfig = getInitialSolanaConfig();
+    const preset = SOLANA_NETWORK_PRESETS[network];
+
+    const merged: SolanaNetworkConfig = {
+      ...preset,
+      programIds:
+        envConfig.network === network
+          ? { ...preset.programIds, ...envConfig.programIds }
+          : preset.programIds,
+      mintAddress:
+        envConfig.network === network ? envConfig.mintAddress : undefined,
+    };
+
+    setDraft(merged);
+    setDirty(true);
+  }, []);
+
+  const updateField = useCallback((key: SolanaFieldKey, value: string) => {
+    setDraft((prev) => setFieldValue(prev, key, value));
+    setDirty(true);
+  }, []);
+
+  const handleApply = useCallback(() => {
+    onApply(draft);
+    setDirty(false);
+  }, [draft, onApply]);
+
+  const handleReset = useCallback(() => {
+    const envConfig = getInitialSolanaConfig();
+    setDraft(envConfig);
+    onApply(envConfig);
+    setDirty(false);
+  }, [onApply]);
 
   return (
     <div className="flex flex-col gap-3">
@@ -221,26 +359,68 @@ function SolanaNetworkPanel() {
         <h2 className="text-white text-lg font-semibold">
           Solana Network Settings
         </h2>
-        <span className="text-grey text-xs">
-          Configured via <code className="text-light-grey">VITE_SOLANA_*</code>{' '}
-          env vars
-        </span>
+      </div>
+
+      <div className="flex flex-row gap-2 flex-wrap">
+        {PRESET_NETWORKS.map((network) => (
+          <button
+            key={network}
+            onClick={() => applyPreset(network)}
+            className={`py-1.5 px-4 rounded-md text-sm font-medium transition-all border ${
+              draft.network === network && !dirty
+                ? 'bg-primary text-black border-primary'
+                : draft.network === network && dirty
+                  ? 'bg-primary/30 text-white border-primary'
+                  : 'bg-metallic-grey text-grey border-dark-grey hover:border-white hover:text-white'
+            }`}
+          >
+            {PRESET_LABELS[network]}
+          </button>
+        ))}
       </div>
 
       <div className="flex flex-col gap-2 border border-primary-thin p-3 rounded-md bg-metallic-grey">
-        {rows.map(({ label, value }) => (
+        <div className="flex flex-row items-center justify-between gap-3 mb-1">
+          <span className="text-grey text-sm w-48 shrink-0">Network</span>
+          <span className="flex-1 bg-background rounded-md px-3 py-1.5 border border-primary-thin text-sm text-light-grey font-mono">
+            {draft.network}
+          </span>
+        </div>
+
+        {FIELD_DEFS.map(({ key, label, placeholder }) => (
           <div
-            key={label}
+            key={key}
             className="flex flex-row items-center justify-between gap-3"
           >
             <span className="text-grey text-sm w-48 shrink-0">{label}</span>
-            <span className="flex-1 bg-background rounded-md px-3 py-1 border border-primary-thin text-sm text-light-grey font-mono break-all">
-              {value ?? (
-                <span className="text-color-error">not configured</span>
-              )}
-            </span>
+            <input
+              className="flex-1 bg-background rounded-md px-3 py-1.5 border border-primary-thin text-sm text-light-grey font-mono break-all outline-none focus:border-primary transition-colors"
+              value={getFieldValue(draft, key)}
+              placeholder={placeholder}
+              onChange={(e) => updateField(key, e.target.value)}
+            />
           </div>
         ))}
+      </div>
+
+      <div className="flex flex-row gap-2 justify-end">
+        <button
+          className="whitespace-nowrap flex flex-nowrap justify-center items-center gap-2 py-1.5 px-3 w-fit text-grey border border-dark-grey hover:border-white hover:text-white bg-metallic-grey rounded-md transition-all text-sm"
+          onClick={handleReset}
+        >
+          Reset to Env Defaults <RotateCcw width={'14px'} />
+        </button>
+        <button
+          disabled={!dirty}
+          className={`whitespace-nowrap flex flex-nowrap justify-center items-center gap-2 py-1.5 px-3 w-fit rounded-md transition-all text-sm font-semibold ${
+            dirty
+              ? 'bg-primary text-black border border-primary hover:brightness-110 cursor-pointer'
+              : 'bg-metallic-grey text-grey border border-dark-grey cursor-not-allowed opacity-50'
+          }`}
+          onClick={handleApply}
+        >
+          Apply Changes
+        </button>
       </div>
     </div>
   );

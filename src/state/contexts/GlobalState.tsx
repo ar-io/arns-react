@@ -1,6 +1,10 @@
 import { ARIO, AoARIORead, AoARIOWrite } from '@ar.io/sdk/web';
-import { SETTINGS_STORAGE_KEY } from '@src/hooks';
 import eventEmitter from '@src/utils/events';
+import {
+  type SolanaNetworkConfig,
+  getActiveSolanaConfig,
+  getSolanaRpc,
+} from '@src/utils/solana';
 import React, {
   Dispatch,
   createContext,
@@ -11,22 +15,22 @@ import React, {
 
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import { DEFAULT_ARWEAVE, NETWORK_DEFAULTS } from '../../utils/constants';
-import { SOLANA_PROGRAM_IDS, getSolanaRpc } from '../../utils/solana';
 import type { GlobalAction } from '../reducers/GlobalReducer';
 
-// Function to load settings from localStorage
+const SETTINGS_KEY = 'arns-app-settings';
+
 function loadSettingsFromStorage(): {
   gateway: string;
   turboNetwork: typeof NETWORK_DEFAULTS.TURBO;
 } | null {
   try {
-    const savedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    const savedSettings = localStorage.getItem(SETTINGS_KEY);
 
     if (savedSettings) {
       const settings = JSON.parse(savedSettings);
       console.log(
         'Loading settings from localStorage:',
-        SETTINGS_STORAGE_KEY,
+        SETTINGS_KEY,
         settings,
       );
 
@@ -44,25 +48,34 @@ function loadSettingsFromStorage(): {
 
 export const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);
 
-// Load saved settings or use defaults
 const savedSettings = loadSettingsFromStorage();
 const initialGateway = savedSettings?.gateway || NETWORK_DEFAULTS.ARNS.HOST;
 const initialTurboNetwork =
   savedSettings?.turboNetwork || NETWORK_DEFAULTS.TURBO;
 
-/**
- * Default ARIO contract used by every read-only path before a wallet
- * connects. The SDK now defaults to Solana, so the bootstrap client is
- * `SolanaARIOReadable` pointed at the configured RPC + program ids.
- *
- * `WalletState` swaps this for a `SolanaARIOWriteable` once a wallet is
- * connected.
- */
-export const defaultArIO = ARIO.init({
-  backend: 'solana',
-  rpc: getSolanaRpc(),
-  ...SOLANA_PROGRAM_IDS,
-});
+function buildProgramIds(config: SolanaNetworkConfig) {
+  const ids: Record<string, any> = {};
+  if (config.programIds.coreProgramId)
+    ids.coreProgramId = config.programIds.coreProgramId;
+  if (config.programIds.garProgramId)
+    ids.garProgramId = config.programIds.garProgramId;
+  if (config.programIds.arnsProgramId)
+    ids.arnsProgramId = config.programIds.arnsProgramId;
+  if (config.programIds.antProgramId)
+    ids.antProgramId = config.programIds.antProgramId;
+  return ids;
+}
+
+export function buildDefaultArIO(config?: SolanaNetworkConfig) {
+  const solConfig = config ?? getActiveSolanaConfig();
+  return ARIO.init({
+    backend: 'solana',
+    rpc: getSolanaRpc(),
+    ...buildProgramIds(solConfig),
+  });
+}
+
+export const defaultArIO = buildDefaultArIO();
 
 export type GlobalState = {
   arioTicker: string;
@@ -78,6 +91,7 @@ export type GlobalState = {
    */
   arweaveDataProvider: SimpleArweaveDataProvider;
   arioContract: AoARIORead | AoARIOWrite;
+  solanaConfig: SolanaNetworkConfig;
 };
 
 const initialState: GlobalState = {
@@ -88,6 +102,7 @@ const initialState: GlobalState = {
   lastBlockUpdateTimestamp: undefined,
   arweaveDataProvider: defaultArweave,
   arioContract: defaultArIO,
+  solanaConfig: getActiveSolanaConfig(),
 };
 
 const GlobalStateContext = createContext<[GlobalState, Dispatch<GlobalAction>]>(

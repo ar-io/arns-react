@@ -1,5 +1,6 @@
 import { AoARIORead, AoARIOWrite } from '@ar.io/sdk/web';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
+import type { SolanaNetworkConfig } from '@src/utils/solana';
 
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import { GlobalState } from '../contexts/GlobalState';
@@ -27,6 +28,13 @@ export type GlobalAction =
   | {
       type: 'setIoTicker';
       payload: string;
+    }
+  | {
+      type: 'setSolanaConfig';
+      payload: {
+        config: SolanaNetworkConfig;
+        contract: AoARIORead | AoARIOWrite;
+      };
     };
 
 export const reducer = (
@@ -63,6 +71,12 @@ export const reducer = (
       return {
         ...state,
         arioContract: action.payload,
+      };
+    case 'setSolanaConfig':
+      return {
+        ...state,
+        solanaConfig: action.payload.config,
+        arioContract: action.payload.contract,
       };
     default:
       return state;
