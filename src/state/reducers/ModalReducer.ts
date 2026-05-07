@@ -3,7 +3,6 @@ import { ModalState } from '../contexts/ModalState';
 export type ModalAction = {
   type: 'setModalOpen';
   payload:
-    | { showUpgradeAntModal: boolean }
     | { showEditUndernameModal: boolean }
     | { showPrimaryNameModal: boolean };
 };

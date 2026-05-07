@@ -1,17 +1,12 @@
-import { Tooltip } from '@src/components/data-display';
-import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import {
   dispatchArNSUpdate,
   useArNSState,
   useGlobalState,
-  useModalState,
   useWalletState,
 } from '@src/state';
 import eventEmitter from '@src/utils/events';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-import { doAntsRequireUpdate } from '../../../utils';
 import DomainsTable from '../../data-display/tables/DomainsTable';
 import { RefreshIcon, SearchIcon } from '../../icons';
 import './styles.css';
@@ -21,10 +16,7 @@ function Manage() {
   const [{ arioContract }] = useGlobalState();
   const [{ loading: loadingArnsState, domains, ants }, dispatchArNSState] =
     useArNSState();
-  const { data: antVersion } = useLatestANTVersion();
-  const antModuleId = antVersion?.moduleId ?? null;
   const [{ walletAddress, wallet }] = useWalletState();
-  const [, dispatchModalState] = useModalState();
   const [search, setSearch] = useState<string>('');
 
   return (
@@ -77,30 +69,6 @@ function Manage() {
                   />
                 </div>
 
-                {!loadingArnsState &&
-                  walletAddress &&
-                  doAntsRequireUpdate({
-                    ants,
-                    userAddress: walletAddress.toString(),
-                    currentModuleId: antModuleId,
-                  }) && (
-                    <Tooltip
-                      message={'Your Domains require an update'}
-                      icon={
-                        <button
-                          onClick={() =>
-                            dispatchModalState({
-                              type: 'setModalOpen',
-                              payload: { showUpgradeAntModal: true },
-                            })
-                          }
-                          className="h-fit animate-pulse whitespace-nowrap rounded-[4px] bg-primary-thin px-4 py-1 text-sm text-primary transition-all hover:bg-primary hover:text-black hover:scale-105"
-                        >
-                          Upgrade ANTs
-                        </button>
-                      }
-                    />
-                  )}
                 <button
                   className={
                     'button center pointer transition-transform duration-200 ease-in-out hover:scale-105'

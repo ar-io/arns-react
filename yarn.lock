@@ -98,10 +98,10 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@4.0.0-solana.1":
-  version "4.0.0-solana.1"
-  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.0-solana.1.tgz#b6051a043fd68c4548705caefd8fa0ddab8ee3d1"
-  integrity sha512-trvV+QoOMvJvHwNVsNqXPP3UQ5wdXoTMh2jdYvlZo0cYcB7SFKJ6nbOFCFpHF0EecASlC4e8Lw+OVnqx4AdPFg==
+"@ar.io/sdk@4.0.0-solana.3":
+  version "4.0.0-solana.3"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.0-solana.3.tgz#00b304d7deb136ccad8012d3537a431d5353f74d"
+  integrity sha512-Cvp9kbKhvbnjK5iZmT/3WNuvD2oJGpEUg0b9e9gr2qgbxgg3PmC4VqbnRb375TiHL75WTn7XdFNB2NB3UN7xgQ==
   dependencies:
     "@ardrive/turbo-sdk" "^1.19.0"
     "@dha-team/arbundles" "^1.0.1"

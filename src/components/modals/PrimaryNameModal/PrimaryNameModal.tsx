@@ -1,5 +1,4 @@
-import { FundFrom } from '@ar.io/sdk';
-import { TransactionDetails } from '@src/components/data-display/TransactionDetails/TransactionDetails';
+import { mARIOToken } from '@ar.io/sdk';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
@@ -22,32 +21,21 @@ import {
   PrimaryNameRequestPayload,
   RemovePrimaryNamesPayload,
 } from '@src/types';
-import { decodePrimaryName, encodePrimaryName } from '@src/utils';
+import {
+  decodePrimaryName,
+  encodePrimaryName,
+  formatARIOWithCommas,
+} from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowDown } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import DialogModal from '../DialogModal/DialogModal';
-
-/**
- * Three workflows
- * - set primary name
- * use ario contract to create request than approve the request, then verify the primary name
- * - set primary name when it will change the primary name
- * use ario contract to create the request then approve the request with the connected ant, then verify the primary name
- *  should show the comparison between the previous primary name and new primary name
- * - remove primary name
- * use the ant to remove the primary name
- *
- */
 
 enum PRIMARY_NAME_WORKFLOWS {
   REQUEST = 'Set Primary Name',
   CHANGE = 'Change Primary Name',
-  // `REMOVE` was supported on AO via `removePrimaryNames` on the ANT — Solana
-  // doesn't model this on-chain (the protocol auto-approves and there's no
-  // removable approval to clear), so the option is gone after de-AO.
 }
 
 function isPrimaryNameRequest(
@@ -75,22 +63,13 @@ function PrimaryNameModal({
   setVisible: (visible: boolean) => void;
 }) {
   const queryClient = useQueryClient();
-  const [{ arioContract }] = useGlobalState();
+  const [{ arioContract, arioTicker }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const { data: primaryNameData, isLoading: isLoadingPrimaryNameData } =
     usePrimaryName();
 
   const [{ transactionData }, dispatchTransactionState] = useTransactionState();
   const [, dispatchArNSState] = useArNSState();
-  const [fundingSource, setFundingSource] = useState<FundFrom | undefined>(
-    'balance',
-  );
-  const { data: costDetail } = useCostDetails({
-    ...((transactionData ?? {}) as any),
-    intent: 'Primary-Name-Request',
-    fromAddress: walletAddress?.toString(),
-    fundFrom: fundingSource,
-  });
 
   const transactionPayload =
     isRemovePrimaryNamesPayload(transactionData) ||
@@ -104,7 +83,6 @@ function PrimaryNameModal({
       ? transactionData.name
       : undefined;
 
-  // if undername, pop the base name, else target name is ArNS name and can be used for querying domain info
   const baseName = targetName?.includes('_')
     ? targetName.split('_').pop()
     : targetName;
@@ -114,6 +92,31 @@ function PrimaryNameModal({
   });
 
   const isLoading = loadingDomain || isLoadingPrimaryNameData;
+
+  const costDetailsParams = useMemo(
+    () => ({
+      intent: 'Primary-Name-Request' as const,
+      name: targetName ?? '',
+      fromAddress: walletAddress?.toString(),
+      fundFrom: 'balance' as const,
+    }),
+    [targetName, walletAddress],
+  );
+
+  const { data: costDetail, isLoading: isLoadingCostDetail } =
+    useCostDetails(costDetailsParams);
+
+  const totalCost = costDetail
+    ? new mARIOToken(costDetail.tokenCost).toARIO().valueOf()
+    : 0;
+
+  const discount = costDetail
+    ? new mARIOToken(
+        costDetail.discounts?.reduce((acc, d) => acc + d.discountTotal, 0) ?? 0,
+      )
+        .toARIO()
+        .valueOf()
+    : 0;
 
   const [workflow, setWorkflow] = useState<
     PRIMARY_NAME_WORKFLOWS | undefined
@@ -146,7 +149,7 @@ function PrimaryNameModal({
         throw new Error(
           'Wait for primary name data to load before using primary name workflow',
         );
-      if (!wallet?.contractSigner || !walletAddress)
+      if (!wallet?.solanaSigner || !walletAddress)
         throw new Error('Connect to perform Primary Name operations');
 
       if (!transactionPayload || !targetName)
@@ -164,10 +167,8 @@ function PrimaryNameModal({
       let result: ContractInteraction;
 
       switch (workflow) {
-        // change and set are the same workflows interactions-wise so we fall thru here
         case PRIMARY_NAME_WORKFLOWS.CHANGE:
         case PRIMARY_NAME_WORKFLOWS.REQUEST: {
-          // ario contract and ant interactions — Solana-only after de-AO.
           result = await dispatchArIOInteraction({
             workflowName: ARNS_INTERACTION_TYPES.PRIMARY_NAME_REQUEST,
             wallet,
@@ -179,7 +180,7 @@ function PrimaryNameModal({
             owner: walletAddress,
             arioContract: arioContract as any,
             processId: domainData.processId,
-            fundFrom: fundingSource,
+            fundFrom: 'balance',
             dispatch: dispatchTransactionState,
           });
 
@@ -284,20 +285,31 @@ function PrimaryNameModal({
                 </div>
               </div>
 
-              {/* transaction details */}
-              <div className="flex flex-col w-full">
-                {
-                  <div className="flex w-full pt-10">
-                    <TransactionDetails
-                      details={{
-                        intent: 'Primary-Name-Request',
-                        ...((transactionData ?? {}) as any),
-                        fromAddress: walletAddress?.toString(),
-                      }}
-                      fundingSourceCallback={(v) => setFundingSource(v)}
-                    />
+              <div className="flex flex-col w-full pt-6 gap-2">
+                <div className="flex flex-row justify-between items-center w-full border-t border-dark-grey pt-4">
+                  <span className="text-grey">Payment</span>
+                  <span className="text-white">Liquid Balance</span>
+                </div>
+                {discount > 0 && (
+                  <div className="flex flex-row justify-between items-center w-full">
+                    <span className="text-grey">Operator discount</span>
+                    <span className="text-error">
+                      -{formatARIOWithCommas(discount)}&nbsp;{arioTicker}
+                    </span>
                   </div>
-                }
+                )}
+                <div className="flex flex-row justify-between items-center w-full">
+                  <span className="text-grey">Total Cost</span>
+                  {isLoadingCostDetail ? (
+                    <span className="text-grey animate-pulse">Loading...</span>
+                  ) : totalCost > 0 ? (
+                    <span className="text-white font-semibold">
+                      {formatARIOWithCommas(totalCost)}&nbsp;{arioTicker}
+                    </span>
+                  ) : (
+                    <span className="text-grey">--</span>
+                  )}
+                </div>
               </div>
             </div>
           )
@@ -305,9 +317,7 @@ function PrimaryNameModal({
         onCancel={closeModal}
         onClose={closeModal}
         onNext={
-          !isLoading && costDetail && costDetail.fundingPlan?.shortfall === 0
-            ? confirm
-            : undefined
+          !isLoading && !isLoadingCostDetail && costDetail ? confirm : undefined
         }
         nextText="Confirm"
         cancelText="Cancel"

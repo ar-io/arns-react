@@ -32,7 +32,6 @@ import {
   encodePrimaryName,
   formatForMaxCharCount,
 } from '@src/utils';
-import { MIN_ANT_VERSION } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
@@ -193,20 +192,17 @@ const UndernamesTable = ({
                   message={
                     !arnsRecord
                       ? 'Loading...'
-                      : arnsRecord.version < MIN_ANT_VERSION
-                        ? 'Update ANT to access Primary Names workflow'
-                        : primaryNameData?.name ===
-                            encodePrimaryName(
-                              undername === '@'
-                                ? arnsRecord.name
-                                : undername + '_' + arnsRecord.name,
-                            )
-                          ? 'Remove Primary Name'
-                          : 'Set Primary Name'
+                      : primaryNameData?.name ===
+                          encodePrimaryName(
+                            undername === '@'
+                              ? arnsRecord.name
+                              : undername + '_' + arnsRecord.name,
+                          )
+                        ? 'Remove Primary Name'
+                        : 'Set Primary Name'
                   }
                   icon={
                     <button
-                      disabled={arnsRecord.version < MIN_ANT_VERSION}
                       onClick={() => {
                         if (!arnsRecord || !arnsRecord.processId) return;
                         const targetName = encodePrimaryName(

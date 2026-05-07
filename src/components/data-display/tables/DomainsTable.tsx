@@ -1,16 +1,10 @@
 import { AoArNSNameData } from '@ar.io/sdk';
-import {
-  ChevronRightIcon,
-  ExternalLinkIcon,
-  RefreshIcon,
-} from '@src/components/icons';
+import { ChevronRightIcon, ExternalLinkIcon } from '@src/components/icons';
 import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
-import UpgradeDomainModal from '@src/components/modals/ant-management/UpgradeDomainModal/UpgradeDomainModal';
-import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import {
   ANTProcessData,
@@ -20,11 +14,9 @@ import {
   useTransactionState,
   useWalletState,
 } from '@src/state';
-import { dispatchANTUpdate } from '@src/state/actions/dispatchANTUpdate';
 import {
   camelToReadable,
   decodeDomainToASCII,
-  doAntsRequireUpdate,
   encodeDomainToASCII,
   formatExpiryDate,
   formatForMaxCharCount,
@@ -33,16 +25,11 @@ import {
   isArweaveTransactionID,
   lowerCaseDomain,
 } from '@src/utils';
-import {
-  ARNS_DOCS_LINK,
-  MIN_ANT_VERSION,
-  PERMANENT_DOMAIN_MESSAGE,
-} from '@src/utils/constants';
-import { ANTStateError } from '@src/utils/errors';
+import { ARNS_DOCS_LINK, PERMANENT_DOMAIN_MESSAGE } from '@src/utils/constants';
 import { queryClient } from '@src/utils/network';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { capitalize } from 'lodash';
-import { CircleCheck, Star } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link, useNavigate } from 'react-router-dom';
@@ -57,7 +44,6 @@ type TableData = {
   role: string;
   processId: string;
   targetId: string;
-  ioCompatible?: boolean | ANTStateError | string;
   undernames: {
     used: number;
     supported: number;
@@ -121,25 +107,12 @@ const DomainsTable = ({
   const [{ walletAddress }] = useWalletState();
   const [{ gateway }] = useGlobalState();
   const arioProcessId = '';
-  const aoNetwork = { ARIO: { SCHEDULER: '' } } as const;
-  const hyperbeamUrl = '' as string;
-  const antRegistryProcessId = '';
   const [{ loading: loadingArnsState }, dispatchArNSState] = useArNSState();
   const [, dispatchModalState] = useModalState();
   const [, dispatchTransactionState] = useTransactionState();
-  const { data: latestAntVersion } = useLatestANTVersion();
   const { data: primaryNameData } = usePrimaryName();
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<TableData[]>([]);
-  const [showUpgradeDomainModal, setShowUpgradeDomainModal] =
-    useState<boolean>(false);
-  const [domainToUpgrade, setDomainToUpgrade] = useState<
-    | {
-        domain: string;
-        processId: string;
-      }
-    | undefined
-  >(undefined);
 
   useEffect(() => {
     if (domainData) {
@@ -147,21 +120,6 @@ const DomainsTable = ({
 
       Object.entries(domainData.names).map(([domain, record]) => {
         const ant = domainData.ants[record.processId];
-        const ioCompatible =
-          ant?.errors?.find((e) => e instanceof ANTStateError) ??
-          (walletAddress && ant?.state && record?.processId
-            ? !doAntsRequireUpdate({
-                ants: {
-                  [record.processId]: {
-                    state: ant.state,
-                    version: ant.version,
-                    processMeta: ant.processMeta,
-                  },
-                },
-                userAddress: walletAddress.toString(),
-                currentModuleId: latestAntVersion?.moduleId ?? null,
-              })
-            : false);
 
         const data: TableData = {
           openRow: <></>,
@@ -174,7 +132,6 @@ const DomainsTable = ({
             ) ?? 'N/A',
           processId: record.processId,
           targetId: ant?.state?.Records?.['@']?.transactionId ?? 'N/A',
-          ioCompatible,
           undernames: {
             used:
               Object.keys(ant?.state?.Records ?? {}).filter(
@@ -216,7 +173,6 @@ const DomainsTable = ({
     'targetId',
     'undernames',
     'expiryDate',
-    'ioCompatible',
     'action',
   ].map((key) =>
     columnHelper.accessor(key as keyof TableData, {
@@ -230,9 +186,7 @@ const DomainsTable = ({
             ? 'Process ID'
             : key === 'targetId'
               ? 'Target ID'
-              : key === 'ioCompatible'
-                ? 'AR.IO Compatible'
-                : camelToReadable(key),
+              : camelToReadable(key),
       sortDescFirst: true,
       sortingFn:
         key === 'undernames'
@@ -241,16 +195,8 @@ const DomainsTable = ({
                 rowA.original.undernames.used - rowB.original.undernames.used
               );
             }
-          : key === 'ioCompatible'
-            ? (rowA) => {
-                return typeof rowA.original.ioCompatible === 'boolean' &&
-                  rowA.original.ioCompatible === true
-                  ? 1
-                  : 0;
-              }
-            : 'alphanumeric',
+          : 'alphanumeric',
       cell: ({ row }) => {
-        const processId = row.original.processId;
         const rowValue = row.getValue(key) as any;
 
         if (rowValue === undefined || rowValue === null) {
@@ -330,64 +276,6 @@ const DomainsTable = ({
               />
             ) : (
               rowValue
-            );
-          }
-          case 'ioCompatible': {
-            if (
-              loadingArnsState &&
-              !domainData.ants[row.original.processId]?.state
-            )
-              return (
-                <span className="animate-pulse whitespace-nowrap">
-                  Loading...
-                </span>
-              );
-            if (rowValue instanceof ANTStateError && walletAddress) {
-              return (
-                <button
-                  className="flex whitespace-nowrap justify-center align-center gap-2 text-center"
-                  onClick={async () => {
-                    dispatchANTUpdate({
-                      processId,
-                      domain: lowerCaseDomain(row.original.name),
-                      aoNetwork,
-                      queryClient,
-                      walletAddress,
-                      hyperbeamUrl,
-                      dispatch: dispatchArNSState,
-                      antRegistryProcessId,
-                    });
-                  }}
-                >
-                  Retry
-                  <RefreshIcon
-                    height={16}
-                    width={16}
-                    fill="var(--text-white)"
-                  />
-                </button>
-              );
-            }
-            return rowValue === false && row.original.role !== 'controller' ? (
-              <Tooltip
-                message={'Upgrade Domain'}
-                icon={
-                  <button
-                    onClick={() => {
-                      setDomainToUpgrade({
-                        domain: lowerCaseDomain(row.original.name),
-                        processId: row.original.processId,
-                      });
-                      setShowUpgradeDomainModal(true);
-                    }}
-                    className="p-[4px] px-[8px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap"
-                  >
-                    Update
-                  </button>
-                }
-              />
-            ) : (
-              <CircleCheck className="text-success w-[16px]" />
             );
           }
           case 'undernames': {
@@ -477,15 +365,12 @@ const DomainsTable = ({
                   {row.getValue('role') === 'owner' ? (
                     <Tooltip
                       message={
-                        row.original.version < MIN_ANT_VERSION
-                          ? 'Update ANT to access Primary Names workflow'
-                          : primaryNameData?.name === row.getValue('name')
-                            ? 'Remove Primary Name'
-                            : 'Set Primary Name'
+                        primaryNameData?.name === row.getValue('name')
+                          ? 'Remove Primary Name'
+                          : 'Set Primary Name'
                       }
                       icon={
                         <button
-                          disabled={row.original.version < MIN_ANT_VERSION}
                           onClick={() => {
                             const targetName = row.getValue('name') as string;
                             if (primaryNameData?.name === targetName) {
@@ -662,17 +547,6 @@ const DomainsTable = ({
           }}
         />
       </div>
-      {domainToUpgrade && (
-        <UpgradeDomainModal
-          domain={domainToUpgrade.domain}
-          processId={domainToUpgrade.processId}
-          visible={showUpgradeDomainModal}
-          setVisible={(b: boolean) => {
-            setShowUpgradeDomainModal(b);
-            setDomainToUpgrade(undefined);
-          }}
-        />
-      )}
     </>
   );
 };

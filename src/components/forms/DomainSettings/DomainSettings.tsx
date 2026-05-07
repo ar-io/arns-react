@@ -6,7 +6,6 @@ import ArweaveID, {
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import { ReassignNameModal } from '@src/components/modals/ant-management/ReassignNameModal/ReassignNameModal';
 import { ReturnNameModal } from '@src/components/modals/ant-management/ReturnNameModal/ReturnNameModal';
-import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { SolanaAddress } from '@src/services/solana/SolanaAddress';
@@ -17,13 +16,11 @@ import { useWalletState } from '@src/state/contexts/WalletState';
 import { ANT_INTERACTION_TYPES } from '@src/types';
 import {
   decodeDomainToASCII,
-  doAntsRequireUpdate,
   formatExpiryDate,
   lowerCaseDomain,
 } from '@src/utils';
 import {
   DEFAULT_MAX_UNDERNAMES,
-  MIN_ANT_VERSION,
   SECONDS_IN_GRACE_PERIOD,
 } from '@src/utils/constants';
 import { useQueryClient } from '@tanstack/react-query';
@@ -34,7 +31,6 @@ import { useNavigate } from 'react-router-dom';
 import ControllersRow from './ControllersRow';
 import DescriptionRow from './DescriptionRow';
 import DomainSettingsRow from './DomainSettingsRow';
-import IOCompatibleRow from './IOCompatibleRow';
 import KeywordsRow from './KeywordRow';
 import LogoRow from './LogoRow';
 import NicknameRow from './NicknameRow';
@@ -49,7 +45,6 @@ export enum DomainSettingsRowTypes {
   LEASE_DURATION = 'Lease Duration',
   ASSOCIATED_NAMES = 'Associated Names',
   STATUS = 'Status',
-  IO_COMPATIBLE = 'IO Compatible',
   NICKNAME = 'Nickname',
   PROCESS_ID = 'Process ID',
   TARGET_ID = 'Target ID',
@@ -78,15 +73,12 @@ function DomainSettings({
   const navigate = useNavigate();
 
   useGlobalState();
-  const arioProcessId = '';
   const antAoClient = undefined as unknown as undefined;
   const hyperbeamUrl = '' as string;
   const antRegistryProcessId = '';
   const [{ interactionResult }, dispatchTransactionState] =
     useTransactionState();
   const [, dispatchArNSState] = useArNSState();
-  const { data: antVersion } = useLatestANTVersion();
-  const antModuleId = antVersion?.moduleId ?? null;
   const [{ wallet, walletAddress }] = useWalletState();
   const { data: primaryNameData } = usePrimaryName();
   const { data, isLoading, refetch } = useDomainInfo({ domain, antId });
@@ -205,17 +197,14 @@ function DomainSettings({
                       message={
                         primaryNameData?.name === lowerCaseDomain(domain ?? '')
                           ? 'Cannot return ArNS name while set as primary name. Remove name as primary name to enable return name workflow.'
-                          : data.version < MIN_ANT_VERSION
-                            ? 'Update Domain to access Release Name workflow'
-                            : 'Returns the name to the ArNS protocol'
+                          : 'Returns the name to the ArNS protocol'
                       }
                       icon={
                         <button
                           data-testid="return-name-button"
                           disabled={
                             primaryNameData?.name ===
-                              lowerCaseDomain(domain ?? '') ||
-                            data.version < MIN_ANT_VERSION
+                            lowerCaseDomain(domain ?? '')
                           }
                           onClick={() => setShowReturnNameModal(true)}
                           className={`text-xs rounded-[4px] py-[.375rem] px-[.625rem]  border border-error bg-error-thin text-error whitespace-nowrap`}
@@ -301,31 +290,6 @@ function DomainSettings({
               key={DomainSettingsRowTypes.STATUS}
             />
           ),
-          [DomainSettingsRowTypes.IO_COMPATIBLE]: (
-            <IOCompatibleRow
-              domain={domain}
-              processId={data?.processId ?? ''}
-              editable={data?.state ? isAuthorized : true}
-              requiresUpdate={
-                // TODO: use latest `getVersion` API on ANT
-                data?.processId && data?.state && walletAddress
-                  ? doAntsRequireUpdate({
-                      ants: {
-                        [data.processId]: {
-                          state: data.state,
-                          version: data.version,
-                          processMeta: data.processMeta ?? null,
-                        },
-                      },
-                      userAddress: walletAddress.toString(),
-                      currentModuleId: antModuleId,
-                    })
-                  : data?.processId
-                    ? true
-                    : false
-              }
-            />
-          ),
           [DomainSettingsRowTypes.NICKNAME]: (
             <NicknameRow
               nickname={decodeDomainToASCII(data?.name ?? '')}
@@ -375,19 +339,14 @@ function DomainSettings({
                 isOwner ? (
                   <Tooltip
                     message={
-                      data?.version && data.version < MIN_ANT_VERSION
-                        ? 'Update Domain to access Reassign Name workflow'
-                        : data?.isInGracePeriod
-                          ? 'Lease must be extended before ANT can be Reassigned'
-                          : 'Reassigns what ANT is registered to the ArNS Name'
+                      data?.isInGracePeriod
+                        ? 'Lease must be extended before ANT can be Reassigned'
+                        : 'Reassigns what ANT is registered to the ArNS Name'
                     }
                     icon={
                       <button
                         data-testid="reassign-name-button"
-                        disabled={
-                          (data?.version && data.version < MIN_ANT_VERSION) ||
-                          data?.isInGracePeriod
-                        }
+                        disabled={data?.isInGracePeriod}
                         onClick={() => setShowReassignNameModal(true)}
                         className={`flex flex-row text-[12px] rounded-[4px] p-[6px] px-[10px] border border-error bg-error-thin text-error whitespace-nowrap hover:scale-105 transition-all`}
                       >
@@ -488,9 +447,6 @@ function DomainSettings({
                 dispatchANTInteraction({
                   payload: {
                     target,
-                    ...(data?.version && data.version < MIN_ANT_VERSION
-                      ? { arnsDomain: domain, arioProcessId }
-                      : {}),
                   },
                   workflowName: ANT_INTERACTION_TYPES.TRANSFER,
                   signer: wallet!.contractSigner!,

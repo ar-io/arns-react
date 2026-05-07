@@ -73,7 +73,7 @@ export function TransactionStateProvider({
       // route through `dispatchArNSUpdate` (which is the canonical
       // post-write cache reset for ArNS / ANT flows — see
       // `Checkout.tsx`, `ReturnNameModal`, `ReassignNameModal`,
-      // `UpgradeDomainsModal`, `Manage.tsx`). For the buy path, this
+      // `Manage.tsx`). For the buy path, this
       // is a no-op: `dispatchArNSUpdate` has already reset
       // `domainInfo` (and the upstream `arns-records` / `ant` /
       // `ario-liquid-balance` caches that fan into it). Keeping a
@@ -103,7 +103,6 @@ export function TransactionStateProvider({
       if (
         [
           ANT_INTERACTION_TYPES.REASSIGN_NAME,
-          ANT_INTERACTION_TYPES.UPGRADE_ANT,
           ANT_INTERACTION_TYPES.TRANSFER,
         ].includes(state.workflowName as ANT_INTERACTION_TYPES)
       ) {

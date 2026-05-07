@@ -1,8 +1,6 @@
 import { AoANTState, AoArNSNameData } from '@ar.io/sdk';
 import { Tooltip } from '@src/components/data-display';
-import { useLatestANTVersion } from '@src/hooks/useANTVersions';
-import { ANTProcessData, useArNSState, useWalletState } from '@src/state';
-import { getAntsRequiringUpdate } from '@src/utils';
+import { useArNSState, useWalletState } from '@src/state';
 import { MILLISECONDS_IN_GRACE_PERIOD } from '@src/utils/constants';
 import { BellIcon, Circle, CircleAlert, Settings } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -51,50 +49,6 @@ export function createExpirationNotification(
   };
 }
 
-export function createUpdateDomainsNotification({
-  domains,
-  ants,
-  userAddress,
-  currentModuleId,
-}: {
-  domains: Record<string, AoArNSNameData>;
-  ants: Record<string, ANTProcessData>;
-  userAddress: string;
-  currentModuleId: string | null;
-}): Notification | undefined {
-  const antsRequiringUpdate = getAntsRequiringUpdate({
-    ants,
-    userAddress,
-    currentModuleId,
-  });
-  const domainsRequiringUpdate = Object.entries(domains).reduce(
-    (acc: string[], [domain, record]) => {
-      if (antsRequiringUpdate.includes(record.processId)) {
-        acc.push(domain);
-      }
-      return acc;
-    },
-    [],
-  ).length;
-
-  if (!domainsRequiringUpdate) return;
-
-  return {
-    type: 'warning',
-    message: (
-      <span className="w-full">
-        <span className="text-bold">{domainsRequiringUpdate}</span>{' '}
-        {domainsRequiringUpdate > 1
-          ? 'Domains need updating'
-          : ' Domain needs updating'}
-      </span>
-    ),
-    link:
-      '/manage/names?' +
-      new URLSearchParams({ sortBy: 'ioCompatible' }).toString(),
-  };
-}
-
 export function createNamesExceedingUndernameLimitNotification({
   domains,
   ants,
@@ -134,8 +88,6 @@ export function createNamesExceedingUndernameLimitNotification({
 function NotificationMenu() {
   const [{ walletAddress }] = useWalletState();
   const [{ domains, ants }] = useArNSState();
-  const { data: antVersion } = useLatestANTVersion();
-  const antModuleId = antVersion?.moduleId ?? null;
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
@@ -144,12 +96,6 @@ function NotificationMenu() {
         [
           createExpirationNotification(domains),
           createNamesExceedingUndernameLimitNotification({ domains, ants }),
-          createUpdateDomainsNotification({
-            domains,
-            ants,
-            userAddress: walletAddress.toString(),
-            currentModuleId: antModuleId,
-          }),
         ].filter(
           (notification) => notification !== undefined,
         ) as Notification[],

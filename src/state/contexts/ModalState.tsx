@@ -1,11 +1,9 @@
 import PrimaryNameModal from '@src/components/modals/PrimaryNameModal/PrimaryNameModal';
-import UpgradeDomainsModal from '@src/components/modals/ant-management/UpgradeDomainsModal/UpgradeDomainsModal';
 import { Dispatch, createContext, useContext, useReducer } from 'react';
 
 import { ModalAction } from '../reducers/ModalReducer';
 
 export type ModalState = {
-  showUpgradeAntModal: boolean;
   showEditUndernameModal: boolean;
   showPrimaryNameModal: boolean;
 };
@@ -16,7 +14,6 @@ export type ModalStateProviderProps = {
 };
 
 export const initialModalState: ModalState = {
-  showUpgradeAntModal: false,
   showEditUndernameModal: false,
   showPrimaryNameModal: false,
 };
@@ -42,15 +39,6 @@ export function ModalStateProvider({
   return (
     <ModalStateContext.Provider value={[modalStates, dispatchModalState]}>
       {children}
-      <UpgradeDomainsModal
-        visible={modalStates.showUpgradeAntModal}
-        setVisible={(b) =>
-          dispatchModalState({
-            type: 'setModalOpen',
-            payload: { showUpgradeAntModal: b },
-          })
-        }
-      />
       <PrimaryNameModal
         visible={modalStates.showPrimaryNameModal}
         setVisible={(b) =>

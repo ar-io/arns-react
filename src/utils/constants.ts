@@ -33,8 +33,6 @@ export const ARNS_PURCHASES_DISABLED_TOOLTIP =
   'Purchases are paused during the migration to Solana and will resume shortly.';
 export const SOLANA_MIGRATION_LINK = 'https://ar.io/solana-migration/';
 
-// This is the minimum version all workflows are currently compatible with (including reassign, release, etc)
-export const MIN_ANT_VERSION = 16;
 export const WRITE_OPTIONS = {
   tags: [
     {

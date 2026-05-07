@@ -1,12 +1,4 @@
-import {
-  ANT,
-  AoANTState,
-  AoARIOWrite,
-  AoArNSNameData,
-  AoMessageResult,
-  UpgradeAntProgressEvent,
-} from '@ar.io/sdk/web';
-import { buildArNSRecordQuery } from '@src/hooks/useArNSRecord';
+import { ANT, AoARIOWrite, AoMessageResult } from '@ar.io/sdk/web';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import {
   ANT_INTERACTION_TYPES,
@@ -16,7 +8,6 @@ import {
 import { lowerCaseDomain } from '@src/utils';
 import { WRITE_OPTIONS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
-import { buildAntStateQuery, queryClient } from '@src/utils/network';
 import {
   getActiveSolanaConfig,
   getSolanaRpc,
@@ -56,7 +47,9 @@ export default async function dispatchANTInteraction({
   wallet,
   arioContract,
   dispatchTransactionState,
-  dispatchArNSState,
+  // Kept in the signature for caller compat; no longer consumed after
+  // UPGRADE_ANT removal.
+  dispatchArNSState: _dispatchArNSState,
   stepCallback,
 }: {
   payload: Record<string, any>;
@@ -264,91 +257,6 @@ export default async function dispatchANTInteraction({
         );
         break;
 
-      case ANT_INTERACTION_TYPES.UPGRADE_ANT: {
-        // On Solana, "upgrade" means migrating this ANT's on-chain state
-        // to the latest schema version (per-ANT data migration), not
-        // forking a new Lua module. The mint pubkey stays the same.
-        await stepCallback('Migrating ANT to latest version, please wait...');
-        const upgradeResult = await antProcess.upgrade({
-          names: [payload.name],
-          arioProcessId: payload.arioProcessId,
-          onSigningProgress: (
-            step: keyof UpgradeAntProgressEvent,
-            stepPayload: UpgradeAntProgressEvent[keyof UpgradeAntProgressEvent],
-          ) => {
-            if (!stepCallback) return;
-            if (step === 'fetching-affiliated-names') {
-              stepCallback('Fetching affiliated names');
-            } else if (step === 'checking-version') {
-              stepCallback('Checking version of existing ANT');
-            } else if (step === 'spawning-ant') {
-              stepCallback('Spawning new ANT with latest version');
-            } else if (step === 'verifying-state') {
-              stepCallback('Validating state of new ANT');
-            } else if (step === 'registering-ant') {
-              stepCallback('Registering new ANT to the registry');
-            } else if (step === 'reassigning-name') {
-              const reassigningNamePayload =
-                stepPayload as UpgradeAntProgressEvent['reassigning-name'];
-              stepCallback(`Reassigning name ${reassigningNamePayload.name}`);
-            }
-          },
-        });
-
-        // Solana `upgrade()` returns `{ id, needsMigration }`. The Lua-style
-        // `forkedProcessId`/`reassignedNames` shape is gone — the mint pubkey
-        // is the SAME after migration on Solana.
-        const migrationId = (upgradeResult as any)?.id ?? '';
-        result = { id: migrationId };
-
-        await queryClient.invalidateQueries({
-          predicate: ({ queryKey }) =>
-            queryKey.includes(processId) || queryKey.includes(payload.name),
-          refetchType: 'all',
-        });
-
-        if (arioContract) {
-          const [record, newAntState] = await Promise.all([
-            queryClient
-              .fetchQuery<AoArNSNameData>(
-                buildArNSRecordQuery({
-                  name: payload.name,
-                  arioContract,
-                }),
-              )
-              .catch(() => null),
-            queryClient
-              .fetchQuery<AoANTState>(
-                buildAntStateQuery({ processId, solana: true } as any),
-              )
-              .catch(() => null),
-          ]);
-          if (record) {
-            dispatchArNSState({
-              type: 'addDomains',
-              payload: { [payload.name]: record },
-            });
-          }
-          if (newAntState) {
-            dispatchArNSState({
-              type: 'addAnts',
-              payload: {
-                [processId]: {
-                  state: newAntState,
-                  // Bump the cached version count so the UI stops nagging
-                  // about an outdated ANT. We don't track an explicit
-                  // version number on Solana the way the Lua module
-                  // registry did.
-                  version: 1,
-                  processMeta: null,
-                },
-              },
-            });
-          }
-        }
-
-        break;
-      }
       default:
         throw new Error(`Unsupported workflow name: ${workflowName}`);
     }
