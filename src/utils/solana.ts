@@ -117,13 +117,23 @@ function saveSolanaSettingsToStorage(config: SolanaNetworkConfig) {
   }
 }
 
+function deriveDefaultNetwork(): SolanaNetwork {
+  const explicit = import.meta.env.VITE_SOLANA_NETWORK as
+    | SolanaNetwork
+    | undefined;
+  if (explicit) return explicit;
+
+  const env = import.meta.env.VITE_ENVIRONMENT as string | undefined;
+  if (env === 'production' || env === 'develop') return 'devnet';
+
+  return 'localnet';
+}
+
 function buildInitialConfig(): SolanaNetworkConfig {
   const saved = loadSolanaSettingsFromStorage();
   if (saved) return saved;
 
-  const envNetwork =
-    (import.meta.env.VITE_SOLANA_NETWORK as SolanaNetwork | undefined) ??
-    'localnet';
+  const envNetwork = deriveDefaultNetwork();
 
   return {
     network: envNetwork,
