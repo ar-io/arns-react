@@ -1,4 +1,4 @@
-import { AoReturnedName, mARIOToken } from '@ar.io/sdk';
+import { ReturnedName, mARIOToken } from '@ar.io/sdk';
 import { ChevronRightIcon, ExternalLinkIcon } from '@src/components/icons';
 import Switch from '@src/components/inputs/Switch';
 import { Loader } from '@src/components/layout';
@@ -90,7 +90,7 @@ const ReturnedNamesTable = ({
   loading,
   filter,
 }: {
-  returnedNames?: Array<AoReturnedName & { name: string }>;
+  returnedNames?: Array<ReturnedName & { name: string }>;
   loading: boolean;
   filter?: string;
 }) => {

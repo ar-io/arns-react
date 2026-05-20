@@ -84,22 +84,19 @@ export function WalletStateProvider({
       walletAddress,
       network: solanaConfig.network,
     });
+    const contract = signer
+      ? ARIO.init({
+          rpc: getSolanaRpc(),
+          rpcSubscriptions: getSolanaRpcSubscriptions(),
+          signer,
+          ...programIds,
+        })
+      : ARIO.init({
+          rpc: getSolanaRpc(),
+          ...programIds,
+        });
     dispatchArIOContract({
-      contract: ARIO.init(
-        signer
-          ? {
-              backend: 'solana',
-              rpc: getSolanaRpc(),
-              rpcSubscriptions: getSolanaRpcSubscriptions(),
-              signer,
-              ...programIds,
-            }
-          : {
-              backend: 'solana',
-              rpc: getSolanaRpc(),
-              ...programIds,
-            },
-      ),
+      contract,
       dispatch: dispatchGlobalState,
     });
   }, [walletAddress, wallet, solanaConfig]);

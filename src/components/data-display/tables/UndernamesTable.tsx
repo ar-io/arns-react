@@ -1,4 +1,4 @@
-import { AoANTRecord, AoANTState, sortANTRecords } from '@ar.io/sdk';
+import { ANTRecord, ANTState, sortANTRecords } from '@ar.io/sdk';
 import { Tooltip } from '@src/components/data-display';
 import { ArioSpinner } from '@src/components/data-display/Spinner';
 import { ExternalLinkIcon, PencilIcon, TrashIcon } from '@src/components/icons';
@@ -58,21 +58,18 @@ const UndernamesTable = ({
   state,
   isLoading = false,
 }: {
-  undernames: Record<string, AoANTRecord>;
+  undernames: Record<string, ANTRecord>;
   arnsRecord: {
     name: string;
     version: number;
     undernameLimit: number;
     processId: string;
   };
-  state?: AoANTState | null;
+  state?: ANTState | null;
   isLoading: boolean;
 }) => {
   const [{ gateway }] = useGlobalState();
   const arioProcessId = '';
-  const antAoClient = undefined as unknown as undefined;
-  const hyperbeamUrl = '' as string;
-  const antRegistryProcessId = '';
   const [, dispatchArNSState] = useArNSState();
 
   const [{ wallet, walletAddress }] = useWalletState();
@@ -132,9 +129,6 @@ const UndernamesTable = ({
         owner: walletAddress?.toString(),
         dispatchTransactionState,
         dispatchArNSState,
-        ao: antAoClient,
-        hyperbeamUrl,
-        antRegistryProcessId,
       });
       eventEmitter.emit('success', {
         name: 'Manage Undernames',

@@ -1,4 +1,4 @@
-import { AoARIORead, AoARIOWrite } from '@ar.io/sdk/web';
+import { ARIORead, ARIOWrite } from '@ar.io/sdk/web';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import type { SolanaNetworkConfig } from '@src/utils/solana';
 
@@ -23,7 +23,7 @@ export type GlobalAction =
     }
   | {
       type: 'setArIOContract';
-      payload: AoARIORead | AoARIOWrite;
+      payload: ARIORead | ARIOWrite;
     }
   | {
       type: 'setIoTicker';
@@ -33,7 +33,7 @@ export type GlobalAction =
       type: 'setSolanaConfig';
       payload: {
         config: SolanaNetworkConfig;
-        contract: AoARIORead | AoARIOWrite;
+        contract: ARIORead | ARIOWrite;
       };
     };
 

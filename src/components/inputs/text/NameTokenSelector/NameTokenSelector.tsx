@@ -1,5 +1,6 @@
-import { ANT, AOProcess, AoArNSNameData } from '@ar.io/sdk/web';
+import { ArNSNameData } from '@ar.io/sdk/web';
 import Tooltip from '@src/components/Tooltips/Tooltip';
+import { buildAntRead } from '@src/utils/sdk-init';
 import { Pagination, PaginationProps } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
@@ -35,8 +36,6 @@ function NameTokenSelector({
   ) => void;
 }) {
   const [{ arweaveDataProvider }] = useGlobalState();
-  const antAoClient = undefined as unknown as undefined;
-  const hyperbeamUrl = '' as string;
   const [{ walletAddress }] = useWalletState();
 
   const [searchText, setSearchText] = useState<string>();
@@ -118,12 +117,8 @@ function NameTokenSelector({
         ? await Promise.all(
             imports.map(async (id: ArweaveTransactionID) => {
               try {
-                const contract = ANT.init({
-                  hyperbeamUrl,
-                  process: new AOProcess({
-                    processId: id.toString(),
-                    ao: antAoClient,
-                  }),
+                const contract = await buildAntRead({
+                  processId: id.toString(),
                 });
 
                 const info = await contract.getInfo();
@@ -161,22 +156,18 @@ function NameTokenSelector({
 
       const contracts: {
         processId: ArweaveTransactionID;
-        names: Record<string, AoArNSNameData>;
+        names: Record<string, ArNSNameData>;
         owner: string;
         controllers: string[];
         ticker: string;
         name: string;
       }[] = await Promise.all(
         processIds.map(async (processId) => {
-          const contract = ANT.init({
-            hyperbeamUrl,
-            process: new AOProcess({
-              processId: processId.toString(),
-              ao: antAoClient,
-            }),
+          const contract = await buildAntRead({
+            processId: processId.toString(),
           });
           const names = Object.keys(associatedRecords).reduce(
-            (acc: Record<string, AoArNSNameData>, id: string) => {
+            (acc: Record<string, ArNSNameData>, id: string) => {
               if (associatedRecords[id].processId === processId.toString()) {
                 acc[id] = associatedRecords[id];
               }

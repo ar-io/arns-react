@@ -59,10 +59,6 @@ export function ReassignNameModal({
   const queryClient = useQueryClient();
   const [{ arioContract }] = useGlobalState();
   const arioProcessId = '';
-  const aoClient = undefined as unknown as undefined;
-  const aoNetwork = { ARIO: { SCHEDULER: '' } } as const;
-  const hyperbeamUrl = '' as string;
-  const antRegistryProcessId = '';
   const [, dispatchArNSState] = useArNSState();
   const [{ signing }, dispatchTransactionState] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
@@ -133,7 +129,6 @@ export function ReassignNameModal({
         });
         const { programIds: activeProgramIds } = getActiveSolanaConfig();
         const spawnResult = await ANT.spawn({
-          backend: 'solana',
           rpc: getSolanaRpc(),
           rpcSubscriptions: getSolanaRpcSubscriptions(),
           signer: wallet.solanaSigner,
@@ -166,7 +161,6 @@ export function ReassignNameModal({
         // succeed and the user can re-add anything that didn't carry over.
         if (carryOver) {
           const newAnt = await ANT.init({
-            backend: 'solana',
             processId: destinationProcessId,
             rpc: getSolanaRpc(),
             rpcSubscriptions: getSolanaRpcSubscriptions(),
@@ -220,10 +214,7 @@ export function ReassignNameModal({
         arioContract: arioContract as any,
         dispatchTransactionState,
         dispatchArNSState,
-        antRegistryProcessId,
         owner: walletAddress.toString(),
-        ao: aoClient,
-        hyperbeamUrl,
       });
       eventEmitter.emit('success', {
         message: (
@@ -254,10 +245,8 @@ export function ReassignNameModal({
         wallet,
         arioContract,
         arioProcessId,
-        antRegistryProcessId,
+        antRegistryProcessId: '',
         dispatch: dispatchArNSState,
-        aoNetworkSettings: aoNetwork,
-        hyperbeamUrl,
       });
       handleClose();
     } catch (error) {

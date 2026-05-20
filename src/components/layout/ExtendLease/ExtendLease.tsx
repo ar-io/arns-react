@@ -1,8 +1,4 @@
-import {
-  AoArNSLeaseData,
-  isLeasedArNSRecord,
-  mARIOToken,
-} from '@ar.io/sdk/web';
+import { ArNSLeaseData, isLeasedArNSRecord, mARIOToken } from '@ar.io/sdk/web';
 import { ArioSpinner } from '@src/components/data-display/Spinner';
 import { useArNSIntentPrice } from '@src/hooks/useArNSIntentPrice';
 import { useCostDetails } from '@src/hooks/useCostDetails';
@@ -51,9 +47,7 @@ function ExtendLease() {
   const { data: domainData, isLoading: loadingDomainData } = useDomainInfo({
     domain: name,
   });
-  const leasedArnsRecord = domainData?.arnsRecord as
-    | undefined
-    | AoArNSLeaseData;
+  const leasedArnsRecord = domainData?.arnsRecord as undefined | ArNSLeaseData;
 
   const [registrationType, setRegistrationType] = useState<TRANSACTION_TYPES>(
     TRANSACTION_TYPES.LEASE,

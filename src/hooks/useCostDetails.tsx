@@ -1,8 +1,8 @@
 import {
-  AoARIORead,
-  AoARIOWrite,
-  AoGetCostDetailsParams,
+  ARIORead,
+  ARIOWrite,
   CostDetailsResult,
+  GetCostDetailsParams,
 } from '@ar.io/sdk';
 import { useGlobalState } from '@src/state';
 import { arioContractCacheKey } from '@src/utils/sdk-init';
@@ -11,8 +11,8 @@ import { useQuery } from '@tanstack/react-query';
 export const COST_DETAIL_STALE_TIME = 1000 * 60 * 5;
 
 export function buildCostDetailsQuery(
-  params: AoGetCostDetailsParams,
-  { arioContract }: { arioContract: AoARIORead | AoARIOWrite },
+  params: GetCostDetailsParams,
+  { arioContract }: { arioContract: ARIORead | ARIOWrite },
 ): Parameters<typeof useQuery<CostDetailsResult>>[0] {
   return {
     queryKey: ['getCostDetails', params, arioContractCacheKey(arioContract)],
@@ -24,7 +24,7 @@ export function buildCostDetailsQuery(
   };
 }
 
-export function useCostDetails(params: AoGetCostDetailsParams) {
+export function useCostDetails(params: GetCostDetailsParams) {
   const [{ arioContract }] = useGlobalState();
 
   return useQuery<CostDetailsResult>(

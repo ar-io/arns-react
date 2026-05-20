@@ -1,12 +1,4 @@
-import {
-  ARIO_MAINNET_PROCESS_ID,
-  ARIO_TESTNET_PROCESS_ID,
-  AoClient,
-  AoMessageResult,
-  ContractSigner,
-  Intent,
-  MessageResult,
-} from '@ar.io/sdk/web';
+import { Intent, MessageResult } from '@ar.io/sdk/web';
 import {
   ARIOToTokenAmount,
   ARToTokenAmount,
@@ -44,10 +36,10 @@ export interface TurboArNSClientConfig {
   // funded ArNS purchase flow (`executeArNSIntent`) is currently AO-coupled
   // and gated behind a tooltip in the UI. Phase 9 keeps the field for
   // back-compat; Solana support requires the Turbo payment service update.
-  signer?: ContractSigner;
+  signer?: any;
   walletAddress?: string;
   stripe: Stripe;
-  ao?: AoClient;
+  ao?: any;
 }
 
 export type TurboArNSInteractionParams = {
@@ -172,8 +164,8 @@ export class TurboArNSClient {
     });
     this.arioProcessId =
       this.paymentUrl === devPaymentServiceFqdn
-        ? ARIO_TESTNET_PROCESS_ID
-        : ARIO_MAINNET_PROCESS_ID;
+        ? 'agYcCFJtrMG6cqMuZfskIkFTGvUPddICmtQSBIoPdiA'
+        : '';
   }
 
   // TODO: add to turbo-sdk
@@ -333,7 +325,7 @@ export class TurboArNSClient {
     paymentMethodId: string;
     email?: string;
     address: string;
-  }): Promise<AoMessageResult<MessageResult>> {
+  }): Promise<MessageResult<MessageResult>> {
     // Suppress unused-destructure warnings.
     void paymentMethodId;
     void email;

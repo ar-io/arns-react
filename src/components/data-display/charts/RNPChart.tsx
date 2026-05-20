@@ -1,4 +1,4 @@
-import { AoGetCostDetailsParams, mARIOToken } from '@ar.io/sdk';
+import { GetCostDetailsParams, mARIOToken } from '@ar.io/sdk';
 import { ArioSpinner } from '@src/components/data-display/Spinner';
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import { useGlobalState, useWalletState } from '@src/state';
@@ -22,7 +22,7 @@ export function RNPChart({
   dateNow,
 }: {
   name: string;
-  purchaseDetails?: Partial<AoGetCostDetailsParams>;
+  purchaseDetails?: Partial<GetCostDetailsParams>;
   dateNow?: number;
 }) {
   const [{ walletAddress }] = useWalletState();

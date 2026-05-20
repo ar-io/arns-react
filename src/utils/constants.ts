@@ -1,9 +1,9 @@
-import {
-  ANT_LUA_ID,
-  ANT_REGISTRY_ID,
-  ARIO_TESTNET_PROCESS_ID,
-  DEFAULT_SCHEDULER_ID,
-} from '@ar.io/sdk/web';
+// AO-era constants — removed from @ar.io/sdk after the Solana migration.
+// Kept here for legacy AO network config until the AO plumbing is fully ripped.
+const ARIO_TESTNET_PROCESS_ID = 'agYcCFJtrMG6cqMuZfskIkFTGvUPddICmtQSBIoPdiA';
+const ANT_REGISTRY_ID = 'i_le_yKKPVstLTDSmkHRqf-wYphMnwB9OhleiTgMkWc';
+const ANT_LUA_ID = 'sOW9Sdm1yoPRrzerC5iu1nsupp4e6I-HnJyYVHzvzQo';
+const DEFAULT_SCHEDULER_ID = '_GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA';
 import { TokenType } from '@ardrive/turbo-sdk';
 import Arweave from 'arweave';
 

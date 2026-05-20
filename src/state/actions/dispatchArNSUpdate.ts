@@ -1,4 +1,4 @@
-import { AoARIORead, AoArNSNameData } from '@ar.io/sdk/web';
+import { ARIORead, ArNSNameData } from '@ar.io/sdk/web';
 import { captureException } from '@sentry/react';
 import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
 import { AoAddress, ArNSWalletConnector } from '@src/types';
@@ -32,7 +32,7 @@ export async function dispatchArNSUpdate({
    * Optional pre-built ARIO instance. When provided we use it directly; the
    * `WalletState` Solana setup pushes the wallet-aware client here.
    */
-  arioContract?: AoARIORead;
+  arioContract?: ARIORead;
   // Legacy AO args — accepted but ignored.
   arioProcessId?: string;
   antRegistryProcessId?: string;
@@ -72,9 +72,9 @@ export async function dispatchArNSUpdate({
     // global state's `arioContract` after `WalletState` set it up). Falling
     // back to a fresh local read-only instance keeps the unauthenticated
     // path working until the global one is hydrated.
-    const arioContract: AoARIORead = providedArio ?? buildArioRead();
+    const arioContract: ARIORead = providedArio ?? buildArioRead();
 
-    const userDomains: Record<string, AoArNSNameData> = {};
+    const userDomains: Record<string, ArNSNameData> = {};
     let cursor: string | undefined = undefined;
     let hasMore = true;
     while (hasMore) {

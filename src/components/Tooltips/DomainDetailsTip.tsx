@@ -1,5 +1,5 @@
 import { InfoCircleOutlined } from '@ant-design/icons';
-import { AoArNSNameData } from '@ar.io/sdk/web';
+import { ArNSNameData } from '@ar.io/sdk/web';
 import { useANT } from '@src/hooks/useANT/useANT';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { SolanaAddress } from '@src/services/solana/SolanaAddress';
@@ -23,7 +23,7 @@ function DomainDetailsTip({
   ),
 }: {
   domain: string;
-  domainRecord?: AoArNSNameData;
+  domainRecord?: ArNSNameData;
   icon?: ReactNode;
 }) {
   const { loading: loadingAntState, ...antState } = useANT(

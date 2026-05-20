@@ -1,4 +1,4 @@
-import { AoArNSNameData } from '@ar.io/sdk';
+import { ArNSNameData } from '@ar.io/sdk';
 import { ChevronRightIcon, ExternalLinkIcon } from '@src/components/icons';
 import ManageAssetButtons from '@src/components/inputs/buttons/ManageAssetButtons/ManageAssetButtons';
 import { Loader } from '@src/components/layout';
@@ -96,7 +96,7 @@ const DomainsTable = ({
   setFilter,
 }: {
   domainData: {
-    names: Record<string, AoArNSNameData>;
+    names: Record<string, ArNSNameData>;
     ants: Record<string, ANTProcessData>;
   };
   loading: boolean;

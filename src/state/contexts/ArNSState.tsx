@@ -1,4 +1,4 @@
-import { AoANTState, AoArNSNameData } from '@ar.io/sdk/web';
+import { ANTState, ArNSNameData } from '@ar.io/sdk/web';
 import { TransactionEdge } from 'arweave-graphql';
 import {
   Dispatch,
@@ -14,14 +14,14 @@ import { useGlobalState } from './GlobalState';
 import { useWalletState } from './WalletState';
 
 export type ANTProcessData = {
-  state: AoANTState | null;
+  state: ANTState | null;
   version: number;
   processMeta: TransactionEdge['node'] | null;
   errors?: Error[];
 };
 
 export type ArNSState = {
-  domains: Record<string, AoArNSNameData>;
+  domains: Record<string, ArNSNameData>;
   ants: Record<string, ANTProcessData>;
   loading: boolean;
   percentLoaded: number;

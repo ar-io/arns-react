@@ -1,5 +1,5 @@
 import { CheckCircleFilled } from '@ant-design/icons';
-import { AoArNSNameData } from '@ar.io/sdk/web';
+import { ArNSNameData } from '@ar.io/sdk/web';
 import DomainDetailsTip from '@src/components/Tooltips/DomainDetailsTip';
 import { Tooltip } from '@src/components/data-display';
 import { ArioSpinner } from '@src/components/data-display/Spinner';
@@ -43,7 +43,7 @@ function HomeSearch() {
   const [validationError, setValidationError] = useState('');
   const [isValidDomain, setIsValidDomain] = useState(false);
   const [domainQuery, setDomainQuery] = useState('');
-  const [domainRecord, setDomainRecord] = useState<AoArNSNameData>();
+  const [domainRecord, setDomainRecord] = useState<ArNSNameData>();
   const [showResults, setShowResults] = useState(true);
   const [isReturnedName, setIsReturnedName] = useState(false);
   const [{ gateway }] = useGlobalState();

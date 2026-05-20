@@ -1,4 +1,5 @@
-import { ANT, AOProcess, AoANTRecord } from '@ar.io/sdk/web';
+import { ANTRecord } from '@ar.io/sdk/web';
+import { buildAntRead } from '@src/utils/sdk-init';
 import { clamp } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 
@@ -36,14 +37,12 @@ function EditUndernameModal({
   payloadCallback: (payload: SetRecordPayload) => void;
 }) {
   const [{ arweaveDataProvider }] = useGlobalState();
-  const antAoClient = undefined as unknown as undefined;
-  const hyperbeamUrl = '' as string;
   const isMobile = useIsMobile();
   const targetIdRef = useRef<HTMLInputElement>(null);
   const ttlRef = useRef<HTMLInputElement>(null);
   const [targetId, setTargetId] = useState<string>('');
   const [ttlSeconds, setTtlSeconds] = useState<number>(MIN_TTL_SECONDS);
-  const [record, setRecord] = useState<AoANTRecord>();
+  const [record, setRecord] = useState<ANTRecord>();
 
   useEffect(() => {
     load(antId);
@@ -54,13 +53,7 @@ function EditUndernameModal({
 
   async function load(id: ArweaveTransactionID | SolanaAddress) {
     try {
-      const contract = ANT.init({
-        hyperbeamUrl,
-        process: new AOProcess({
-          processId: id.toString(),
-          ao: antAoClient,
-        }),
-      });
+      const contract = await buildAntRead({ processId: id.toString() });
       const undernameRecord = await contract.getRecord({
         undername: undername,
       });

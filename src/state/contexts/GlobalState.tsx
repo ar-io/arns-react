@@ -1,4 +1,4 @@
-import { ARIO, AoARIORead, AoARIOWrite } from '@ar.io/sdk/web';
+import { ARIO, ARIORead, ARIOWrite } from '@ar.io/sdk/web';
 import eventEmitter from '@src/utils/events';
 import {
   type SolanaNetworkConfig,
@@ -69,7 +69,6 @@ function buildProgramIds(config: SolanaNetworkConfig) {
 export function buildDefaultArIO(config?: SolanaNetworkConfig) {
   const solConfig = config ?? getActiveSolanaConfig();
   return ARIO.init({
-    backend: 'solana',
     rpc: getSolanaRpc(),
     ...buildProgramIds(solConfig),
   });
@@ -90,7 +89,7 @@ export type GlobalState = {
    * Arweave TX IDs as content-target identifiers.
    */
   arweaveDataProvider: SimpleArweaveDataProvider;
-  arioContract: AoARIORead | AoARIOWrite;
+  arioContract: ARIORead | ARIOWrite;
   solanaConfig: SolanaNetworkConfig;
 };
 

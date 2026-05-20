@@ -1,10 +1,9 @@
 import {
   ANT,
-  AoARIOWrite,
-  AoMessageResult,
-  AoPrimaryName,
+  ARIOWrite,
   FundFrom,
   MessageResult,
+  PrimaryName,
   SetPrimaryNameProgressEvents,
 } from '@ar.io/sdk/web';
 import { TurboArNSClient } from '@src/services/turbo/TurboArNSClient';
@@ -45,7 +44,7 @@ export default async function dispatchArIOInteraction({
   payload: Record<string, any>;
   workflowName: ARNS_INTERACTION_TYPES;
   owner: AoAddress;
-  arioContract?: AoARIOWrite;
+  arioContract?: ARIOWrite;
   processId: string;
   dispatch: Dispatch<TransactionAction>;
   /**
@@ -66,7 +65,7 @@ export default async function dispatchArIOInteraction({
   hyperbeamUrl?: string;
   turboArNSClient?: TurboArNSClient;
 }): Promise<ContractInteraction> {
-  let result: AoMessageResult<MessageResult | unknown> | undefined = undefined;
+  let result: MessageResult<MessageResult | unknown> | undefined = undefined;
   try {
     if (!arioContract) throw new Error('ArIO provider is not defined');
     if (wallet?.tokenType !== 'solana' || !wallet.solanaSigner) {
@@ -100,7 +99,6 @@ export default async function dispatchArIOInteraction({
           });
           const { programIds } = getActiveSolanaConfig();
           const spawnResult = await ANT.spawn({
-            backend: 'solana',
             rpc: getSolanaRpc(),
             rpcSubscriptions: getSolanaRpcSubscriptions(),
             signer: wallet.solanaSigner,
@@ -195,7 +193,7 @@ export default async function dispatchArIOInteraction({
             queryKey.includes('primary-name') &&
             queryKey[1] === owner.toString(),
         });
-        const updatedPrimaryName = queryClient.getQueryData<AoPrimaryName>([
+        const updatedPrimaryName = queryClient.getQueryData<PrimaryName>([
           'primary-name',
           owner.toString(),
           arioContractCacheKey(arioContract),

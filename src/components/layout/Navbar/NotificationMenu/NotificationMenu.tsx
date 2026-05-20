@@ -1,4 +1,4 @@
-import { AoANTState, AoArNSNameData } from '@ar.io/sdk';
+import { ANTState, ArNSNameData } from '@ar.io/sdk';
 import { Tooltip } from '@src/components/data-display';
 import { useArNSState, useWalletState } from '@src/state';
 import { MILLISECONDS_IN_GRACE_PERIOD } from '@src/utils/constants';
@@ -13,7 +13,7 @@ export type Notification = {
   link: string;
 };
 
-export function isInGracePeriod(record: AoArNSNameData) {
+export function isInGracePeriod(record: ArNSNameData) {
   const endTimestamp = (record as any)?.endTimestamp;
   if (!endTimestamp) return false;
   const expirationDate = endTimestamp + MILLISECONDS_IN_GRACE_PERIOD;
@@ -21,10 +21,10 @@ export function isInGracePeriod(record: AoArNSNameData) {
 }
 
 export function createExpirationNotification(
-  domains: Record<string, AoArNSNameData>,
+  domains: Record<string, ArNSNameData>,
 ): Notification | undefined {
   const domainsExpiring = Object.values(domains).reduce(
-    (acc: number, record: AoArNSNameData) => {
+    (acc: number, record: ArNSNameData) => {
       if (isInGracePeriod(record)) {
         acc++;
       }
@@ -53,11 +53,11 @@ export function createNamesExceedingUndernameLimitNotification({
   domains,
   ants,
 }: {
-  domains: Record<string, AoArNSNameData>;
-  ants: Record<string, { state: AoANTState | null; version: number }>;
+  domains: Record<string, ArNSNameData>;
+  ants: Record<string, { state: ANTState | null; version: number }>;
 }): Notification | undefined {
   const domainsRequiringUndernameSupportUpgrade = Object.values(domains).reduce(
-    (acc: number, record: AoArNSNameData) => {
+    (acc: number, record: ArNSNameData) => {
       const undernameCount = Object.keys(
         ants?.[record.processId]?.state?.Records ?? {},
       ).filter((key) => key !== '@')?.length;

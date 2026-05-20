@@ -73,9 +73,6 @@ function DomainSettings({
   const navigate = useNavigate();
 
   useGlobalState();
-  const antAoClient = undefined as unknown as undefined;
-  const hyperbeamUrl = '' as string;
-  const antRegistryProcessId = '';
   const [{ interactionResult }, dispatchTransactionState] =
     useTransactionState();
   const [, dispatchArNSState] = useArNSState();
@@ -305,9 +302,6 @@ function DomainSettings({
                   owner: walletAddress!.toString(),
                   dispatchTransactionState,
                   dispatchArNSState,
-                  ao: antAoClient,
-                  hyperbeamUrl,
-                  antRegistryProcessId,
                 })
               }
             />
@@ -376,9 +370,6 @@ function DomainSettings({
                   processId: data!.processId,
                   dispatchTransactionState,
                   dispatchArNSState,
-                  ao: antAoClient,
-                  hyperbeamUrl,
-                  antRegistryProcessId,
                 })
               }
             />
@@ -398,9 +389,6 @@ function DomainSettings({
                   processId: data!.processId,
                   dispatchTransactionState,
                   dispatchArNSState,
-                  ao: antAoClient,
-                  hyperbeamUrl,
-                  antRegistryProcessId,
                 })
               }
             />
@@ -429,9 +417,6 @@ function DomainSettings({
                   processId: data!.processId,
                   dispatchTransactionState,
                   dispatchArNSState,
-                  ao: antAoClient,
-                  hyperbeamUrl,
-                  antRegistryProcessId,
                 })
               }
             />
@@ -455,9 +440,6 @@ function DomainSettings({
                   processId: data!.processId,
                   dispatchTransactionState,
                   dispatchArNSState,
-                  ao: antAoClient,
-                  hyperbeamUrl,
-                  antRegistryProcessId,
                 })
               }
             />
@@ -480,9 +462,6 @@ function DomainSettings({
                   processId: data!.processId,
                   dispatchTransactionState,
                   dispatchArNSState,
-                  ao: antAoClient,
-                  hyperbeamUrl,
-                  antRegistryProcessId,
                 })
               }
             />
@@ -515,9 +494,6 @@ function DomainSettings({
                   processId: data!.processId,
                   dispatchTransactionState,
                   dispatchArNSState,
-                  ao: antAoClient,
-                  hyperbeamUrl,
-                  antRegistryProcessId,
                 })
               }
             />
@@ -539,9 +515,6 @@ function DomainSettings({
                   processId: data!.processId,
                   dispatchTransactionState,
                   dispatchArNSState,
-                  ao: antAoClient,
-                  hyperbeamUrl,
-                  antRegistryProcessId,
                 })
               }
             />
@@ -563,9 +536,6 @@ function DomainSettings({
                   processId: data!.processId,
                   dispatchTransactionState,
                   dispatchArNSState,
-                  ao: antAoClient,
-                  hyperbeamUrl,
-                  antRegistryProcessId,
                 })
               }
             />

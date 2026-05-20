@@ -1,9 +1,4 @@
-import {
-  ARIOWriteable,
-  AoARIOWrite,
-  FundFrom,
-  mARIOToken,
-} from '@ar.io/sdk/web';
+import { ARIOWrite, FundFrom, mARIOToken } from '@ar.io/sdk/web';
 import DomainCheckoutCard from '@src/components/cards/DomainCheckoutCard';
 import PaymentOptionsForm, {
   PaymentMethod,
@@ -72,9 +67,6 @@ function Checkout() {
   // existing dispatch payloads; ignored by the Solana backend.
   const arioProcessId = '';
   const antRegistryProcessId = '';
-  const aoClient = undefined as unknown as undefined;
-  const aoNetwork = { ARIO: { SCHEDULER: '' } } as const;
-  const hyperbeamUrl = '' as string;
   const turbo = useTurboArNSClient();
   const [, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
@@ -437,11 +429,8 @@ function Checkout() {
     try {
       // ARIOWriteable is the AO write impl; on Solana the writeable
       // instance is `SolanaARIOWriteable` which doesn't share that base.
-      // Both have a `.signer` slot so use that as a proxy for "writeable".
-      const isWriteable =
-        arioContract instanceof ARIOWriteable ||
-        (arioContract as { signer?: unknown } | undefined)?.signer !==
-          undefined;
+      // Duck-type by checking for `buyRecord` method.
+      const isWriteable = 'buyRecord' in (arioContract ?? {});
       if (!isWriteable) {
         throw new Error('Wallet must be connected to dispatch transactions.');
       }
@@ -498,7 +487,7 @@ function Checkout() {
 
           // Now execute the ArNS purchase with Turbo credits
           await dispatchArIOInteraction({
-            arioContract: arioContract as AoARIOWrite,
+            arioContract: arioContract as ARIOWrite,
             workflowName: workflowName as ARNS_INTERACTION_TYPES,
             payload: {
               ...transactionData,
@@ -508,14 +497,11 @@ function Checkout() {
             dispatch: dispatchTransactionState,
             signer: wallet?.contractSigner,
             wallet,
-            ao: aoClient,
-            scheduler: aoNetwork.ARIO.SCHEDULER,
             fundFrom: 'turbo', // Use turbo credits after top-up
             paidBy: creditsBalance?.receivedApprovals.map(
               (approval) => approval.payingAddress,
             ),
             turboArNSClient: turbo,
-            hyperbeamUrl,
             promoCode,
           });
         } finally {
@@ -525,7 +511,7 @@ function Checkout() {
       } else {
         // Standard payment flow (ARIO, fiat, credits)
         await dispatchArIOInteraction({
-          arioContract: arioContract as AoARIOWrite,
+          arioContract: arioContract as ARIOWrite,
           workflowName: workflowName as ARNS_INTERACTION_TYPES,
           payload: {
             ...transactionData,
@@ -537,8 +523,6 @@ function Checkout() {
           dispatch: dispatchTransactionState,
           signer: wallet?.contractSigner,
           wallet,
-          ao: aoClient,
-          scheduler: aoNetwork.ARIO.SCHEDULER,
           fundFrom:
             paymentMethod === 'card'
               ? 'fiat'
@@ -549,7 +533,6 @@ function Checkout() {
             (approval) => approval.payingAddress,
           ),
           turboArNSClient: turbo,
-          hyperbeamUrl,
           promoCode,
         });
       }
@@ -566,8 +549,6 @@ function Checkout() {
           walletAddress,
           wallet,
           arioContract,
-          aoNetworkSettings: aoNetwork,
-          hyperbeamUrl,
         });
         // The buy debits ARIO from the wallet's ATA — drop the cached
         // liquid-balance / delegated-stake snapshots so the navbar

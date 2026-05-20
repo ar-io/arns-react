@@ -1,10 +1,4 @@
-import {
-  AoANTRecord,
-  AoArNSNameData,
-  AoGetCostDetailsParams,
-  ContractSigner,
-  TurboArNSSigner,
-} from '@ar.io/sdk/web';
+import { ANTRecord, ArNSNameData, GetCostDetailsParams } from '@ar.io/sdk/web';
 import { TokenType } from '@ardrive/turbo-sdk';
 import type { Dispatch, SetStateAction } from 'react';
 
@@ -26,7 +20,7 @@ export type TransferTransactionResult = {
   gasUsed?: string;
 };
 
-export type ARNSDomains = Record<string, AoArNSNameData>;
+export type ARNSDomains = Record<string, ArNSNameData>;
 
 export type TransactionHeaders = {
   id: string;
@@ -49,7 +43,7 @@ export type TransactionTag = {
 
 export type ARNSMapping = {
   domain: string;
-  record?: AoArNSNameData;
+  record?: ArNSNameData;
   // ANT process / mint pubkey. On Solana this is a `SolanaAddress`
   // (Metaplex Core asset pubkey); on legacy AO it's an `ArweaveTransactionID`.
   processId?: ArweaveTransactionID | SolanaAddressType;
@@ -66,7 +60,7 @@ export type ARNSMapping = {
     ticker: string;
     name: string;
     controllers: string[];
-    records: Record<string, AoANTRecord>;
+    records: Record<string, ANTRecord>;
   };
 };
 
@@ -100,14 +94,14 @@ export interface ArNSWalletConnector {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   getWalletAddress(): Promise<AoAddress>;
-  contractSigner?: ContractSigner;
+  contractSigner?: any;
   on?: (event: string, listener: (data: any) => void) => Promise<void>;
   off?: (event: string, listener: (data: any) => void) => Promise<void>;
   submitNativeTransaction?(
     amount: number,
     toAddress: string,
   ): Promise<TransferTransactionResult>;
-  turboSigner?: TurboArNSSigner;
+  turboSigner?: any;
   /**
    * `@solana/kit` signer for the connected Solana wallet, when applicable.
    * Populated by `SolanaWalletConnector` so that downstream code can pass
@@ -228,7 +222,7 @@ export enum ARNS_INTERACTION_TYPES {
   UPGRADE_NAME = 'Upgrade ArNS Name',
 }
 export const ArNSInteractionTypeToIntentMap: Partial<
-  Record<ARNS_INTERACTION_TYPES, AoGetCostDetailsParams['intent']>
+  Record<ARNS_INTERACTION_TYPES, GetCostDetailsParams['intent']>
 > = {
   [ARNS_INTERACTION_TYPES.BUY_RECORD]: 'Buy-Name',
   [ARNS_INTERACTION_TYPES.EXTEND_LEASE]: 'Extend-Lease',
@@ -352,7 +346,7 @@ export type TransactionDataBasePayload = {
   functionName: string;
   deployedTransactionId?: ArweaveTransactionID;
   interactionPrice?: number;
-  arnsRecord?: AoArNSNameData;
+  arnsRecord?: ArNSNameData;
 };
 
 // registry transaction payload types
@@ -410,7 +404,7 @@ export type SetRecordPayload = {
   subDomain: string;
   transactionId: string;
   ttlSeconds: number;
-  previousRecord?: AoANTRecord;
+  previousRecord?: ANTRecord;
 };
 
 export type RemoveRecordPayload = {

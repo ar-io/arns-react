@@ -1,10 +1,10 @@
 import {
-  AoANTRead,
-  AoANTRecord,
-  AoANTState,
-  AoANTWrite,
-  AoARIORead,
-  AoArNSNameData,
+  ANTRead,
+  ANTRecord,
+  ANTState,
+  ANTWrite,
+  ARIORead,
+  ArNSNameData,
 } from '@ar.io/sdk/web';
 import { captureException } from '@sentry/react';
 import { isInGracePeriod } from '@src/components/layout/Navbar/NotificationMenu/NotificationMenu';
@@ -21,10 +21,10 @@ import { useQuery } from '@tanstack/react-query';
 import { TransactionEdge } from 'arweave-graphql';
 
 export type DomainInfo = {
-  arnsRecord?: AoArNSNameData;
+  arnsRecord?: ArNSNameData;
   associatedNames: string[];
   processId: string;
-  antProcess: AoANTWrite | AoANTRead;
+  antProcess: ANTWrite | ANTRead;
   name?: string;
   ticker?: string;
   owner?: string;
@@ -36,8 +36,8 @@ export type DomainInfo = {
     transactionId: string;
     ttlSeconds: number;
   };
-  records?: Record<string, AoANTRecord>;
-  state: AoANTState | null;
+  records?: Record<string, ANTRecord>;
+  state: ANTState | null;
   isInGracePeriod?: boolean;
   /**
    * Arweave GraphQL meta describing the ANT's Lua-process spawn tx. Always
@@ -63,7 +63,7 @@ export function buildDomainInfoQuery({
 }: {
   domain?: string;
   antId?: string;
-  arioContract?: AoARIORead;
+  arioContract?: ARIORead;
   wallet?: ArNSWalletConnector;
   // Legacy AO args — accepted but ignored.
   arioProcessId?: string;

@@ -98,23 +98,6 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@4.0.0-solana.3":
-  version "4.0.0-solana.3"
-  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.0-solana.3.tgz#00b304d7deb136ccad8012d3537a431d5353f74d"
-  integrity sha512-Cvp9kbKhvbnjK5iZmT/3WNuvD2oJGpEUg0b9e9gr2qgbxgg3PmC4VqbnRb375TiHL75WTn7XdFNB2NB3UN7xgQ==
-  dependencies:
-    "@ardrive/turbo-sdk" "^1.19.0"
-    "@dha-team/arbundles" "^1.0.1"
-    "@permaweb/aoconnect" "0.0.68"
-    "@solana-program/compute-budget" "^0.15.0"
-    "@solana/kit" "^6.8.0"
-    arweave "1.15.5"
-    axios "^1.13.2"
-    bs58 "^6.0.0"
-    commander "^12.1.0"
-    eventemitter3 "^5.0.1"
-    prompts "^2.4.2"
-
 "@ar.io/sdk@^3.10.1":
   version "3.14.0"
   resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-3.14.0.tgz#aadfd03ca157d017265df39b12c8f57633303ee5"
@@ -133,6 +116,25 @@
     winston "^3.13.0"
     zod "^3.23.8"
 
+"@ar.io/sdk@^4.0.0-solana.14":
+  version "4.0.0-solana.14"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.0-solana.14.tgz#b5eb5e2550b388f7ca7c2707a13d279f619f60c1"
+  integrity sha512-6Z1/4mclslBh2AZTK3rpHlYIVmX6McF5Y0t7fMEmmcj10deOJe+Mc6fGD7cWJUp2cQzwzOkozl4SqujEKtheQw==
+  dependencies:
+    "@ar.io/solana-contracts" "0.1.0-devnet.0"
+    "@solana-program/compute-budget" "^0.15.0"
+    "@solana-program/token" "^0.13.0"
+    "@solana/kit" "^6.8.0"
+    bs58 "^6.0.0"
+    commander "^12.1.0"
+    prompts "^2.4.2"
+    zod "^3.25.76"
+
+"@ar.io/solana-contracts@0.1.0-devnet.0":
+  version "0.1.0-devnet.0"
+  resolved "https://registry.npmjs.org/@ar.io/solana-contracts/-/solana-contracts-0.1.0-devnet.0.tgz#b03d1fd243b80665bd289232b335a25a22e3795a"
+  integrity sha512-MzdoB2lBHWNqGRi5Ki7a8legTv8YuoymwuahPSQr6lk75UMr7dMz5VWF2ypXLv2GJZODz69ChNSd/eTP7X4n8g==
+
 "@ardrive/turbo-sdk@1.39.2":
   version "1.39.2"
   resolved "https://registry.yarnpkg.com/@ardrive/turbo-sdk/-/turbo-sdk-1.39.2.tgz#6be800b76a77742f2e20547e3506dbe45e1310d8"
@@ -146,30 +148,6 @@
     "@solana/web3.js" "^1.91.7"
     arweave "^1.15.1"
     axios "^1.13.2"
-    bignumber.js "^9.1.2"
-    bs58 "^5.0.0"
-    cli-progress "^3.12.0"
-    commander "^12.1.0"
-    ethers "^6.12.0"
-    eventemitter3 "^5.0.1"
-    mime-types "^2.1.35"
-    plimit-lit "^3.0.1"
-    prompts "^2.4.2"
-    tweetnacl "^1.0.3"
-    x402-fetch "^1.0.0"
-
-"@ardrive/turbo-sdk@^1.19.0":
-  version "1.41.2"
-  resolved "https://registry.npmjs.org/@ardrive/turbo-sdk/-/turbo-sdk-1.41.2.tgz#83637bae16214fa305f7d5e67d9ef95e327d5af5"
-  integrity sha512-SQUannhzLzW+YqoYNfJAod5VLuf30vd0JU+VT2wlAL47UMeCgdgBPbXIJG1NzuMmVu5epL5+JSEaCimpSXrvHw==
-  dependencies:
-    "@cosmjs/proto-signing" "^0.33.1"
-    "@cosmjs/stargate" "^0.33.1"
-    "@dha-team/arbundles" "^1.0.1"
-    "@ethersproject/signing-key" "^5.7.0"
-    "@permaweb/aoconnect" "0.0.57"
-    "@solana/web3.js" "^1.91.7"
-    arweave "^1.15.1"
     bignumber.js "^9.1.2"
     bs58 "^5.0.0"
     cli-progress "^3.12.0"
@@ -4696,6 +4674,11 @@
   resolved "https://registry.npmjs.org/@solana-program/compute-budget/-/compute-budget-0.15.0.tgz#b6e2d1d1314afe6b4af116c0e54eddfd9f5bd54b"
   integrity sha512-toejNdIkzpUTqLSIzP0Nofr/EFel8QpPWuTtIKzfCcjn+mXpkThHxPJaNesk251rSTiWaxDZ3WxG7RxYwTWTqA==
 
+"@solana-program/system@^0.12.0":
+  version "0.12.0"
+  resolved "https://registry.npmjs.org/@solana-program/system/-/system-0.12.0.tgz#a69ebdd9918d5a0d06246555965a59a829991ad9"
+  integrity sha512-ZnAAWeGVMWNtJhw3GdifI2HnhZ0A0H0qs8tBkcFvxp/8wIavvO+GOM4Jd0N22u2+Lni2zcwvcrxrsxj6Mjphng==
+
 "@solana-program/system@^0.8.0":
   version "0.8.1"
   resolved "https://registry.yarnpkg.com/@solana-program/system/-/system-0.8.1.tgz#0711362899ee4a76d2dc0a8ca5176e3426b8458c"
@@ -4705,6 +4688,13 @@
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/@solana-program/token-2022/-/token-2022-0.6.1.tgz#dcc44d56228e34c3b90099d9d3cab97d84c12367"
   integrity sha512-Ex02cruDMGfBMvZZCrggVR45vdQQSI/unHVpt/7HPt/IwFYB4eTlXtO8otYZyqV/ce5GqZ8S6uwyRf0zy6fdbA==
+
+"@solana-program/token@^0.13.0":
+  version "0.13.0"
+  resolved "https://registry.npmjs.org/@solana-program/token/-/token-0.13.0.tgz#6ef44f5fdc9cc4f087fcda3a001da8fe033ab678"
+  integrity sha512-/Apjrd5lwOJGrPB0J5Rv7EBeclvyEBQPAGA85Scm7wBH+GpkbdLDM9uK3TNg8jjFKyWQYai/JtPHbrx7VgFLSg==
+  dependencies:
+    "@solana-program/system" "^0.12.0"
 
 "@solana-program/token@^0.6.0":
   version "0.6.0"
@@ -15581,7 +15571,7 @@ zod@^3.23.5, zod@^3.23.8:
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.23.8.tgz#e37b957b5d52079769fb8097099b592f0ef4067d"
   integrity sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==
 
-zod@^3.24.1, zod@^3.24.2, zod@^3.24.4:
+zod@^3.24.1, zod@^3.24.2, zod@^3.24.4, zod@^3.25.76:
   version "3.25.76"
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.25.76.tgz#26841c3f6fd22a6a2760e7ccb719179768471e34"
   integrity sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==

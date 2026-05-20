@@ -1,4 +1,4 @@
-import { SpawnANTState } from '@ar.io/sdk';
+import { SpawnSolanaANTState } from '@ar.io/sdk';
 import { isAddress as isSolanaAddress } from '@solana/kit';
 import { StepProps } from 'antd';
 
@@ -777,39 +777,21 @@ export function mioToIo(mio: number): number {
 }
 
 export function createDefaultAntState(
-  state: Partial<SpawnANTState>,
-): SpawnANTState {
+  state: Partial<SpawnSolanaANTState>,
+): SpawnSolanaANTState {
   return {
     ticker: 'aos',
     name: 'ANT',
-    controllers: [],
-    balances: {},
-    owner: '',
     description: '',
     keywords: [],
-    records: {
-      ['@']: {
-        transactionId: LANDING_PAGE_TXID.toString(),
-        ttlSeconds: 900,
-        targetProtocol: 0,
-      },
-    },
+    transactionId: LANDING_PAGE_TXID.toString(),
     logo: DEFAULT_ANT_LOGO,
     ...state,
   };
 }
 
-export function createAntStateForOwner(owner: string, targetId?: string) {
+export function createAntStateForOwner(_owner: string, targetId?: string) {
   return createDefaultAntState({
-    owner: owner,
-    controllers: [owner],
-    balances: { [owner]: 1 },
-    records: {
-      ['@']: {
-        transactionId: targetId ?? LANDING_PAGE_TXID.toString(),
-        ttlSeconds: 900,
-        targetProtocol: 0,
-      },
-    },
+    transactionId: targetId ?? LANDING_PAGE_TXID.toString(),
   });
 }

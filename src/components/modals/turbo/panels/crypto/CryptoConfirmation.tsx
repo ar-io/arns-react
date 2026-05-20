@@ -10,10 +10,9 @@
 //
 // To keep the typechecker quiet without rewriting the (dead) branches we
 // alias WALLET_TYPES as `any` and cast `(window as any).ethereum` accesses below.
-import { ArconnectSigner, mARIOToken } from '@ar.io/sdk/web';
+import { mARIOToken } from '@ar.io/sdk/web';
 import {
   ARIOToTokenAmount,
-  ARToTokenAmount,
   ETHToTokenAmount,
   POLToTokenAmount,
   TokenType,
@@ -364,33 +363,7 @@ function CryptoConfirmation({
           window.arweaveWallet &&
           (tokenType === 'arweave' || tokenType === 'ario')
         ) {
-          const signer = new ArconnectSigner(window.arweaveWallet);
-          const turboClient = TurboFactory.authenticated({
-            // arbundles ships two distinct `InjectedArweaveSigner` classes
-            // (one from `arbundles`, one from `@dha-team/arbundles`); the
-            // turbo-sdk types pick one and we get the other through the
-            // RainbowKit dep tree. Same shape, structurally compatible.
-            signer: signer as unknown as Parameters<
-              typeof TurboFactory.authenticated
-            >[0]['signer'],
-            token: tokenType,
-            paymentServiceConfig: {
-              url: turboNetwork.PAYMENT_URL,
-            },
-          });
-
-          let tokenAmount;
-          if (tokenType === 'arweave') {
-            tokenAmount = ARToTokenAmount(cryptoAmount);
-          } else {
-            tokenAmount = ARIOToTokenAmount(cryptoAmount);
-          }
-
-          await turboClient.topUpWithTokens({
-            tokenAmount,
-          });
-
-          onComplete();
+          throw new Error('ArConnect wallet is not supported in Solana mode');
         } else if (walletType === WALLET_TYPES.ETHEREUM) {
           // ARIO payments for ETH wallets use the InjectedEthereumSigner (AO-based token)
           if (tokenType === 'ario') {

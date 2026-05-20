@@ -1,4 +1,4 @@
-import { ANT, AoARIOWrite, AoMessageResult } from '@ar.io/sdk/web';
+import { ANT, ARIOWrite, MessageResult } from '@ar.io/sdk/web';
 import { TransactionAction } from '@src/state/reducers/TransactionReducer';
 import {
   ANT_INTERACTION_TYPES,
@@ -30,7 +30,6 @@ async function buildSolanaAnt(wallet: ArNSWalletConnector, processId: string) {
   }
   const { programIds } = getActiveSolanaConfig();
   return await ANT.init({
-    backend: 'solana',
     processId,
     rpc: getSolanaRpc(),
     rpcSubscriptions: getSolanaRpcSubscriptions(),
@@ -62,7 +61,7 @@ export default async function dispatchANTInteraction({
    * Active ARIO writeable client. Required for `RELEASE_NAME`/`REASSIGN_NAME`
    * because those instructions live on `ario-arns`, not the ANT program.
    */
-  arioContract?: AoARIOWrite;
+  arioContract?: ARIOWrite;
   dispatchTransactionState: Dispatch<TransactionAction>;
   dispatchArNSState: Dispatch<ArNSAction>;
   stepCallback?: (step?: Record<string, string> | string) => Promise<void>;
@@ -82,7 +81,7 @@ export default async function dispatchANTInteraction({
   };
 
   if (!wallet) throw new Error('Wallet is required');
-  let result: AoMessageResult | undefined = undefined;
+  let result: MessageResult | undefined = undefined;
   const antProcess = await buildSolanaAnt(wallet, processId);
 
   // `APPROVE_PRIMARY_NAME` is not modeled on Solana — the protocol auto-
@@ -199,7 +198,7 @@ export default async function dispatchANTInteraction({
         }
         await stepCallback('Releasing ArNS Name, please wait...');
         // `releaseName`/`reassignName` are Solana-only ARIO methods (live on
-        // `SolanaARIOWriteable`, not on the cross-backend `AoARIOWrite`
+        // `SolanaARIOWriteable`, not on the cross-backend `ARIOWrite`
         // interface). Cast to access — Phase 7 should hoist them onto the
         // shared interface.
         result = await (arioContract as any).releaseName(

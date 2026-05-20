@@ -1,11 +1,12 @@
 import { CheckCircleFilled } from '@ant-design/icons';
-import { ANT, AOProcess, mARIOToken } from '@ar.io/sdk/web';
+import { mARIOToken } from '@ar.io/sdk/web';
 import Tooltip from '@src/components/Tooltips/Tooltip';
 import { Accordion } from '@src/components/data-display';
 import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import { useArNSIntentPrice } from '@src/hooks/useArNSIntentPrice';
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import { ValidationError } from '@src/utils/errors';
+import { buildAntRead } from '@src/utils/sdk-init';
 import emojiRegex from 'emoji-regex';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -51,9 +52,7 @@ function RegisterNameForm() {
   // Legacy AO fields kept as no-op placeholders for the existing payload
   // shapes; the Solana dispatchers ignore them.
   const arioProcessId = '';
-  const antAoClient = undefined as unknown as undefined;
   const antRegistryProcessId = '';
-  const hyperbeamUrl = '' as string;
   const [
     { domain, leaseDuration, registrationType, antID, targetId },
     dispatchRegisterState,
@@ -121,13 +120,7 @@ function RegisterNameForm() {
       payload: id,
     });
 
-    const contract = ANT.init({
-      hyperbeamUrl,
-      process: new AOProcess({
-        processId: id.toString(),
-        ao: antAoClient,
-      }),
-    });
+    const contract = await buildAntRead({ processId: id.toString() });
     if (!contract) throw new Error('Contract not found');
   }
 

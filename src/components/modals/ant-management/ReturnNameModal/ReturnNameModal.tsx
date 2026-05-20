@@ -36,10 +36,6 @@ export function ReturnNameModal({
   const navigate = useNavigate();
   const [{ arioContract }] = useGlobalState();
   const arioProcessId = '';
-  const antAoClient = undefined as unknown as undefined;
-  const aoNetwork = { ARIO: { SCHEDULER: '' } } as const;
-  const hyperbeamUrl = '' as string;
-  const antRegistryProcessId = '';
   const [, dispatchArNSState] = useArNSState();
   const [{ signing }, dispatchTransactionState] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
@@ -65,9 +61,6 @@ export function ReturnNameModal({
         dispatchTransactionState,
         dispatchArNSState,
         owner: walletAddress.toString(),
-        ao: antAoClient,
-        hyperbeamUrl,
-        antRegistryProcessId,
       });
       eventEmitter.emit('success', {
         message: (
@@ -98,10 +91,8 @@ export function ReturnNameModal({
         wallet,
         arioContract,
         arioProcessId,
-        antRegistryProcessId,
+        antRegistryProcessId: '',
         dispatch: dispatchArNSState,
-        aoNetworkSettings: aoNetwork,
-        hyperbeamUrl,
       });
       setShow(false);
       navigate('/manage');

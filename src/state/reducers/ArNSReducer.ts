@@ -1,4 +1,4 @@
-import { AoArNSNameData } from '@ar.io/sdk/web';
+import { ArNSNameData } from '@ar.io/sdk/web';
 import { AoAddress } from '@src/types';
 
 import {
@@ -8,8 +8,8 @@ import {
 } from '../contexts/ArNSState';
 
 export type ArNSAction =
-  | { type: 'setDomains'; payload: Record<string, AoArNSNameData> }
-  | { type: 'addDomains'; payload: Record<string, AoArNSNameData> }
+  | { type: 'setDomains'; payload: Record<string, ArNSNameData> }
+  | { type: 'addDomains'; payload: Record<string, ArNSNameData> }
   | {
       type: 'setAnts';
       payload: Record<string, ANTProcessData>;
@@ -62,7 +62,7 @@ export const arnsReducer = (
         ...state,
         // remove domains that are not associated with the ants that are being removed
         domains: Object.entries(state.domains).reduce(
-          (acc: Record<string, AoArNSNameData>, [domain, domainData]) => {
+          (acc: Record<string, ArNSNameData>, [domain, domainData]) => {
             if (!action.payload.includes(domainData.processId)) {
               acc[domain] = domainData;
             }

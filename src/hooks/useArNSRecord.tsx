@@ -1,4 +1,4 @@
-import { AoARIORead, AoArNSNameData } from '@ar.io/sdk/web';
+import { ARIORead, ArNSNameData } from '@ar.io/sdk/web';
 import { useGlobalState } from '@src/state';
 import { isARNSDomainNameValid } from '@src/utils';
 import { arioContractCacheKey } from '@src/utils/sdk-init';
@@ -21,8 +21,8 @@ export function buildArNSRecordQuery({
   arioContract,
 }: {
   name: string | undefined;
-  arioContract: AoARIORead;
-}): Parameters<typeof useQuery<AoArNSNameData>>[0] {
+  arioContract: ARIORead;
+}): Parameters<typeof useQuery<ArNSNameData>>[0] {
   return {
     queryKey: ['arns-record', name, arioContractCacheKey(arioContract)],
     queryFn: async () => {
@@ -44,7 +44,7 @@ export function buildArNSRecordQuery({
 export function useArNSRecord({ name }: { name: string | undefined }) {
   const [{ arioContract }] = useGlobalState();
 
-  return useQuery<AoArNSNameData | null>({
+  return useQuery<ArNSNameData | null>({
     queryKey: ['arns-record', name, arioContractCacheKey(arioContract)],
     queryFn: async () => {
       if (!isARNSDomainNameValid({ name }) || name === undefined)

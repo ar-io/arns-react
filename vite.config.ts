@@ -18,6 +18,7 @@ export default defineConfig({
     esbuildOptions: {
       target: 'esnext',
     },
+    include: ['@ar.io/sdk', '@ar.io/sdk/web'],
     exclude: ['@base-org/account'],
   },
   plugins: [

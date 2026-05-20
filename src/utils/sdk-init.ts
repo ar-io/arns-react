@@ -10,12 +10,7 @@
  * working.
  */
 import { ANT, ARIO } from '@ar.io/sdk/web';
-import type {
-  AoANTRead,
-  AoANTWrite,
-  AoARIORead,
-  AoARIOWrite,
-} from '@ar.io/sdk/web';
+import type { ANTRead, ANTWrite, ARIORead, ARIOWrite } from '@ar.io/sdk/web';
 
 import { ArNSWalletConnector } from '../types';
 import {
@@ -58,7 +53,7 @@ export function buildArio({
   wallet,
 }: {
   wallet?: ArNSWalletConnector;
-} = {}): AoARIORead | AoARIOWrite {
+} = {}): ARIORead | ARIOWrite {
   const { programIds } = getActiveSolanaConfig();
   const ids: Record<string, any> = {};
   if (programIds.coreProgramId) ids.coreProgramId = programIds.coreProgramId;
@@ -68,7 +63,6 @@ export function buildArio({
 
   if (isSolanaWallet(wallet)) {
     return ARIO.init({
-      backend: 'solana',
       rpc: getSolanaRpc(),
       rpcSubscriptions: getSolanaRpcSubscriptions(),
       signer: wallet.solanaSigner,
@@ -76,14 +70,13 @@ export function buildArio({
     });
   }
   return ARIO.init({
-    backend: 'solana',
     rpc: getSolanaRpc(),
     ...ids,
   });
 }
 
 /** Read-only ARIO — Solana, no wallet required. */
-export function buildArioRead(_opts: Record<string, unknown> = {}): AoARIORead {
+export function buildArioRead(_opts: Record<string, unknown> = {}): ARIORead {
   const { programIds } = getActiveSolanaConfig();
   const ids: Record<string, any> = {};
   if (programIds.coreProgramId) ids.coreProgramId = programIds.coreProgramId;
@@ -92,7 +85,6 @@ export function buildArioRead(_opts: Record<string, unknown> = {}): AoARIORead {
   if (programIds.antProgramId) ids.antProgramId = programIds.antProgramId;
 
   return ARIO.init({
-    backend: 'solana',
     rpc: getSolanaRpc(),
     ...ids,
   });
@@ -110,11 +102,10 @@ export async function buildAnt({
   wallet?: ArNSWalletConnector;
   processId: string;
   [k: string]: unknown;
-}): Promise<AoANTRead | AoANTWrite> {
+}): Promise<ANTRead | ANTWrite> {
   const { programIds } = getActiveSolanaConfig();
   if (isSolanaWallet(wallet)) {
     return await ANT.init({
-      backend: 'solana',
       processId,
       rpc: getSolanaRpc(),
       rpcSubscriptions: getSolanaRpcSubscriptions(),
@@ -123,7 +114,6 @@ export async function buildAnt({
     });
   }
   return await ANT.init({
-    backend: 'solana',
     processId,
     rpc: getSolanaRpc(),
     antProgramId: programIds.antProgramId,
@@ -136,10 +126,9 @@ export async function buildAntRead({
 }: {
   processId: string;
   [k: string]: unknown;
-}): Promise<AoANTRead> {
+}): Promise<ANTRead> {
   const { programIds } = getActiveSolanaConfig();
   return await ANT.init({
-    backend: 'solana',
     processId,
     rpc: getSolanaRpc(),
     antProgramId: programIds.antProgramId,

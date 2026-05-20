@@ -1,4 +1,4 @@
-import { AoGateway } from '@ar.io/sdk/web';
+import { Gateway } from '@ar.io/sdk/web';
 import { useGlobalState } from '@src/state';
 import { arioContractCacheKey } from '@src/utils/sdk-init';
 import { useQuery } from '@tanstack/react-query';
@@ -15,7 +15,7 @@ const useGateways = () => {
           acc[gateway.gatewayAddress] = gateway;
           return acc;
         },
-        {} as Record<string, AoGateway>,
+        {} as Record<string, Gateway>,
       );
 
       return gateways;

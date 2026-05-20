@@ -25,9 +25,6 @@ export const ANT_FLAG = 'ant-flag';
 
 function Breadcrumbs() {
   useGlobalState();
-  const aoNetwork = undefined as unknown as undefined;
-  const hyperbeamUrl = '' as string;
-  const antRegistryProcessId = '';
   const queryClient = useQueryClient();
   const location = useLocation();
   const path = location.pathname.split('/');
@@ -65,9 +62,6 @@ function Breadcrumbs() {
         const domainInfo = await queryClient.fetchQuery(
           buildDomainInfoQuery({
             antId: processId,
-            aoNetwork,
-            hyperbeamUrl,
-            antRegistryProcessId,
           }),
         );
         const name = domainInfo?.name;

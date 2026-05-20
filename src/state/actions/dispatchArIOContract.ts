@@ -1,4 +1,4 @@
-import { AoARIORead, AoARIOWrite } from '@ar.io/sdk/web';
+import { ARIORead, ARIOWrite } from '@ar.io/sdk/web';
 import { Dispatch } from 'react';
 
 import { GlobalAction } from '../reducers';
@@ -13,7 +13,7 @@ export function dispatchArIOContract({
   contract,
   dispatch,
 }: {
-  contract: AoARIORead | AoARIOWrite;
+  contract: ARIORead | ARIOWrite;
   arioProcessId?: string; // ignored; kept for caller compatibility
   dispatch: Dispatch<GlobalAction>;
 }) {
