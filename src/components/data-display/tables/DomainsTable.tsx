@@ -9,7 +9,6 @@ import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import {
   ANTProcessData,
   useArNSState,
-  useGlobalState,
   useModalState,
   useTransactionState,
   useWalletState,
@@ -25,7 +24,11 @@ import {
   isArweaveTransactionID,
   lowerCaseDomain,
 } from '@src/utils';
-import { ARNS_DOCS_LINK, PERMANENT_DOMAIN_MESSAGE } from '@src/utils/constants';
+import {
+  ARNS_DOCS_LINK,
+  NETWORK_DEFAULTS,
+  PERMANENT_DOMAIN_MESSAGE,
+} from '@src/utils/constants';
 import { queryClient } from '@src/utils/network';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { capitalize } from 'lodash';
@@ -105,7 +108,6 @@ const DomainsTable = ({
 }) => {
   const navigate = useNavigate();
   const [{ walletAddress }] = useWalletState();
-  const [{ gateway }] = useGlobalState();
   const arioProcessId = '';
   const [{ loading: loadingArnsState }, dispatchArNSState] = useArNSState();
   const [, dispatchModalState] = useModalState();
@@ -244,7 +246,7 @@ const DomainsTable = ({
                     className="link gap-2 w-fit whitespace-nowrap items-center"
                     to={`https://${encodeDomainToASCII(
                       row.getValue('name'),
-                    )}.${gateway}`}
+                    )}.${NETWORK_DEFAULTS.ARNS.HOST}`}
                     target="_blank"
                   >
                     {formatForMaxCharCount(decodeDomainToASCII(rowValue), 20)}{' '}

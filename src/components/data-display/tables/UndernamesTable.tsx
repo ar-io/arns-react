@@ -12,7 +12,6 @@ import { SolanaAddress } from '@src/services/solana/SolanaAddress';
 import { SolanaSignature } from '@src/services/solana/SolanaSignature';
 import {
   useArNSState,
-  useGlobalState,
   useModalState,
   useTransactionState,
   useWalletState,
@@ -32,6 +31,7 @@ import {
   encodePrimaryName,
   formatForMaxCharCount,
 } from '@src/utils';
+import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
@@ -68,7 +68,6 @@ const UndernamesTable = ({
   state?: ANTState | null;
   isLoading: boolean;
 }) => {
-  const [{ gateway }] = useGlobalState();
   const arioProcessId = '';
   const [, dispatchArNSState] = useArNSState();
 
@@ -333,7 +332,7 @@ const UndernamesTable = ({
                     className="link gap-2 items-center w-fit"
                     to={`https://${
                       rowValue === '@' ? '' : `${rowValue}_`
-                    }${encodeDomainToASCII(arnsRecord.name)}.${gateway}`}
+                    }${encodeDomainToASCII(arnsRecord.name)}.${NETWORK_DEFAULTS.ARNS.HOST}`}
                     target="_blank"
                   >
                     {formatForMaxCharCount(decodeDomainToASCII(rowValue), 30)}{' '}
