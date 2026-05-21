@@ -1,3 +1,11 @@
+import {
+  ARIO_ANT_PROGRAM_ID,
+  ARIO_ARNS_PROGRAM_ID,
+  ARIO_CORE_PROGRAM_ID,
+  ARIO_GAR_PROGRAM_ID,
+  DEVNET_ARIO_MINT,
+  DEVNET_PROGRAM_IDS,
+} from '@ar.io/sdk/web';
 /**
  * Solana backend configuration for arns-react.
  *
@@ -59,10 +67,24 @@ const DEFAULT_RPC: Record<SolanaNetwork, { http: string; ws: string }> = {
 
 export { DEFAULT_RPC as SOLANA_DEFAULT_RPC };
 
+const MAINNET_PROGRAM_IDS: SolanaProgramIds = {
+  coreProgramId: ARIO_CORE_PROGRAM_ID,
+  garProgramId: ARIO_GAR_PROGRAM_ID,
+  arnsProgramId: ARIO_ARNS_PROGRAM_ID,
+  antProgramId: ARIO_ANT_PROGRAM_ID,
+};
+
+const DEVNET_PROGRAM_IDS_MAPPED: SolanaProgramIds = {
+  coreProgramId: DEVNET_PROGRAM_IDS.core,
+  garProgramId: DEVNET_PROGRAM_IDS.gar,
+  arnsProgramId: DEVNET_PROGRAM_IDS.arns,
+  antProgramId: DEVNET_PROGRAM_IDS.ant,
+};
+
 /**
- * Per-network preset defaults. Program IDs and mint are blank for localnet
- * (must be supplied via env or manually) and for mainnet/devnet (SDK bakes in
- * its own defaults when omitted).
+ * Per-network preset defaults. Devnet uses real deployed program IDs from the
+ * SDK; mainnet/testnet use the SDK's baked-in defaults. Localnet IDs are
+ * typically overridden via env vars or the Settings UI.
  */
 export const SOLANA_NETWORK_PRESETS: Record<
   SolanaNetwork,
@@ -78,19 +100,20 @@ export const SOLANA_NETWORK_PRESETS: Record<
     network: 'devnet',
     rpcUrl: DEFAULT_RPC.devnet.http,
     rpcWsUrl: DEFAULT_RPC.devnet.ws,
-    programIds: {},
+    programIds: { ...DEVNET_PROGRAM_IDS_MAPPED },
+    mintAddress: DEVNET_ARIO_MINT.toString(),
   },
   'mainnet-beta': {
     network: 'mainnet-beta',
     rpcUrl: DEFAULT_RPC['mainnet-beta'].http,
     rpcWsUrl: DEFAULT_RPC['mainnet-beta'].ws,
-    programIds: {},
+    programIds: { ...MAINNET_PROGRAM_IDS },
   },
   testnet: {
     network: 'testnet',
     rpcUrl: DEFAULT_RPC.testnet.http,
     rpcWsUrl: DEFAULT_RPC.testnet.ws,
-    programIds: {},
+    programIds: { ...MAINNET_PROGRAM_IDS },
   },
 };
 
@@ -124,7 +147,8 @@ function deriveDefaultNetwork(): SolanaNetwork {
   if (explicit) return explicit;
 
   const env = import.meta.env.VITE_ENVIRONMENT as string | undefined;
-  if (env === 'production' || env === 'develop') return 'devnet';
+  if (env === 'production') return 'mainnet-beta';
+  if (env === 'develop') return 'devnet';
 
   return 'localnet';
 }
@@ -141,10 +165,15 @@ function buildInitialConfig(): SolanaNetworkConfig {
     rpcWsUrl:
       import.meta.env.VITE_SOLANA_RPC_WS_URL ?? DEFAULT_RPC[envNetwork].ws,
     programIds: {
-      coreProgramId: optAddress(import.meta.env.VITE_ARIO_CORE_PROGRAM_ID),
-      garProgramId: optAddress(import.meta.env.VITE_ARIO_GAR_PROGRAM_ID),
-      arnsProgramId: optAddress(import.meta.env.VITE_ARIO_ARNS_PROGRAM_ID),
-      antProgramId: optAddress(import.meta.env.VITE_ARIO_ANT_PROGRAM_ID),
+      ...SOLANA_NETWORK_PRESETS[envNetwork].programIds,
+      ...Object.fromEntries(
+        Object.entries({
+          coreProgramId: optAddress(import.meta.env.VITE_ARIO_CORE_PROGRAM_ID),
+          garProgramId: optAddress(import.meta.env.VITE_ARIO_GAR_PROGRAM_ID),
+          arnsProgramId: optAddress(import.meta.env.VITE_ARIO_ARNS_PROGRAM_ID),
+          antProgramId: optAddress(import.meta.env.VITE_ARIO_ANT_PROGRAM_ID),
+        }).filter(([, v]) => v !== undefined),
+      ),
     },
     mintAddress: import.meta.env.VITE_ARIO_MINT_ADDRESS || undefined,
   };
