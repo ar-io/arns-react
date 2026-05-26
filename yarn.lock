@@ -98,6 +98,32 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
+"@ar.io/sdk@../ar-io-sdk":
+  version "4.0.0-solana.14"
+  dependencies:
+    "@ar.io/solana-contracts" "^0.3.0"
+    "@solana-program/compute-budget" "^0.15.0"
+    "@solana-program/token" "^0.13.0"
+    "@solana/kit" "^6.8.0"
+    bs58 "^6.0.0"
+    commander "^12.1.0"
+    prompts "^2.4.2"
+    zod "^3.25.76"
+
+"@ar.io/sdk@4.0.0-solana.15":
+  version "4.0.0-solana.15"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.0-solana.15.tgz#27cf89c70a2c8d2857862072d9bd374a44656afc"
+  integrity sha512-kh864BZDNQqGLzVE9mzwozsomHJHONHzNddpVCA4Pxdb+VyJQfR99lerU82XGYmd14bUmqi74PM8RCX2+Nvm/Q==
+  dependencies:
+    "@ar.io/solana-contracts" "0.1.0-devnet.0"
+    "@solana-program/compute-budget" "^0.15.0"
+    "@solana-program/token" "^0.13.0"
+    "@solana/kit" "^6.8.0"
+    bs58 "^6.0.0"
+    commander "^12.1.0"
+    prompts "^2.4.2"
+    zod "^3.25.76"
+
 "@ar.io/sdk@^3.10.1":
   version "3.14.0"
   resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-3.14.0.tgz#aadfd03ca157d017265df39b12c8f57633303ee5"
@@ -116,24 +142,18 @@
     winston "^3.13.0"
     zod "^3.23.8"
 
-"@ar.io/sdk@^4.0.0-solana.14":
-  version "4.0.0-solana.14"
-  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.0-solana.14.tgz#b5eb5e2550b388f7ca7c2707a13d279f619f60c1"
-  integrity sha512-6Z1/4mclslBh2AZTK3rpHlYIVmX6McF5Y0t7fMEmmcj10deOJe+Mc6fGD7cWJUp2cQzwzOkozl4SqujEKtheQw==
-  dependencies:
-    "@ar.io/solana-contracts" "0.1.0-devnet.0"
-    "@solana-program/compute-budget" "^0.15.0"
-    "@solana-program/token" "^0.13.0"
-    "@solana/kit" "^6.8.0"
-    bs58 "^6.0.0"
-    commander "^12.1.0"
-    prompts "^2.4.2"
-    zod "^3.25.76"
-
 "@ar.io/solana-contracts@0.1.0-devnet.0":
   version "0.1.0-devnet.0"
   resolved "https://registry.npmjs.org/@ar.io/solana-contracts/-/solana-contracts-0.1.0-devnet.0.tgz#b03d1fd243b80665bd289232b335a25a22e3795a"
   integrity sha512-MzdoB2lBHWNqGRi5Ki7a8legTv8YuoymwuahPSQr6lk75UMr7dMz5VWF2ypXLv2GJZODz69ChNSd/eTP7X4n8g==
+
+"@ar.io/solana-contracts@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.npmjs.org/@ar.io/solana-contracts/-/solana-contracts-0.3.0.tgz#27853df9f16b39422e2b01c67ae167493cb7bb38"
+  integrity sha512-mqJOmGf9LNDXi/uDNV1fjEOmPFQr4RhxpO5qlKOSou9DKaI35p8b4XuoWcncj0sU+qqVKn4CQUe3eYf/GjLWrg==
+  dependencies:
+    "@noble/hashes" "^1.5.0"
+    bs58 "^6.0.0"
 
 "@ardrive/turbo-sdk@1.39.2":
   version "1.39.2"

@@ -1,6 +1,6 @@
 import Prices from '@src/components/pages/Prices/Prices';
 import RNPPage from '@src/components/pages/RNPPage/RNPPage';
-import { Bolt, CircleDollarSignIcon, Gavel } from 'lucide-react';
+import { CircleDollarSignIcon, Gavel, Globe } from 'lucide-react';
 
 import { Home, Manage } from '../components/pages';
 
@@ -9,8 +9,8 @@ const WrappedGavelIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
   return <Gavel {...props} />;
 };
 
-const WrappedBoltIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
-  return <Bolt {...props} />;
+const WrappedGlobeIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
+  return <Globe {...props} />;
 };
 
 const WrappedDollarSignIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
@@ -55,7 +55,7 @@ export const ROUTES: { [x: string]: Route } = {
   },
   manage: {
     text: 'Manage Assets',
-    icon: WrappedBoltIcon,
+    icon: WrappedGlobeIcon,
     path: '/manage',
     component: Manage,
     protected: false,

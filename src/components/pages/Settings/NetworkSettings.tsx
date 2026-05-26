@@ -265,13 +265,20 @@ function getFieldValue(
   }
 }
 
+function tryAddress(raw: string) {
+  try {
+    return raw.length > 0 ? address(raw) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 function setFieldValue(
   config: SolanaNetworkConfig,
   key: SolanaFieldKey,
   value: string,
 ): SolanaNetworkConfig {
   const trimmed = value.trim();
-  const optAddr = trimmed.length > 0 ? address(trimmed) : undefined;
 
   switch (key) {
     case 'rpcUrl':
@@ -283,22 +290,28 @@ function setFieldValue(
     case 'coreProgramId':
       return {
         ...config,
-        programIds: { ...config.programIds, coreProgramId: optAddr },
+        programIds: {
+          ...config.programIds,
+          coreProgramId: tryAddress(trimmed),
+        },
       };
     case 'garProgramId':
       return {
         ...config,
-        programIds: { ...config.programIds, garProgramId: optAddr },
+        programIds: { ...config.programIds, garProgramId: tryAddress(trimmed) },
       };
     case 'arnsProgramId':
       return {
         ...config,
-        programIds: { ...config.programIds, arnsProgramId: optAddr },
+        programIds: {
+          ...config.programIds,
+          arnsProgramId: tryAddress(trimmed),
+        },
       };
     case 'antProgramId':
       return {
         ...config,
-        programIds: { ...config.programIds, antProgramId: optAddr },
+        programIds: { ...config.programIds, antProgramId: tryAddress(trimmed) },
       };
   }
 }
@@ -329,7 +342,9 @@ function SolanaNetworkPanel({
           ? { ...preset.programIds, ...envConfig.programIds }
           : preset.programIds,
       mintAddress:
-        envConfig.network === network ? envConfig.mintAddress : undefined,
+        envConfig.network === network
+          ? envConfig.mintAddress
+          : preset.mintAddress,
     };
 
     setDraft(merged);

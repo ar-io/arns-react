@@ -52,8 +52,8 @@ const DEFAULT_RPC: Record<SolanaNetwork, { http: string; ws: string }> = {
     ws: 'wss://api.mainnet-beta.solana.com',
   },
   devnet: {
-    http: 'https://api.devnet.solana.com',
-    ws: 'wss://api.devnet.solana.com',
+    http: 'https://still-stylish-diagram.solana-devnet.quiknode.pro/7bb783112e4f06d72eeb7ca7125bbce97009438f/',
+    ws: 'wss://still-stylish-diagram.solana-devnet.quiknode.pro/7bb783112e4f06d72eeb7ca7125bbce97009438f/',
   },
   testnet: {
     http: 'https://api.testnet.solana.com',
@@ -175,7 +175,9 @@ function buildInitialConfig(): SolanaNetworkConfig {
         }).filter(([, v]) => v !== undefined),
       ),
     },
-    mintAddress: import.meta.env.VITE_ARIO_MINT_ADDRESS || undefined,
+    mintAddress:
+      import.meta.env.VITE_ARIO_MINT_ADDRESS ||
+      SOLANA_NETWORK_PRESETS[envNetwork].mintAddress,
   };
 }
 
