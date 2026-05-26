@@ -15,17 +15,14 @@ export function useTurboArNSClient() {
   const [{ wallet, walletAddress }] = useWalletState();
   const stripe = useStripe();
   return useMemo(() => {
-    // temporarily disable turbo arns client during solana migration
-    // TODO: re-enable after solana migration
-    return null;
-    // if (!stripe) {
-    //   return null;
-    // }
-    // return new TurboArNSClient({
-    //   walletAddress: walletAddress?.toString(),
-    //   paymentUrl: turboNetwork.PAYMENT_URL,
-    //   stripe,
-    // });
+    if (!stripe) {
+      return null;
+    }
+    return new TurboArNSClient({
+      walletAddress: walletAddress?.toString(),
+      paymentUrl: turboNetwork.PAYMENT_URL,
+      stripe,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletAddress, wallet, turboNetwork, stripe]);
 }

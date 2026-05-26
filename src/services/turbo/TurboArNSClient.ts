@@ -14,6 +14,7 @@ import { connect } from '@permaweb/aoconnect';
 import {
   isArweaveTransactionID,
   isEthAddress,
+  isValidSolanaAddress,
   lowerCaseDomain,
   sleep,
 } from '@src/utils';
@@ -160,7 +161,9 @@ export class TurboArNSClient {
         ? 'arweave'
         : isEthAddress(this.walletAddress ?? '')
           ? 'ethereum'
-          : undefined,
+          : isValidSolanaAddress(this.walletAddress ?? '')
+            ? 'solana'
+            : undefined,
     });
     this.arioProcessId =
       this.paymentUrl === devPaymentServiceFqdn
