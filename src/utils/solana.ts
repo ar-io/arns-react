@@ -125,7 +125,14 @@ const SOLANA_SETTINGS_KEY = 'arns-solana-settings';
 function loadSolanaSettingsFromStorage(): SolanaNetworkConfig | null {
   try {
     const raw = localStorage.getItem(SOLANA_SETTINGS_KEY);
-    if (raw) return JSON.parse(raw) as SolanaNetworkConfig;
+    if (!raw) return null;
+    const saved = JSON.parse(raw) as SolanaNetworkConfig;
+    const preset = SOLANA_NETWORK_PRESETS[saved.network];
+    if (preset) {
+      saved.programIds = { ...preset.programIds, ...saved.programIds };
+      saved.mintAddress ??= preset.mintAddress;
+    }
+    return saved;
   } catch {
     /* ignore corrupt storage */
   }
