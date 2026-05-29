@@ -98,6 +98,20 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
+"@ar.io/sdk@4.0.0-solana.22":
+  version "4.0.0-solana.22"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.0-solana.22.tgz#0bdc5698f0ad76c34d842b83af2eb405205ea41d"
+  integrity sha512-6Diug3UzO5dbOlAcJyONunuzAlea3jFkgIdWeWDnq36mj+z9PLM9AvdkO8I/7wKCuAHVy/u++UJDIdUwM/TBfA==
+  dependencies:
+    "@ar.io/solana-contracts" "0.4.0"
+    "@solana-program/compute-budget" "^0.15.0"
+    "@solana-program/token" "^0.13.0"
+    "@solana/kit" "^6.8.0"
+    bs58 "^6.0.0"
+    commander "^12.1.0"
+    prompts "^2.4.2"
+    zod "^3.25.76"
+
 "@ar.io/sdk@^3.10.1":
   version "3.14.0"
   resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-3.14.0.tgz#aadfd03ca157d017265df39b12c8f57633303ee5"
@@ -116,24 +130,10 @@
     winston "^3.13.0"
     zod "^3.23.8"
 
-"@ar.io/sdk@^4.0.0-solana.16":
-  version "4.0.0-solana.16"
-  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.0-solana.16.tgz#152e4c18dd04bfe7acdeee71fe1a2dc1b59871a2"
-  integrity sha512-gGspSHZJRtA086MhVFWSpKfB9tQgWq2H6oP8XfIjWr1ms/6vIWu38vYc6uyE8IP12aE52WeRSs1+cdVkt//K2A==
-  dependencies:
-    "@ar.io/solana-contracts" "^0.3.0"
-    "@solana-program/compute-budget" "^0.15.0"
-    "@solana-program/token" "^0.13.0"
-    "@solana/kit" "^6.8.0"
-    bs58 "^6.0.0"
-    commander "^12.1.0"
-    prompts "^2.4.2"
-    zod "^3.25.76"
-
-"@ar.io/solana-contracts@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.npmjs.org/@ar.io/solana-contracts/-/solana-contracts-0.3.0.tgz#27853df9f16b39422e2b01c67ae167493cb7bb38"
-  integrity sha512-mqJOmGf9LNDXi/uDNV1fjEOmPFQr4RhxpO5qlKOSou9DKaI35p8b4XuoWcncj0sU+qqVKn4CQUe3eYf/GjLWrg==
+"@ar.io/solana-contracts@0.4.0":
+  version "0.4.0"
+  resolved "https://registry.npmjs.org/@ar.io/solana-contracts/-/solana-contracts-0.4.0.tgz#f658a2bcb926451188302cbbcc4a1d1f49f875ee"
+  integrity sha512-rLQVlNS1YBJq2cG5xu9qOmWF0qOPiLXD0AGVlW2WFeNxIXLvDYiARXLJXQ26kvnfIED/Fx3X5cg7Y4m4L1ZF4A==
   dependencies:
     "@noble/hashes" "^1.5.0"
     bs58 "^6.0.0"

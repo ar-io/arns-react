@@ -1,4 +1,28 @@
 import { mARIOToken } from '@ar.io/sdk';
+import {
+  getPrimaryNamePDA,
+  getPrimaryNameReversePDA,
+  hashName,
+} from '@ar.io/sdk/web';
+import {
+  getMigratePrimaryNameReverseInstruction,
+  getRemovePrimaryNameInstructionAsync,
+} from '@ar.io/solana-contracts/core';
+import {
+  getSetComputeUnitLimitInstruction,
+  getSetComputeUnitPriceInstruction,
+} from '@solana-program/compute-budget';
+import {
+  appendTransactionMessageInstructions,
+  createTransactionMessage,
+  fetchEncodedAccount,
+  getSignatureFromTransaction,
+  pipe,
+  sendAndConfirmTransactionFactory,
+  setTransactionMessageFeePayerSigner,
+  setTransactionMessageLifetimeUsingBlockhash,
+  signTransactionMessageWithSigners,
+} from '@solana/kit';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
@@ -27,6 +51,11 @@ import {
   formatARIOWithCommas,
 } from '@src/utils';
 import eventEmitter from '@src/utils/events';
+import {
+  getActiveSolanaConfig,
+  getSolanaRpc,
+  getSolanaRpcSubscriptions,
+} from '@src/utils/solana';
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowDown } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -36,6 +65,7 @@ import DialogModal from '../DialogModal/DialogModal';
 enum PRIMARY_NAME_WORKFLOWS {
   REQUEST = 'Set Primary Name',
   CHANGE = 'Change Primary Name',
+  REMOVE = 'Remove Primary Name',
 }
 
 function isPrimaryNameRequest(
@@ -123,7 +153,9 @@ function PrimaryNameModal({
   >();
 
   useEffect(() => {
-    if (
+    if (isRemovePrimaryNamesPayload(transactionData)) {
+      setWorkflow(PRIMARY_NAME_WORKFLOWS.REMOVE);
+    } else if (
       isPrimaryNameRequest(transactionData) &&
       primaryNameData === undefined
     ) {
@@ -184,6 +216,94 @@ function PrimaryNameModal({
             dispatch: dispatchTransactionState,
           });
 
+          break;
+        }
+        case PRIMARY_NAME_WORKFLOWS.REMOVE: {
+          dispatchTransactionState({ type: 'setSigning', payload: true });
+          try {
+            const rpc = getSolanaRpc();
+            const rpcSubscriptions = getSolanaRpcSubscriptions();
+            const signer = wallet.solanaSigner;
+            const { programIds } = getActiveSolanaConfig();
+            const coreProgram = programIds.coreProgramId;
+
+            const [primaryNamePda] = coreProgram
+              ? await getPrimaryNamePDA(signer.address, coreProgram)
+              : await getPrimaryNamePDA(signer.address);
+
+            const [primaryNameReversePda] = coreProgram
+              ? await getPrimaryNameReversePDA(targetName, coreProgram)
+              : await getPrimaryNameReversePDA(targetName);
+
+            const ixs: any[] = [];
+
+            const reverseAccount = await fetchEncodedAccount(
+              rpc,
+              primaryNameReversePda,
+              { commitment: 'confirmed' },
+            );
+            if (!reverseAccount.exists) {
+              ixs.push(
+                getMigratePrimaryNameReverseInstruction(
+                  { reverse: primaryNameReversePda, payer: signer },
+                  coreProgram ? { programAddress: coreProgram } : undefined,
+                ),
+              );
+            }
+
+            ixs.push(
+              await getRemovePrimaryNameInstructionAsync(
+                {
+                  primaryName: primaryNamePda,
+                  primaryNameReverse: primaryNameReversePda,
+                  owner: signer,
+                  reverseLookupHash: hashName(targetName),
+                },
+                coreProgram ? { programAddress: coreProgram } : undefined,
+              ),
+            );
+
+            const { value: latestBlockhash } = await rpc
+              .getLatestBlockhash()
+              .send();
+
+            const message = pipe(
+              createTransactionMessage({ version: 0 }),
+              (tx) => setTransactionMessageFeePayerSigner(signer, tx),
+              (tx) =>
+                setTransactionMessageLifetimeUsingBlockhash(
+                  latestBlockhash,
+                  tx,
+                ),
+              (tx) =>
+                appendTransactionMessageInstructions(
+                  [
+                    getSetComputeUnitLimitInstruction({ units: 400_000 }),
+                    getSetComputeUnitPriceInstruction({ microLamports: 0n }),
+                    ...ixs,
+                  ],
+                  tx,
+                ),
+            );
+
+            const signedTx = await signTransactionMessageWithSigners(message);
+            const sendAndConfirm = sendAndConfirmTransactionFactory({
+              rpc: rpc as any,
+              rpcSubscriptions: rpcSubscriptions as any,
+            });
+            await sendAndConfirm(signedTx as any, { commitment: 'confirmed' });
+            const sig = getSignatureFromTransaction(signedTx);
+
+            result = {
+              deployer: walletAddress.toString(),
+              processId: domainData.processId,
+              id: sig,
+              type: 'interaction',
+              payload: transactionPayload,
+            };
+          } finally {
+            dispatchTransactionState({ type: 'setSigning', payload: false });
+          }
           break;
         }
         default:

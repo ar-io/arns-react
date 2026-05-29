@@ -164,76 +164,77 @@ const ReturnedNamesTable = ({
         ),
       );
 
-      // calculate current price
-      if (!res.returnedNameDetails) {
-        throw new Error('Returned Name Details not found');
+      if (res.returnedNameDetails) {
+        const {
+          startTimestamp,
+          endTimestamp,
+          basePrice: endPrice,
+        } = res.returnedNameDetails;
+        const startPrice = endPrice * START_RNP_PREMIUM;
+        const percent =
+          (dateNow - startTimestamp) / (endTimestamp - startTimestamp);
+        return Math.round(startPrice + (endPrice - startPrice) * percent);
       }
-      const {
-        startTimestamp,
-        endTimestamp,
-        basePrice: endPrice,
-      } = res.returnedNameDetails;
-      const startPrice = endPrice * START_RNP_PREMIUM;
-      const percent =
-        (dateNow - startTimestamp) / (endTimestamp - startTimestamp);
-      return Math.round(startPrice + (endPrice - startPrice) * percent);
+
+      // Solana backend: tokenCost already includes the auction premium
+      return res.tokenCost;
     } catch (error: any) {
       return new Error(error.message);
     }
   }
   useEffect(() => {
     async function updatePrices() {
-      // Filter rows that need price updates
       const rowsToUpdate = tableData.filter(
         (row) =>
-          row.leasePrice instanceof Error ||
-          row.leasePrice < 0 ||
-          row.permabuy instanceof Error ||
-          row.permabuy < 0,
+          (row.leasePrice instanceof Error ||
+            row.leasePrice < 0 ||
+            row.permabuy instanceof Error ||
+            row.permabuy < 0) &&
+          ((row as any)._priceRetries ?? 0) < 3,
       );
 
       if (rowsToUpdate.length === 0) {
-        // No rows need updates, exit early
         return;
       }
 
       const updatedData = await Promise.all(
         tableData.map(async (row) => {
+          const retries = (row as any)._priceRetries ?? 0;
           if (
-            row.leasePrice instanceof Error ||
-            row.leasePrice < 0 ||
-            row.permabuy instanceof Error ||
-            row.permabuy < 0
+            (row.leasePrice instanceof Error ||
+              row.leasePrice < 0 ||
+              row.permabuy instanceof Error ||
+              row.permabuy < 0) &&
+            retries < 3
           ) {
-            // Fetch lease price
             const leasePrice = await fetchPrice(
               row.name,
               TRANSACTION_TYPES.LEASE,
             );
-            // Fetch permabuy price
             const permabuyPrice = await fetchPrice(
               row.name,
               TRANSACTION_TYPES.BUY,
             );
 
-            // Return updated row with fetched prices
             return {
               ...row,
               leasePrice,
               permabuy: permabuyPrice,
+              _priceRetries:
+                leasePrice instanceof Error || permabuyPrice instanceof Error
+                  ? retries + 1
+                  : retries,
             };
           }
-          // Return the row unchanged if no update is needed
           return row;
         }),
       );
 
-      // Set updated table data
       setTableData(updatedData);
     }
 
     updatePrices();
-  }, [tableData]); // Re-run only when `tableData` changes
+  }, [tableData]);
 
   useEffect(() => {
     if (filter) {
@@ -340,18 +341,24 @@ const ReturnedNamesTable = ({
           }
           case 'leasePrice':
           case 'permabuy': {
-            if (rowValue instanceof Error)
+            if (rowValue instanceof Error) {
+              if ((row.original as any)._priceRetries >= 3) {
+                return (
+                  <Tooltip
+                    message={rowValue.message}
+                    icon={
+                      <span className="text-error">
+                        Price Error{' '}
+                        <CircleAlertIcon width={'18px'} height={'18px'} />
+                      </span>
+                    }
+                  />
+                );
+              }
               return (
-                <Tooltip
-                  message={rowValue.message}
-                  icon={
-                    <span className="text-error">
-                      Price Error{' '}
-                      <CircleAlertIcon width={'18px'} height={'18px'} />
-                    </span>
-                  }
-                />
+                <span className="text-white animate-pulse">Loading...</span>
               );
+            }
             if (rowValue < 0)
               return (
                 <span className="text-white animate-pulse">Loading...</span>
@@ -443,6 +450,8 @@ const ReturnedNamesTable = ({
             type: purchaseType,
           }}
           dateNow={dateNow}
+          startTimestamp={row.original.startDate}
+          endTimestamp={row.original.closingDate}
         />
       </div>
     );
