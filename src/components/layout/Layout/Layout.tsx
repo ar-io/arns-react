@@ -1,19 +1,14 @@
 import { useArNSState } from '@src/state';
 import { Progress } from 'antd';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
 import Footer from '../Footer/Footer';
 import NavBar from '../Navbar/Navbar';
 import Notifications from '../Notifications/Notifications';
-import TopBanner from './TopBanner';
 import './styles.css';
 
 function Layout() {
-  const location = useLocation();
   const [{ percentLoaded }] = useArNSState();
-
-  // TODO: Remove banner once Solana migration is complete and purchases are re-enabled
-  const showBanner = location.pathname !== '/settings';
 
   return (
     <div
@@ -25,7 +20,6 @@ function Layout() {
         height: '100vh',
       }}
     >
-      {showBanner && <TopBanner />}
       <div
         id="layout"
         className="flex flex-row"

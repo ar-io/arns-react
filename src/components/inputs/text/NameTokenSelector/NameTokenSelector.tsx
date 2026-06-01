@@ -370,7 +370,7 @@ function NameTokenSelector({
               ? selectedToken.name?.length
                 ? selectedToken.name
                 : selectedToken.id
-              : 'Add an Arweave Name Token (ANT)'
+              : 'Add an Ar.io Name Token (ANT)'
           }
           validationPredicates={{
             [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {

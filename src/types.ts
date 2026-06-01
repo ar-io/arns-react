@@ -182,7 +182,7 @@ export enum TRANSACTION_TYPES {
 
 export enum CONTRACT_TYPES {
   REGISTRY = 'ARNS Registry',
-  ANT = 'Arweave Name Token',
+  ANT = 'Ar.io Name Token',
 }
 
 export enum ASSET_TYPES {
@@ -247,7 +247,7 @@ export enum INTERACTION_TYPES {
   SET_RECORD = 'Add Record',
   EDIT_RECORD = 'Edit Record',
   REMOVE_RECORD = 'Delete Record',
-  CREATE = 'Create Arweave Name Token',
+  CREATE = 'Create Ar.io Name Token',
   TRANSFER_ANT = 'Transfer ANT',
 
   // Common interaction types

@@ -31,7 +31,6 @@ export const APP_VERSION = __NPM_PACKAGE_VERSION__ || '1.0.0';
 export const ARNS_PURCHASES_DISABLED = false;
 export const ARNS_PURCHASES_DISABLED_TOOLTIP =
   'Purchases are paused during the migration to Solana and will resume shortly.';
-export const SOLANA_MIGRATION_LINK = 'https://ar.io/solana-migration/';
 
 export const WRITE_OPTIONS = {
   tags: [

@@ -1,6 +1,6 @@
 # arns-react
 
-A React App for the Arweave Name System Registry, which lets users search for
+A React App for the Ar.io Name System Registry, which lets users search for
 and purchase Names.
 
 ## Getting Started

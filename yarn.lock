@@ -98,10 +98,8 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@4.0.0-solana.22":
+"@ar.io/sdk@../ar-io-sdk":
   version "4.0.0-solana.22"
-  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.0-solana.22.tgz#0bdc5698f0ad76c34d842b83af2eb405205ea41d"
-  integrity sha512-6Diug3UzO5dbOlAcJyONunuzAlea3jFkgIdWeWDnq36mj+z9PLM9AvdkO8I/7wKCuAHVy/u++UJDIdUwM/TBfA==
   dependencies:
     "@ar.io/solana-contracts" "0.4.0"
     "@solana-program/compute-budget" "^0.15.0"
@@ -109,6 +107,7 @@
     "@solana/kit" "^6.8.0"
     bs58 "^6.0.0"
     commander "^12.1.0"
+    opossum "^9.0.0"
     prompts "^2.4.2"
     zod "^3.25.76"
 
@@ -12068,6 +12067,11 @@ opener@^1.5.1:
   version "1.5.2"
   resolved "https://registry.yarnpkg.com/opener/-/opener-1.5.2.tgz#5d37e1f35077b9dcac4301372271afdeb2a13598"
   integrity sha512-ur5UIdyw5Y7yEj9wLzhqXiy6GZ3Mwx0yGI+5sMn2r0N0v3cKJvUmFH5yPP+WXh9e0xfyzyJX95D8l088DNFj7A==
+
+opossum@^9.0.0:
+  version "9.0.0"
+  resolved "https://registry.npmjs.org/opossum/-/opossum-9.0.0.tgz#0f8050377d16324f5bf17d771ea8f6821375e209"
+  integrity sha512-K76U0QkxOfUZamneQuzz+AP0fyfTJcCplZ2oZL93nxeupuJbN4s6uFNbmVCt4eWqqGqRnnowdFuBicJ1fLMVxw==
 
 os-browserify@^0.3.0:
   version "0.3.0"

@@ -267,8 +267,8 @@ export function ReassignNameModal({
             </button>
           </div>
           <span className="text-sm">
-            You are about to reassign your name registration from one ANT
-            (Arweave Name Token) to another.
+            You are about to reassign your name registration from one ANT (Ar.io
+            Name Token) to another.
           </span>
           <div className="flex flex-row w-full items-center justify-center gap-3 text-sm">
             <button
@@ -527,7 +527,7 @@ export function ReassignNameModal({
             <div className="flex flex-col text-white max-w-[32rem] max-h-[40rem] gap-8 pb-4">
               <span>
                 You are about to reassign your name registration from one ANT
-                (Arweave Name Token) to another. Once completed:
+                (Ar.io Name Token) to another. Once completed:
               </span>
               <ul className="flex flex-col pl-6 list-disc gap-2">
                 <li>
@@ -608,7 +608,7 @@ export function ReassignNameModal({
             <div className="flex flex-col text-white max-w-[32rem] max-h-[40rem] gap-6 pb-4">
               <span>
                 You are about to reassign your name registration from one ANT
-                (Arweave Name Token) to a new ANT.
+                (Ar.io Name Token) to a new ANT.
               </span>
               <RadioGroup
                 value={workflow ?? REASSIGN_NAME_WORKFLOWS.NEW_EXISTING}

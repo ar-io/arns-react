@@ -5,6 +5,8 @@ import {
   ARIO_GAR_PROGRAM_ID,
   DEVNET_ARIO_MINT,
   DEVNET_PROGRAM_IDS,
+  createCircuitBreakerRpc,
+  defaultFallbackUrl,
 } from '@ar.io/sdk/web';
 /**
  * Solana backend configuration for arns-react.
@@ -24,8 +26,6 @@ import {
   type Address,
   type Commitment,
   address,
-  createDefaultRpcTransport,
-  createSolanaRpcFromTransport,
   createSolanaRpcSubscriptions,
 } from '@solana/kit';
 
@@ -226,66 +226,18 @@ export function setSolanaConfig(config: SolanaNetworkConfig) {
   saveSolanaSettingsToStorage(config);
 }
 
-let _rpc: ReturnType<typeof createSolanaRpcFromTransport> | undefined;
+let _rpc: ReturnType<typeof createCircuitBreakerRpc> | undefined;
 let _rpcSubscriptions:
   | ReturnType<typeof createSolanaRpcSubscriptions>
   | undefined;
 
-/**
- * Wrap kit's default HTTP transport to defend against Surfpool's non-conformant
- * JSON-RPC error shape.
- *
- * For preflight failures (`code === -32002`) Surfpool sometimes returns
- * `{ error: { code, message } }` with **no `data` field**. Kit's
- * `getSolanaErrorFromJsonRpcError` unconditionally destructures
- * `const { err, ...rest } = data` for that code, which throws
- * `TypeError: Cannot destructure property 'err' of 'data' as it is undefined.`
- * — masking the real transaction failure.
- *
- * We inject a stub `data` so kit's destructure succeeds and surfaces a proper
- * `SolanaError` with the server message. This is a no-op for any response that
- * already includes `error.data`, so mainnet/devnet behaviour is unaffected.
- */
-function createSurfpoolFriendlyTransport(url: string) {
-  const inner = createDefaultRpcTransport({ url });
-  return async function transport<TResponse>(
-    config: Parameters<typeof inner>[0],
-  ): Promise<TResponse> {
-    const response = (await inner(config)) as
-      | { result: unknown }
-      | { error: { code: number; message: string; data?: unknown } };
-
-    if (
-      typeof response === 'object' &&
-      response !== null &&
-      'error' in response &&
-      response.error &&
-      typeof response.error === 'object' &&
-      (response.error.data === undefined || response.error.data === null)
-    ) {
-      console.warn(
-        '[solana-rpc] patching JSON-RPC error response with missing `data` (likely Surfpool):',
-        response.error,
-      );
-      response.error.data = {
-        err: null,
-        logs: null,
-        accounts: null,
-        unitsConsumed: null,
-        returnData: null,
-      };
-    }
-
-    return response as TResponse;
-  };
-}
-
-/** Memoised kit RPC client — rebuilt after `setSolanaConfig()`. */
+/** Memoised kit RPC client with circuit breaker — rebuilt after `setSolanaConfig()`. */
 export function getSolanaRpc() {
   if (!_rpc) {
-    _rpc = createSolanaRpcFromTransport(
-      createSurfpoolFriendlyTransport(_activeConfig.rpcUrl),
-    );
+    _rpc = createCircuitBreakerRpc({
+      primaryUrl: _activeConfig.rpcUrl,
+      fallbackUrl: defaultFallbackUrl(_activeConfig.rpcUrl),
+    });
   }
   return _rpc;
 }

@@ -5,7 +5,7 @@ code in this repository.
 
 ## Project Overview
 
-This is a React application for the Arweave Name System (ArNS) Registry,
+This is a React application for the Ar.io Name System (ArNS) Registry,
 allowing users to search for and purchase Names. Built with Vite, React 18,
 TypeScript, and TailwindCSS.
 
@@ -109,7 +109,7 @@ The app integrates with the AO (Arweave Operating System) ecosystem:
   gateways, and ArIO contracts
 - **AO Connect** (`@permaweb/aoconnect`): AO process communication
 - Process IDs configured for ARIO and ANT Registry
-- ANT (Arweave Name Token) operations handled via `AoANTHandler`
+- ANT (Ar.io Name Token) operations handled via `AoANTHandler`
 
 ### Routing
 
