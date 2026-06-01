@@ -98,8 +98,10 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@../ar-io-sdk":
-  version "4.0.0-solana.22"
+"@ar.io/sdk@4.0.0-solana.23":
+  version "4.0.0-solana.23"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.0-solana.23.tgz#0514dba7f56bdf4752ef35685366219e85f8d591"
+  integrity sha512-Vd0+okuqYJpfZ2UuYdm4OkN0CDS8yxsWwa+XerUMvr/K81b95x2gF23PuI8r4Z/s95nGz0gOJCGNIEx3YteUiA==
   dependencies:
     "@ar.io/solana-contracts" "0.4.0"
     "@solana-program/compute-budget" "^0.15.0"
