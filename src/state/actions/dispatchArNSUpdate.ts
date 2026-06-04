@@ -40,7 +40,7 @@ export async function dispatchArNSUpdate({
   hyperbeamUrl?: string;
 }) {
   try {
-    const throttle = pLimit(10);
+    const throttle = pLimit(5);
     // Reset every cache that fans into the manage / register / list views.
     //
     // `domainInfo`        — `useDomainInfo` (the manage page header)
