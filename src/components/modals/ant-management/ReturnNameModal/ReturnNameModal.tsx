@@ -14,7 +14,6 @@ import {
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { ANT_INTERACTION_TYPES } from '@src/types';
 import eventEmitter from '@src/utils/events';
-import { useQueryClient } from '@tanstack/react-query';
 import { Checkbox } from 'antd';
 import { TriangleAlert } from 'lucide-react';
 import { useState } from 'react';
@@ -33,7 +32,6 @@ export function ReturnNameModal({
   processId: string;
   name: string;
 }) {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [{ arioContract }] = useGlobalState();
   const arioProcessId = '';
@@ -82,13 +80,7 @@ export function ReturnNameModal({
         name: ANT_INTERACTION_TYPES.RELEASE_NAME,
       });
 
-      queryClient.resetQueries({
-        queryKey: ['domainInfo', name],
-      });
-      queryClient.resetQueries({
-        queryKey: ['domainInfo', processId],
-      });
-
+      // domainInfo resets are handled by dispatchArNSUpdate below.
       dispatchArNSUpdate({
         walletAddress: walletAddress,
         wallet,

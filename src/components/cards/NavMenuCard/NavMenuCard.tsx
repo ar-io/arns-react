@@ -75,12 +75,19 @@ function NavMenuCard() {
 
   const [turboTopUpModalOpen, setTurboTopUpModalOpen] = useState(false);
 
+  // Fetch balance when wallet or turbo credits change — NOT on menu toggle.
+  // `buildIOBalanceQuery` has a 1hr staleTime so `fetchQuery` returns cached
+  // data most of the time; re-running it on every menu open/close was
+  // unnecessary RPC traffic.
   useEffect(() => {
     if (walletAddress) {
       resetWalletDetails();
       fetchWalletDetails(walletAddress);
     }
+  }, [wallet, walletAddress, turboCreditBalance]);
 
+  // Click-outside handler — needs showMenu to attach/detach correctly.
+  useEffect(() => {
     if (!menuRef.current) {
       return;
     }
@@ -89,7 +96,7 @@ function NavMenuCard() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [menuRef, showMenu, wallet, walletAddress, turboCreditBalance]);
+  }, [menuRef, showMenu]);
 
   function resetWalletDetails() {
     setWalletDetails({
