@@ -1,4 +1,4 @@
-import { ReturnedName, mARIOToken } from '@ar.io/sdk';
+import { ReturnedName, getArnsSettingsPDA, mARIOToken } from '@ar.io/sdk';
 import { ChevronRightIcon, ExternalLinkIcon } from '@src/components/icons';
 import Switch from '@src/components/inputs/Switch';
 import { Loader } from '@src/components/layout';
@@ -99,9 +99,20 @@ const ReturnedNamesTable = ({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
-  const [{ arioTicker, arioContract }] = useGlobalState();
-  const arioProcessId = '';
+  const [{ arioTicker, arioContract, solanaConfig }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
+
+  // Derive the ArNS config PDA to distinguish lease expiries (protocol-
+  // initiated, initiator === config PDA) from permanent returns (owner-
+  // initiated, initiator === wallet address).
+  const [arnsConfigPda, setArnsConfigPda] = useState<string | undefined>();
+  useEffect(() => {
+    const arnsProgramId = solanaConfig.programIds.arnsProgramId;
+    if (!arnsProgramId) return;
+    getArnsSettingsPDA(arnsProgramId).then(([pda]) =>
+      setArnsConfigPda(pda.toString()),
+    );
+  }, [solanaConfig.programIds.arnsProgramId]);
 
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<TableData[]>([]);
@@ -134,8 +145,11 @@ const ReturnedNamesTable = ({
           initiator,
           leasePrice: -1,
           permabuy: -1,
-          returnType:
-            initiator === arioProcessId ? 'Lease Expiry' : 'Permanent Return',
+          returnType: !arnsConfigPda
+            ? 'Returned'
+            : initiator === arnsConfigPda
+              ? 'Lease Expiry'
+              : 'Permanent Return',
 
           action: <></>,
           // metadata used for search and other purposes
@@ -146,7 +160,7 @@ const ReturnedNamesTable = ({
 
       setTableData(newTableData);
     }
-  }, [returnedNames, loading]);
+  }, [returnedNames, loading, arnsConfigPda]);
   async function fetchPrice(
     name: string,
     type: TRANSACTION_TYPES,
