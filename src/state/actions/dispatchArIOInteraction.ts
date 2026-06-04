@@ -81,6 +81,11 @@ export default async function dispatchArIOInteraction({
         'Credit-card payments for ArNS purchases are temporarily unavailable on Solana. The Turbo payment service needs Solana support before this flow can be re-enabled. Top up Turbo credits with SOL/ARIO and use `fundFrom: "turbo"` instead.',
       );
     }
+    // Pass the user's chosen funding mode through unchanged. The SDK's
+    // `'stakes'`/`'withdrawal'` branches route through the funding planner
+    // (constrained to the chosen mode) when no explicit `gatewayAddress` /
+    // `withdrawalId` is supplied, so a bare "Staked Balances" selection draws
+    // only from delegations/vaults — never silently from liquid balance.
     const originalFundFrom = fundFrom as FundFrom;
     dispatch({ type: 'setSigning', payload: true });
     switch (workflowName) {
