@@ -39,8 +39,13 @@ export default function DescriptionRow({
       eventEmitter.emit('error', error);
     } finally {
       setEditing(false);
-      setNewDescription(description ?? '');
       setShowModal(false);
+      // Don't reset `newDescription` here — `description` is the *stale*
+      // prop until the parent's `useDomainInfo` refetch lands. Resetting
+      // would make the row flash the old value (and on the next save, show
+      // the previous save's value — classic off-by-one). The
+      // `useEffect([description])` above syncs cleanly when the cache
+      // updates.
     }
   }
   return (
@@ -54,6 +59,7 @@ export default function DescriptionRow({
               description
             ) : (
               <ValidationInput
+                inputId="domain-settings-description-input"
                 showValidationIcon={false}
                 onPressEnter={() => setShowModal(true)}
                 wrapperClassName="flex w-full"

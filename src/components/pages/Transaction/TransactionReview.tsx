@@ -1,4 +1,4 @@
-import { ARIOWriteable, AoARIOWrite, FundFrom } from '@ar.io/sdk/web';
+import { ARIOWrite, FundFrom } from '@ar.io/sdk/web';
 import { ANTCard } from '@src/components/cards';
 import { TransactionDetails } from '@src/components/data-display/TransactionDetails/TransactionDetails';
 import WorkflowButtons from '@src/components/inputs/buttons/WorkflowButtons/WorkflowButtons';
@@ -33,16 +33,12 @@ import { getTransactionHeader } from './transaction-headers';
 // on completion routes to transaction/complete
 function TransactionReview() {
   const navigate = useNavigate();
-  const [
-    {
-      arioContract,
-      arioProcessId,
-      aoNetwork,
-      aoClient,
-      hyperbeamUrl,
-      antRegistryProcessId,
-    },
-  ] = useGlobalState();
+  const [{ arioContract }] = useGlobalState();
+  // Legacy AO routing/identifiers kept as no-op placeholders; the Solana
+  // dispatchers ignore them but the existing call shapes still reference
+  // them.
+  const arioProcessId = '';
+  const antRegistryProcessId = '';
   const [, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
   const [
@@ -111,7 +107,10 @@ function TransactionReview() {
 
   async function handleNext() {
     try {
-      if (!(arioContract instanceof ARIOWriteable)) {
+      // SolanaARIOWriteable doesn't extend ARIOWriteable — accept any
+      // writeable by duck-typing the `buyRecord` method.
+      const isWriteable = 'buyRecord' in (arioContract ?? {});
+      if (!isWriteable) {
         throw new Error('Wallet must be connected to dispatch transactions.');
       }
       if (!transactionData || !workflowName) {
@@ -123,21 +122,15 @@ function TransactionReview() {
       }
       // TODO: check that it's connected
       await dispatchArIOInteraction({
-        arioContract: arioContract as AoARIOWrite,
+        arioContract: arioContract as ARIOWrite,
         workflowName: workflowName as ARNS_INTERACTION_TYPES,
         payload: transactionData,
         owner: walletAddress,
         processId: arioProcessId,
         dispatch: dispatchTransactionState,
         signer: wallet?.contractSigner,
-        ao: aoClient,
-        scheduler: aoNetwork.ARIO.SCHEDULER,
+        wallet,
         fundFrom: fundingSource,
-        hyperbeamUrl,
-        // TODO: Do we need paidBy from turbo balance in this workflow
-        // paidBy: creditsBalance?.receivedApprovals.map(
-        //   (approval) => approval.payingAddress,
-        // ),
       });
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -148,8 +141,8 @@ function TransactionReview() {
           arioProcessId,
           antRegistryProcessId,
           walletAddress,
-          aoNetworkSettings: aoNetwork,
-          hyperbeamUrl,
+          wallet,
+          arioContract,
         });
       }
     }

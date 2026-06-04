@@ -3,7 +3,7 @@
  *
  * This hook provides functionality to upload logo images for ArNS domains using the Turbo upload service.
  * It handles wallet authentication and provides progress tracking through event callbacks.
- * Supports both Arweave wallets (ArConnect, Wander, etc.) and Ethereum wallets (MetaMask, etc.).
+ * Solana-only after the de-AO refactor — uses the Solana Wallet Adapter via TurboFactory.
  *
  * @returns An object containing the upload function
  *
@@ -21,7 +21,6 @@
  * ```
  */
 import {
-  ArconnectSigner,
   TurboFactory,
   type TurboUploadDataItemResponse,
   type TurboUploadEventsAndPayloads,
@@ -109,54 +108,31 @@ export function useUploadArNSLogo(): UseUploadArNSLogoReturn {
     // Cast to TurboWebAuthenticatedClient to access web-specific uploadFile method
     let turbo: TurboWebAuthenticatedClient;
 
-    if (wallet.tokenType === 'arweave') {
-      // For Arweave wallets, use ArconnectSigner
-      if (!window.arweaveWallet) {
-        throw new Error('Arweave wallet not available');
-      }
-
-      const signer = new ArconnectSigner(window.arweaveWallet);
-      turbo = TurboFactory.authenticated({
-        signer,
-        token: wallet.tokenType,
-        uploadServiceConfig: {
-          url: turboNetwork.UPLOAD_URL,
-        },
-        paymentServiceConfig: {
-          url: turboNetwork.PAYMENT_URL,
-        },
-        gatewayUrl: turboNetwork.GATEWAY_URL,
-      }) as unknown as TurboWebAuthenticatedClient;
-    } else if (wallet.tokenType === 'ethereum') {
-      // For Ethereum wallets, reuse the turboSigner from wallet connection
-      // This avoids duplicate signature prompts and uses the same public key
-      if (!wallet.turboSigner) {
-        throw new Error('Ethereum wallet signer not available');
-      }
-
-      const signer = wallet.turboSigner as any;
-
-      // Ensure publicKey is set (will prompt for signature if not already set)
-      if (!signer.publicKey && signer.setPublicKey) {
-        await signer.setPublicKey();
-      }
-
-      turbo = TurboFactory.authenticated({
-        signer,
-        token: wallet.tokenType,
-        uploadServiceConfig: {
-          url: turboNetwork.UPLOAD_URL,
-        },
-        paymentServiceConfig: {
-          url: turboNetwork.PAYMENT_URL,
-        },
-        gatewayUrl: turboNetwork.GATEWAY_URL,
-      }) as unknown as TurboWebAuthenticatedClient;
-    } else {
+    if (wallet.tokenType !== 'solana') {
       throw new Error(
-        `Logo uploads are not supported for ${wallet.tokenType} wallets`,
+        `Logo uploads are only supported for Solana wallets (received '${wallet.tokenType}')`,
       );
     }
+
+    const solanaWalletAdapter =
+      (window as any).solana ?? (wallet as any).solanaWallet ?? undefined;
+    if (!solanaWalletAdapter) {
+      throw new Error(
+        'Solana wallet adapter not available on window.solana — connect a Phantom/Solflare-class wallet first.',
+      );
+    }
+
+    turbo = TurboFactory.authenticated({
+      walletAdapter: solanaWalletAdapter,
+      token: 'solana',
+      uploadServiceConfig: {
+        url: turboNetwork.UPLOAD_URL,
+      },
+      paymentServiceConfig: {
+        url: turboNetwork.PAYMENT_URL,
+      },
+      gatewayUrl: turboNetwork.GATEWAY_URL,
+    } as any) as unknown as TurboWebAuthenticatedClient;
 
     // Upload file - pass File object directly (works in Turbo SDK web)
     try {

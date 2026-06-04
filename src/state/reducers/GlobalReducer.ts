@@ -1,7 +1,8 @@
-import { AoARIORead, AoARIOWrite, AoClient } from '@ar.io/sdk/web';
+import { ARIORead, ARIOWrite } from '@ar.io/sdk/web';
 import { NETWORK_DEFAULTS } from '@src/utils/constants';
+import type { SolanaNetworkConfig } from '@src/utils/solana';
 
-import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
+import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
 import { GlobalState } from '../contexts/GlobalState';
 
 export type GlobalAction =
@@ -9,32 +10,16 @@ export type GlobalAction =
       type: 'setGateway';
       payload: {
         gateway: string;
-        provider: ArweaveCompositeDataProvider;
+        provider: SimpleArweaveDataProvider;
       };
     }
   | {
-      type: 'setAONetwork';
-      payload: typeof NETWORK_DEFAULTS.AO;
+      type: 'setDataGateway';
+      payload: string;
     }
   | {
       type: 'setTurboNetwork';
       payload: typeof NETWORK_DEFAULTS.TURBO;
-    }
-  | {
-      type: 'setARIOAoClient';
-      payload: AoClient;
-    }
-  | {
-      type: 'setANTAoClient';
-      payload: AoClient;
-    }
-  | {
-      type: 'setIoProcessId';
-      payload: string;
-    }
-  | {
-      type: 'setAntRegistryProcessId';
-      payload: string;
     }
   | {
       type: 'setBlockHeight';
@@ -42,15 +27,18 @@ export type GlobalAction =
     }
   | {
       type: 'setArIOContract';
-      payload: AoARIORead | AoARIOWrite;
+      payload: ARIORead | ARIOWrite;
     }
   | {
       type: 'setIoTicker';
       payload: string;
     }
   | {
-      type: 'setHyperbeamUrl';
-      payload: string | undefined;
+      type: 'setSolanaConfig';
+      payload: {
+        config: SolanaNetworkConfig;
+        contract: ARIORead | ARIOWrite;
+      };
     };
 
 export const reducer = (
@@ -64,13 +52,10 @@ export const reducer = (
         gateway: action.payload.gateway,
         arweaveDataProvider: action.payload.provider,
       };
-    case 'setAONetwork':
+    case 'setDataGateway':
       return {
         ...state,
-        aoNetwork: {
-          ...state.aoNetwork,
-          ...action.payload,
-        },
+        dataGateway: action.payload,
       };
     case 'setTurboNetwork':
       return {
@@ -79,16 +64,6 @@ export const reducer = (
           ...state.turboNetwork,
           ...action.payload,
         },
-      };
-    case 'setARIOAoClient':
-      return {
-        ...state,
-        aoClient: action.payload,
-      };
-    case 'setANTAoClient':
-      return {
-        ...state,
-        antAoClient: action.payload,
       };
     case 'setBlockHeight':
       return {
@@ -106,20 +81,11 @@ export const reducer = (
         ...state,
         arioContract: action.payload,
       };
-    case 'setIoProcessId':
+    case 'setSolanaConfig':
       return {
         ...state,
-        arioProcessId: action.payload,
-      };
-    case 'setAntRegistryProcessId':
-      return {
-        ...state,
-        antRegistryProcessId: action.payload,
-      };
-    case 'setHyperbeamUrl':
-      return {
-        ...state,
-        hyperbeamUrl: action.payload,
+        solanaConfig: action.payload.config,
+        arioContract: action.payload.contract,
       };
     default:
       return state;

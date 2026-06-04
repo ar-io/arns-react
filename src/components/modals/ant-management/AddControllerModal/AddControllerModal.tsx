@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
+import { SolanaAddress } from '../../../../services/solana/SolanaAddress';
 import { VALIDATION_INPUT_TYPES } from '../../../../types';
 import { formatForMaxCharCount, isValidAoAddress } from '../../../../utils';
 import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
@@ -13,7 +14,9 @@ function AddControllerModal({
   closeModal,
   payloadCallback,
 }: {
-  antId: ArweaveTransactionID; // process ID if asset type is a contract interaction
+  // ANT mint pubkey (Solana base58) or, on legacy AO, an Arweave tx id.
+  // The component only calls `.toString()` on it.
+  antId: ArweaveTransactionID | SolanaAddress;
   closeModal: () => void;
   payloadCallback: (payload: { controller: string }) => void;
 }) {
@@ -60,6 +63,7 @@ function AddControllerModal({
               <div className="flex flex-column" style={{ gap: '10px' }}>
                 <span className="grey">Controller wallet address:</span>
                 <ValidationInput
+                  inputId="add-controller-input"
                   inputClassName="name-token-input white"
                   inputCustomStyle={{ paddingLeft: '10px', fontSize: '16px' }}
                   wrapperCustomStyle={{
@@ -72,7 +76,9 @@ function AddControllerModal({
                   showValidationChecklist={true}
                   validationListStyle={{ display: 'none' }}
                   catchInvalidInput={true}
-                  maxCharLength={43}
+                  // Arweave TX IDs are 43 chars, EIP-55 addresses 42 (0x +
+                  // 40), Solana base58 pubkeys go up to 44 — pick the max.
+                  maxCharLength={44}
                   value={newController}
                   setValue={setNewController}
                   validityCallback={(validity: boolean) =>

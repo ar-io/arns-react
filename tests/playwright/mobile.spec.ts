@@ -16,5 +16,5 @@ test('test', async ({ page }) => {
   await page.goto(url);
   const notFoundPage = await page.getByTestId('404-page');
   await expect(notFoundPage).not.toBeVisible();
-  await expect(page.getByText('Arweave Name System')).toBeVisible();
+  await expect(page.getByText('Ar.io Name System')).toBeVisible();
 });

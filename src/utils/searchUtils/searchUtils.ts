@@ -1,4 +1,3 @@
-import { ANTProcessData } from '@src/state';
 import emojiRegex from 'emoji-regex';
 import { asciiToUnicode, unicodeToAscii } from 'puny-coder';
 
@@ -131,49 +130,6 @@ export function sleep(ms: number) {
 
 export function lowerCaseDomain(domain: string) {
   return encodeDomainToASCII(decodeURIComponent(domain.trim())).toLowerCase();
-}
-
-export function getAntsRequiringUpdate({
-  ants,
-  userAddress,
-  currentModuleId,
-}: {
-  ants: Record<string, ANTProcessData>;
-  userAddress: string;
-  currentModuleId: string | null;
-}): string[] {
-  return Object.entries(ants)
-    .map(([id, ant]) => {
-      // if user is not the owner, skip
-      if (
-        !ant.processMeta ||
-        !ant.state?.Owner ||
-        ant?.state.Owner !== userAddress
-      )
-        return;
-      if (
-        ant.processMeta.tags.find(
-          (t) => t.name === 'Module' && t.value !== currentModuleId,
-        )
-      )
-        return id;
-    })
-    .filter((id) => id !== undefined) as string[];
-}
-
-export function doAntsRequireUpdate({
-  ants,
-  userAddress,
-  currentModuleId,
-}: {
-  ants: Record<string, ANTProcessData>;
-  userAddress: string;
-  currentModuleId: string | null;
-}) {
-  const antReq =
-    getAntsRequiringUpdate({ ants, userAddress, currentModuleId }).length > 0;
-
-  return antReq;
 }
 
 export function camelToReadable(camel: string) {

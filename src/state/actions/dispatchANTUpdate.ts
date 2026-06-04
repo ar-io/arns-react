@@ -1,28 +1,32 @@
 import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
-import { AoAddress } from '@src/types';
-import { NETWORK_DEFAULTS } from '@src/utils/constants';
+import { AoAddress, ArNSWalletConnector } from '@src/types';
 import eventEmitter from '@src/utils/events';
 import { QueryClient } from '@tanstack/react-query';
 import { Dispatch } from 'react';
 
 import { ArNSAction } from '..';
 
+/**
+ * Refresh ANT state for a single processId. Solana-only after the de-AO
+ * refactor — `aoNetwork`/`hyperbeamUrl`/`antRegistryProcessId` legacy params
+ * are accepted but ignored to soften the cross-phase landing.
+ */
 export async function dispatchANTUpdate({
   queryClient,
   domain,
   processId,
   dispatch,
-  aoNetwork,
-  hyperbeamUrl,
-  antRegistryProcessId,
+  wallet,
 }: {
   queryClient: QueryClient;
   domain?: string;
   processId: string;
   walletAddress: AoAddress;
-  antRegistryProcessId: string;
   dispatch: Dispatch<ArNSAction>;
-  aoNetwork: typeof NETWORK_DEFAULTS.AO;
+  wallet?: ArNSWalletConnector;
+  // Legacy AO args — accepted but ignored.
+  antRegistryProcessId?: string;
+  aoNetwork?: unknown;
   hyperbeamUrl?: string;
 }) {
   try {
@@ -47,9 +51,7 @@ export async function dispatchANTUpdate({
       .fetchQuery(
         buildDomainInfoQuery({
           antId: processId,
-          aoNetwork,
-          hyperbeamUrl,
-          antRegistryProcessId,
+          wallet,
         }),
       )
       .catch((e) => console.error(e));
@@ -68,7 +70,6 @@ export async function dispatchANTUpdate({
   } catch (error: any) {
     const errorHandler = (e: string) => {
       if (e.startsWith('Error getting ArNS records')) {
-        eventEmitter.emit('network:ao:congested', true);
         eventEmitter.emit(
           'error',
           new Error(

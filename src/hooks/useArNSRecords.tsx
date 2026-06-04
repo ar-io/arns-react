@@ -1,5 +1,6 @@
-import { AoArNSNameData } from '@ar.io/sdk';
+import { ArNSNameData } from '@ar.io/sdk';
 import { useGlobalState } from '@src/state';
+import { arioContractCacheKey } from '@src/utils/sdk-init';
 import { useQuery } from '@tanstack/react-query';
 
 export function useArNSRecords({
@@ -7,14 +8,14 @@ export function useArNSRecords({
 }: {
   filters?: Partial<
     Record<
-      keyof AoArNSNameData,
+      keyof ArNSNameData,
       string | number | boolean | string[] | number[] | boolean[]
     >
   >;
 } = {}) {
   const [{ arioContract }] = useGlobalState();
   return useQuery({
-    queryKey: ['arns-records', arioContract.process.processId, filters],
+    queryKey: ['arns-records', arioContractCacheKey(arioContract), filters],
     queryFn: async () => {
       let hasMore = true;
       let cursor = undefined;

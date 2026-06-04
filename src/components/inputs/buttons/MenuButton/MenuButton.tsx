@@ -18,6 +18,7 @@ function MenuButton({
   return (
     <>
       <button
+        data-testid="nav-menu-trigger"
         className={
           show ? `hover highlight-button ${className}` : `hover ${className}`
         }

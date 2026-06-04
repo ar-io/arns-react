@@ -1,4 +1,4 @@
-import { ARIOToken, AoARIOWrite, mARIOToken } from '@ar.io/sdk/web';
+import { ARIOToken, ARIOWrite, mARIOToken } from '@ar.io/sdk/web';
 import { useArIOLiquidBalance } from '@src/hooks/useArIOBalance';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { VALIDATION_INPUT_TYPES } from '@src/types';
@@ -27,7 +27,7 @@ function TransferIO() {
       setTransferring(true);
       if (isValidAoAddress(toAddress.trim())) {
         // TODO: check that is a write contract
-        const contract = arioContract as AoARIOWrite;
+        const contract = arioContract as ARIOWrite;
         const tx = await contract.transfer(
           {
             target: toAddress.trim(),
@@ -80,7 +80,7 @@ function TransferIO() {
             showValidationOutline={true}
             showValidationChecklist={true}
             validationListStyle={{ display: 'none' }}
-            maxCharLength={43}
+            maxCharLength={44}
             value={toAddress}
             setValue={setToAddress}
             validityCallback={(validity: boolean) =>

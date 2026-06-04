@@ -1,24 +1,21 @@
 import {
-  AoARIORead,
-  AoARIOWrite,
-  AoGetCostDetailsParams,
+  ARIORead,
+  ARIOWrite,
   CostDetailsResult,
+  GetCostDetailsParams,
 } from '@ar.io/sdk';
 import { useGlobalState } from '@src/state';
+import { arioContractCacheKey } from '@src/utils/sdk-init';
 import { useQuery } from '@tanstack/react-query';
 
 export const COST_DETAIL_STALE_TIME = 1000 * 60 * 5;
 
 export function buildCostDetailsQuery(
-  params: AoGetCostDetailsParams,
-  {
-    arioProcessId,
-    arioContract,
-  }: { arioProcessId: string; arioContract: AoARIORead | AoARIOWrite },
+  params: GetCostDetailsParams,
+  { arioContract }: { arioContract: ARIORead | ARIOWrite },
 ): Parameters<typeof useQuery<CostDetailsResult>>[0] {
   return {
-    // we are verbose here to enable predictable keys. Passing in the entire params as a single object can have unpredictable side effects
-    queryKey: ['getCostDetails', params, arioProcessId.toString()],
+    queryKey: ['getCostDetails', params, arioContractCacheKey(arioContract)],
     queryFn: async () => {
       return await arioContract.getCostDetails(params);
     },
@@ -27,10 +24,10 @@ export function buildCostDetailsQuery(
   };
 }
 
-export function useCostDetails(params: AoGetCostDetailsParams) {
-  const [{ arioProcessId, arioContract }] = useGlobalState();
+export function useCostDetails(params: GetCostDetailsParams) {
+  const [{ arioContract }] = useGlobalState();
 
   return useQuery<CostDetailsResult>(
-    buildCostDetailsQuery(params, { arioProcessId, arioContract }),
+    buildCostDetailsQuery(params, { arioContract }),
   );
 }

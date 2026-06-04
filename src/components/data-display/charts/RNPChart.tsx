@@ -1,6 +1,7 @@
-import { AoGetCostDetailsParams, mARIOToken } from '@ar.io/sdk';
+import { GetCostDetailsParams, mARIOToken } from '@ar.io/sdk';
 import { ArioSpinner } from '@src/components/data-display/Spinner';
 import { useCostDetails } from '@src/hooks/useCostDetails';
+import { useReturnedName } from '@src/hooks/useReturnedNames';
 import { useGlobalState, useWalletState } from '@src/state';
 import { formatARIOWithCommas, formatDateMDY } from '@src/utils';
 import { START_RNP_PREMIUM } from '@src/utils/constants';
@@ -20,10 +21,14 @@ export function RNPChart({
   name,
   purchaseDetails,
   dateNow,
+  startTimestamp: propStartTimestamp,
+  endTimestamp: propEndTimestamp,
 }: {
   name: string;
-  purchaseDetails?: Partial<AoGetCostDetailsParams>;
+  purchaseDetails?: Partial<GetCostDetailsParams>;
   dateNow?: number;
+  startTimestamp?: number;
+  endTimestamp?: number;
 }) {
   const [{ walletAddress }] = useWalletState();
   const { data: costDetails } = useCostDetails({
@@ -34,6 +39,7 @@ export function RNPChart({
     name,
     ...(purchaseDetails ?? {}),
   });
+  const { data: returnedNameData } = useReturnedName(name);
 
   type PricePoint = {
     price: number;
@@ -67,61 +73,88 @@ export function RNPChart({
 
   useEffect(() => {
     try {
+      let startTimestamp: number;
+      let endTimestamp: number;
+      let endPrice: number;
+
       if (costDetails?.returnedNameDetails) {
-        const {
-          basePrice: endPrice,
-          startTimestamp,
-          endTimestamp,
-        } = costDetails.returnedNameDetails;
-        const startPrice = endPrice * START_RNP_PREMIUM;
-        const pricePointCount = 14;
+        startTimestamp = costDetails.returnedNameDetails.startTimestamp;
+        endTimestamp = costDetails.returnedNameDetails.endTimestamp;
+        endPrice = costDetails.returnedNameDetails.basePrice;
+      } else if (costDetails) {
+        // Solana backend: returnedNameDetails not populated.
+        // Use timestamps from props or fetched ReturnedName data.
+        const fallbackStart =
+          propStartTimestamp ?? returnedNameData?.startTimestamp;
+        const fallbackEnd = propEndTimestamp ?? returnedNameData?.endTimestamp;
 
-        const priceAtTime = (timestamp: number) => {
-          const percentageOfPeriodPassed =
-            (timestamp - startTimestamp) / (endTimestamp - startTimestamp);
-          const price =
-            startPrice + percentageOfPeriodPassed * (endPrice - startPrice);
-          return price;
-        };
+        if (!fallbackStart || !fallbackEnd) {
+          setChartData([]);
+          return;
+        }
 
-        const timeDuration = endTimestamp - startTimestamp;
+        startTimestamp = fallbackStart;
+        endTimestamp = fallbackEnd;
 
-        const newChartData: ChartData = new Array(pricePointCount)
-          .fill(true)
-          .map((_, i) => {
-            const timestamp =
-              startTimestamp + (timeDuration / (pricePointCount - 1)) * i;
-
-            const price = priceAtTime(timestamp);
-
-            return {
-              price: Math.round(price),
-              timestamp,
-            };
-          });
-
+        // Derive basePrice by reversing the auction formula from tokenCost.
         const now = dateNow ?? Date.now();
-
-        const currentPricePoint = {
-          price: Math.round(priceAtTime(now)),
-          timestamp: now,
-        };
-
-        setCurrentPricePoint(currentPricePoint);
-        setChartData(
-          [
-            ...newChartData,
-            // Add the current price for tooltip orientation on default position
-            currentPricePoint,
-          ].sort((a, b) => a.timestamp - b.timestamp),
-        );
+        const percent =
+          (now - startTimestamp) / (endTimestamp - startTimestamp);
+        const clampedPercent = Math.max(0, Math.min(1, percent));
+        const multiplier =
+          START_RNP_PREMIUM + (1 - START_RNP_PREMIUM) * clampedPercent;
+        endPrice = Math.round(costDetails.tokenCost / multiplier);
+      } else {
+        setChartData([]);
         return;
       }
+
+      const startPrice = endPrice * START_RNP_PREMIUM;
+      const pricePointCount = 14;
+
+      const priceAtTime = (timestamp: number) => {
+        const percentageOfPeriodPassed =
+          (timestamp - startTimestamp) / (endTimestamp - startTimestamp);
+        const price =
+          startPrice + percentageOfPeriodPassed * (endPrice - startPrice);
+        return price;
+      };
+
+      const timeDuration = endTimestamp - startTimestamp;
+
+      const newChartData: ChartData = new Array(pricePointCount)
+        .fill(true)
+        .map((_, i) => {
+          const timestamp =
+            startTimestamp + (timeDuration / (pricePointCount - 1)) * i;
+
+          const price = priceAtTime(timestamp);
+
+          return {
+            price: Math.round(price),
+            timestamp,
+          };
+        });
+
+      const now = dateNow ?? Date.now();
+
+      const currentPricePoint = {
+        price: Math.round(priceAtTime(now)),
+        timestamp: now,
+      };
+
+      setCurrentPricePoint(currentPricePoint);
+      setChartData(
+        [...newChartData, currentPricePoint].sort(
+          (a, b) => a.timestamp - b.timestamp,
+        ),
+      );
+      return;
     } catch (error) {
       console.error(error);
     }
     setChartData([]);
-  }, [costDetails]);
+  }, [costDetails, returnedNameData]);
 
   useEffect(() => {
     const point = chartData?.find((d) => d.price === currentPricePoint?.price);
@@ -206,7 +239,16 @@ export function RNPChart({
       </span>
     );
 
-  if (!costDetails?.returnedNameDetails) return <></>;
+  const chartStartTimestamp =
+    costDetails?.returnedNameDetails?.startTimestamp ??
+    propStartTimestamp ??
+    returnedNameData?.startTimestamp;
+  const chartEndTimestamp =
+    costDetails?.returnedNameDetails?.endTimestamp ??
+    propEndTimestamp ??
+    returnedNameData?.endTimestamp;
+
+  if (!chartStartTimestamp || !chartEndTimestamp) return <></>;
 
   return (
     <div className="flex flex-col size-full">
@@ -299,13 +341,8 @@ export function RNPChart({
         </LineChart>
       </ResponsiveContainer>{' '}
       <div className="flex justify-between pt-2 text-[14px] text-white">
-        <span>
-          {formatDateMDY(costDetails.returnedNameDetails.startTimestamp)}
-        </span>
-        <span>
-          {' '}
-          {formatDateMDY(costDetails.returnedNameDetails.endTimestamp)}
-        </span>
+        <span>{formatDateMDY(chartStartTimestamp)}</span>
+        <span> {formatDateMDY(chartEndTimestamp)}</span>
       </div>
     </div>
   );

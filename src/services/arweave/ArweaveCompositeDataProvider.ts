@@ -1,18 +1,19 @@
 import {
-  AoARIORead,
-  AoArNSNameData,
-  fetchAllArNSRecords,
+  ARIORead,
+  ArNSNameData,
+  ArNSNameDataWithName,
   mARIOToken,
 } from '@ar.io/sdk/web';
 import { lowerCaseDomain } from '@src/utils';
 
 import { AoAddress, ArweaveDataProvider } from '../../types';
+import { SolanaAddress } from '../solana/SolanaAddress';
 import { ArweaveTransactionID } from './ArweaveTransactionID';
 
 export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
   // NOTE: this class should not have any logic for performing queries itself, but rather logic for getting results from
   // an array of providers, using different strategies such as Promise.race or Promise.all.
-  private contract: AoARIORead;
+  private contract: ARIORead;
   private arweave: ArweaveDataProvider;
 
   // TODO: implement strategy methods
@@ -21,7 +22,7 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
     arweave,
   }: {
     arweave: ArweaveDataProvider;
-    contract: AoARIORead;
+    contract: ARIORead;
   }) {
     this.contract = contract;
     this.arweave = arweave;
@@ -111,7 +112,7 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
     domain,
   }: {
     domain: string;
-  }): Promise<AoArNSNameData | undefined> {
+  }): Promise<ArNSNameData | undefined> {
     const record = await this.contract.getArNSRecord({
       name: lowerCaseDomain(domain),
     });
@@ -122,23 +123,36 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
     filters,
   }: {
     filters: {
-      processId?: ArweaveTransactionID[];
+      // Accept either wrapper (or raw string) and match by string. ANT
+      // process ids are Solana base58 post-migration, but a few callers
+      // still pass `ArweaveTransactionID` for legacy AO records.
+      processId?: Array<ArweaveTransactionID | SolanaAddress | string>;
     };
-  }): Promise<Record<string, AoArNSNameData>> {
+  }): Promise<Record<string, ArNSNameData>> {
     // TODO: check the cache for existing records and only fetch new ones
-    const records: Record<string, AoArNSNameData> = await fetchAllArNSRecords({
-      contract: this.contract,
-    });
+    const records: Record<string, ArNSNameData> = {};
+    let cursor: string | undefined = undefined;
+    let hasMore = true;
+    while (hasMore) {
+      const page = await this.contract.getArNSRecords({ limit: 1000, cursor });
+      for (const item of page.items) {
+        records[(item as ArNSNameDataWithName).name] = item;
+      }
+      cursor = page.nextCursor;
+      hasMore = page.hasMore;
+    }
 
-    // filter by processId
+    // Compare process ids by their string representation. The previous
+    // `Array.includes(new ArweaveTransactionID(...))` never matched
+    // (object identity) and would now also throw on Solana mints because
+    // those don't pass the 43-char Arweave regex — using the string form
+    // both fixes the bug and avoids the wrapper-type mismatch.
     return Object.fromEntries(
-      Object.entries(records).filter(
-        ([, record]) =>
-          filters.processId === undefined ||
-          filters.processId.includes(
-            new ArweaveTransactionID(record.processId),
-          ),
-      ),
+      Object.entries(records).filter(([, record]) => {
+        if (filters.processId === undefined) return true;
+        const target = record.processId;
+        return filters.processId.some((p) => p.toString() === target);
+      }),
     );
   }
 

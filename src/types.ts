@@ -1,19 +1,26 @@
-import {
-  AoANTRecord,
-  AoArNSNameData,
-  AoGetCostDetailsParams,
-  ContractSigner,
-  TurboArNSSigner,
-} from '@ar.io/sdk/web';
+import { ANTRecord, ArNSNameData, GetCostDetailsParams } from '@ar.io/sdk/web';
 import { TokenType } from '@ardrive/turbo-sdk';
 import type { Dispatch, SetStateAction } from 'react';
 
 import { AntDetailKey } from './components/cards/ANTCard/ANTCard';
 import { ArweaveTransactionID } from './services/arweave/ArweaveTransactionID';
-import { TransferTransactionResult } from './services/wallets/EthWalletConnector';
+import type { SolanaAddress as SolanaAddressType } from './services/solana/SolanaAddress';
 import { MAX_TTL_SECONDS, MIN_TTL_SECONDS } from './utils/constants';
 
-export type ARNSDomains = Record<string, AoArNSNameData>;
+/**
+ * Result of a native (non-ARIO) transfer on the connected wallet — used by
+ * the legacy `submitNativeTransaction` path. After de-AO this is stamped
+ * with a Solana transaction signature, but the shape is kept loose for
+ * Phase 9 to refit fully against the Solana wallet adapter.
+ */
+export type TransferTransactionResult = {
+  hash: string;
+  status: 'success' | 'failed';
+  blockNumber?: number;
+  gasUsed?: string;
+};
+
+export type ARNSDomains = Record<string, ArNSNameData>;
 
 export type TransactionHeaders = {
   id: string;
@@ -36,8 +43,10 @@ export type TransactionTag = {
 
 export type ARNSMapping = {
   domain: string;
-  record?: AoArNSNameData;
-  processId?: ArweaveTransactionID;
+  record?: ArNSNameData;
+  // ANT process / mint pubkey. On Solana this is a `SolanaAddress`
+  // (Metaplex Core asset pubkey); on legacy AO it's an `ArweaveTransactionID`.
+  processId?: ArweaveTransactionID | SolanaAddressType;
   overrides?: { [x: string]: JSX.Element | string | number };
   disabledKeys?: string[];
   compact?: boolean;
@@ -51,7 +60,7 @@ export type ARNSMapping = {
     ticker: string;
     name: string;
     controllers: string[];
-    records: Record<string, AoANTRecord>;
+    records: Record<string, ANTRecord>;
   };
 };
 
@@ -85,21 +94,25 @@ export interface ArNSWalletConnector {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   getWalletAddress(): Promise<AoAddress>;
-  contractSigner?: ContractSigner;
+  contractSigner?: any;
   on?: (event: string, listener: (data: any) => void) => Promise<void>;
   off?: (event: string, listener: (data: any) => void) => Promise<void>;
   submitNativeTransaction?(
     amount: number,
     toAddress: string,
   ): Promise<TransferTransactionResult>;
-  turboSigner?: TurboArNSSigner;
+  turboSigner?: any;
+  /**
+   * `@solana/kit` signer for the connected Solana wallet, when applicable.
+   * Populated by `SolanaWalletConnector` so that downstream code can pass
+   * it to `ARIO.init({ backend: 'solana', signer })` etc. AO-only wallets
+   * leave this undefined.
+   */
+  solanaSigner?: import('@solana/kit').TransactionSigner;
 }
 
 export enum WALLET_TYPES {
-  WANDER = 'Wander',
-  ARWEAVE_APP = 'ArweaveApp',
-  ETHEREUM = 'Ethereum',
-  BEACON = 'Beacon',
+  SOLANA = 'Solana',
 }
 
 export interface KVCache {
@@ -169,7 +182,7 @@ export enum TRANSACTION_TYPES {
 
 export enum CONTRACT_TYPES {
   REGISTRY = 'ARNS Registry',
-  ANT = 'Arweave Name Token',
+  ANT = 'Ar.io Name Token',
 }
 
 export enum ASSET_TYPES {
@@ -198,7 +211,6 @@ export enum ANT_INTERACTION_TYPES {
   SET_LOGO = 'Set Logo',
   SET_DESCRIPTION = 'Set Description',
   SET_KEYWORDS = 'Set Keywords',
-  UPGRADE_ANT = 'Upgrade ANT',
 }
 
 export enum ARNS_INTERACTION_TYPES {
@@ -210,7 +222,7 @@ export enum ARNS_INTERACTION_TYPES {
   UPGRADE_NAME = 'Upgrade ArNS Name',
 }
 export const ArNSInteractionTypeToIntentMap: Partial<
-  Record<ARNS_INTERACTION_TYPES, AoGetCostDetailsParams['intent']>
+  Record<ARNS_INTERACTION_TYPES, GetCostDetailsParams['intent']>
 > = {
   [ARNS_INTERACTION_TYPES.BUY_RECORD]: 'Buy-Name',
   [ARNS_INTERACTION_TYPES.EXTEND_LEASE]: 'Extend-Lease',
@@ -235,7 +247,7 @@ export enum INTERACTION_TYPES {
   SET_RECORD = 'Add Record',
   EDIT_RECORD = 'Edit Record',
   REMOVE_RECORD = 'Delete Record',
-  CREATE = 'Create Arweave Name Token',
+  CREATE = 'Create Ar.io Name Token',
   TRANSFER_ANT = 'Transfer ANT',
 
   // Common interaction types
@@ -334,7 +346,7 @@ export type TransactionDataBasePayload = {
   functionName: string;
   deployedTransactionId?: ArweaveTransactionID;
   interactionPrice?: number;
-  arnsRecord?: AoArNSNameData;
+  arnsRecord?: ArNSNameData;
 };
 
 // registry transaction payload types
@@ -352,7 +364,10 @@ export type BuyRecordPayload = {
 export type ExtendLeasePayload = {
   name: string;
   years: number;
-  processId: ArweaveTransactionID;
+  // ANT process / mint pubkey. Solana base58 (Metaplex Core asset
+  // pubkey) for new records; legacy AO records are still wrapped in
+  // `ArweaveTransactionID`.
+  processId: ArweaveTransactionID | SolanaAddressType;
   qty?: number;
 };
 
@@ -389,7 +404,7 @@ export type SetRecordPayload = {
   subDomain: string;
   transactionId: string;
   ttlSeconds: number;
-  previousRecord?: AoANTRecord;
+  previousRecord?: ANTRecord;
 };
 
 export type RemoveRecordPayload = {
@@ -534,7 +549,13 @@ export type UndernameMetadata = {
 export enum VALIDATION_INPUT_TYPES {
   ARWEAVE_ID = 'Is valid Arweave Transaction (TX) ID.',
   ARWEAVE_ADDRESS = 'Is likely an Arweave wallet address.',
-  AO_ADDRESS = 'Is a valid AO Address.',
+  /**
+   * Solana wallet address (base58, 32–44 chars). Replaces the legacy AO
+   * address concept; `AO_ADDRESS` is kept as an alias so existing UI
+   * strings still resolve, but new code should reference `SOLANA_ADDRESS`.
+   */
+  SOLANA_ADDRESS = 'Is a valid Solana Address.',
+  AO_ADDRESS = 'Is a valid Solana Address.',
 
   UNDERNAME = 'Is a valid Undername.',
   // unfortunately we cannot use computed values in enums, so be careful if we ever modify this number
@@ -557,6 +578,21 @@ export type ContractInteraction = {
   [x: string]: any;
 };
 
-export type EthAddress = `0x${string}`;
+// Re-export the typed wrappers from a single canonical location. Call
+// sites should prefer these over raw strings — the type system can then
+// flag "wrong wrapper used" mistakes (e.g. wrapping a Solana mint in
+// `ArweaveTransactionID`, which would otherwise throw at runtime once the
+// regex check fires).
+export { SolanaAddress } from './services/solana/SolanaAddress';
+export { SolanaSignature } from './services/solana/SolanaSignature';
 
-export type AoAddress = EthAddress | ArweaveTransactionID;
+/**
+ * `AoAddress` is the display-side union — most components only care about
+ * `.toString()`. Plain `string` is included so call sites that already
+ * hold a Solana address as a string (e.g. `walletAddress`) don't need to
+ * be wrapped just for display. New code should prefer the typed
+ * wrappers (`SolanaAddress`, `SolanaSignature`, `ArweaveTransactionID`)
+ * so the explorer-routing in `ArweaveID` picks the right URL without
+ * having to fall back to a length heuristic.
+ */
+export type AoAddress = SolanaAddressType | ArweaveTransactionID | string;

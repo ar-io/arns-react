@@ -1,4 +1,4 @@
-import { AoReturnedName } from '@ar.io/sdk';
+import { ReturnedName } from '@ar.io/sdk';
 import '@src/index.css';
 import type { Meta, StoryObj } from '@storybook/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -41,7 +41,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const stubData: AoReturnedName = {
+const stubData: ReturnedName = {
   name: 'ardrive',
   startTimestamp: Date.now(),
   endTimestamp: Date.now() + 1 ** 6,

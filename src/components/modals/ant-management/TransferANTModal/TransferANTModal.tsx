@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
+import { SolanaAddress } from '../../../../services/solana/SolanaAddress';
 import { TransferANTPayload, VALIDATION_INPUT_TYPES } from '../../../../types';
 import { formatForMaxCharCount, isValidAoAddress } from '../../../../utils';
 import { InfoIcon } from '../../../icons';
@@ -17,7 +18,9 @@ function TransferANTModal({
   payloadCallback,
   associatedNames,
 }: {
-  antId: ArweaveTransactionID; // process ID if asset type is a contract interaction
+  // ANT mint pubkey (Solana base58) or, on legacy AO, an Arweave tx id.
+  // The component only calls `.toString()` on it.
+  antId: ArweaveTransactionID | SolanaAddress;
   closeModal: () => void;
   payloadCallback: (payload: TransferANTPayload) => void;
   associatedNames: string[];
@@ -70,6 +73,7 @@ function TransferANTModal({
               <div className="flex flex-column" style={{ gap: '15px' }}>
                 <span className="grey">Recipient wallet address:</span>
                 <ValidationInput
+                  inputId="transfer-ant-target-input"
                   inputClassName="name-token-input white"
                   inputCustomStyle={{ paddingLeft: '10px', fontSize: '16px' }}
                   wrapperCustomStyle={{
@@ -81,7 +85,7 @@ function TransferANTModal({
                   showValidationOutline={true}
                   showValidationChecklist={true}
                   validationListStyle={{ display: 'none' }}
-                  maxCharLength={43}
+                  maxCharLength={44}
                   value={toAddress}
                   setValue={setToAddress}
                   validityCallback={(validity: boolean) =>
@@ -153,7 +157,7 @@ function TransferANTModal({
                   }}
                 >
                   <Checkbox
-                    rootClassName="accept-checkbox"
+                    rootClassName="accept-checkbox transfer-ant-accept-checkbox"
                     onChange={(e) => setAccepted(e.target.checked)}
                     checked={accepted && isValidAoAddress(toAddress)}
                     style={{ color: 'white' }}

@@ -1,80 +1,30 @@
-import { useConnectModal } from '@rainbow-me/rainbowkit';
-import {
-  BeaconWalletConnector,
-  EthWalletConnector,
-  WanderWalletConnector,
-} from '@src/services/wallets';
-import { ArweaveAppWalletConnector } from '@src/services/wallets/ArweaveAppWalletConnector';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAccount, useConfig, useDisconnect } from 'wagmi';
 
 import { useWalletState } from '../../../state/contexts/WalletState';
-import { AoAddress, ArNSWalletConnector, WALLET_TYPES } from '../../../types';
-import eventEmitter from '../../../utils/events';
-import {
-  ArweaveAppIcon,
-  BeaconIcon,
-  CloseIcon,
-  MetamaskIcon,
-  WanderIcon,
-} from '../../icons';
+import { AoAddress } from '../../../types';
+import { CloseIcon } from '../../icons';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function ConnectWalletModal(): JSX.Element {
   const modalRef = useRef<HTMLDivElement>(null);
-  const [
-    { wallet, walletAddress, walletStateInitialized },
-    dispatchWalletState,
-  ] = useWalletState();
+  const [{ wallet, walletAddress, walletStateInitialized }] = useWalletState();
   const navigate = useNavigate();
   const { state } = useLocation();
   const [connecting, setConnecting] = useState(false);
   const [loading, setLoading] = useState(!walletStateInitialized);
 
-  const config = useConfig();
-  const ethAccount = useAccount();
-  const { openConnectModal } = useConnectModal();
-  const { disconnectAsync } = useDisconnect();
+  const { setVisible: setSolanaModalVisible } = useWalletModal();
 
-  // Handle Ethereum wallet connection - detect when wagmi becomes connected
-  useEffect(() => {
-    if (
-      ethAccount.isConnected &&
-      ethAccount.address &&
-      ethAccount.connector &&
-      !wallet
-    ) {
-      try {
-        localStorage.setItem('walletType', WALLET_TYPES.ETHEREUM);
-
-        const walletConnector = new EthWalletConnector(
-          config,
-          ethAccount.connector,
-        );
-
-        dispatchWalletState({
-          type: 'setWalletAndAddress',
-          payload: {
-            wallet: walletConnector,
-            walletAddress: ethAccount.address,
-          },
-        });
-      } catch (error) {
-        console.error('Failed to create Ethereum wallet connector:', error);
-        localStorage.removeItem('walletType');
-        eventEmitter.emit('error', error);
-      }
-    }
-  }, [
-    ethAccount.isConnected,
-    ethAccount.address,
-    ethAccount.connector,
-    wallet,
-    config,
-    dispatchWalletState,
-  ]);
+  // The bridging of `@solana/wallet-adapter-react` → `SolanaWalletConnector`
+  // now lives in `WalletStateProvider` so reconnection happens on every
+  // mount regardless of route. This component only opens the picker; once
+  // the user approves, the global effect notices `useWallet().connected`
+  // flip and pushes the connector + address into wallet state, which
+  // triggers our `useEffect([wallet, walletAddress])` below to navigate
+  // away from `/connect`.
 
   useEffect(() => {
     if (walletStateInitialized) {
@@ -119,51 +69,8 @@ function ConnectWalletModal(): JSX.Element {
     }
   }
 
-  async function connect(walletConnector: ArNSWalletConnector) {
-    try {
-      setConnecting(true);
-
-      // Disconnect existing wallet before connecting new one
-      if (wallet) {
-        try {
-          await wallet.disconnect();
-        } catch {
-          // Ignore disconnect errors - wallet may already be disconnected
-        }
-      }
-
-      // Disconnect wagmi if switching to a non-Ethereum wallet
-      if (ethAccount.isConnected) {
-        try {
-          await disconnectAsync();
-        } catch {
-          // Ignore disconnect errors
-        }
-      }
-
-      await walletConnector.connect();
-
-      const address = await walletConnector.getWalletAddress();
-      dispatchWalletState({
-        type: 'setWalletAndAddress',
-        payload: {
-          wallet: walletConnector,
-          walletAddress: address,
-        },
-      });
-
-      closeModal({ next: true, address });
-    } catch (error: any) {
-      if (walletConnector) {
-        eventEmitter.emit('error', error);
-      }
-    } finally {
-      setConnecting(false);
-    }
-  }
-
   if (loading) {
-    return <PageLoader loading={true} message={'Connecting to Wallet'} />; // Replace with your loading component
+    return <PageLoader loading={true} message={'Connecting to Wallet'} />;
   }
 
   return (
@@ -175,92 +82,35 @@ function ConnectWalletModal(): JSX.Element {
     >
       <div className="connect-wallet-modal">
         <p className="section-header mb-4 font-bold">
-          Connect with an Arweave wallet
+          Connect with a Solana wallet
         </p>
         <button
-          // className="modal-close-button"
           className="absolute top-5 right-[1.875rem]"
           onClick={() => closeModal({ next: false })}
         >
           <CloseIcon className="fill-white size-6" />
         </button>
-        <button
-          disabled={connecting}
-          className="wallet-connect-button text-base"
-          onClick={() => {
-            connect(new WanderWalletConnector());
-          }}
-        >
-          <WanderIcon className="external-icon size-12 p-3" />
-          Wander
-        </button>
 
-        <button
-          className="wallet-connect-button text-base"
-          onClick={() => {
-            connect(new ArweaveAppWalletConnector());
-          }}
-        >
-          <img
-            className="external-icon size-12 p-3"
-            src={ArweaveAppIcon}
-            alt=""
-          />
-          Arweave.app
-        </button>
-
-        <button
-          className="wallet-connect-button text-base"
-          onClick={() => {
-            connect(new BeaconWalletConnector());
-          }}
-        >
-          <BeaconIcon className="external-icon size-12 p-3" />
-          Beacon
-        </button>
-
-        <p className="section-header mb-4">Connect with an Ethereum wallet</p>
         <button
           type="button"
           className="wallet-connect-button text-base"
           disabled={connecting}
           onClick={async () => {
-            // If already connected via wagmi and user wants to use same wallet
-            // they can click again after Rainbow Kit shows "Already connected"
-            // For wallet switching, we disconnect first then open modal
-            if (ethAccount.isConnected) {
-              try {
-                // Disconnect existing wagmi connection to allow fresh wallet selection
-                await disconnectAsync();
-              } catch {
-                // Ignore disconnect errors
-              }
-            }
-
-            // Disconnect any existing non-Ethereum wallet
-            if (wallet && !(wallet instanceof EthWalletConnector)) {
-              try {
-                await wallet.disconnect();
-                dispatchWalletState({
-                  type: 'setWalletAndAddress',
-                  payload: {
-                    wallet: undefined,
-                    walletAddress: undefined,
-                  },
-                });
-              } catch {
-                // Ignore disconnect errors
-              }
-            }
-
-            // Open Rainbow Kit modal for wallet selection
-            if (openConnectModal) {
-              openConnectModal();
+            setConnecting(true);
+            try {
+              // Open the wallet-adapter-react-ui picker. Once the user picks
+              // a wallet and approves connection, the useEffect above wraps
+              // it in our SolanaWalletConnector and pushes it into state.
+              setSolanaModalVisible(true);
+            } finally {
+              setConnecting(false);
             }
           }}
         >
-          <MetamaskIcon className="external-icon size-12 p-3" />
-          Ethereum Wallets
+          <span className="external-icon flex size-12 items-center justify-center p-3 text-2xl font-bold">
+            ◎
+          </span>
+          Solana Wallets
         </button>
 
         <span
@@ -270,7 +120,7 @@ function ConnectWalletModal(): JSX.Element {
           Don&apos;t have a wallet?&nbsp;
           <a
             target="_blank"
-            href="https://ar.io/wallet"
+            href="https://solana.com/solana-wallets"
             style={{
               color: 'inherit',
               textDecoration: 'underline',

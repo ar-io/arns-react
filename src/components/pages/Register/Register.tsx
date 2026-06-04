@@ -1,11 +1,12 @@
 import { CheckCircleFilled } from '@ant-design/icons';
-import { ANT, AOProcess, mARIOToken } from '@ar.io/sdk/web';
+import { mARIOToken } from '@ar.io/sdk/web';
 import Tooltip from '@src/components/Tooltips/Tooltip';
 import { Accordion } from '@src/components/data-display';
 import { useLatestANTVersion } from '@src/hooks/useANTVersions';
-import { useArNSIntentPrice } from '@src/hooks/useArNSIntentPrice';
+import { useArIoPrice } from '@src/hooks/useArIOPrice';
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import { ValidationError } from '@src/utils/errors';
+import { buildAntRead } from '@src/utils/sdk-init';
 import emojiRegex from 'emoji-regex';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -47,16 +48,11 @@ import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function RegisterNameForm() {
-  const [
-    {
-      arweaveDataProvider,
-      arioTicker,
-      arioProcessId,
-      antAoClient,
-      antRegistryProcessId,
-      hyperbeamUrl,
-    },
-  ] = useGlobalState();
+  const [{ arweaveDataProvider, arioTicker }] = useGlobalState();
+  // Legacy AO fields kept as no-op placeholders for the existing payload
+  // shapes; the Solana dispatchers ignore them.
+  const arioProcessId = '';
+  const antRegistryProcessId = '';
   const [
     { domain, leaseDuration, registrationType, antID, targetId },
     dispatchRegisterState,
@@ -67,22 +63,19 @@ function RegisterNameForm() {
     type: registrationType,
     years: leaseDuration,
   });
-  const { data: fiatPrice } = useArNSIntentPrice({
-    intent: 'Buy-Name',
-    name: domain,
-    type: registrationType,
-    years: leaseDuration,
-  });
+  const { data: arIoPrice } = useArIoPrice();
   const formatedPriceString = useMemo(() => {
-    if (!fiatPrice || !costDetails) return 'Calculating prices...';
-    return `Cost: $${formatARIOWithCommas(
-      fiatPrice.fiatEstimate.paymentAmount / 100,
-    )} USD ( ${formatARIO(
-      new mARIOToken(costDetails.tokenCost).toARIO().valueOf(),
-    )} ${arioTicker} )`;
-  }, [fiatPrice, costDetails]);
+    if (!costDetails) return 'Calculating prices...';
+    const arioCost = new mARIOToken(costDetails.tokenCost).toARIO().valueOf();
+    const usdPart =
+      arIoPrice !== undefined
+        ? `Cost: $${formatARIOWithCommas(arioCost * arIoPrice)} USD ( `
+        : 'Cost: ';
+    const usdSuffix = arIoPrice !== undefined ? ' )' : '';
+    return `${usdPart}${formatARIO(arioCost)} ${arioTicker}${usdSuffix}`;
+  }, [arIoPrice, costDetails, arioTicker]);
 
-  const [{ walletAddress }] = useWalletState();
+  const [{ walletAddress, wallet }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();
   const { name } = useParams();
   const { isLoading: isValidatingRegistration } = useRegistrationStatus(
@@ -124,13 +117,7 @@ function RegisterNameForm() {
       payload: id,
     });
 
-    const contract = ANT.init({
-      hyperbeamUrl,
-      process: new AOProcess({
-        processId: id.toString(),
-        ao: antAoClient,
-      }),
-    });
+    const contract = await buildAntRead({ processId: id.toString() });
     if (!contract) throw new Error('Contract not found');
   }
 
@@ -151,7 +138,13 @@ function RegisterNameForm() {
         return;
       }
 
-      if (!antModuleId) {
+      // NOTE (de-AO refactor): `antModuleId` is the AO Lua-module ID used
+      // to spawn legacy ANT processes. On Solana, ANTs are Metaplex Core
+      // NFTs spawned by `spawnSolanaANT` and there is no module ID — the
+      // `useLatestANTVersion` hook always returns `null`. Skip the legacy
+      // gate; the spawn path is selected downstream based on the connected
+      // wallet's `tokenType`.
+      if (!antModuleId && wallet?.tokenType !== 'solana') {
         await refetchAntVersion();
         if (!antModuleId) {
           throw new Error('No ANT Module available, try again later');
@@ -187,7 +180,11 @@ function RegisterNameForm() {
           : undefined,
       type: registrationType,
       targetId,
-      antModuleId,
+      // antModuleId is the AO Lua module ID; on Solana there's no module
+      // (ANTs are Metaplex Core NFTs). Cast through `any` to satisfy the
+      // legacy `BuyRecordPayload` shape until the consumer type is split
+      // by backend.
+      antModuleId: antModuleId as any,
       antRegistryId: antRegistryProcessId,
     };
 
@@ -286,6 +283,7 @@ function RegisterNameForm() {
               style={{ gap: '25px' }}
             >
               <button
+                data-testid="register-type-lease"
                 className="flex flex-row center text-medium bold pointer"
                 onClick={() =>
                   dispatchRegisterState({
@@ -327,6 +325,7 @@ function RegisterNameForm() {
                 )}
               </button>
               <button
+                data-testid="register-type-permabuy"
                 className="flex flex-row center text-medium bold pointer"
                 style={{
                   position: 'relative',

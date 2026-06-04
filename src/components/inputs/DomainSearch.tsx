@@ -1,4 +1,4 @@
-import { AoArNSNameData } from '@ar.io/sdk/web';
+import { ArNSNameData } from '@ar.io/sdk/web';
 import { useRegistrationStatus } from '@src/hooks/useRegistrationStatus/useRegistrationStatus';
 import { decodeDomainToASCII, lowerCaseDomain } from '@src/utils';
 import { MAX_ARNS_NAME_LENGTH } from '@src/utils/constants';
@@ -32,7 +32,7 @@ function DomainSearch({
   setIsAvailable?: (isAvailable: boolean) => void;
   setIsReturnedName?: (isReturnedName: boolean) => void;
   setDomainQuery?: (searchQuery: string) => void;
-  setDomainRecord?: (domainRecord: AoArNSNameData | undefined) => void;
+  setDomainRecord?: (domainRecord: ArNSNameData | undefined) => void;
   setIsValidDomain?: (isValidDomain: boolean) => void;
   setValidationError?: (validationError: string) => void;
   onClickOutside?: (e: MouseEvent) => void;
@@ -63,7 +63,7 @@ function DomainSearch({
     setIsReturnedName(false);
     setDomainQuery('');
     setDebouncedSearchQuery('');
-    setDomainRecord({} as AoArNSNameData);
+    setDomainRecord({} as ArNSNameData);
     setIsValidDomain(false);
     setValidationError('');
   }
@@ -79,7 +79,7 @@ function DomainSearch({
     isLoading: boolean;
     isAvailable: boolean;
     isReturnedName: boolean;
-    domainRecord: AoArNSNameData | null | undefined;
+    domainRecord: ArNSNameData | null | undefined;
   }) {
     if (debouncedSearchQuery.length === 0) {
       reset();
@@ -91,7 +91,7 @@ function DomainSearch({
     setDomainQuery(debouncedSearchQuery);
     setIsAvailable(isAvailable);
     setIsReturnedName(isReturnedName);
-    setDomainRecord(domainRecord ?? ({} as AoArNSNameData));
+    setDomainRecord(domainRecord ?? ({} as ArNSNameData));
     setValidationError(isAvailable ? '' : 'This domain is already taken');
   }
 

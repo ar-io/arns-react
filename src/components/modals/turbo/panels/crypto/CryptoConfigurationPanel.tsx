@@ -7,7 +7,10 @@ import {
 import { useTurboArNSClient } from '@src/hooks/useTurboArNSClient';
 import useUploadCostGib from '@src/hooks/useUploadCostGib';
 import { useWalletState } from '@src/state';
-import { WALLET_TYPES } from '@src/types';
+import { WALLET_TYPES as _WALLET_TYPES } from '@src/types';
+// Cast to `any` for legacy WANDER/ARWEAVE_APP/BEACON/ETHEREUM enum
+// references in branches that are unreachable after the de-AO refactor.
+const WALLET_TYPES: any = _WALLET_TYPES;
 import {
   ARWEAVE_WALLET_TOKENS,
   CRYPTO_PRESETS,

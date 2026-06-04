@@ -1,8 +1,13 @@
 import { InfoCircleOutlined } from '@ant-design/icons';
-import { AoArNSNameData } from '@ar.io/sdk/web';
+import { ArNSNameData } from '@ar.io/sdk/web';
 import { useANT } from '@src/hooks/useANT/useANT';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { decodeDomainToASCII, isArweaveTransactionID } from '@src/utils';
+import { SolanaAddress } from '@src/services/solana/SolanaAddress';
+import {
+  decodeDomainToASCII,
+  isArweaveTransactionID,
+  isValidAoAddress,
+} from '@src/utils';
 import { ReactNode } from 'react';
 
 import { Tooltip } from '../data-display';
@@ -18,7 +23,7 @@ function DomainDetailsTip({
   ),
 }: {
   domain: string;
-  domainRecord?: AoArNSNameData;
+  domainRecord?: ArNSNameData;
   icon?: ReactNode;
 }) {
   const { loading: loadingAntState, ...antState } = useANT(
@@ -39,9 +44,13 @@ function DomainDetailsTip({
             </span>
             <span className="flex gap-2 text-sm text-grey py-4 border-b-[1px] border-dark-grey whitespace-nowrap">
               Process ID:
-              {isArweaveTransactionID(domainRecord.processId) ? (
+              {isValidAoAddress(domainRecord.processId) ? (
                 <ArweaveID
-                  id={new ArweaveTransactionID(domainRecord.processId)}
+                  id={
+                    isArweaveTransactionID(domainRecord.processId)
+                      ? new ArweaveTransactionID(domainRecord.processId)
+                      : new SolanaAddress(domainRecord.processId)
+                  }
                   shouldLink={true}
                   characterCount={16}
                   type={ArweaveIdTypes.CONTRACT}
@@ -79,9 +88,13 @@ function DomainDetailsTip({
             </span>
             <span className="flex gap-2 text-sm text-grey py-4 border-b-[1px] border-dark-grey whitespace-nowrap">
               Owner:
-              {isArweaveTransactionID(antState.owner) ? (
+              {antState.owner && isValidAoAddress(antState.owner) ? (
                 <ArweaveID
-                  id={new ArweaveTransactionID(antState.owner)}
+                  id={
+                    isArweaveTransactionID(antState.owner)
+                      ? new ArweaveTransactionID(antState.owner)
+                      : new SolanaAddress(antState.owner)
+                  }
                   shouldLink={true}
                   characterCount={16}
                   type={ArweaveIdTypes.ADDRESS}

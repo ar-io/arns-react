@@ -1,10 +1,8 @@
 import {
   ANT,
-  AOProcess,
-  AoANTState,
-  AoARIORead,
-  AoArNSNameDataWithName,
-  AoClient,
+  ANTState,
+  ARIORead,
+  ArNSNameDataWithName,
   mARIOToken,
 } from '@ar.io/sdk/web';
 import { ArweaveCompositeDataProvider } from '@src/services/arweave/ArweaveCompositeDataProvider';
@@ -46,53 +44,28 @@ export const queryClient = new QueryClient({
 
 export function buildAntStateQuery({
   processId,
-  ao,
   hyperbeamUrl,
+  solana,
 }: {
   processId: string;
-  ao: AoClient;
   hyperbeamUrl?: string;
-}): Parameters<typeof useQuery<AoANTState>>[0] {
+  /** When true, init the SDK against the Solana ANT program instead of AO. */
+  solana?: boolean;
+}): Parameters<typeof useQuery<ANTState>>[0] {
   return {
-    queryKey: ['ant', processId],
+    queryKey: ['ant', processId, solana ? 'solana' : 'ao'],
     queryFn: async () => {
-      if (!processId || !isArweaveTransactionID(processId))
+      if (!processId) throw new Error('Must provide a process id');
+      // AO ids are 43-char Arweave txids; Solana ids are 32–44-char base58
+      // Metaplex Core asset addresses. Only enforce the Arweave shape on AO.
+      if (!solana && !isArweaveTransactionID(processId)) {
         throw new Error('Must provide a valid process id');
+      }
 
-      const ant = ANT.init({
-        process: new AOProcess({ processId, ao }),
-        hyperbeamUrl,
-      });
+      // Lazy-import sdk-init to avoid a circular import via constants.
+      const { buildAntRead } = await import('./sdk-init');
+      const ant = await buildAntRead({ solana, processId, hyperbeamUrl });
       return await ant.getState();
-    },
-    staleTime: Infinity,
-  };
-}
-
-export function buildAntVersionQuery({
-  processId,
-  ao,
-  hyperbeamUrl,
-  graphqlUrl,
-  antRegistryId,
-}: {
-  processId: string;
-  ao: AoClient;
-  hyperbeamUrl?: string;
-  graphqlUrl?: string;
-  antRegistryId: string;
-}): Parameters<typeof useQuery<string>>[0] {
-  return {
-    queryKey: ['ant-version', processId],
-    queryFn: async () => {
-      if (!processId || !isArweaveTransactionID(processId))
-        throw new Error('Must provide a valid process id');
-
-      const ant = ANT.init({
-        process: new AOProcess({ processId, ao }),
-        hyperbeamUrl,
-      });
-      return await ant.getVersion({ graphqlUrl, antRegistryId });
     },
     staleTime: Infinity,
   };
@@ -103,7 +76,7 @@ export function buildIOBalanceQuery({
   address,
   meta,
 }: {
-  arioContract: AoARIORead;
+  arioContract: ARIORead;
   address: string;
   meta?: string[];
 }): Parameters<typeof useQuery<number>>[0] {
@@ -148,16 +121,22 @@ export function buildArNSRecordsQuery({
   arioContract,
   filters,
 }: {
-  arioContract: AoARIORead;
+  arioContract: ARIORead;
   filters?: Partial<
     Record<
-      keyof AoArNSNameDataWithName,
+      keyof ArNSNameDataWithName,
       string | number | boolean | string[] | number[] | boolean[]
     >
   >;
-}): Parameters<typeof useQuery<AoArNSNameDataWithName[]>>[0] {
+}): Parameters<typeof useQuery<ArNSNameDataWithName[]>>[0] {
+  // Solana `ARIO` instances don't expose a `.process.processId` (no AO process
+  // backs them) — fall back to a stable sentinel for the cache key in that
+  // case so React Query can still de-dup the query.
+  const cacheKey =
+    (arioContract as { process?: { processId?: string } }).process?.processId ??
+    'solana';
   return {
-    queryKey: ['arns-records', arioContract.process.processId, filters],
+    queryKey: ['arns-records', cacheKey, filters],
     queryFn: async () => {
       let hasMore = true;
       let cursor = undefined;

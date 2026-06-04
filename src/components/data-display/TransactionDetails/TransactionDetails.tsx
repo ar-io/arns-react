@@ -1,4 +1,4 @@
-import { AoGetCostDetailsParams, mARIOToken } from '@ar.io/sdk';
+import { GetCostDetailsParams, mARIOToken } from '@ar.io/sdk';
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import { useGlobalState } from '@src/state';
 import { formatARIOWithCommas } from '@src/utils';
@@ -10,12 +10,12 @@ export function TransactionDetails({
   details,
   fundingSourceCallback,
 }: {
-  details: AoGetCostDetailsParams;
-  fundingSourceCallback?: (p: AoGetCostDetailsParams['fundFrom']) => void;
+  details: GetCostDetailsParams;
+  fundingSourceCallback?: (p: GetCostDetailsParams['fundFrom']) => void;
 }) {
   const [{ arioTicker }] = useGlobalState();
   const [fundingSource, setFundingSource] =
-    useState<AoGetCostDetailsParams['fundFrom']>('balance');
+    useState<GetCostDetailsParams['fundFrom']>('balance');
   const { data: costDetail } = useCostDetails({
     ...details,
     fundFrom: fundingSource,
@@ -58,7 +58,7 @@ export function TransactionDetails({
     ? new mARIOToken(costDetail.tokenCost).toARIO().valueOf()
     : 0;
 
-  function handleChange(source: AoGetCostDetailsParams['fundFrom']) {
+  function handleChange(source: GetCostDetailsParams['fundFrom']) {
     setFundingSource(source);
     fundingSourceCallback?.(source);
   }

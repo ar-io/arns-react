@@ -1,14 +1,10 @@
-import {
-  ANT_REGISTRY_ID,
-  AOProcess,
-  ARIO,
-  AoARIORead,
-  AoARIOWrite,
-  AoClient,
-} from '@ar.io/sdk/web';
-import { connect } from '@permaweb/aoconnect';
-import { SETTINGS_STORAGE_KEY } from '@src/hooks';
+import { ARIO, ARIORead, ARIOWrite } from '@ar.io/sdk/web';
 import eventEmitter from '@src/utils/events';
+import {
+  type SolanaNetworkConfig,
+  getActiveSolanaConfig,
+  getSolanaRpc,
+} from '@src/utils/solana';
 import React, {
   Dispatch,
   createContext,
@@ -17,44 +13,33 @@ import React, {
   useReducer,
 } from 'react';
 
-import { ArweaveCompositeDataProvider } from '../../services/arweave/ArweaveCompositeDataProvider';
 import { SimpleArweaveDataProvider } from '../../services/arweave/SimpleArweaveDataProvider';
-import {
-  ARIO_AO_CU_URL,
-  ARIO_PROCESS_ID,
-  DEFAULT_ARWEAVE,
-  NETWORK_DEFAULTS,
-} from '../../utils/constants';
+import { DEFAULT_ARWEAVE, NETWORK_DEFAULTS } from '../../utils/constants';
 import type { GlobalAction } from '../reducers/GlobalReducer';
 
-// Function to load settings from localStorage
+const SETTINGS_KEY = 'arns-app-settings';
+
 function loadSettingsFromStorage(): {
   gateway: string;
-  aoNetwork: typeof NETWORK_DEFAULTS.AO;
+  dataGateway: string;
   turboNetwork: typeof NETWORK_DEFAULTS.TURBO;
-  arioProcessId: string;
-  antRegistryProcessId: string;
-  hyperbeamUrl?: string;
 } | null {
   try {
-    const savedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    const savedSettings = localStorage.getItem(SETTINGS_KEY);
 
     if (savedSettings) {
       const settings = JSON.parse(savedSettings);
       console.log(
         'Loading settings from localStorage:',
-        SETTINGS_STORAGE_KEY,
+        SETTINGS_KEY,
         settings,
       );
 
       return {
         gateway: settings.network?.gateway || NETWORK_DEFAULTS.ARNS.HOST,
-        aoNetwork: settings.network?.aoNetwork || NETWORK_DEFAULTS.AO,
+        dataGateway:
+          settings.network?.dataGateway || NETWORK_DEFAULTS.DATA.HOST,
         turboNetwork: settings.network?.turboNetwork || NETWORK_DEFAULTS.TURBO,
-        arioProcessId: settings.arns?.arioProcessId || ARIO_PROCESS_ID,
-        antRegistryProcessId:
-          settings.arns?.antRegistryProcessId || ANT_REGISTRY_ID,
-        hyperbeamUrl: settings.network?.hyperbeamUrl || undefined,
       };
     }
   } catch (error) {
@@ -66,68 +51,74 @@ function loadSettingsFromStorage(): {
 
 export const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);
 
-// Load saved settings or use defaults
 const savedSettings = loadSettingsFromStorage();
 const initialGateway = savedSettings?.gateway || NETWORK_DEFAULTS.ARNS.HOST;
-const initialAoNetwork = savedSettings?.aoNetwork || NETWORK_DEFAULTS.AO;
+const initialDataGateway =
+  savedSettings?.dataGateway || NETWORK_DEFAULTS.DATA.HOST;
 const initialTurboNetwork =
   savedSettings?.turboNetwork || NETWORK_DEFAULTS.TURBO;
-const initialArioProcessId = savedSettings?.arioProcessId || ARIO_PROCESS_ID;
-const initialAntRegistryProcessId =
-  savedSettings?.antRegistryProcessId || ANT_REGISTRY_ID;
-const initialHyperbeamUrl = savedSettings?.hyperbeamUrl;
 
-export const defaultArIO = ARIO.init({
-  paymentUrl: initialTurboNetwork.PAYMENT_URL,
-  hyperbeamUrl: initialHyperbeamUrl,
-  process: new AOProcess({
-    processId: initialArioProcessId,
-    ao: connect({
-      CU_URL: ARIO_AO_CU_URL,
-      MODE: 'legacy',
-    }),
-  }),
-});
+function buildProgramIds(config: SolanaNetworkConfig) {
+  const ids: Record<string, any> = {};
+  if (config.programIds.coreProgramId)
+    ids.coreProgramId = config.programIds.coreProgramId;
+  if (config.programIds.garProgramId)
+    ids.garProgramId = config.programIds.garProgramId;
+  if (config.programIds.arnsProgramId)
+    ids.arnsProgramId = config.programIds.arnsProgramId;
+  if (config.programIds.antProgramId)
+    ids.antProgramId = config.programIds.antProgramId;
+  return ids;
+}
+
+export function buildDefaultArIO(config?: SolanaNetworkConfig) {
+  const solConfig = config ?? getActiveSolanaConfig();
+  return ARIO.init({
+    rpc: getSolanaRpc(),
+    ...buildProgramIds(solConfig),
+  });
+}
+
+export const defaultArIO = buildDefaultArIO();
 
 export type GlobalState = {
   arioTicker: string;
+  /**
+   * Host used for ArNS name resolution — e.g. `${name}.${gateway}` produces a
+   * link to a registered ArNS site. Does NOT fetch raw transaction data.
+   */
   gateway: string;
-  aoNetwork: typeof NETWORK_DEFAULTS.AO;
+  /**
+   * Host used for fetching transaction data by id (logos, target ids,
+   * undername targets). Defaults to `turbo-gateway.com` — Turbo's
+   * data-only edge — which is purpose-built for `${dataGateway}/${txid}`
+   * requests and is independent of ArNS resolution.
+   */
+  dataGateway: string;
   turboNetwork: typeof NETWORK_DEFAULTS.TURBO;
-  aoClient: AoClient;
-  antAoClient: AoClient;
-  arioProcessId: string;
-  antRegistryProcessId: string;
   blockHeight?: number;
   lastBlockUpdateTimestamp?: number;
-  arweaveDataProvider: ArweaveCompositeDataProvider;
-  arioContract: AoARIORead | AoARIOWrite;
-  hyperbeamUrl?: string;
+  /**
+   * Arweave-only data provider used for tx-id validation, block-height
+   * polling, AR-price lookups, and (legacy) ANT record discovery via
+   * GraphQL. Stays Arweave-bound — the AR.IO Solana protocol still uses
+   * Arweave TX IDs as content-target identifiers.
+   */
+  arweaveDataProvider: SimpleArweaveDataProvider;
+  arioContract: ARIORead | ARIOWrite;
+  solanaConfig: SolanaNetworkConfig;
 };
 
 const initialState: GlobalState = {
-  arioProcessId: initialArioProcessId,
-  antRegistryProcessId: initialAntRegistryProcessId,
   arioTicker: 'ARIO',
   gateway: initialGateway,
-  aoNetwork: initialAoNetwork,
+  dataGateway: initialDataGateway,
   turboNetwork: initialTurboNetwork,
-  aoClient: connect({
-    ...initialAoNetwork.ARIO,
-    GATEWAY_URL: 'https://' + initialGateway,
-  }),
-  antAoClient: connect({
-    ...initialAoNetwork.ANT,
-    GATEWAY_URL: 'https://' + initialGateway,
-  }),
-  hyperbeamUrl: initialHyperbeamUrl,
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,
-  arweaveDataProvider: new ArweaveCompositeDataProvider({
-    arweave: defaultArweave,
-    contract: defaultArIO,
-  }),
+  arweaveDataProvider: defaultArweave,
   arioContract: defaultArIO,
+  solanaConfig: getActiveSolanaConfig(),
 };
 
 const GlobalStateContext = createContext<[GlobalState, Dispatch<GlobalAction>]>(
@@ -140,7 +131,7 @@ export const useGlobalState = (): [GlobalState, Dispatch<GlobalAction>] =>
 type StateProviderProps = {
   reducer: React.Reducer<GlobalState, GlobalAction>;
   children: React.ReactNode;
-  arweaveDataProvider?: ArweaveCompositeDataProvider;
+  arweaveDataProvider?: SimpleArweaveDataProvider;
 };
 
 /** Create provider to wrap app in */

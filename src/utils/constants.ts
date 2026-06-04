@@ -1,12 +1,11 @@
-import {
-  ANT_LUA_ID,
-  ANT_REGISTRY_ID,
-  ARIO_TESTNET_PROCESS_ID,
-  DEFAULT_SCHEDULER_ID,
-} from '@ar.io/sdk/web';
+// AO-era constants — removed from @ar.io/sdk after the Solana migration.
+// Kept here for legacy AO network config until the AO plumbing is fully ripped.
+const ARIO_TESTNET_PROCESS_ID = 'agYcCFJtrMG6cqMuZfskIkFTGvUPddICmtQSBIoPdiA';
+const ANT_REGISTRY_ID = 'i_le_yKKPVstLTDSmkHRqf-wYphMnwB9OhleiTgMkWc';
+const ANT_LUA_ID = 'sOW9Sdm1yoPRrzerC5iu1nsupp4e6I-HnJyYVHzvzQo';
+const DEFAULT_SCHEDULER_ID = '_GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA';
 import { TokenType } from '@ardrive/turbo-sdk';
 import Arweave from 'arweave';
-import { ArweaveWebWallet } from 'arweave-wallet-connector';
 
 import AO_IMAGE from '../../assets/images/featured-domains/ao.png';
 import ARDRIVE_IMAGE from '../../assets/images/featured-domains/ardrive.png';
@@ -22,14 +21,17 @@ import { ArweaveTransactionID } from '../services/arweave/ArweaveTransactionID';
 export const APP_NAME = 'AR-IO-ArNS-App';
 export const APP_VERSION = __NPM_PACKAGE_VERSION__ || '1.0.0';
 
-/** When true, all ArNS name purchase flows (buy, extend, upgrade undernames) are disabled. */
-export const ARNS_PURCHASES_DISABLED = true;
+/**
+ * When true, all ArNS name purchase flows (buy, extend, upgrade undernames)
+ * are disabled. Re-enabled by default in this monorepo build because the
+ * Solana backend wiring (see `dispatchArIOInteraction.BUY_RECORD`) goes
+ * straight at the ario-arns program — purchases are no longer gated on
+ * the AO migration cutover.
+ */
+export const ARNS_PURCHASES_DISABLED = false;
 export const ARNS_PURCHASES_DISABLED_TOOLTIP =
   'Purchases are paused during the migration to Solana and will resume shortly.';
-export const SOLANA_MIGRATION_LINK = 'https://ar.io/solana-migration/';
 
-// This is the minimum version all workflows are currently compatible with (including reassign, release, etc)
-export const MIN_ANT_VERSION = 16;
 export const WRITE_OPTIONS = {
   tags: [
     {
@@ -39,11 +41,6 @@ export const WRITE_OPTIONS = {
     { name: 'App-Version', value: APP_VERSION },
   ],
 };
-
-export const ARWEAVE_APP_API = new ArweaveWebWallet(
-  { name: 'ArNS' },
-  { state: { url: 'arweave.app' } },
-);
 
 export const ARWEAVE_HOST = import.meta.env.VITE_ARWEAVE_HOST ?? 'arweave.net';
 export const ARWEAVE_GRAPHQL_URL =
@@ -165,6 +162,9 @@ export const NETWORK_DEFAULTS = {
   },
   ARNS: {
     HOST: 'ar.io',
+  },
+  DATA: {
+    HOST: 'turbo-gateway.com',
   },
   TURBO: {
     UPLOAD_URL: 'https://turbo.ardrive.io',

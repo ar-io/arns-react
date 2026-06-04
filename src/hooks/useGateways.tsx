@@ -1,12 +1,13 @@
-import { AoGateway } from '@ar.io/sdk/web';
+import { Gateway } from '@ar.io/sdk/web';
 import { useGlobalState } from '@src/state';
+import { arioContractCacheKey } from '@src/utils/sdk-init';
 import { useQuery } from '@tanstack/react-query';
 
 const useGateways = () => {
-  const [{ arioContract, arioProcessId }] = useGlobalState();
+  const [{ arioContract }] = useGlobalState();
 
   return useQuery({
-    queryKey: ['gateways', arioProcessId?.toString()],
+    queryKey: ['gateways', arioContractCacheKey(arioContract)],
     queryFn: async () => {
       const result = await arioContract.getGateways({ limit: 1000 });
       const gateways = result.items.reduce(
@@ -14,12 +15,12 @@ const useGateways = () => {
           acc[gateway.gatewayAddress] = gateway;
           return acc;
         },
-        {} as Record<string, AoGateway>,
+        {} as Record<string, Gateway>,
       );
 
       return gateways;
     },
-    staleTime: 60 * 1000 * 5, // 5 minutes
+    staleTime: 60 * 1000 * 5,
   });
 };
 

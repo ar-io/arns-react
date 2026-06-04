@@ -1,4 +1,11 @@
-const ARWEAVE_TX_REGEX = new RegExp('^[a-zA-Z0-9-_s+]{43}$');
+// Arweave transaction IDs are exactly 43 base64url characters. Solana
+// addresses and signatures must be wrapped in their own type — never pass
+// them through this class.
+//
+// The previous regex (`^[a-zA-Z0-9-_s+]{43}$`) also had a stray `s+` that
+// was almost certainly a typo for `\s` (which would never appear in a real
+// TX ID anyway); we drop it here.
+const ARWEAVE_TX_ID_REGEX = /^[a-zA-Z0-9_-]{43}$/;
 
 export interface Equatable<T> {
   equals(other: T): boolean;
@@ -6,9 +13,9 @@ export interface Equatable<T> {
 
 export class ArweaveTransactionID implements Equatable<ArweaveTransactionID> {
   constructor(private readonly transactionId?: string) {
-    if (!transactionId || !ARWEAVE_TX_REGEX.test(transactionId)) {
+    if (!transactionId || !ARWEAVE_TX_ID_REGEX.test(transactionId)) {
       throw new Error(
-        'Transaction ID should be a 43-character, alphanumeric string potentially including "-" and "_" characters.',
+        'Transaction ID should be a 43-character base64url string (alphanumeric plus "-" and "_").',
       );
     }
   }

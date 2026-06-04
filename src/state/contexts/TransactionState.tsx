@@ -58,7 +58,7 @@ export function TransactionStateProvider({
   );
 
   const queryClient = useQueryClient();
-  const [{ aoNetwork, hyperbeamUrl, antRegistryProcessId }] = useGlobalState();
+  useGlobalState();
   const [walletState] = useWalletState();
   const [, dispatchArNSState] = useArNSState();
 
@@ -69,6 +69,17 @@ export function TransactionStateProvider({
       state.interactionResult //&&
       // refreshableInteractionTypes.includes(state?.workflowName ?? '')
     ) {
+      // Belt-and-suspenders for any interaction that doesn't already
+      // route through `dispatchArNSUpdate` (which is the canonical
+      // post-write cache reset for ArNS / ANT flows — see
+      // `Checkout.tsx`, `ReturnNameModal`, `ReassignNameModal`,
+      // `Manage.tsx`). For the buy path, this
+      // is a no-op: `dispatchArNSUpdate` has already reset
+      // `domainInfo` (and the upstream `arns-records` / `ant` /
+      // `ario-liquid-balance` caches that fan into it). Keeping a
+      // narrow `domainInfo` invalidate here so misc ANT-only writes
+      // that only call `dispatchANTUpdate` still bust the manage
+      // page header.
       queryClient.invalidateQueries(
         {
           queryKey: ['domainInfo'],
@@ -92,7 +103,6 @@ export function TransactionStateProvider({
       if (
         [
           ANT_INTERACTION_TYPES.REASSIGN_NAME,
-          ANT_INTERACTION_TYPES.UPGRADE_ANT,
           ANT_INTERACTION_TYPES.TRANSFER,
         ].includes(state.workflowName as ANT_INTERACTION_TYPES)
       ) {
@@ -106,9 +116,6 @@ export function TransactionStateProvider({
         processId: state.interactionResult?.processId,
         walletAddress: walletState.walletAddress,
         dispatch: dispatchArNSState,
-        aoNetwork,
-        hyperbeamUrl,
-        antRegistryProcessId,
       });
     }
   }, [state.interactionResult, queryClient, walletState]);

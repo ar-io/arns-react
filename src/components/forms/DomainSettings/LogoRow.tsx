@@ -3,6 +3,7 @@ import ArweaveID, {
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import LogoUploadModal from '@src/components/modals/LogoUploadModal/LogoUploadModal';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { useGlobalState } from '@src/state';
 import { ContractInteraction } from '@src/types';
 import { isArweaveTransactionID } from '@src/utils';
 import eventEmitter from '@src/utils/events';
@@ -22,6 +23,7 @@ export default function LogoRow({
 }) {
   const [showUpdateModal, setShowUpdateModal] = useState<boolean>(false);
   const [isConfirming, setIsConfirming] = useState<boolean>(false);
+  const [{ dataGateway }] = useGlobalState();
 
   async function handleUpdateSuccess(txId: string) {
     setIsConfirming(true);
@@ -62,6 +64,7 @@ export default function LogoRow({
               <ArweaveID
                 id={new ArweaveTransactionID(logoTxId)}
                 shouldLink
+                linkBase={`https://${dataGateway}/`}
                 characterCount={16}
                 type={ArweaveIdTypes.TRANSACTION}
               />

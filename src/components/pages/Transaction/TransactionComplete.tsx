@@ -154,6 +154,7 @@ function TransactionComplete() {
             }}
           >
             <button
+              data-testid="transaction-complete-back-to-manage"
               className="flex button hover center white"
               onClick={() => navigate('/manage')}
               style={{ gap: '10px' }}
