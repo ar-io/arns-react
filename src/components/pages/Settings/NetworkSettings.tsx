@@ -220,12 +220,10 @@ function NetworkSettings() {
   );
 }
 
-const PRESET_NETWORKS: SolanaNetwork[] = ['localnet', 'devnet', 'mainnet-beta'];
+const PRESET_NETWORKS: SolanaNetwork[] = ['devnet', 'mainnet-beta'];
 
 const PRESET_LABELS: Record<SolanaNetwork, string> = {
-  localnet: 'Localnet (Surfpool)',
   devnet: 'Devnet',
-  testnet: 'Testnet',
   'mainnet-beta': 'Mainnet',
 };
 
