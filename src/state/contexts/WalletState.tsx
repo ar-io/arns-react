@@ -8,6 +8,7 @@ import React, {
   useContext,
   useEffect,
   useReducer,
+  useRef,
 } from 'react';
 
 import { useEffectOnce } from '../../hooks/useEffectOnce/useEffectOnce';
@@ -117,16 +118,23 @@ export function WalletStateProvider({
   //   tolerate `signTransaction` being undefined for one tick (Phantom
   //   attaches it slightly after `connected` flips). The connector re-binds
   //   the signer when the next render fires with the method attached.
-  // - We bail when the wallet is already a Solana connector AND the address
-  //   matches, so we don't rebuild the connector on every adapter
-  //   re-render.
+  // - We bail when we've already wired *this adapter publicKey* into a
+  //   connector, tracked in `wiredPublicKeyRef`. We deliberately don't gate
+  //   on `walletAddress` here — the UserAddress devtool lets a developer
+  //   override the active address without disconnecting the wallet, and an
+  //   address-based gate would refire this effect and clobber the override
+  //   back to the adapter's publicKey on the next render.
   const solanaWallet = useWallet();
+  const wiredPublicKeyRef = useRef<string | undefined>(undefined);
   useEffect(() => {
-    if (!solanaWallet.connected || !solanaWallet.publicKey) return;
+    if (!solanaWallet.connected || !solanaWallet.publicKey) {
+      wiredPublicKeyRef.current = undefined;
+      return;
+    }
     const addr = solanaWallet.publicKey.toBase58();
-    const alreadyWired =
-      wallet?.tokenType === 'solana' && walletAddress?.toString() === addr;
-    if (alreadyWired) return;
+    if (wallet?.tokenType === 'solana' && wiredPublicKeyRef.current === addr) {
+      return;
+    }
 
     try {
       const connector = new SolanaWalletConnector({
@@ -148,6 +156,7 @@ export function WalletStateProvider({
           walletAddress: addr as never,
         },
       });
+      wiredPublicKeyRef.current = addr;
     } catch (error) {
       console.error('[WalletState] failed to wire connector', error);
       eventEmitter.emit('error', error);
@@ -157,7 +166,6 @@ export function WalletStateProvider({
     solanaWallet.publicKey,
     solanaWallet.signTransaction,
     wallet,
-    walletAddress,
   ]);
 
   useEffect(() => {

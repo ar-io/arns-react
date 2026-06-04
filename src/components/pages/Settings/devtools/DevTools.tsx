@@ -4,7 +4,6 @@ import AclFetcher from './AclFetcher';
 import PdaViewer from './PdaViewer';
 import PrivateKeyLogin from './PrivateKeyLogin';
 import RentAllocation from './RentAllocation';
-import SurfpoolTools from './SurfpoolTools';
 import TransferIO from './TransferIO';
 import UserAddress from './UserAddress';
 
@@ -45,7 +44,6 @@ const DevTools = () => {
       </div>
       <UserAddress />
       <PrivateKeyLogin />
-      <SurfpoolTools />
       <TransferIO />
       <AclFetcher />
       <RentAllocation />

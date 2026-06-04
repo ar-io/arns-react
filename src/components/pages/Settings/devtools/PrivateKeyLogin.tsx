@@ -1,25 +1,20 @@
 /**
- * Dev-only "Sign in with private key" panel.
- *
- * Lets a developer paste a Solana private key (either Phantom-style base58
- * or Solana CLI JSON-array format) and use it as the active wallet — bypassing
- * the wallet-adapter modal entirely. Useful for:
- *  - Driving localnet flows from a known funded keypair without unlocking
- *    Phantom every reload.
+ * Dev-only "Sign in with private key" panel — primary consumer is the
+ * Playwright suite, which drives the app from a known funded keypair without
+ * unlocking a wallet extension. Also useful for:
  *  - Reproducing migration / claim scenarios as a specific Arweave-derived
  *    Solana address.
  *  - Running headless / scripted tests through the same React tree real
  *    users hit.
  *
  * The keypair lives in memory only — we never write it to localStorage.
- * Reload = re-paste. The panel renders only when `VITE_SOLANA_NETWORK=localnet`
- * so it can't ship to devnet/mainnet builds.
+ * Reload = re-paste. Lives under `/settings/devtools` alongside the other
+ * dev panels; not surfaced in primary navigation.
  */
 import { createKeyPairSignerFromBytes } from '@solana/kit';
 import { PrivateKeySolanaWalletConnector } from '@src/services/wallets/PrivateKeySolanaWalletConnector';
 import { useWalletState } from '@src/state';
 import eventEmitter from '@src/utils/events';
-import { IS_LOCALNET } from '@src/utils/solana';
 import bs58 from 'bs58';
 import { useState } from 'react';
 
@@ -111,8 +106,6 @@ function PrivateKeyLogin() {
   const [previewAddress, setPreviewAddress] = useState<string | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
 
-  if (!IS_LOCALNET) return null;
-
   // Live address preview as the user types — gives instant feedback that the
   // key parses correctly without committing it to global state.
   async function refreshPreview(value: string) {
@@ -170,9 +163,7 @@ function PrivateKeyLogin() {
   return (
     <div className="flex flex-col w-full h-fit p-3 text-sm">
       <div className={inputContainerClass}>
-        <span className="text-white text-md">
-          Sign in with private key (localnet)
-        </span>
+        <span className="text-white text-md">Sign in with private key</span>
         <p className="text-grey text-xs">
           Paste a Solana private key — Phantom-style base58, Solana CLI JSON
           array (<code>[12, 34, …]</code>), or 64-byte hex. The key is held in
