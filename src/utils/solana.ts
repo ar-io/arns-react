@@ -155,9 +155,20 @@ function buildInitialConfig(): SolanaNetworkConfig {
 
   const envNetwork = deriveDefaultNetwork();
 
+  // `||` (not `??`) on purpose: CI injects `VITE_SOLANA_RPC_URL: ""` when the
+  // corresponding GitHub Variable is undefined, and `??` would let that empty
+  // string through and break `<ConnectionProvider endpoint="">`. Also guard
+  // against a hostname without a scheme — `@solana/web3.js`'s `Connection`
+  // ctor rejects anything that isn't `http(s)://…`.
+  const envRpcUrl = import.meta.env.VITE_SOLANA_RPC_URL || '';
+  const validEnvRpcUrl =
+    envRpcUrl.startsWith('http://') || envRpcUrl.startsWith('https://')
+      ? envRpcUrl
+      : undefined;
+
   return {
     network: envNetwork,
-    rpcUrl: import.meta.env.VITE_SOLANA_RPC_URL ?? DEFAULT_RPC[envNetwork].http,
+    rpcUrl: validEnvRpcUrl ?? DEFAULT_RPC[envNetwork].http,
     programIds: {
       ...SOLANA_NETWORK_PRESETS[envNetwork].programIds,
       ...Object.fromEntries(
