@@ -209,7 +209,7 @@ const ReturnedNamesTable = ({
         if (rowsToUpdate.length === 0) return prev;
 
         // Throttle price fetches to avoid RPC 429 rate-limit errors.
-        const throttle = pLimit(2);
+        const throttle = pLimit(1);
         Promise.all(
           rowsToUpdate.map((row) =>
             throttle(async () => {
