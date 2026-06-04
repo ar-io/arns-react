@@ -55,10 +55,7 @@ export function WalletStateProvider({
 }: StateProviderProps): JSX.Element {
   const [state, dispatchWalletState] = useReducer(reducer, initialState);
 
-  const [
-    { blockHeight, arioTicker, arioContract, solanaConfig },
-    dispatchGlobalState,
-  ] = useGlobalState();
+  const [{ solanaConfig }, dispatchGlobalState] = useGlobalState();
 
   const { walletAddress, wallet } = state;
 
@@ -172,37 +169,11 @@ export function WalletStateProvider({
     }, 5000);
   });
 
-  useEffect(() => {
-    if (walletAddress) {
-      updateBalances(walletAddress, arioTicker);
-    }
-    // arioContract is included so balance refreshes when the backend swaps
-    // (e.g. Solana RPC override).
-  }, [walletAddress, blockHeight, arioTicker, arioContract]);
-
-  async function updateBalances(address: AoAddress, arioTicker: string) {
-    try {
-      const arioBalanceMario = await arioContract
-        .getBalance({ address: address.toString() })
-        .catch((error) => {
-          eventEmitter.emit('error', error);
-          return 0;
-        });
-
-      // SDK returns mARIO; convert to ARIO display units.
-      const arioBalance = arioBalanceMario / 1_000_000;
-
-      dispatchWalletState({
-        type: 'setBalances',
-        payload: {
-          [arioTicker]: arioBalance,
-          ar: 0,
-        },
-      });
-    } catch (error) {
-      eventEmitter.emit('error', error);
-    }
-  }
+  // Balance is fetched via React Query hooks (useArIOLiquidBalance) with
+  // proper caching and deduplication. The previous uncached getBalance()
+  // call here fired on every blockHeight change (~2 min), on every
+  // arioContract rebuild, and on every wallet connect — duplicating work
+  // and contributing to RPC 429 rate-limit errors.
 
   async function updateIfConnected() {
     // Solana wallet rehydration is driven by `<WalletProvider autoConnect>`
