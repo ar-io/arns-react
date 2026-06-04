@@ -86,6 +86,28 @@ export default async function dispatchArIOInteraction({
     switch (workflowName) {
       case ARNS_INTERACTION_TYPES.BUY_RECORD: {
         const { name, type, years } = payload;
+        const lowered = lowerCaseDomain(name);
+
+        // Returned-name auction names use a different on-chain instruction
+        // (`buy_returned_name`, which splits the proceeds between the original
+        // initiator and the protocol). Check the registry before the ANT spawn
+        // — `getArNSReturnedName` throws / returns nullish when the name isn't
+        // in the auction, in which case we fall through to the regular
+        // `buyRecord` path. Don't let a transient RPC failure wedge the buy:
+        // if the lookup errors, log and assume "not returned" rather than
+        // blocking the purchase.
+        let isReturnedName = false;
+        try {
+          const returned = await arioContract.getArNSReturnedName({
+            name: lowered,
+          });
+          isReturnedName = !!returned;
+        } catch (error) {
+          console.debug(
+            `[dispatchArIOInteraction] getArNSReturnedName lookup failed for '${lowered}' — proceeding with buyRecord path`,
+            error,
+          );
+        }
 
         // Spawn the ANT first. On Solana this mints a Metaplex Core asset
         // and bootstraps the ACL atomically.
@@ -111,16 +133,34 @@ export default async function dispatchArIOInteraction({
           antProcessId = spawnResult.processId;
         }
 
-        const buyRecordResult = await arioContract.buyRecord({
-          name: lowerCaseDomain(name),
-          type,
-          years,
-          processId: antProcessId,
-          fundFrom: originalFundFrom,
-          referrer: APP_NAME,
-          paidBy,
-        });
-        result = buyRecordResult;
+        if (isReturnedName) {
+          dispatch({
+            type: 'setSigningMessage',
+            payload: `Purchasing returned name '${name}' from auction`,
+          });
+          // `buyReturnedName` is Solana-only — same pattern as the
+          // `releaseName`/`reassignName` casts in `dispatchANTInteraction`.
+          // Phase 7 should hoist it onto the shared `ARIOWrite` interface.
+          result = await (arioContract as any).buyReturnedName({
+            name: lowered,
+            type,
+            years,
+            processId: antProcessId,
+            fundFrom: originalFundFrom,
+            referrer: APP_NAME,
+            paidBy,
+          });
+        } else {
+          result = await arioContract.buyRecord({
+            name: lowered,
+            type,
+            years,
+            processId: antProcessId,
+            fundFrom: originalFundFrom,
+            referrer: APP_NAME,
+            paidBy,
+          });
+        }
         payload.processId = antProcessId;
         dispatch({
           type: 'setSigningMessage',
