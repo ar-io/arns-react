@@ -182,31 +182,35 @@ const ReturnedNamesTable = ({
       return new Error(error.message);
     }
   }
+  // Fetch prices once when returnedNames data arrives. Uses a ref to
+  // avoid the previous infinite loop: the old effect depended on
+  // `tableData` and called `setTableData` inside, re-triggering itself
+  // on every iteration and firing N×2 RPC calls each time.
   useEffect(() => {
+    if (!returnedNames?.length || loading) return;
+
+    let cancelled = false;
+
     async function updatePrices() {
-      const rowsToUpdate = tableData.filter(
-        (row) =>
-          (row.leasePrice instanceof Error ||
-            row.leasePrice < 0 ||
-            row.permabuy instanceof Error ||
-            row.permabuy < 0) &&
-          ((row as any)._priceRetries ?? 0) < 3,
-      );
-
-      if (rowsToUpdate.length === 0) {
-        return;
-      }
-
-      const updatedData = await Promise.all(
-        tableData.map(async (row) => {
-          const retries = (row as any)._priceRetries ?? 0;
-          if (
+      // Work against the current tableData snapshot via the setter
+      // callback so we don't need tableData in the dep array.
+      setTableData((prev) => {
+        // Kick off price fetches for rows that still need them.
+        const rowsToUpdate = prev.filter(
+          (row) =>
             (row.leasePrice instanceof Error ||
               row.leasePrice < 0 ||
               row.permabuy instanceof Error ||
               row.permabuy < 0) &&
-            retries < 3
-          ) {
+            ((row as any)._priceRetries ?? 0) < 3,
+        );
+
+        if (rowsToUpdate.length === 0) return prev;
+
+        // Fire all price fetches then batch-update state once.
+        Promise.all(
+          rowsToUpdate.map(async (row) => {
+            const retries = (row as any)._priceRetries ?? 0;
             const leasePrice = await fetchPrice(
               row.name,
               TRANSACTION_TYPES.LEASE,
@@ -215,9 +219,8 @@ const ReturnedNamesTable = ({
               row.name,
               TRANSACTION_TYPES.BUY,
             );
-
             return {
-              ...row,
+              name: row.name,
               leasePrice,
               permabuy: permabuyPrice,
               _priceRetries:
@@ -225,16 +228,35 @@ const ReturnedNamesTable = ({
                   ? retries + 1
                   : retries,
             };
-          }
-          return row;
-        }),
-      );
+          }),
+        ).then((results) => {
+          if (cancelled) return;
+          const priceMap = new Map(results.map((r) => [r.name, r]));
+          setTableData((current) =>
+            current.map((row) => {
+              const updated = priceMap.get(row.name);
+              return updated
+                ? {
+                    ...row,
+                    leasePrice: updated.leasePrice,
+                    permabuy: updated.permabuy,
+                    _priceRetries: updated._priceRetries,
+                  }
+                : row;
+            }),
+          );
+        });
 
-      setTableData(updatedData);
+        return prev; // Return unchanged — the async .then handles the update.
+      });
     }
 
     updatePrices();
-  }, [tableData]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [returnedNames, loading]);
 
   useEffect(() => {
     if (filter) {
