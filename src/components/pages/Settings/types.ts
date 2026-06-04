@@ -1,11 +1,13 @@
 export interface NetworkSettingsState {
   gateway: string;
+  dataGateway: string;
   turboPaymentUrl: string;
   showGatewayModal: boolean;
 }
 
 export interface NetworkSettingsValidation {
   gateway: boolean;
+  dataGateway: boolean;
   turboPaymentUrl: boolean;
 }
 

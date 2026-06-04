@@ -98,12 +98,13 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@4.0.0-solana.23":
-  version "4.0.0-solana.23"
-  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.0-solana.23.tgz#0514dba7f56bdf4752ef35685366219e85f8d591"
-  integrity sha512-Vd0+okuqYJpfZ2UuYdm4OkN0CDS8yxsWwa+XerUMvr/K81b95x2gF23PuI8r4Z/s95nGz0gOJCGNIEx3YteUiA==
+"@ar.io/sdk@4.0.0-solana.30":
+  version "4.0.0-solana.30"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.0-solana.30.tgz#c0b4e31943f559110cdda96c9d092a64cddabd32"
+  integrity sha512-c647rGgPUywVZ5q6MIKUuG9luPuD0k53CEGfLaPk0dFG39E7cH7aR+9/q359puCvUGivuVEuU8WJ6xWcEGmKVg==
   dependencies:
-    "@ar.io/solana-contracts" "0.4.0"
+    "@ar.io/solana-contracts" "0.7.0-staging.17"
+    "@solana-program/address-lookup-table" "^0.11.0"
     "@solana-program/compute-budget" "^0.15.0"
     "@solana-program/token" "^0.13.0"
     "@solana/kit" "^6.8.0"
@@ -131,10 +132,10 @@
     winston "^3.13.0"
     zod "^3.23.8"
 
-"@ar.io/solana-contracts@0.4.0":
-  version "0.4.0"
-  resolved "https://registry.npmjs.org/@ar.io/solana-contracts/-/solana-contracts-0.4.0.tgz#f658a2bcb926451188302cbbcc4a1d1f49f875ee"
-  integrity sha512-rLQVlNS1YBJq2cG5xu9qOmWF0qOPiLXD0AGVlW2WFeNxIXLvDYiARXLJXQ26kvnfIED/Fx3X5cg7Y4m4L1ZF4A==
+"@ar.io/solana-contracts@0.7.0-staging.17":
+  version "0.7.0-staging.17"
+  resolved "https://registry.npmjs.org/@ar.io/solana-contracts/-/solana-contracts-0.7.0-staging.17.tgz#fc81ae45e345e699188bdf6a147f180db3fc1c39"
+  integrity sha512-sdgwGiZ8rKLfp3nj6VYhByeVs791UVVdy5uyXRjmHPWOhshsCejNd9ibYIYb7IV3DLNJNudW/ZQn9lhn2s6PTA==
   dependencies:
     "@noble/hashes" "^1.5.0"
     bs58 "^6.0.0"
@@ -4667,6 +4668,11 @@
     tslib "^2.8.1"
   optionalDependencies:
     "@react-native-async-storage/async-storage" "^1.17.7"
+
+"@solana-program/address-lookup-table@^0.11.0":
+  version "0.11.0"
+  resolved "https://registry.npmjs.org/@solana-program/address-lookup-table/-/address-lookup-table-0.11.0.tgz#90f9c290b13c51be98b39597e0e502f31415fbf0"
+  integrity sha512-loC6VTEhmhYSq2ElZrv+V9uHp/Te6A7rllLIArk9c3A5+5V7sRhVsxZvsPGcv/WMXLgqmXR+Vl7WF7QSV3tXNQ==
 
 "@solana-program/compute-budget@^0.11.0":
   version "0.11.0"

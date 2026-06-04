@@ -12,6 +12,7 @@ import { SolanaAddress } from '@src/services/solana/SolanaAddress';
 import { SolanaSignature } from '@src/services/solana/SolanaSignature';
 import {
   useArNSState,
+  useGlobalState,
   useModalState,
   useTransactionState,
   useWalletState,
@@ -70,6 +71,7 @@ const UndernamesTable = ({
 }) => {
   const arioProcessId = '';
   const [, dispatchArNSState] = useArNSState();
+  const [{ dataGateway }] = useGlobalState();
 
   const [{ wallet, walletAddress }] = useWalletState();
   const isOwner = walletAddress
@@ -352,6 +354,7 @@ const UndernamesTable = ({
               <ArweaveID
                 id={rowValue}
                 shouldLink={true}
+                linkBase={`https://${dataGateway}/`}
                 characterCount={8}
                 type={ArweaveIdTypes.TRANSACTION}
               />

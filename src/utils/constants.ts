@@ -163,6 +163,9 @@ export const NETWORK_DEFAULTS = {
   ARNS: {
     HOST: 'ar.io',
   },
+  DATA: {
+    HOST: 'turbo-gateway.com',
+  },
   TURBO: {
     UPLOAD_URL: 'https://turbo.ardrive.io',
     PAYMENT_URL: `https://${PAYMENT_SERVICE_FQDN}`,

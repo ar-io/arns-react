@@ -21,7 +21,7 @@ import { useNetworkSettings } from './useNetworkSettings';
 
 function NetworkSettings() {
   const [
-    { gateway, arioContract, turboNetwork, solanaConfig },
+    { gateway, dataGateway, arioContract, turboNetwork, solanaConfig },
     dispatchGlobalState,
   ] = useGlobalState();
 
@@ -30,6 +30,7 @@ function NetworkSettings() {
   function reset() {
     actions.resetToDefaults();
     updateGateway(NETWORK_DEFAULTS.ARWEAVE.HOST);
+    updateDataGateway(NETWORK_DEFAULTS.DATA.HOST);
     updateTurboNetwork({
       PAYMENT_URL: NETWORK_DEFAULTS.TURBO.PAYMENT_URL,
       STRIPE_PUBLISHABLE_KEY: NETWORK_DEFAULTS.TURBO.STRIPE_PUBLISHABLE_KEY,
@@ -39,9 +40,10 @@ function NetworkSettings() {
   useEffect(() => {
     actions.syncFromGlobalState({
       gateway,
+      dataGateway,
       turboPaymentUrl: turboNetwork.PAYMENT_URL,
     });
-  }, [gateway, turboNetwork, actions]);
+  }, [gateway, dataGateway, turboNetwork, actions]);
 
   async function updateGateway(gate: string) {
     try {
@@ -61,6 +63,18 @@ function NetworkSettings() {
       });
       actions.setValue('gateway', gateway);
       updateGateway(gateway);
+    }
+  }
+
+  async function updateDataGateway(host: string) {
+    try {
+      if (!isValidGateway(host)) {
+        throw new Error('Invalid data gateway: ' + host);
+      }
+      dispatchGlobalState({ type: 'setDataGateway', payload: host });
+    } catch (error) {
+      eventEmitter.emit('error', error);
+      actions.setValue('dataGateway', dataGateway);
     }
   }
 
@@ -143,6 +157,25 @@ function NetworkSettings() {
         />
 
         <SettingInput
+          label="Current Data Gateway"
+          value={state.values.dataGateway}
+          placeholder="turbo-gateway.com"
+          isValid={state.validation.dataGateway}
+          displayValue={<span className="text-grey pl-2">{dataGateway}</span>}
+          onChange={(value) => {
+            actions.setValue('dataGateway', value);
+            actions.setValidation('dataGateway', isValidGateway(value));
+          }}
+          onSet={() => updateDataGateway(state.values.dataGateway)}
+          onReset={() => {
+            actions.setValue('dataGateway', NETWORK_DEFAULTS.DATA.HOST);
+            actions.setValidation('dataGateway', true);
+            updateDataGateway(NETWORK_DEFAULTS.DATA.HOST);
+          }}
+          onPressEnter={updateDataGateway}
+        />
+
+        <SettingInput
           label="Current Turbo Payment URL"
           value={state.values.turboPaymentUrl}
           placeholder="https://payment.ar.io"
@@ -198,7 +231,6 @@ const PRESET_LABELS: Record<SolanaNetwork, string> = {
 
 type SolanaFieldKey =
   | 'rpcUrl'
-  | 'rpcWsUrl'
   | 'mintAddress'
   | 'coreProgramId'
   | 'garProgramId'
@@ -214,11 +246,6 @@ const FIELD_DEFS: Array<{
     key: 'rpcUrl',
     label: 'RPC URL',
     placeholder: 'https://api.mainnet-beta.solana.com',
-  },
-  {
-    key: 'rpcWsUrl',
-    label: 'RPC WebSocket',
-    placeholder: 'wss://api.mainnet-beta.solana.com',
   },
   { key: 'mintAddress', label: 'ARIO Mint', placeholder: 'Address (optional)' },
   {
@@ -250,8 +277,6 @@ function getFieldValue(
   switch (key) {
     case 'rpcUrl':
       return config.rpcUrl;
-    case 'rpcWsUrl':
-      return config.rpcWsUrl;
     case 'mintAddress':
       return config.mintAddress ?? '';
     case 'coreProgramId':
@@ -283,8 +308,6 @@ function setFieldValue(
   switch (key) {
     case 'rpcUrl':
       return { ...config, rpcUrl: trimmed };
-    case 'rpcWsUrl':
-      return { ...config, rpcWsUrl: trimmed };
     case 'mintAddress':
       return { ...config, mintAddress: trimmed || undefined };
     case 'coreProgramId':

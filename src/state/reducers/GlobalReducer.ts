@@ -14,6 +14,10 @@ export type GlobalAction =
       };
     }
   | {
+      type: 'setDataGateway';
+      payload: string;
+    }
+  | {
       type: 'setTurboNetwork';
       payload: typeof NETWORK_DEFAULTS.TURBO;
     }
@@ -47,6 +51,11 @@ export const reducer = (
         ...state,
         gateway: action.payload.gateway,
         arweaveDataProvider: action.payload.provider,
+      };
+    case 'setDataGateway':
+      return {
+        ...state,
+        dataGateway: action.payload,
       };
     case 'setTurboNetwork':
       return {

@@ -53,6 +53,7 @@ export function useNetworkSettings() {
     state: {
       values: {
         gateway: state.gateway,
+        dataGateway: state.dataGateway,
         turboPaymentUrl: state.turboPaymentUrl,
         showGatewayModal: state.showGatewayModal,
       },
@@ -64,12 +65,14 @@ export function useNetworkSettings() {
 
 const initialState: NetworkSettingsState = {
   gateway: NETWORK_DEFAULTS.ARWEAVE.HOST,
+  dataGateway: NETWORK_DEFAULTS.DATA.HOST,
   turboPaymentUrl: NETWORK_DEFAULTS.TURBO.PAYMENT_URL,
   showGatewayModal: false,
 };
 
 const initialValidation: NetworkSettingsValidation = {
   gateway: true,
+  dataGateway: true,
   turboPaymentUrl: true,
 };
 

@@ -9,6 +9,7 @@ import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import {
   ANTProcessData,
   useArNSState,
+  useGlobalState,
   useModalState,
   useTransactionState,
   useWalletState,
@@ -108,6 +109,7 @@ const DomainsTable = ({
 }) => {
   const navigate = useNavigate();
   const [{ walletAddress }] = useWalletState();
+  const [{ dataGateway }] = useGlobalState();
   const arioProcessId = '';
   const [{ loading: loadingArnsState }, dispatchArNSState] = useArNSState();
   const [, dispatchModalState] = useModalState();
@@ -273,6 +275,7 @@ const DomainsTable = ({
               <ArweaveID
                 id={rowValue}
                 shouldLink={true}
+                linkBase={`https://${dataGateway}/`}
                 characterCount={8}
                 type={ArweaveIdTypes.TRANSACTION}
               />

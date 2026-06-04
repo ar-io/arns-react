@@ -3,7 +3,7 @@ import { mARIOToken } from '@ar.io/sdk/web';
 import Tooltip from '@src/components/Tooltips/Tooltip';
 import { Accordion } from '@src/components/data-display';
 import { useLatestANTVersion } from '@src/hooks/useANTVersions';
-import { useArNSIntentPrice } from '@src/hooks/useArNSIntentPrice';
+import { useArIoPrice } from '@src/hooks/useArIOPrice';
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import { ValidationError } from '@src/utils/errors';
 import { buildAntRead } from '@src/utils/sdk-init';
@@ -63,20 +63,17 @@ function RegisterNameForm() {
     type: registrationType,
     years: leaseDuration,
   });
-  const { data: fiatPrice } = useArNSIntentPrice({
-    intent: 'Buy-Name',
-    name: domain,
-    type: registrationType,
-    years: leaseDuration,
-  });
+  const { data: arIoPrice } = useArIoPrice();
   const formatedPriceString = useMemo(() => {
-    if (!fiatPrice || !costDetails) return 'Calculating prices...';
-    return `Cost: $${formatARIOWithCommas(
-      fiatPrice.fiatEstimate.paymentAmount / 100,
-    )} USD ( ${formatARIO(
-      new mARIOToken(costDetails.tokenCost).toARIO().valueOf(),
-    )} ${arioTicker} )`;
-  }, [fiatPrice, costDetails]);
+    if (!costDetails) return 'Calculating prices...';
+    const arioCost = new mARIOToken(costDetails.tokenCost).toARIO().valueOf();
+    const usdPart =
+      arIoPrice !== undefined
+        ? `Cost: $${formatARIOWithCommas(arioCost * arIoPrice)} USD ( `
+        : 'Cost: ';
+    const usdSuffix = arIoPrice !== undefined ? ' )' : '';
+    return `${usdPart}${formatARIO(arioCost)} ${arioTicker}${usdSuffix}`;
+  }, [arIoPrice, costDetails, arioTicker]);
 
   const [{ walletAddress, wallet }] = useWalletState();
   const [, dispatchTransactionState] = useTransactionState();

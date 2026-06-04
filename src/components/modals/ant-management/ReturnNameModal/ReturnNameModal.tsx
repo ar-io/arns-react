@@ -1,3 +1,4 @@
+import { ARIOWrite } from '@ar.io/sdk/web';
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import ArweaveID, {
   ArweaveIdTypes,
@@ -44,14 +45,16 @@ export function ReturnNameModal({
 
   async function handleReturn() {
     try {
-      if (!wallet?.contractSigner) {
-        throw new Error('No Wander Signer found');
+      if (wallet?.tokenType !== 'solana' || !wallet.solanaSigner) {
+        throw new Error(
+          'A connected Solana wallet is required to return a name',
+        );
       }
       if (!walletAddress) throw new Error('Must connect to release the ANT');
 
       const result = await dispatchANTInteraction({
-        signer: wallet.contractSigner,
         wallet,
+        arioContract: arioContract as ARIOWrite,
         payload: {
           name,
           arioProcessId,

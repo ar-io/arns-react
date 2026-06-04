@@ -15,7 +15,6 @@ interface ImportMetaEnv {
   readonly VITE_AO_CU_URL: string;
   // Solana backend (Surfpool / devnet / mainnet)
   readonly VITE_SOLANA_RPC_URL?: string;
-  readonly VITE_SOLANA_RPC_WS_URL?: string;
   readonly VITE_SOLANA_NETWORK?:
     | 'mainnet-beta'
     | 'devnet'

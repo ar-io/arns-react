@@ -1,6 +1,6 @@
 import { ArNSLeaseData, isLeasedArNSRecord, mARIOToken } from '@ar.io/sdk/web';
 import { ArioSpinner } from '@src/components/data-display/Spinner';
-import { useArNSIntentPrice } from '@src/hooks/useArNSIntentPrice';
+import { useArIoPrice } from '@src/hooks/useArIOPrice';
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { useEffect, useMemo, useState } from 'react';
@@ -71,34 +71,24 @@ function ExtendLease() {
           fundFrom: 'any',
         },
   );
-  const { data: fiatFee, isLoading: loadingFiatFee } = useArNSIntentPrice(
-    registrationType === 'permabuy'
-      ? {
-          intent: 'Upgrade-Name',
-          name: name as string,
-        }
-      : {
-          intent: 'Extend-Lease',
-          years: newLeaseDuration,
-          type: registrationType?.toString() as any,
-          name: name as string,
-        },
-  );
+  const { data: arIoPrice } = useArIoPrice();
   const arioFee = costDetails?.tokenCost
     ? new mARIOToken(costDetails.tokenCost).toARIO().valueOf()
     : undefined;
 
   const feeString = useMemo(() => {
-    if (loadingCostDetails || loadingFiatFee) {
+    if (loadingCostDetails) {
       return `Calculating price...`;
     }
-    if (arioFee && fiatFee) {
-      return `$${formatARIOWithCommas(
-        fiatFee.fiatEstimate.paymentAmount / 100,
-      )} USD ( ${formatARIO(arioFee)} ${arioTicker} )`;
+    if (arioFee) {
+      const arioLabel = `${formatARIO(arioFee)} ${arioTicker}`;
+      if (arIoPrice !== undefined) {
+        return `$${formatARIOWithCommas(arioFee * arIoPrice)} USD ( ${arioLabel} )`;
+      }
+      return arioLabel;
     }
     return `Unable to calculate price`;
-  }, [arioFee, fiatFee, loadingCostDetails, loadingFiatFee]);
+  }, [arioFee, arIoPrice, loadingCostDetails, arioTicker]);
 
   useEffect(() => {
     if (!name) {

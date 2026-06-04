@@ -5,6 +5,7 @@ export const SETTINGS_STORAGE_KEY = 'arns-app-settings';
 
 interface NetworkSettings {
   gateway: string;
+  dataGateway: string;
   turboNetwork: {
     UPLOAD_URL: string;
     PAYMENT_URL: string;
@@ -24,7 +25,7 @@ interface Settings {
  * AO process IDs / CU urls / hyperbeam URLs are gone.
  */
 function useSyncSettings() {
-  const [{ gateway, turboNetwork }] = useGlobalState();
+  const [{ gateway, dataGateway, turboNetwork }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
   const isInitialLoad = useRef(true);
 
@@ -38,6 +39,7 @@ function useSyncSettings() {
     const settings: Settings = {
       network: {
         gateway,
+        dataGateway,
         turboNetwork,
       },
     };
@@ -47,7 +49,7 @@ function useSyncSettings() {
     } catch (error) {
       console.error('Failed to save settings to localStorage:', error);
     }
-  }, [walletAddress, gateway, turboNetwork]);
+  }, [walletAddress, gateway, dataGateway, turboNetwork]);
 
   return null;
 }

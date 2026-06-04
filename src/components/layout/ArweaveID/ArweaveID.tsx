@@ -58,6 +58,7 @@ function ArweaveID({
   type = ArweaveIdTypes.TRANSACTION,
   characterCount,
   shouldLink = false,
+  linkBase,
   copyButtonStyle,
   wrapperStyle,
   linkStyle,
@@ -66,6 +67,13 @@ function ArweaveID({
   type?: ArweaveIdTypes;
   characterCount?: number;
   shouldLink?: boolean;
+  /**
+   * Override the explorer base URL. Useful for routing logo / target tx ids
+   * to a data gateway (`https://${dataGateway}/`) instead of viewblock —
+   * those ids point at fetchable data, not a transaction the user wants to
+   * inspect on an Arweave/Solana explorer.
+   */
+  linkBase?: string;
   copyButtonStyle?: CSSProperties;
   wrapperStyle?: CSSProperties;
   linkStyle?: CSSProperties;
@@ -77,7 +85,7 @@ function ArweaveID({
         body={
           shouldLink ? (
             <a
-              href={resolveExplorerBase(id, type) + id.toString()}
+              href={(linkBase ?? resolveExplorerBase(id, type)) + id.toString()}
               target="_blank"
               rel="noreferrer"
               className="link hover flex"

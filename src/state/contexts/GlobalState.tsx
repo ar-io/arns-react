@@ -21,6 +21,7 @@ const SETTINGS_KEY = 'arns-app-settings';
 
 function loadSettingsFromStorage(): {
   gateway: string;
+  dataGateway: string;
   turboNetwork: typeof NETWORK_DEFAULTS.TURBO;
 } | null {
   try {
@@ -36,6 +37,8 @@ function loadSettingsFromStorage(): {
 
       return {
         gateway: settings.network?.gateway || NETWORK_DEFAULTS.ARNS.HOST,
+        dataGateway:
+          settings.network?.dataGateway || NETWORK_DEFAULTS.DATA.HOST,
         turboNetwork: settings.network?.turboNetwork || NETWORK_DEFAULTS.TURBO,
       };
     }
@@ -50,6 +53,8 @@ export const defaultArweave = new SimpleArweaveDataProvider(DEFAULT_ARWEAVE);
 
 const savedSettings = loadSettingsFromStorage();
 const initialGateway = savedSettings?.gateway || NETWORK_DEFAULTS.ARNS.HOST;
+const initialDataGateway =
+  savedSettings?.dataGateway || NETWORK_DEFAULTS.DATA.HOST;
 const initialTurboNetwork =
   savedSettings?.turboNetwork || NETWORK_DEFAULTS.TURBO;
 
@@ -78,7 +83,18 @@ export const defaultArIO = buildDefaultArIO();
 
 export type GlobalState = {
   arioTicker: string;
+  /**
+   * Host used for ArNS name resolution — e.g. `${name}.${gateway}` produces a
+   * link to a registered ArNS site. Does NOT fetch raw transaction data.
+   */
   gateway: string;
+  /**
+   * Host used for fetching transaction data by id (logos, target ids,
+   * undername targets). Defaults to `turbo-gateway.com` — Turbo's
+   * data-only edge — which is purpose-built for `${dataGateway}/${txid}`
+   * requests and is independent of ArNS resolution.
+   */
+  dataGateway: string;
   turboNetwork: typeof NETWORK_DEFAULTS.TURBO;
   blockHeight?: number;
   lastBlockUpdateTimestamp?: number;
@@ -96,6 +112,7 @@ export type GlobalState = {
 const initialState: GlobalState = {
   arioTicker: 'ARIO',
   gateway: initialGateway,
+  dataGateway: initialDataGateway,
   turboNetwork: initialTurboNetwork,
   blockHeight: undefined,
   lastBlockUpdateTimestamp: undefined,

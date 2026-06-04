@@ -29,7 +29,7 @@ export default function TargetIDRow({
 }) {
   const [editing, setEditing] = useState<boolean>(false);
   const [newTargetId, setNewTargetId] = useState<string>(targetId ?? '');
-  const [{ arweaveDataProvider }] = useGlobalState();
+  const [{ arweaveDataProvider, dataGateway }] = useGlobalState();
   const [showModal, setShowModal] = useState<boolean>(false);
 
   useEffect(() => {
@@ -61,6 +61,7 @@ export default function TargetIDRow({
               <ArweaveID
                 id={new ArweaveTransactionID(targetId)}
                 shouldLink
+                linkBase={`https://${dataGateway}/`}
                 characterCount={16}
                 type={ArweaveIdTypes.TRANSACTION}
               />

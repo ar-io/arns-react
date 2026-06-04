@@ -1,5 +1,5 @@
 import { mARIOToken } from '@ar.io/sdk/web';
-import { useArNSIntentPrice } from '@src/hooks/useArNSIntentPrice';
+import { useArIoPrice } from '@src/hooks/useArIOPrice';
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { useMemo, useState } from 'react';
@@ -37,29 +37,29 @@ function UpgradeUndernames() {
     quantity: newUndernameCount,
     name: name as string,
   });
-  const { data: fiatFee, isLoading: loadingFiatFee } = useArNSIntentPrice({
-    intent: 'Increase-Undername-Limit',
-    name: name as string,
-    increaseQty: newUndernameCount,
-  });
+  const { data: arIoPrice } = useArIoPrice();
   const arioFee = costDetails?.tokenCost
     ? new mARIOToken(costDetails.tokenCost).toARIO().valueOf()
     : undefined;
 
   const feeString = useMemo(() => {
     if (newUndernameCount === 0) {
-      return `$0 USD ( 0 ${arioTicker} )`;
+      return arIoPrice !== undefined
+        ? `$0 USD ( 0 ${arioTicker} )`
+        : `0 ${arioTicker}`;
     }
-    if (loadingCostDetails || loadingFiatFee) {
+    if (loadingCostDetails) {
       return `Calculating price...`;
     }
-    if (arioFee && fiatFee) {
-      return `$${formatARIOWithCommas(
-        fiatFee.fiatEstimate.paymentAmount / 100,
-      )} USD ( ${formatARIO(arioFee)} ${arioTicker} )`;
+    if (arioFee) {
+      const arioLabel = `${formatARIO(arioFee)} ${arioTicker}`;
+      if (arIoPrice !== undefined) {
+        return `$${formatARIOWithCommas(arioFee * arIoPrice)} USD ( ${arioLabel} )`;
+      }
+      return arioLabel;
     }
     return `Unable to calculate price`;
-  }, [arioFee, fiatFee, loadingCostDetails, loadingFiatFee, newUndernameCount]);
+  }, [arioFee, arIoPrice, loadingCostDetails, newUndernameCount, arioTicker]);
 
   const {
     arnsRecord,

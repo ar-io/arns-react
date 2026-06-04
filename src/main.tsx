@@ -1,3 +1,17 @@
+// Teach `JSON.stringify` how to serialise BigInts. `@solana/kit` returns u64
+// fields as native BigInts (transaction errors, account data, etc.), and the
+// `@ar.io/sdk` Solana backend includes some of those in its thrown error
+// messages via `JSON.stringify(sim.value.err)` (`io-writeable._simulateTokenCost`,
+// at minimum). Without this shim, the diagnostic stringify throws
+// `TypeError: Do not know how to serialize a BigInt` and the *real* on-chain
+// failure never reaches us. Stringifying as the decimal representation is the
+// de-facto convention and matches what the SDK's CLI already emits.
+if (typeof (BigInt.prototype as any).toJSON !== 'function') {
+  (BigInt.prototype as any).toJSON = function () {
+    return this.toString();
+  };
+}
+
 // `Buffer.read/writeBigUInt64LE` polyfill. The browser-side `buffer@6.0.3`
 // shim exposes these via `defineBigIntMethod` — but the ESM build path
 // some bundlers pick up (when `Buffer` lands on a non-prototype proxy)
