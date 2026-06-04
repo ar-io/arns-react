@@ -84,7 +84,7 @@ function NavMenuCard() {
       resetWalletDetails();
       fetchWalletDetails(walletAddress);
     }
-  }, [wallet, walletAddress, turboCreditBalance]);
+  }, [wallet, walletAddress, turboCreditBalance, arioTicker]);
 
   // Click-outside handler — needs showMenu to attach/detach correctly.
   useEffect(() => {

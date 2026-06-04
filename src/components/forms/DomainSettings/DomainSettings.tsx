@@ -115,7 +115,8 @@ function DomainSettings({
         predicate: ({ queryKey }) =>
           queryKey.includes('arns-records') ||
           (queryKey[0] === 'domainInfo' &&
-            (queryKey.includes(domain) || queryKey.includes(antProcessId))) ||
+            ((!!domain && queryKey.includes(domain)) ||
+              (!!antProcessId && queryKey.includes(antProcessId)))) ||
           ((queryKey[0] === 'ant' || queryKey[0] === 'ant-info') &&
             !!antProcessId &&
             queryKey.includes(antProcessId)),
