@@ -56,10 +56,17 @@ export function ArNSStateProvider({
   reducer,
   children,
 }: ArNSStateProviderProps): JSX.Element {
-  const [{ arioContract }] = useGlobalState();
+  const [{ arioContract, solanaConfig }] = useGlobalState();
   const [state, dispatchArNSState] = useReducer(reducer, initialArNSState);
   const [{ walletAddress, wallet }] = useWalletState();
 
+  // Uses `solanaConfig.rpcUrl` instead of `arioContract` as a dependency.
+  // `arioContract` changes object identity during wallet connect when
+  // WalletState rebuilds it (read-only → writable), which would trigger
+  // this effect a second time even though the underlying RPC is the same.
+  // `solanaConfig.rpcUrl` is a stable string that only changes when the
+  // user switches Solana networks in settings, which is the only case
+  // where we actually need to re-fetch domains.
   useEffect(() => {
     if (!walletAddress) return;
     dispatchArNSUpdate({
@@ -68,7 +75,7 @@ export function ArNSStateProvider({
       wallet,
       arioContract,
     });
-  }, [walletAddress, wallet, arioContract]);
+  }, [walletAddress, wallet, solanaConfig.rpcUrl]);
 
   return (
     <ArNSStateContext.Provider value={[state, dispatchArNSState]}>

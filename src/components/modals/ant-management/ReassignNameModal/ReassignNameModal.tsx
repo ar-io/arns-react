@@ -31,7 +31,6 @@ import {
   getSolanaRpc,
   getSolanaRpcSubscriptions,
 } from '@src/utils/solana';
-import { useQueryClient } from '@tanstack/react-query';
 import { Checkbox, Skeleton } from 'antd';
 import { TriangleAlert, XIcon } from 'lucide-react';
 import { useState } from 'react';
@@ -56,7 +55,6 @@ export function ReassignNameModal({
   processId: string;
   name: string;
 }) {
-  const queryClient = useQueryClient();
   const [{ arioContract }] = useGlobalState();
   const arioProcessId = '';
   const [, dispatchArNSState] = useArNSState();
@@ -233,13 +231,7 @@ export function ReassignNameModal({
         name: ANT_INTERACTION_TYPES.REASSIGN_NAME,
       });
 
-      queryClient.resetQueries({
-        queryKey: ['domainInfo', name],
-      });
-      queryClient.resetQueries({
-        queryKey: ['domainInfo', processId],
-      });
-
+      // domainInfo resets are handled by dispatchArNSUpdate below.
       dispatchArNSUpdate({
         walletAddress: walletAddress,
         wallet,

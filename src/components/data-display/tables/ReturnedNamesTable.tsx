@@ -1,4 +1,4 @@
-import { ReturnedName, mARIOToken } from '@ar.io/sdk';
+import { ReturnedName, getArnsSettingsPDA, mARIOToken } from '@ar.io/sdk';
 import { ChevronRightIcon, ExternalLinkIcon } from '@src/components/icons';
 import Switch from '@src/components/inputs/Switch';
 import { Loader } from '@src/components/layout';
@@ -31,6 +31,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ColumnDef, Row, createColumnHelper } from '@tanstack/react-table';
 import { Tooltip as AntdTooltip } from 'antd';
 import { CircleAlertIcon } from 'lucide-react';
+import { pLimit } from 'plimit-lit';
 import { useEffect, useMemo, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -98,9 +99,20 @@ const ReturnedNamesTable = ({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
-  const [{ arioTicker, arioContract }] = useGlobalState();
-  const arioProcessId = '';
+  const [{ arioTicker, arioContract, solanaConfig }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
+
+  // Derive the ArNS config PDA to distinguish lease expiries (protocol-
+  // initiated, initiator === config PDA) from permanent returns (owner-
+  // initiated, initiator === wallet address).
+  const [arnsConfigPda, setArnsConfigPda] = useState<string | undefined>();
+  useEffect(() => {
+    const arnsProgramId = solanaConfig.programIds.arnsProgramId;
+    if (!arnsProgramId) return;
+    getArnsSettingsPDA(arnsProgramId).then(([pda]) =>
+      setArnsConfigPda(pda.toString()),
+    );
+  }, [solanaConfig.programIds.arnsProgramId]);
 
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<TableData[]>([]);
@@ -133,8 +145,11 @@ const ReturnedNamesTable = ({
           initiator,
           leasePrice: -1,
           permabuy: -1,
-          returnType:
-            initiator === arioProcessId ? 'Lease Expiry' : 'Permanent Return',
+          returnType: !arnsConfigPda
+            ? 'Returned'
+            : initiator === arnsConfigPda
+              ? 'Lease Expiry'
+              : 'Permanent Return',
 
           action: <></>,
           // metadata used for search and other purposes
@@ -145,7 +160,7 @@ const ReturnedNamesTable = ({
 
       setTableData(newTableData);
     }
-  }, [returnedNames, loading]);
+  }, [returnedNames, loading, arnsConfigPda]);
   async function fetchPrice(
     name: string,
     type: TRANSACTION_TYPES,
@@ -182,59 +197,84 @@ const ReturnedNamesTable = ({
       return new Error(error.message);
     }
   }
+  // Fetch prices once when returnedNames data arrives. Uses a ref to
+  // avoid the previous infinite loop: the old effect depended on
+  // `tableData` and called `setTableData` inside, re-triggering itself
+  // on every iteration and firing N×2 RPC calls each time.
   useEffect(() => {
+    if (!returnedNames?.length || loading) return;
+
+    let cancelled = false;
+
     async function updatePrices() {
-      const rowsToUpdate = tableData.filter(
-        (row) =>
-          (row.leasePrice instanceof Error ||
-            row.leasePrice < 0 ||
-            row.permabuy instanceof Error ||
-            row.permabuy < 0) &&
-          ((row as any)._priceRetries ?? 0) < 3,
-      );
-
-      if (rowsToUpdate.length === 0) {
-        return;
-      }
-
-      const updatedData = await Promise.all(
-        tableData.map(async (row) => {
-          const retries = (row as any)._priceRetries ?? 0;
-          if (
+      // Work against the current tableData snapshot via the setter
+      // callback so we don't need tableData in the dep array.
+      setTableData((prev) => {
+        // Kick off price fetches for rows that still need them.
+        const rowsToUpdate = prev.filter(
+          (row) =>
             (row.leasePrice instanceof Error ||
               row.leasePrice < 0 ||
               row.permabuy instanceof Error ||
               row.permabuy < 0) &&
-            retries < 3
-          ) {
-            const leasePrice = await fetchPrice(
-              row.name,
-              TRANSACTION_TYPES.LEASE,
-            );
-            const permabuyPrice = await fetchPrice(
-              row.name,
-              TRANSACTION_TYPES.BUY,
-            );
+            ((row as any)._priceRetries ?? 0) < 3,
+        );
 
-            return {
-              ...row,
-              leasePrice,
-              permabuy: permabuyPrice,
-              _priceRetries:
-                leasePrice instanceof Error || permabuyPrice instanceof Error
-                  ? retries + 1
-                  : retries,
-            };
-          }
-          return row;
-        }),
-      );
+        if (rowsToUpdate.length === 0) return prev;
 
-      setTableData(updatedData);
+        // Throttle price fetches to avoid RPC 429 rate-limit errors.
+        const throttle = pLimit(1);
+        Promise.all(
+          rowsToUpdate.map((row) =>
+            throttle(async () => {
+              const retries = (row as any)._priceRetries ?? 0;
+              const leasePrice = await fetchPrice(
+                row.name,
+                TRANSACTION_TYPES.LEASE,
+              );
+              const permabuyPrice = await fetchPrice(
+                row.name,
+                TRANSACTION_TYPES.BUY,
+              );
+              return {
+                name: row.name,
+                leasePrice,
+                permabuy: permabuyPrice,
+                _priceRetries:
+                  leasePrice instanceof Error || permabuyPrice instanceof Error
+                    ? retries + 1
+                    : retries,
+              };
+            }),
+          ),
+        ).then((results) => {
+          if (cancelled) return;
+          const priceMap = new Map(results.map((r) => [r.name, r]));
+          setTableData((current) =>
+            current.map((row) => {
+              const updated = priceMap.get(row.name);
+              return updated
+                ? {
+                    ...row,
+                    leasePrice: updated.leasePrice,
+                    permabuy: updated.permabuy,
+                    _priceRetries: updated._priceRetries,
+                  }
+                : row;
+            }),
+          );
+        });
+
+        return prev; // Return unchanged — the async .then handles the update.
+      });
     }
 
     updatePrices();
-  }, [tableData]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [returnedNames, loading]);
 
   useEffect(() => {
     if (filter) {

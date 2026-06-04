@@ -12,7 +12,14 @@ function RNPPage() {
   return (
     <div className="page gap-4">
       <div className="flex justify-between text-white w-full">
-        <h2 className="text-[2rem]">Recently Returned</h2>
+        <h2 className="text-[2rem]">
+          Recently Returned
+          {returnedNamesData?.items?.length ? (
+            <span className="text-grey text-lg font-normal ml-2">
+              ({returnedNamesData.items.length})
+            </span>
+          ) : null}
+        </h2>
         <button
           className="flex gap-2 items-center justify-center p-1 text-sm"
           onClick={() => refetch()}

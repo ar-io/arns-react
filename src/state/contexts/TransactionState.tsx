@@ -83,7 +83,7 @@ export function TransactionStateProvider({
       queryClient.invalidateQueries(
         {
           queryKey: ['domainInfo'],
-          refetchType: 'all',
+          refetchType: 'active',
           exact: false,
         },
         { cancelRefetch: true },

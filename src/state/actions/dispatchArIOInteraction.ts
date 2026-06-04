@@ -289,10 +289,11 @@ export default async function dispatchArIOInteraction({
         queryKey.includes('ario-delegated-stake') ||
         queryKey.includes('turbo-credit-balance') ||
         queryKey.includes('arns-records') ||
+        queryKey.includes('domainInfo') ||
         queryKey[0] === 'ant' ||
         queryKey[0] === 'ant-info' ||
         queryKey.includes(lowerCaseDomain(payload.name)),
-      refetchType: 'all',
+      refetchType: 'active',
     });
   }
   if (!result) {

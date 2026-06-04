@@ -105,34 +105,23 @@ function DomainSettings({
 
   useEffect(() => {
     if (interactionResult) {
-      queryClient.invalidateQueries({
-        queryKey: ['arns-records'],
-        refetchType: 'all',
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ['domainInfo', domain],
-        refetchType: 'all',
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['domainInfo', data?.processId.toString()],
-        refetchType: 'all',
-      });
-
-      // `useDomainInfo` internally `fetchQuery`s `['ant', processId, 'solana']`
-      // with `staleTime: Infinity`. Without busting that inner cache the outer
-      // `domainInfo` refetch returns stale ANT state (e.g. the old ticker /
-      // logo / controllers / records). Invalidate by predicate so we catch
-      // both `['ant', processId, 'solana'|'ao']` and `['ant-info', …]` keys.
+      // Consolidated invalidation — bust arns-records, domainInfo (by name
+      // and processId), and the inner ant/ant-info caches that
+      // `useDomainInfo` reads through (staleTime: Infinity).
+      // Uses `refetchType: 'active'` so only mounted queries refetch;
+      // `dispatchArIOInteraction` already handles the broad invalidation.
       const antProcessId = data?.processId?.toString();
-      if (antProcessId) {
-        queryClient.invalidateQueries({
-          predicate: ({ queryKey }) =>
-            (queryKey[0] === 'ant' || queryKey[0] === 'ant-info') &&
-            queryKey.includes(antProcessId),
-          refetchType: 'all',
-        });
-      }
+      queryClient.invalidateQueries({
+        predicate: ({ queryKey }) =>
+          queryKey.includes('arns-records') ||
+          (queryKey[0] === 'domainInfo' &&
+            ((!!domain && queryKey.includes(domain)) ||
+              (!!antProcessId && queryKey.includes(antProcessId)))) ||
+          ((queryKey[0] === 'ant' || queryKey[0] === 'ant-info') &&
+            !!antProcessId &&
+            queryKey.includes(antProcessId)),
+        refetchType: 'active',
+      });
 
       refetch();
     }

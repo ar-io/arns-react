@@ -7,7 +7,23 @@ export function useReturnedNames() {
   const [{ arioContract }] = useGlobalState();
   return useQuery({
     queryKey: ['get-returned-names', arioContractCacheKey(arioContract)],
-    queryFn: () => arioContract.getArNSReturnedNames(),
+    queryFn: async () => {
+      const items: Awaited<
+        ReturnType<typeof arioContract.getArNSReturnedNames>
+      >['items'] = [];
+      let hasMore = true;
+      let cursor: string | undefined = undefined;
+      while (hasMore) {
+        const res = await arioContract.getArNSReturnedNames({
+          cursor,
+          limit: 1000,
+        });
+        items.push(...res.items);
+        hasMore = res.hasMore;
+        cursor = res.nextCursor;
+      }
+      return { items };
+    },
     staleTime: 1000 * 60 * 5,
   });
 }
