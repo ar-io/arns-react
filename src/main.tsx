@@ -17,8 +17,8 @@ if (typeof (BigInt.prototype as any).toJSON !== 'function') {
 // some bundlers pick up (when `Buffer` lands on a non-prototype proxy)
 // has them stripped or wired to a Uint8Array that lacks the prototype
 // chain. The SDK's Solana backend (`io-readable.getBalance`,
-// `deserialize.ts`, PDA derivation) and the SurfpoolTools dev faucet
-// rely on these methods; without the patch every getBalance call throws
+// `deserialize.ts`, PDA derivation) relies on these methods; without the
+// patch every getBalance call throws
 // `vu.readBigUInt64LE is not a function` and the checkout payment
 // option silently shows "0 ARIO" balance.
 //

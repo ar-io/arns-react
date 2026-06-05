@@ -1,10 +1,8 @@
 import {
-  ARIO_ANT_PROGRAM_ID,
-  ARIO_ARNS_PROGRAM_ID,
-  ARIO_CORE_PROGRAM_ID,
-  ARIO_GAR_PROGRAM_ID,
   DEVNET_ARIO_MINT,
   DEVNET_PROGRAM_IDS,
+  MAINNET_ARIO_MINT,
+  MAINNET_PROGRAM_IDS as SDK_MAINNET_PROGRAM_IDS,
   createCircuitBreakerRpc,
   defaultFallbackUrl,
 } from '@ar.io/sdk/web';
@@ -17,8 +15,8 @@ import {
  * instances via `@ar.io/sdk/web`.
  *
  * The active config is runtime-switchable via `setSolanaConfig()` — the
- * Settings UI exposes presets for localnet / devnet / mainnet and allows
- * manual overrides. Changing the config invalidates the memoised RPC clients
+ * Settings UI exposes presets for devnet / mainnet. Changing the config
+ * invalidates the memoised RPC clients
  * so subsequent `getSolanaRpc()` / `getSolanaRpcSubscriptions()` calls return
  * fresh instances pointed at the new endpoint.
  */
@@ -29,7 +27,7 @@ import {
   createSolanaRpcSubscriptions,
 } from '@solana/kit';
 
-export type SolanaNetwork = 'mainnet-beta' | 'devnet' | 'testnet' | 'localnet';
+export type SolanaNetwork = 'mainnet-beta' | 'devnet';
 
 export type SolanaProgramIds = {
   coreProgramId?: Address;
@@ -47,47 +45,30 @@ export type SolanaNetworkConfig = {
 
 const DEFAULT_RPC: Record<SolanaNetwork, { http: string }> = {
   'mainnet-beta': {
-    http: 'https://api.mainnet-beta.solana.com',
+    http: 'https://autumn-snowy-liquid.solana-mainnet.quiknode.pro/564349f369b6daf36e58004dbcf4dfdf33ba852e/',
   },
   devnet: {
-    http: 'https://api.devnet.solana.com',
-  },
-  testnet: {
-    http: 'https://api.testnet.solana.com',
-  },
-  localnet: {
-    http: 'http://127.0.0.1:8899',
+    http: 'https://still-stylish-diagram.solana-devnet.quiknode.pro/7bb783112e4f06d72eeb7ca7125bbce97009438f/',
   },
 };
 
 /**
  * Derive the websocket endpoint from the HTTP RPC URL. Public Solana RPCs and
  * managed providers (QuikNode, Helius, Triton, …) all expose WS on the same
- * host as HTTP — swapping the scheme is enough. Localnet is the one exception:
- * `solana-test-validator` listens for WS on `rpcPort + 1`.
+ * host as HTTP — swapping the scheme is enough.
  */
 function deriveWsUrl(rpcUrl: string): string {
-  const scheme = rpcUrl.startsWith('https://')
-    ? 'wss://'
-    : rpcUrl.startsWith('http://')
-      ? 'ws://'
-      : 'wss://';
-  const rest = rpcUrl.replace(/^https?:\/\//, '');
-
-  // Localnet only: bump the port from 8899 (RPC) to 8900 (WS).
-  if (rest.startsWith('127.0.0.1:8899') || rest.startsWith('localhost:8899')) {
-    return `${scheme}${rest.replace(':8899', ':8900')}`;
-  }
-  return `${scheme}${rest}`;
+  const scheme = rpcUrl.startsWith('http://') ? 'ws://' : 'wss://';
+  return `${scheme}${rpcUrl.replace(/^https?:\/\//, '')}`;
 }
 
 export { DEFAULT_RPC as SOLANA_DEFAULT_RPC };
 
-const MAINNET_PROGRAM_IDS: SolanaProgramIds = {
-  coreProgramId: ARIO_CORE_PROGRAM_ID,
-  garProgramId: ARIO_GAR_PROGRAM_ID,
-  arnsProgramId: ARIO_ARNS_PROGRAM_ID,
-  antProgramId: ARIO_ANT_PROGRAM_ID,
+const MAINNET_PROGRAM_IDS_MAPPED: SolanaProgramIds = {
+  coreProgramId: SDK_MAINNET_PROGRAM_IDS.core,
+  garProgramId: SDK_MAINNET_PROGRAM_IDS.gar,
+  arnsProgramId: SDK_MAINNET_PROGRAM_IDS.arns,
+  antProgramId: SDK_MAINNET_PROGRAM_IDS.ant,
 };
 
 const DEVNET_PROGRAM_IDS_MAPPED: SolanaProgramIds = {
@@ -99,18 +80,14 @@ const DEVNET_PROGRAM_IDS_MAPPED: SolanaProgramIds = {
 
 /**
  * Per-network preset defaults. Devnet uses real deployed program IDs from the
- * SDK; mainnet/testnet use the SDK's baked-in defaults. Localnet IDs are
- * typically overridden via env vars or the Settings UI.
+ * SDK; mainnet uses the SDK's baked-in defaults. Localnet IDs are typically
+ * overridden via env vars (`VITE_ARIO_*_PROGRAM_ID`) since the preset is
+ * env-var-only — not selectable from the Settings UI.
  */
 export const SOLANA_NETWORK_PRESETS: Record<
   SolanaNetwork,
   SolanaNetworkConfig
 > = {
-  localnet: {
-    network: 'localnet',
-    rpcUrl: DEFAULT_RPC.localnet.http,
-    programIds: {},
-  },
   devnet: {
     network: 'devnet',
     rpcUrl: DEFAULT_RPC.devnet.http,
@@ -120,22 +97,19 @@ export const SOLANA_NETWORK_PRESETS: Record<
   'mainnet-beta': {
     network: 'mainnet-beta',
     rpcUrl: DEFAULT_RPC['mainnet-beta'].http,
-    programIds: { ...MAINNET_PROGRAM_IDS },
-  },
-  testnet: {
-    network: 'testnet',
-    rpcUrl: DEFAULT_RPC.testnet.http,
-    programIds: { ...MAINNET_PROGRAM_IDS },
+    programIds: { ...MAINNET_PROGRAM_IDS_MAPPED },
+    mintAddress: MAINNET_ARIO_MINT.toString(),
   },
 };
 
 const optAddress = (raw: string | undefined): Address | undefined =>
   raw && raw.length > 0 ? address(raw) : undefined;
 
-// Bumped from `arns-solana-settings` after dropping `rpcWsUrl` and replacing
-// the dead QuikNode devnet endpoint — old blobs would otherwise pin the
-// stale URL on reload. Increment again on future incompatible shape changes.
-const SOLANA_SETTINGS_KEY = 'arns-solana-settings-v2';
+// Bumped to `-v3` after dropping the `localnet` variant — old blobs whose
+// `network` field is `"localnet"` would otherwise fail the
+// `SOLANA_NETWORK_PRESETS[saved.network]` lookup on reload. Increment again
+// on future incompatible shape changes.
+const SOLANA_SETTINGS_KEY = 'arns-solana-settings-v3';
 
 function loadSolanaSettingsFromStorage(): SolanaNetworkConfig | null {
   try {
@@ -172,7 +146,7 @@ function deriveDefaultNetwork(): SolanaNetwork {
   if (env === 'production') return 'mainnet-beta';
   if (env === 'develop') return 'devnet';
 
-  return 'localnet';
+  return 'devnet';
 }
 
 function buildInitialConfig(): SolanaNetworkConfig {
@@ -181,9 +155,20 @@ function buildInitialConfig(): SolanaNetworkConfig {
 
   const envNetwork = deriveDefaultNetwork();
 
+  // `||` (not `??`) on purpose: CI injects `VITE_SOLANA_RPC_URL: ""` when the
+  // corresponding GitHub Variable is undefined, and `??` would let that empty
+  // string through and break `<ConnectionProvider endpoint="">`. Also guard
+  // against a hostname without a scheme — `@solana/web3.js`'s `Connection`
+  // ctor rejects anything that isn't `http(s)://…`.
+  const envRpcUrl = import.meta.env.VITE_SOLANA_RPC_URL || '';
+  const validEnvRpcUrl =
+    envRpcUrl.startsWith('http://') || envRpcUrl.startsWith('https://')
+      ? envRpcUrl
+      : undefined;
+
   return {
     network: envNetwork,
-    rpcUrl: import.meta.env.VITE_SOLANA_RPC_URL ?? DEFAULT_RPC[envNetwork].http,
+    rpcUrl: validEnvRpcUrl ?? DEFAULT_RPC[envNetwork].http,
     programIds: {
       ...SOLANA_NETWORK_PRESETS[envNetwork].programIds,
       ...Object.fromEntries(
@@ -216,8 +201,6 @@ export const ARIO_MINT_ADDRESS: Address | undefined = optAddress(
   _initialConfig.mintAddress,
 );
 
-export const IS_LOCALNET: boolean = _initialConfig.network === 'localnet';
-
 /** Return the live config snapshot (may have been changed at runtime). */
 export function getActiveSolanaConfig(): SolanaNetworkConfig {
   return _activeConfig;
@@ -244,28 +227,12 @@ let _rpcSubscriptions:
   | ReturnType<typeof createSolanaRpcSubscriptions>
   | undefined;
 
-/**
- * Pick a fallback RPC URL appropriate for the active network. The SDK's
- * `defaultFallbackUrl()` only special-cases `/devnet/` in the URL string,
- * so anything else (including `127.0.0.1:8899`) falls back to mainnet — which
- * silently routes localnet traffic to mainnet when the local validator hiccups.
- */
-function fallbackUrlForActiveNetwork(): string {
-  if (
-    _activeConfig.network === 'localnet' ||
-    _activeConfig.network === 'testnet'
-  ) {
-    return _activeConfig.rpcUrl;
-  }
-  return defaultFallbackUrl(_activeConfig.rpcUrl);
-}
-
 /** Memoised kit RPC client with circuit breaker — rebuilt after `setSolanaConfig()`. */
 export function getSolanaRpc() {
   if (!_rpc) {
     _rpc = createCircuitBreakerRpc({
       primaryUrl: _activeConfig.rpcUrl,
-      fallbackUrl: fallbackUrlForActiveNetwork(),
+      fallbackUrl: defaultFallbackUrl(_activeConfig.rpcUrl),
     });
   }
   return _rpc;

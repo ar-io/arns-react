@@ -98,10 +98,10 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@4.0.0-solana.30":
-  version "4.0.0-solana.30"
-  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.0-solana.30.tgz#c0b4e31943f559110cdda96c9d092a64cddabd32"
-  integrity sha512-c647rGgPUywVZ5q6MIKUuG9luPuD0k53CEGfLaPk0dFG39E7cH7aR+9/q359puCvUGivuVEuU8WJ6xWcEGmKVg==
+"@ar.io/sdk@4.0.0-solana.34":
+  version "4.0.0-solana.34"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.0-solana.34.tgz#61510eb648c7271e366f7f6040e100ac17428d4a"
+  integrity sha512-do9OtRAbL3D/L6WlenfeFiL5smmWh2JdeaU89KNbe1gEb6E0FyDqLAjBZPny6yHFT4zUKYoXifbT0gk8zrcoUQ==
   dependencies:
     "@ar.io/solana-contracts" "0.7.0-staging.17"
     "@solana-program/address-lookup-table" "^0.11.0"
