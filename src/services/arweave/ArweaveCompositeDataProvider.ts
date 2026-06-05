@@ -135,7 +135,14 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
     // a scoped lookup costs a handful of selective reads rather than
     // ceil(registrySize / 1000) full-registry scans.
     const processId = filters.processId?.map((p) => p.toString());
-    const scoped = processId !== undefined && processId.length > 0;
+    // An explicit empty array means "no ids of interest" — short-circuit so
+    // we don't fall through to a full-registry scan. The only current caller
+    // (`NameTokenSelector`) guards against this, but treating the empty-array
+    // case explicitly here makes the API safe for any future caller.
+    if (filters.processId !== undefined && filters.processId.length === 0) {
+      return {};
+    }
+    const scoped = processId !== undefined;
 
     const records: Record<string, ArNSNameData> = {};
     let cursor: string | undefined = undefined;
