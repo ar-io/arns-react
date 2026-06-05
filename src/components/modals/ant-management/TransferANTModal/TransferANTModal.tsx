@@ -6,7 +6,7 @@ import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { SolanaAddress } from '../../../../services/solana/SolanaAddress';
 import { TransferANTPayload, VALIDATION_INPUT_TYPES } from '../../../../types';
-import { formatForMaxCharCount, isValidAoAddress } from '../../../../utils';
+import { formatForMaxCharCount, isValidSolanaAddress } from '../../../../utils';
 import { InfoIcon } from '../../../icons';
 import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
 import DialogModal from '../../DialogModal/DialogModal';
@@ -32,7 +32,7 @@ function TransferANTModal({
   const { name = 'N/A' } = useANT(antId.toString());
 
   useEffect(() => {
-    if (!isValidAoAddress(toAddress)) {
+    if (!isValidSolanaAddress(toAddress)) {
       setAccepted(false);
     }
     if (!toAddress.length) {
@@ -94,7 +94,7 @@ function TransferANTModal({
                   validationPredicates={{
                     [VALIDATION_INPUT_TYPES.AO_ADDRESS]: {
                       fn: async (id: string) => {
-                        if (!isValidAoAddress(id)) {
+                        if (!isValidSolanaAddress(id)) {
                           throw new Error('Invalid address');
                         }
                       },
@@ -159,9 +159,9 @@ function TransferANTModal({
                   <Checkbox
                     rootClassName="accept-checkbox transfer-ant-accept-checkbox"
                     onChange={(e) => setAccepted(e.target.checked)}
-                    checked={accepted && isValidAoAddress(toAddress)}
+                    checked={accepted && isValidSolanaAddress(toAddress)}
                     style={{ color: 'white' }}
-                    disabled={!isValidAoAddress(toAddress)}
+                    disabled={!isValidSolanaAddress(toAddress)}
                   />
                   I understand that this action cannot be undone.
                 </span>
@@ -172,7 +172,7 @@ function TransferANTModal({
         onCancel={closeModal}
         onClose={closeModal}
         onNext={
-          accepted && isValidAoAddress(toAddress)
+          accepted && isValidSolanaAddress(toAddress)
             ? () => handlePayloadCallback()
             : undefined
         }

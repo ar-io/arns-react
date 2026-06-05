@@ -199,7 +199,12 @@ export default async function dispatchArIOInteraction({
         break;
       case ARNS_INTERACTION_TYPES.PRIMARY_NAME_REQUEST: {
         result = await arioContract.setPrimaryName(
-          { name: payload.name },
+          {
+            name: payload.name,
+            fundFrom: originalFundFrom,
+            referrer: APP_NAME,
+            paidBy,
+          },
           {
             ...WRITE_OPTIONS,
             onSigningProgress: (

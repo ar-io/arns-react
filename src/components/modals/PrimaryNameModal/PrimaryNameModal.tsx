@@ -1,4 +1,4 @@
-import { mARIOToken } from '@ar.io/sdk';
+import { FundFrom, mARIOToken } from '@ar.io/sdk';
 import {
   getPrimaryNamePDA,
   getPrimaryNameReversePDA,
@@ -23,6 +23,7 @@ import {
   setTransactionMessageLifetimeUsingBlockhash,
   signTransactionMessageWithSigners,
 } from '@solana/kit';
+import { ARIOFundingSelector } from '@src/components/forms/ARIOFundingSelector/ARIOFundingSelector';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
@@ -101,6 +102,8 @@ function PrimaryNameModal({
   const [{ transactionData }, dispatchTransactionState] = useTransactionState();
   const [, dispatchArNSState] = useArNSState();
 
+  const [fundingSource, setFundingSource] = useState<FundFrom>('balance');
+
   const transactionPayload =
     isRemovePrimaryNamesPayload(transactionData) ||
     isPrimaryNameRequest(transactionData)
@@ -128,9 +131,9 @@ function PrimaryNameModal({
       intent: 'Primary-Name-Request' as const,
       name: targetName ?? '',
       fromAddress: walletAddress?.toString(),
-      fundFrom: 'balance' as const,
+      fundFrom: fundingSource,
     }),
-    [targetName, walletAddress],
+    [targetName, walletAddress, fundingSource],
   );
 
   const { data: costDetail, isLoading: isLoadingCostDetail } =
@@ -139,6 +142,12 @@ function PrimaryNameModal({
   const totalCost = costDetail
     ? new mARIOToken(costDetail.tokenCost).toARIO().valueOf()
     : 0;
+
+  // `fundingPlan.shortfall` is computed against the eligible pool for the
+  // chosen `fundFrom` (see SDK `buildPublicFundingPlan`) — zero when the
+  // user's chosen source can fully cover the cost.
+  const isInsufficientBalance =
+    !!costDetail?.fundingPlan && costDetail.fundingPlan.shortfall > 0;
 
   const discount = costDetail
     ? new mARIOToken(
@@ -212,7 +221,7 @@ function PrimaryNameModal({
             owner: walletAddress,
             arioContract: arioContract as any,
             processId: domainData.processId,
-            fundFrom: 'balance',
+            fundFrom: fundingSource,
             dispatch: dispatchTransactionState,
           });
 
@@ -406,10 +415,15 @@ function PrimaryNameModal({
               </div>
 
               <div className="flex flex-col w-full pt-6 gap-2">
-                <div className="flex flex-row justify-between items-center w-full border-t border-dark-grey pt-4">
-                  <span className="text-grey">Payment</span>
-                  <span className="text-white">Liquid Balance</span>
-                </div>
+                {workflow !== PRIMARY_NAME_WORKFLOWS.REMOVE && (
+                  <div className="flex flex-col w-full gap-2 border-t border-dark-grey pt-4">
+                    <span className="text-grey">Payment</span>
+                    <ARIOFundingSelector
+                      fundingSource={fundingSource}
+                      onChange={setFundingSource}
+                    />
+                  </div>
+                )}
                 {discount > 0 && (
                   <div className="flex flex-row justify-between items-center w-full">
                     <span className="text-grey">Operator discount</span>
@@ -430,6 +444,11 @@ function PrimaryNameModal({
                     <span className="text-grey">--</span>
                   )}
                 </div>
+                {isInsufficientBalance && (
+                  <span className="text-error text-sm self-end">
+                    Insufficient balance for the selected source
+                  </span>
+                )}
               </div>
             </div>
           )
@@ -437,9 +456,14 @@ function PrimaryNameModal({
         onCancel={closeModal}
         onClose={closeModal}
         onNext={
-          !isLoading && !isLoadingCostDetail && costDetail ? confirm : undefined
+          !isLoading &&
+          !isLoadingCostDetail &&
+          costDetail &&
+          (workflow === PRIMARY_NAME_WORKFLOWS.REMOVE || !isInsufficientBalance)
+            ? confirm
+            : undefined
         }
-        nextText="Confirm"
+        nextText={isInsufficientBalance ? 'Insufficient balance' : 'Confirm'}
         cancelText="Cancel"
         footerClass="border-t-0"
       />

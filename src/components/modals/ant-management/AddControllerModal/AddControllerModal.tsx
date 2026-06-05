@@ -5,7 +5,7 @@ import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
 import { SolanaAddress } from '../../../../services/solana/SolanaAddress';
 import { VALIDATION_INPUT_TYPES } from '../../../../types';
-import { formatForMaxCharCount, isValidAoAddress } from '../../../../utils';
+import { formatForMaxCharCount, isValidSolanaAddress } from '../../../../utils';
 import ValidationInput from '../../../inputs/text/ValidationInput/ValidationInput';
 import DialogModal from '../../DialogModal/DialogModal';
 
@@ -76,8 +76,9 @@ function AddControllerModal({
                   showValidationChecklist={true}
                   validationListStyle={{ display: 'none' }}
                   catchInvalidInput={true}
-                  // Arweave TX IDs are 43 chars, EIP-55 addresses 42 (0x +
-                  // 40), Solana base58 pubkeys go up to 44 — pick the max.
+                  // Solana base58 pubkeys are 32–44 chars (must decode to
+                  // 32 bytes). `isValidSolanaAddress` handles the strict
+                  // shape check; this cap just stops the input visually.
                   maxCharLength={44}
                   value={newController}
                   setValue={setNewController}
@@ -87,7 +88,7 @@ function AddControllerModal({
                   validationPredicates={{
                     [VALIDATION_INPUT_TYPES.AO_ADDRESS]: {
                       fn: async (id: string) => {
-                        if (!isValidAoAddress(id)) {
+                        if (!isValidSolanaAddress(id)) {
                           throw new Error('Invalid address');
                         }
                       },
@@ -104,7 +105,7 @@ function AddControllerModal({
         onCancel={closeModal}
         onClose={closeModal}
         onNext={
-          isValidAoAddress(newController)
+          isValidSolanaAddress(newController)
             ? () => handlePayloadCallback()
             : undefined
         }
