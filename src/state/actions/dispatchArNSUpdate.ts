@@ -1,11 +1,8 @@
-import { ARIORead, ArNSNameData } from '@ar.io/sdk/web';
+import { ANTState, ARIORead, ArNSNameData } from '@ar.io/sdk/web';
 import { captureException } from '@sentry/react';
-import { buildDomainInfoQuery } from '@src/hooks/useDomainInfo';
 import { AoAddress, ArNSWalletConnector } from '@src/types';
-import eventEmitter from '@src/utils/events';
 import { queryClient } from '@src/utils/network';
-import { buildArioRead } from '@src/utils/sdk-init';
-import { pLimit } from 'plimit-lit';
+import { buildAntRead, buildArioRead } from '@src/utils/sdk-init';
 import { Dispatch } from 'react';
 
 import { ANTProcessData } from '../contexts';
@@ -21,12 +18,12 @@ import { ArNSAction } from '../reducers/ArNSReducer';
 export async function dispatchArNSUpdate({
   dispatch,
   walletAddress,
-  wallet,
   arioContract: providedArio,
 }: {
   dispatch: Dispatch<ArNSAction>;
   walletAddress: AoAddress;
-  /** Connected Solana wallet, when available. */
+  /** Connected Solana wallet, when available (accepted for call-site
+   * compatibility; the bulk ANT read is wallet-agnostic). */
   wallet?: ArNSWalletConnector;
   /**
    * Optional pre-built ARIO instance. When provided we use it directly; the
@@ -40,7 +37,6 @@ export async function dispatchArNSUpdate({
   hyperbeamUrl?: string;
 }) {
   try {
-    const throttle = pLimit(5);
     // Reset every cache that fans into the manage / register / list views.
     //
     // `domainInfo`        — `useDomainInfo` (the manage page header)
@@ -118,73 +114,61 @@ export async function dispatchArNSUpdate({
       ),
     });
 
-    const fetchAntDetails = async (id: string) => {
+    // Bulk-load every registered ANT's full state in a handful of RPC calls:
+    // `getANTStates` batches AntConfig + AntControllers via getMultipleAccounts
+    // and pulls ALL undername records in one program-wide getProgramAccounts
+    // scan grouped by mint — replacing the old per-ANT `getState` fan-out
+    // (~4 RPC × N, the dominant source of the wallet-connect request storm).
+    if (registeredUserAnts.length > 0) {
       try {
-        const domainInfo = await queryClient.fetchQuery(
-          buildDomainInfoQuery({
-            antId: id,
-            wallet,
-          }),
-        );
-        // if the user is not associated with the ant, do not load it
-        if (
-          domainInfo.state &&
-          domainInfo.state.Owner !== walletAddress.toString() &&
-          !domainInfo.state.Controllers.includes(walletAddress.toString())
-        ) {
-          dispatch({ type: 'removeAnts', payload: [id] });
-        } else {
-          dispatch({
-            type: 'addAnts',
-            payload: {
-              [id]: {
-                state: domainInfo.state ?? null,
-                version: domainInfo.version,
-                processMeta: antMetas[id] ?? null,
-                errors: domainInfo.errors ?? [],
-              },
-            },
-          });
-        }
-      } catch (error: any) {
-        const errorHandler = (e: string) => {
-          if (e.startsWith('Error getting ArNS records')) {
-            eventEmitter.emit(
-              'error',
-              new Error(
-                'Unable to load ArNS records. Please refresh to try again.',
-              ),
-            );
-            dispatch({ type: 'setLoading', payload: false });
-            dispatch({ type: 'setPercentLoaded', payload: undefined });
-          } else if (e.includes('Timeout')) {
-            captureException(new Error(e), {
-              tags: {
-                walletAddress: walletAddress.toString(),
-              },
-            });
-          } else if (!e.includes('does not support provided action.')) {
-            captureException(new Error(e), {
-              tags: {
-                walletAddress: walletAddress.toString(),
-              },
-            });
-            console.error(new Error(e));
+        // `getANTStates` is mint-agnostic (uses the client's rpc + program), so
+        // any registered mint seeds the reader; it loads them all in bulk.
+        const antReader = await buildAntRead({
+          processId: registeredUserAnts[0],
+        });
+        const states = (await (
+          antReader as unknown as {
+            getANTStates: (
+              mints: string[],
+            ) => Promise<Record<string, ANTState>>;
           }
-        };
-        errorHandler(error.message);
-      } finally {
-        dispatch({ type: 'incrementAntCount' });
+        ).getANTStates(registeredUserAnts)) as Record<string, ANTState>;
+
+        for (const id of registeredUserAnts) {
+          const state = states[id] ?? null;
+          // Drop ANTs the wallet neither owns nor controls.
+          if (
+            state &&
+            state.Owner !== walletAddress.toString() &&
+            !state.Controllers.includes(walletAddress.toString())
+          ) {
+            dispatch({ type: 'removeAnts', payload: [id] });
+          } else {
+            dispatch({
+              type: 'addAnts',
+              payload: {
+                [id]: {
+                  state,
+                  version: 0,
+                  processMeta: antMetas[id] ?? null,
+                  errors: [],
+                },
+              },
+            });
+          }
+          dispatch({ type: 'incrementAntCount' });
+        }
         dispatch({
           type: 'setPercentLoaded',
           payload: registeredUserAnts.length,
         });
+      } catch (error: any) {
+        captureException(error, {
+          tags: { walletAddress: walletAddress.toString() },
+        });
+        console.error(error);
       }
-    };
-
-    await Promise.all(
-      registeredUserAnts.map((id) => throttle(() => fetchAntDetails(id))),
-    );
+    }
   } catch (error) {
     captureException(error);
   } finally {

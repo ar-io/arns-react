@@ -27,7 +27,7 @@ function Home() {
         applications, pages, data, or identities.
       </span>
       <div
-        className="flex-col gap-8 flex-center"
+        className="flex flex-col gap-8 flex-center"
         style={{
           width: '100%',
           maxWidth: '900px',

@@ -129,12 +129,30 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
       processId?: Array<ArweaveTransactionID | SolanaAddress | string>;
     };
   }): Promise<Record<string, ArNSNameData>> {
-    // TODO: check the cache for existing records and only fetch new ones
+    // Push the processId filter down to the RPC instead of paginating the
+    // ENTIRE registry and filtering client-side. On Solana the SDK turns a
+    // `processId` filter into a selective per-mint `getProgramAccounts`, so
+    // a scoped lookup costs a handful of selective reads rather than
+    // ceil(registrySize / 1000) full-registry scans.
+    const processId = filters.processId?.map((p) => p.toString());
+    // An explicit empty array means "no ids of interest" — short-circuit so
+    // we don't fall through to a full-registry scan. The only current caller
+    // (`NameTokenSelector`) guards against this, but treating the empty-array
+    // case explicitly here makes the API safe for any future caller.
+    if (filters.processId !== undefined && filters.processId.length === 0) {
+      return {};
+    }
+    const scoped = processId !== undefined;
+
     const records: Record<string, ArNSNameData> = {};
     let cursor: string | undefined = undefined;
     let hasMore = true;
     while (hasMore) {
-      const page = await this.contract.getArNSRecords({ limit: 1000, cursor });
+      const page = await this.contract.getArNSRecords({
+        limit: 1000,
+        cursor,
+        ...(scoped ? { filters: { processId } } : {}),
+      });
       for (const item of page.items) {
         records[(item as ArNSNameDataWithName).name] = item;
       }
@@ -142,18 +160,9 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
       hasMore = page.hasMore;
     }
 
-    // Compare process ids by their string representation. The previous
-    // `Array.includes(new ArweaveTransactionID(...))` never matched
-    // (object identity) and would now also throw on Solana mints because
-    // those don't pass the 43-char Arweave regex — using the string form
-    // both fixes the bug and avoids the wrapper-type mismatch.
-    return Object.fromEntries(
-      Object.entries(records).filter(([, record]) => {
-        if (filters.processId === undefined) return true;
-        const target = record.processId;
-        return filters.processId.some((p) => p.toString() === target);
-      }),
-    );
+    // The RPC already applied the processId filter when one was supplied, so
+    // no client-side re-filter is needed.
+    return records;
   }
 
   async getTokenBalance(address: AoAddress): Promise<number> {
