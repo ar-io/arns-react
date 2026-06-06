@@ -116,10 +116,10 @@
     winston "^3.13.0"
     zod "^3.23.8"
 
-"@ar.io/sdk@^4.0.2":
-  version "4.0.2"
-  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.2.tgz#03982f7c80e7992a91745d1ae4a6c02558196867"
-  integrity sha512-jECDYNG8NaJ50tH2SeI0LXe2DguQFqs+A9uUoffgoMhB/8eQAFFaw06knI7rC3uiNFd1eftWB0FSPh+d+Zgbxw==
+"@ar.io/sdk@^4.0.2-alpha.1":
+  version "4.0.2-alpha.1"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.2-alpha.1.tgz#fa8ca4691fae8af32b26963702ad39537ffcf7a4"
+  integrity sha512-bShSWEqOB+80IfLmBgFjYKfo3A7RG8q0xDwB2wYByfNQcUu+E3leucGuO+b472ZS0+Wi3wJ91cx2UmUePSX0Cg==
   dependencies:
     "@ar.io/solana-contracts" "1.0.0"
     "@noble/hashes" "^1.8.0"
