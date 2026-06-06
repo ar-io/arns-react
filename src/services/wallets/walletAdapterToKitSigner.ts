@@ -1,30 +1,35 @@
 /**
  * Bridges a `@solana/wallet-adapter-react` wallet adapter (`signTransaction`
  * over `@solana/web3.js` `VersionedTransaction`) into a `@solana/kit`
- * `TransactionPartialSigner` so the AR.IO SDK's Solana writeable instances
+ * `TransactionModifyingSigner` so the AR.IO SDK's Solana writeable instances
  * can drive browser wallets like Phantom, Solflare, and Backpack.
  *
- * Why a *partial* signer (not a *modifying* signer)?
- * - Wallet adapters do not modify our transactions — they just sign and
- *   return them. `TransactionPartialSigner` is the correct kit-side shape
- *   and lets kit run multiple signers in parallel.
- * - Multi-sig flows (e.g. `spawnSolanaANT` which also signs with a fresh
- *   mint keypair) keep working: kit collects partial signatures from each
- *   signer independently, then merges them.
+ * Why a *modifying* signer (not a *partial* signer)?
+ * - Phantom (and others) REWRITE the transaction before signing on real
+ *   origins — e.g. injecting their own priority-fee / compute-budget
+ *   instructions (observed on ngrok/prod, not on localhost). A partial signer
+ *   returns only a signature for kit's ORIGINAL message, so kit would send the
+ *   original bytes with a signature taken over the wallet's rewritten bytes →
+ *   "Transaction did not pass signature verification" (#7050012) / preflight
+ *   #-32002. Pinning a non-zero fee does NOT stop the rewrite.
+ * - As a modifying signer we return the wallet's *rewritten* message together
+ *   with its signature, so the bytes signed == the bytes sent.
+ * - Multi-sig flows (e.g. `spawnSolanaANT` + a fresh mint keypair) still work:
+ *   kit runs modifying signers FIRST, so the mint-keypair partial signer signs
+ *   the already-rewritten message and both signatures verify.
  *
- * Implementation note:
- * - We always set the wallet as the fee payer in the SDK, so its signature
- *   lives at slot 0 of `VersionedTransaction.signatures` after signing.
- *   That's what we lift back into the kit `SignatureDictionary`.
- * - For multi-sig spawn-style flows, kit reconstructs the final transaction
- *   from each partial signer's contribution, so the mint keypair signature
- *   produced by kit's own pipeline is preserved.
+ * Implementation note: the wallet is always the fee payer (signature slot 0).
+ * We deserialize kit's compiled message, let the wallet sign (and possibly
+ * rewrite) it, then rebuild a kit `Transaction` from the wallet's returned
+ * message bytes + signatures.
  */
 import {
   type Address,
   type Transaction as KitTransaction,
   type SignatureBytes,
-  type TransactionPartialSigner,
+  type TransactionModifyingSigner,
+  type TransactionWithLifetime,
+  type TransactionWithinSizeLimit,
   address,
 } from '@solana/kit';
 import { VersionedMessage, VersionedTransaction } from '@solana/web3.js';
@@ -51,7 +56,7 @@ export class WalletAdapterSignerError extends Error {
  */
 export function makeWalletAdapterSigner(
   wallet: WalletAdapterLike,
-): TransactionPartialSigner {
+): TransactionModifyingSigner {
   if (!wallet.publicKey) {
     throw new WalletAdapterSignerError(
       'Solana wallet is not connected (publicKey is null).',
@@ -68,7 +73,13 @@ export function makeWalletAdapterSigner(
 
   return {
     address: walletAddress,
-    async signTransactions(transactions: readonly KitTransaction[]) {
+    async modifyAndSignTransactions(
+      transactions: readonly KitTransaction[],
+    ): Promise<
+      readonly (KitTransaction &
+        TransactionWithinSizeLimit &
+        TransactionWithLifetime)[]
+    > {
       return Promise.all(
         transactions.map(async (tx) => {
           // kit's Transaction stores the *compiled* message bytes (the exact
@@ -126,40 +137,62 @@ export function makeWalletAdapterSigner(
 
           const signed = await signTransaction(v3tx);
 
-          // DIAGNOSTIC: did the wallet modify the transaction (e.g. Phantom
-          // injecting a priority-fee instruction)? If so the message bytes
-          // we sent and what the wallet signed-against will differ, and
-          // kit's mint signer's sig (over the *original* bytes) will fail
-          // even if ours doesn't.
+          // DIAGNOSTIC: did the wallet rewrite the transaction (e.g. Phantom
+          // injecting a priority-fee instruction or a Lighthouse guard on real
+          // origins)? This is EXPECTED and handled — as a modifying signer we
+          // return the wallet's rewritten message + signature below, so the
+          // bytes signed == the bytes sent. Logged at debug for visibility.
           const signedMessageBytes = signed.message.serialize();
           const walletKeptMessage =
             signedMessageBytes.length === messageBytes.length &&
             signedMessageBytes.every((b, i) => b === messageBytes[i]);
           if (!walletKeptMessage) {
-            console.warn(
-              "[wallet-bridge] wallet returned a modified transaction (likely auto-priority-fee or extra ix). Mint signer's signature will not verify against the new message.",
+            console.debug(
+              '[wallet-bridge] wallet rewrote the transaction (priority fee / Lighthouse guard); forwarding its rewritten message.',
               {
                 originalLen: messageBytes.length,
                 signedLen: signedMessageBytes.length,
-                originalBytes: bufToHex(messageBytes),
-                signedBytes: bufToHex(signedMessageBytes),
               },
             );
           }
 
-          // The wallet adapter signs on behalf of `wallet.publicKey`, which
-          // we've ensured is the fee payer (slot 0). Pull just our
-          // signature out and let kit merge it with whatever the other
-          // signers produced.
+          // The wallet may have REWRITTEN the message (priority fee, extra ix)
+          // and signed THAT. As a modifying signer we return the wallet's
+          // resulting message bytes + signatures so kit sends exactly what was
+          // signed. Slot 0 is the fee payer (this wallet); other required-
+          // signer slots are left for kit's remaining partial signers (e.g.
+          // the spawn mint keypair), which sign over this same rewritten
+          // message.
           const sig = signed.signatures[0];
           if (!sig || sig.every((b) => b === 0)) {
             throw new WalletAdapterSignerError(
               'Wallet adapter returned an unsigned transaction (signature slot 0 is empty).',
             );
           }
+          const signedKeys = signed.message.staticAccountKeys;
+          const numSigners = signed.message.header.numRequiredSignatures;
+          const signatures: Record<string, SignatureBytes> = {};
+          for (let i = 0; i < numSigners; i++) {
+            const s = signed.signatures[i];
+            if (s && !s.every((b) => b === 0)) {
+              signatures[signedKeys[i].toBase58()] = s as SignatureBytes;
+            }
+          }
+          // Carry the original lifetime (blockhash + lastValidBlockHeight)
+          // onto the rewritten transaction. The wallet only adds instructions;
+          // it preserves the blockhash, so the original constraint still
+          // applies — and kit's confirmation step requires it.
+          const lifetimeConstraint = (
+            tx as KitTransaction & Partial<TransactionWithLifetime>
+          ).lifetimeConstraint;
           return {
-            [walletAddress]: sig as SignatureBytes,
-          } as Record<Address, SignatureBytes>;
+            messageBytes:
+              signed.message.serialize() as unknown as KitTransaction['messageBytes'],
+            signatures: signatures as unknown as KitTransaction['signatures'],
+            ...(lifetimeConstraint ? { lifetimeConstraint } : {}),
+          } as unknown as KitTransaction &
+            TransactionWithinSizeLimit &
+            TransactionWithLifetime;
         }),
       );
     },
