@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-06-08
+
+### Changed
+
+- Ported ALL APIs and workflows to the Solana implementation of the Ar.io network.
+
 ## [1.30.3] - 2026-05-06
 
 ### Changed
