@@ -1,18 +1,19 @@
 import {
-  AoARIORead,
-  AoArNSNameData,
-  fetchAllArNSRecords,
+  ARIORead,
+  ArNSNameData,
+  ArNSNameDataWithName,
   mARIOToken,
 } from '@ar.io/sdk/web';
 import { lowerCaseDomain } from '@src/utils';
 
 import { AoAddress, ArweaveDataProvider } from '../../types';
+import { SolanaAddress } from '../solana/SolanaAddress';
 import { ArweaveTransactionID } from './ArweaveTransactionID';
 
 export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
   // NOTE: this class should not have any logic for performing queries itself, but rather logic for getting results from
   // an array of providers, using different strategies such as Promise.race or Promise.all.
-  private contract: AoARIORead;
+  private contract: ARIORead;
   private arweave: ArweaveDataProvider;
 
   // TODO: implement strategy methods
@@ -21,7 +22,7 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
     arweave,
   }: {
     arweave: ArweaveDataProvider;
-    contract: AoARIORead;
+    contract: ARIORead;
   }) {
     this.contract = contract;
     this.arweave = arweave;
@@ -111,7 +112,7 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
     domain,
   }: {
     domain: string;
-  }): Promise<AoArNSNameData | undefined> {
+  }): Promise<ArNSNameData | undefined> {
     const record = await this.contract.getArNSRecord({
       name: lowerCaseDomain(domain),
     });
@@ -122,24 +123,46 @@ export class ArweaveCompositeDataProvider implements ArweaveDataProvider {
     filters,
   }: {
     filters: {
-      processId?: ArweaveTransactionID[];
+      // Accept either wrapper (or raw string) and match by string. ANT
+      // process ids are Solana base58 post-migration, but a few callers
+      // still pass `ArweaveTransactionID` for legacy AO records.
+      processId?: Array<ArweaveTransactionID | SolanaAddress | string>;
     };
-  }): Promise<Record<string, AoArNSNameData>> {
-    // TODO: check the cache for existing records and only fetch new ones
-    const records: Record<string, AoArNSNameData> = await fetchAllArNSRecords({
-      contract: this.contract,
-    });
+  }): Promise<Record<string, ArNSNameData>> {
+    // Push the processId filter down to the RPC instead of paginating the
+    // ENTIRE registry and filtering client-side. On Solana the SDK turns a
+    // `processId` filter into a selective per-mint `getProgramAccounts`, so
+    // a scoped lookup costs a handful of selective reads rather than
+    // ceil(registrySize / 1000) full-registry scans.
+    const processId = filters.processId?.map((p) => p.toString());
+    // An explicit empty array means "no ids of interest" — short-circuit so
+    // we don't fall through to a full-registry scan. The only current caller
+    // (`NameTokenSelector`) guards against this, but treating the empty-array
+    // case explicitly here makes the API safe for any future caller.
+    if (filters.processId !== undefined && filters.processId.length === 0) {
+      return {};
+    }
+    const scoped = processId !== undefined;
 
-    // filter by processId
-    return Object.fromEntries(
-      Object.entries(records).filter(
-        ([, record]) =>
-          filters.processId === undefined ||
-          filters.processId.includes(
-            new ArweaveTransactionID(record.processId),
-          ),
-      ),
-    );
+    const records: Record<string, ArNSNameData> = {};
+    let cursor: string | undefined = undefined;
+    let hasMore = true;
+    while (hasMore) {
+      const page = await this.contract.getArNSRecords({
+        limit: 1000,
+        cursor,
+        ...(scoped ? { filters: { processId } } : {}),
+      });
+      for (const item of page.items) {
+        records[(item as ArNSNameDataWithName).name] = item;
+      }
+      cursor = page.nextCursor;
+      hasMore = page.hasMore;
+    }
+
+    // The RPC already applied the processId filter when one was supplied, so
+    // no client-side re-filter is needed.
+    return records;
   }
 
   async getTokenBalance(address: AoAddress): Promise<number> {

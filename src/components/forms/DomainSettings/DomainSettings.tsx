@@ -6,10 +6,9 @@ import ArweaveID, {
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import { ReassignNameModal } from '@src/components/modals/ant-management/ReassignNameModal/ReassignNameModal';
 import { ReturnNameModal } from '@src/components/modals/ant-management/ReturnNameModal/ReturnNameModal';
-import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { SolanaAddress } from '@src/services/solana/SolanaAddress';
 import { useArNSState, useGlobalState } from '@src/state';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
@@ -17,13 +16,11 @@ import { useWalletState } from '@src/state/contexts/WalletState';
 import { ANT_INTERACTION_TYPES } from '@src/types';
 import {
   decodeDomainToASCII,
-  doAntsRequireUpdate,
   formatExpiryDate,
   lowerCaseDomain,
 } from '@src/utils';
 import {
   DEFAULT_MAX_UNDERNAMES,
-  MIN_ANT_VERSION,
   SECONDS_IN_GRACE_PERIOD,
 } from '@src/utils/constants';
 import { useQueryClient } from '@tanstack/react-query';
@@ -34,7 +31,6 @@ import { useNavigate } from 'react-router-dom';
 import ControllersRow from './ControllersRow';
 import DescriptionRow from './DescriptionRow';
 import DomainSettingsRow from './DomainSettingsRow';
-import IOCompatibleRow from './IOCompatibleRow';
 import KeywordsRow from './KeywordRow';
 import LogoRow from './LogoRow';
 import NicknameRow from './NicknameRow';
@@ -49,7 +45,6 @@ export enum DomainSettingsRowTypes {
   LEASE_DURATION = 'Lease Duration',
   ASSOCIATED_NAMES = 'Associated Names',
   STATUS = 'Status',
-  IO_COMPATIBLE = 'IO Compatible',
   NICKNAME = 'Nickname',
   PROCESS_ID = 'Process ID',
   TARGET_ID = 'Target ID',
@@ -77,13 +72,10 @@ function DomainSettings({
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const [{ arioProcessId, antAoClient, hyperbeamUrl, antRegistryProcessId }] =
-    useGlobalState();
+  useGlobalState();
   const [{ interactionResult }, dispatchTransactionState] =
     useTransactionState();
   const [, dispatchArNSState] = useArNSState();
-  const { data: antVersion } = useLatestANTVersion();
-  const antModuleId = antVersion?.moduleId ?? null;
   const [{ wallet, walletAddress }] = useWalletState();
   const { data: primaryNameData } = usePrimaryName();
   const { data, isLoading, refetch } = useDomainInfo({ domain, antId });
@@ -113,18 +105,22 @@ function DomainSettings({
 
   useEffect(() => {
     if (interactionResult) {
+      // Consolidated invalidation — bust arns-records, domainInfo (by name
+      // and processId), and the inner ant/ant-info caches that
+      // `useDomainInfo` reads through (staleTime: Infinity).
+      // Uses `refetchType: 'active'` so only mounted queries refetch;
+      // `dispatchArIOInteraction` already handles the broad invalidation.
+      const antProcessId = data?.processId?.toString();
       queryClient.invalidateQueries({
-        queryKey: ['arns-records'],
-        refetchType: 'all',
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ['domainInfo', domain],
-        refetchType: 'all',
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['domainInfo', data?.processId.toString()],
-        refetchType: 'all',
+        predicate: ({ queryKey }) =>
+          queryKey.includes('arns-records') ||
+          (queryKey[0] === 'domainInfo' &&
+            ((!!domain && queryKey.includes(domain)) ||
+              (!!antProcessId && queryKey.includes(antProcessId)))) ||
+          ((queryKey[0] === 'ant' || queryKey[0] === 'ant-info') &&
+            !!antProcessId &&
+            queryKey.includes(antProcessId)),
+        refetchType: 'active',
       });
 
       refetch();
@@ -187,16 +183,14 @@ function DomainSettings({
                       message={
                         primaryNameData?.name === lowerCaseDomain(domain ?? '')
                           ? 'Cannot return ArNS name while set as primary name. Remove name as primary name to enable return name workflow.'
-                          : data.version < MIN_ANT_VERSION
-                            ? 'Update Domain to access Release Name workflow'
-                            : 'Returns the name to the ArNS protocol'
+                          : 'Returns the name to the ArNS protocol'
                       }
                       icon={
                         <button
+                          data-testid="return-name-button"
                           disabled={
                             primaryNameData?.name ===
-                              lowerCaseDomain(domain ?? '') ||
-                            data.version < MIN_ANT_VERSION
+                            lowerCaseDomain(domain ?? '')
                           }
                           onClick={() => setShowReturnNameModal(true)}
                           className={`text-xs rounded-[4px] py-[.375rem] px-[.625rem]  border border-error bg-error-thin text-error whitespace-nowrap`}
@@ -210,6 +204,7 @@ function DomainSettings({
                       message={'Extend lease'}
                       icon={
                         <button
+                          data-testid="extend-lease-button"
                           className={`p-[6px] px-[10px] text-[12px] rounded-[4px] bg-primary-thin hover:bg-primary border hover:border-primary border-primary-thin text-primary hover:text-black transition-all whitespace-nowrap hover `}
                           onClick={() =>
                             navigate(
@@ -281,31 +276,6 @@ function DomainSettings({
               key={DomainSettingsRowTypes.STATUS}
             />
           ),
-          [DomainSettingsRowTypes.IO_COMPATIBLE]: (
-            <IOCompatibleRow
-              domain={domain}
-              processId={data?.processId ?? ''}
-              editable={data?.state ? isAuthorized : true}
-              requiresUpdate={
-                // TODO: use latest `getVersion` API on ANT
-                data?.processId && data?.state && walletAddress
-                  ? doAntsRequireUpdate({
-                      ants: {
-                        [data.processId]: {
-                          state: data.state,
-                          version: data.version,
-                          processMeta: data.processMeta ?? null,
-                        },
-                      },
-                      userAddress: walletAddress.toString(),
-                      currentModuleId: antModuleId,
-                    })
-                  : data?.processId
-                    ? true
-                    : false
-              }
-            />
-          ),
           [DomainSettingsRowTypes.NICKNAME]: (
             <NicknameRow
               nickname={decodeDomainToASCII(data?.name ?? '')}
@@ -317,12 +287,10 @@ function DomainSettings({
                   workflowName: ANT_INTERACTION_TYPES.SET_NAME,
                   processId: data!.processId,
                   signer: wallet!.contractSigner!,
+                  wallet,
                   owner: walletAddress!.toString(),
                   dispatchTransactionState,
                   dispatchArNSState,
-                  ao: antAoClient,
-                  hyperbeamUrl,
-                  antRegistryProcessId,
                 })
               }
             />
@@ -334,7 +302,7 @@ function DomainSettings({
               value={
                 data?.processId && !isLoading ? (
                   <ArweaveID
-                    id={new ArweaveTransactionID(data.processId.toString())}
+                    id={new SolanaAddress(data.processId.toString())}
                     shouldLink
                     characterCount={16}
                     type={ArweaveIdTypes.CONTRACT}
@@ -354,18 +322,14 @@ function DomainSettings({
                 isOwner ? (
                   <Tooltip
                     message={
-                      data?.version && data.version < MIN_ANT_VERSION
-                        ? 'Update Domain to access Reassign Name workflow'
-                        : data?.isInGracePeriod
-                          ? 'Lease must be extended before ANT can be Reassigned'
-                          : 'Reassigns what ANT is registered to the ArNS Name'
+                      data?.isInGracePeriod
+                        ? 'Lease must be extended before ANT can be Reassigned'
+                        : 'Reassigns what ANT is registered to the ArNS Name'
                     }
                     icon={
                       <button
-                        disabled={
-                          (data?.version && data.version < MIN_ANT_VERSION) ||
-                          data?.isInGracePeriod
-                        }
+                        data-testid="reassign-name-button"
+                        disabled={data?.isInGracePeriod}
                         onClick={() => setShowReassignNameModal(true)}
                         className={`flex flex-row text-[12px] rounded-[4px] p-[6px] px-[10px] border border-error bg-error-thin text-error whitespace-nowrap hover:scale-105 transition-all`}
                       >
@@ -390,13 +354,11 @@ function DomainSettings({
                   },
                   workflowName: ANT_INTERACTION_TYPES.SET_TARGET_ID,
                   signer: wallet!.contractSigner!,
+                  wallet,
                   owner: walletAddress!.toString(),
                   processId: data!.processId,
                   dispatchTransactionState,
                   dispatchArNSState,
-                  ao: antAoClient,
-                  hyperbeamUrl,
-                  antRegistryProcessId,
                 })
               }
             />
@@ -411,13 +373,11 @@ function DomainSettings({
                   payload: { ticker },
                   workflowName: ANT_INTERACTION_TYPES.SET_TICKER,
                   signer: wallet!.contractSigner!,
+                  wallet,
                   owner: walletAddress!.toString(),
                   processId: data!.processId,
                   dispatchTransactionState,
                   dispatchArNSState,
-                  ao: antAoClient,
-                  hyperbeamUrl,
-                  antRegistryProcessId,
                 })
               }
             />
@@ -441,13 +401,11 @@ function DomainSettings({
                   payload,
                   workflowName,
                   signer: wallet!.contractSigner!,
+                  wallet,
                   owner: walletAddress!.toString(),
                   processId: data!.processId,
                   dispatchTransactionState,
                   dispatchArNSState,
-                  ao: antAoClient,
-                  hyperbeamUrl,
-                  antRegistryProcessId,
                 })
               }
             />
@@ -463,19 +421,14 @@ function DomainSettings({
                 dispatchANTInteraction({
                   payload: {
                     target,
-                    ...(data?.version && data.version < MIN_ANT_VERSION
-                      ? { arnsDomain: domain, arioProcessId }
-                      : {}),
                   },
                   workflowName: ANT_INTERACTION_TYPES.TRANSFER,
                   signer: wallet!.contractSigner!,
+                  wallet,
                   owner: walletAddress!.toString(),
                   processId: data!.processId,
                   dispatchTransactionState,
                   dispatchArNSState,
-                  ao: antAoClient,
-                  hyperbeamUrl,
-                  antRegistryProcessId,
                 })
               }
             />
@@ -493,13 +446,11 @@ function DomainSettings({
                   },
                   workflowName: ANT_INTERACTION_TYPES.SET_TTL_SECONDS,
                   signer: wallet!.contractSigner!,
+                  wallet,
                   owner: walletAddress!.toString(),
                   processId: data!.processId,
                   dispatchTransactionState,
                   dispatchArNSState,
-                  ao: antAoClient,
-                  hyperbeamUrl,
-                  antRegistryProcessId,
                 })
               }
             />
@@ -527,13 +478,11 @@ function DomainSettings({
                   },
                   workflowName: ANT_INTERACTION_TYPES.SET_LOGO,
                   signer: wallet!.contractSigner!,
+                  wallet,
                   owner: walletAddress!.toString(),
                   processId: data!.processId,
                   dispatchTransactionState,
                   dispatchArNSState,
-                  ao: antAoClient,
-                  hyperbeamUrl,
-                  antRegistryProcessId,
                 })
               }
             />
@@ -550,13 +499,11 @@ function DomainSettings({
                   },
                   workflowName: ANT_INTERACTION_TYPES.SET_DESCRIPTION,
                   signer: wallet!.contractSigner!,
+                  wallet,
                   owner: walletAddress!.toString(),
                   processId: data!.processId,
                   dispatchTransactionState,
                   dispatchArNSState,
-                  ao: antAoClient,
-                  hyperbeamUrl,
-                  antRegistryProcessId,
                 })
               }
             />
@@ -573,13 +520,11 @@ function DomainSettings({
                   },
                   workflowName: ANT_INTERACTION_TYPES.SET_KEYWORDS,
                   signer: wallet!.contractSigner!,
+                  wallet,
                   owner: walletAddress!.toString(),
                   processId: data!.processId,
                   dispatchTransactionState,
                   dispatchArNSState,
-                  ao: antAoClient,
-                  hyperbeamUrl,
-                  antRegistryProcessId,
                 })
               }
             />

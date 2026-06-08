@@ -1,14 +1,16 @@
-import { ANT, AOProcess, AoArNSNameData } from '@ar.io/sdk/web';
+import { ArNSNameData } from '@ar.io/sdk/web';
 import Tooltip from '@src/components/Tooltips/Tooltip';
+import { buildAntRead } from '@src/utils/sdk-init';
 import { Pagination, PaginationProps } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsFocused } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
+import { SolanaAddress } from '../../../../services/solana/SolanaAddress';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
 import { AoAddress, VALIDATION_INPUT_TYPES } from '../../../../types';
-import { isArweaveTransactionID } from '../../../../utils';
+import { isArweaveTransactionID, wrapAntId } from '../../../../utils';
 import { ARWEAVE_TX_LENGTH } from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
 import { CloseIcon, HamburgerOutlineIcon } from '../../../icons';
@@ -29,9 +31,11 @@ type NameTokenDetails = {
 function NameTokenSelector({
   selectedTokenCallback,
 }: {
-  selectedTokenCallback: (id: ArweaveTransactionID | undefined) => void;
+  selectedTokenCallback: (
+    id: ArweaveTransactionID | SolanaAddress | undefined,
+  ) => void;
 }) {
-  const [{ arweaveDataProvider, antAoClient, hyperbeamUrl }] = useGlobalState();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const [{ walletAddress }] = useWalletState();
 
   const [searchText, setSearchText] = useState<string>();
@@ -60,7 +64,7 @@ function NameTokenSelector({
 
   useEffect(() => {
     selectedTokenCallback(
-      selectedToken ? new ArweaveTransactionID(selectedToken.id) : undefined,
+      selectedToken ? wrapAntId(selectedToken.id) : undefined,
     );
     setListPage(1);
   }, [selectedToken]);
@@ -99,7 +103,7 @@ function NameTokenSelector({
 
   async function getTokenList(
     address: AoAddress | undefined,
-    imports: ArweaveTransactionID[] = [],
+    imports: Array<ArweaveTransactionID | SolanaAddress> = [],
   ) {
     try {
       setLoading(true);
@@ -113,12 +117,8 @@ function NameTokenSelector({
         ? await Promise.all(
             imports.map(async (id: ArweaveTransactionID) => {
               try {
-                const contract = ANT.init({
-                  hyperbeamUrl,
-                  process: new AOProcess({
-                    processId: id.toString(),
-                    ao: antAoClient,
-                  }),
+                const contract = await buildAntRead({
+                  processId: id.toString(),
                 });
 
                 const info = await contract.getInfo();
@@ -146,30 +146,28 @@ function NameTokenSelector({
       }
 
       const processIds = fetchedprocessIds.concat(validImports);
-      const associatedRecords = await arweaveDataProvider.getRecords({
-        filters: {
-          processId: processIds,
+      const associatedRecords = await (arweaveDataProvider as any).getRecords?.(
+        {
+          filters: {
+            processId: processIds,
+          },
         },
-      });
+      );
 
       const contracts: {
         processId: ArweaveTransactionID;
-        names: Record<string, AoArNSNameData>;
+        names: Record<string, ArNSNameData>;
         owner: string;
         controllers: string[];
         ticker: string;
         name: string;
       }[] = await Promise.all(
         processIds.map(async (processId) => {
-          const contract = ANT.init({
-            hyperbeamUrl,
-            process: new AOProcess({
-              processId: processId.toString(),
-              ao: antAoClient,
-            }),
+          const contract = await buildAntRead({
+            processId: processId.toString(),
           });
           const names = Object.keys(associatedRecords).reduce(
-            (acc: Record<string, AoArNSNameData>, id: string) => {
+            (acc: Record<string, ArNSNameData>, id: string) => {
               if (associatedRecords[id].processId === processId.toString()) {
                 acc[id] = associatedRecords[id];
               }
@@ -299,7 +297,7 @@ function NameTokenSelector({
         throw new Error(`No ID provided for ${name ?? ticker ?? ''}`);
       }
       setSelectedToken({ id, name: name ?? '', ticker: ticker ?? '', names });
-      selectedTokenCallback(new ArweaveTransactionID(id));
+      selectedTokenCallback(wrapAntId(id));
       setListPage(1);
     } catch (error) {
       eventEmitter.emit('error', error);
@@ -372,7 +370,7 @@ function NameTokenSelector({
               ? selectedToken.name?.length
                 ? selectedToken.name
                 : selectedToken.id
-              : 'Add an Arweave Name Token (ANT)'
+              : 'Add an Ar.io Name Token (ANT)'
           }
           validationPredicates={{
             [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
@@ -422,9 +420,7 @@ function NameTokenSelector({
                 border: '1px solid var(--text-grey)',
               }}
               onClick={() => {
-                getTokenList(walletAddress, [
-                  new ArweaveTransactionID(searchText),
-                ]);
+                getTokenList(walletAddress, [wrapAntId(searchText)]);
               }}
             >
               Import

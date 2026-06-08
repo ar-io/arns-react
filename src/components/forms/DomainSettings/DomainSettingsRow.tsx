@@ -25,8 +25,17 @@ export default function DomainSettingsRow({
   onSave?: () => void;
   setEditing?: () => void;
 }) {
+  // Lower-case + hyphenate the label for stable test selectors.
+  // E.g. "Ticker" → "ticker", "Target ID" → "target-id".
+  const slug = label
+    ? label
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')
+    : 'unknown';
   return (
     <div
+      data-testid={`domain-settings-row-${slug}`}
       className="flex flex-row relative items-start justify-center rounded px-4 py-2 overflow-hidden min-h-[40px]"
       style={{
         border: '1px solid var(--disabled-grey)',
@@ -51,6 +60,7 @@ export default function DomainSettingsRow({
 
         {/* Value section */}
         <div
+          data-testid={`domain-settings-value-${slug}`}
           className={`flex text-xs h-full w-full mx-[5px] items-center whitespace-nowrap ${
             value ? 'text-white' : 'text-grey'
           }`}
@@ -73,6 +83,7 @@ export default function DomainSettingsRow({
               <button
                 className="p-1 rounded transition-colors hover:opacity-80 hover:scale-105"
                 onClick={setEditing}
+                data-testid={`domain-settings-edit-${slug}`}
               >
                 <PencilIcon
                   className="w-4 h-4"
@@ -86,12 +97,14 @@ export default function DomainSettingsRow({
                   <button
                     className="px-2 py-1 text-xs font-bold rounded transition-colors hover:opacity-80 hover:scale-105 text-grey"
                     onClick={onCancel}
+                    data-testid={`domain-settings-cancel-${slug}`}
                   >
                     Cancel
                   </button>
                   <button
                     className="px-2 py-1 text-xs rounded transition-colors hover:opacity-80 hover:scale-105 bg-primary text-black"
                     onClick={onSave}
+                    data-testid={`domain-settings-save-${slug}`}
                   >
                     Save
                   </button>

@@ -1,4 +1,5 @@
 import { FundFrom, mARIOToken } from '@ar.io/sdk';
+import { ARIOFundingSelector } from '@src/components/forms/ARIOFundingSelector/ARIOFundingSelector';
 import { ArIOTokenIcon, TurboIcon } from '@src/components/icons';
 import { Checkbox } from '@src/components/inputs/Checkbox';
 import { SelectDropdown } from '@src/components/inputs/Select';
@@ -35,11 +36,25 @@ import {
 import { Tabs } from 'radix-ui';
 import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
 import { isEmail } from 'validator';
-import { useAccount, useBalance } from 'wagmi';
+// NOTE (de-AO refactor): wagmi hooks crash without a `WagmiProvider`, which
+// the Solana-only refactor removed. Stub them out — the EVM-funded payment
+// branches are unreachable from the Solana-only UI but the wagmi hook
+// calls themselves still ran on every render and crashed the form.
+const useAccount = () => ({ connector: undefined, address: undefined }) as any;
+const useBalance = (_args?: unknown) => ({ data: undefined }) as any;
 
 export type PaymentMethod = 'card' | 'crypto' | 'credits';
 export type ARIOCryptoOptions = 'ARIO' | 'dARIO' | 'tARIO';
 export type CryptoOptions = ARIOCryptoOptions | BaseTokenType;
+
+/**
+ * UI-only gates — checkout logic for card / Turbo / Base is kept for later.
+ * Card is also hard-disabled below for Solana (Turbo settlement); flip flags
+ * when those paths are ready.
+ */
+const DISABLE_CREDIT_CARD_CHECKOUT_UI = true;
+const DISABLE_TURBO_CREDITS_CHECKOUT_UI = true;
+const DISABLE_BASE_CRYPTO_CHECKOUT_UI = true;
 
 const FormEntry: FC<{
   name: string;
@@ -358,7 +373,7 @@ function PaymentOptionsForm({
       { label: `${formattedARIOTicker} (No fee)`, value: formattedARIOTicker },
     ];
 
-    if (isEthereumWallet) {
+    if (isEthereumWallet && !DISABLE_BASE_CRYPTO_CHECKOUT_UI) {
       options.push(
         {
           label: `${BASE_TOKEN_CONFIG['base-ario'].label} (No fee)`,
@@ -476,6 +491,27 @@ function PaymentOptionsForm({
   const isBaseTokenSelected = isBaseToken(selectedCrypto);
 
   useEffect(() => {
+    if (DISABLE_CREDIT_CARD_CHECKOUT_UI && paymentMethod === 'card') {
+      onPaymentMethodChange('crypto');
+    }
+    if (DISABLE_TURBO_CREDITS_CHECKOUT_UI && paymentMethod === 'credits') {
+      onPaymentMethodChange('crypto');
+    }
+  }, [paymentMethod, onPaymentMethodChange]);
+
+  useEffect(() => {
+    if (!DISABLE_BASE_CRYPTO_CHECKOUT_UI || !isBaseToken(selectedCrypto))
+      return;
+    setSelectedCrypto(formattedARIOTicker);
+    onCryptoTokenChange?.('ario');
+  }, [
+    DISABLE_BASE_CRYPTO_CHECKOUT_UI,
+    selectedCrypto,
+    formattedARIOTicker,
+    onCryptoTokenChange,
+  ]);
+
+  useEffect(() => {
     if (paymentMethod === 'credits') {
       setIsValid(!isInsufficientBalance);
     } else if (paymentMethod === 'crypto') {
@@ -504,10 +540,16 @@ function PaymentOptionsForm({
             defaultValue={'crypto'}
             className="flex w-full justify-center items-center gap-2 mb-6"
           >
-            {/* TODO: add tooltip and disable trigger if purchase amount is greated or equal to 2000 USD */}
+            {/*
+              Credit-card: Turbo payment service / AO settlement — not wired for
+              Solana checkout yet. See `TurboArNSClient.ts`. Gated by
+              DISABLE_CREDIT_CARD_CHECKOUT_UI with the rest of the non-crypto paths.
+            */}
             <Tabs.Trigger
               value="card"
-              className="flex gap-3 p-3 data-[state=active]:bg-foreground rounded border border-[#222224] data-[state=active]:border-grey text-white items-center flex-1 whitespace-nowrap transition-all duration-300 disabled:opacity-50"
+              disabled={DISABLE_CREDIT_CARD_CHECKOUT_UI}
+              title="Credit-card payments for ArNS purchases are temporarily unavailable on Solana. The Turbo payment service needs Solana support before this option can be re-enabled. Use crypto in the meantime."
+              className="flex gap-3 p-3 data-[state=active]:bg-foreground rounded border border-[#222224] data-[state=active]:border-grey text-white items-center flex-1 whitespace-nowrap transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="flex gap-3 items-center">
                 <CreditCard className="size-5 text-grey" />
@@ -523,7 +565,9 @@ function PaymentOptionsForm({
             </Tabs.Trigger>
             <Tabs.Trigger
               value="credits"
-              className="flex gap-3 p-3 data-[state=active]:bg-foreground rounded border border-[#222224] data-[state=active]:border-grey text-white items-center flex-1 whitespace-nowrap transition-all duration-300 disabled:opacity-50"
+              disabled={DISABLE_TURBO_CREDITS_CHECKOUT_UI}
+              title="Turbo credits checkout is temporarily disabled for this build."
+              className="flex gap-3 p-3 data-[state=active]:bg-foreground rounded border border-[#222224] data-[state=active]:border-grey text-white items-center flex-1 whitespace-nowrap transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="flex gap-3 items-center">
                 <TurboIcon
@@ -653,59 +697,10 @@ function PaymentOptionsForm({
                     <span className="text-grey text-xs">
                       Select balance method:
                     </span>
-                    <Tabs.Root
-                      defaultValue={fundingSource}
-                      value={fundingSource}
-                      className="flex flex-col w-full h-full"
-                    >
-                      <Tabs.List
-                        className="flex flex-col w-full gap-2 text-white text-sm"
-                        defaultValue={'balance'}
-                      >
-                        <Tabs.Trigger
-                          value="balance"
-                          className="flex w-full gap-2 p-3 rounded bg-foreground data-[state=inactive]:bg-transparent border border-dark-grey items-center"
-                          onClick={() => onFundingSourceChange('balance')}
-                        >
-                          {fundingSource === 'balance' ? (
-                            <CircleCheck className="size-5 text-background fill-white" />
-                          ) : (
-                            <Circle className="size-5 text-grey" />
-                          )}
-                          <span className="font-bold">Liquid Balance</span> (
-                          {formatARIOWithCommas(liquidArIOBalance)} ARIO)
-                        </Tabs.Trigger>
-                        <Tabs.Trigger
-                          value="any"
-                          className="flex w-full gap-2 p-3 rounded bg-foreground data-[state=inactive]:bg-transparent border border-dark-grey items-center"
-                          onClick={() => onFundingSourceChange('any')}
-                        >
-                          {fundingSource === 'any' ? (
-                            <CircleCheck className="size-5 text-background fill-white" />
-                          ) : (
-                            <Circle className="size-5 text-grey" />
-                          )}
-                          <span className="font-bold">
-                            Liquid + Staked Balances
-                          </span>{' '}
-                          ({formatARIOWithCommas(allArIOBalance)} ARIO)
-                        </Tabs.Trigger>
-                        <Tabs.Trigger
-                          value="stakes"
-                          className="flex w-full gap-2 p-3 rounded bg-foreground data-[state=inactive]:bg-transparent border border-dark-grey items-center"
-                          onClick={() => onFundingSourceChange('stakes')}
-                        >
-                          {fundingSource === 'stakes' ? (
-                            <CircleCheck className="size-5 text-background fill-white" />
-                          ) : (
-                            <Circle className="size-5 text-grey" />
-                          )}{' '}
-                          <span className="font-bold">Staked Balances</span> (
-                          {formatARIOWithCommas(stakedAndVaultedArIOBalance)}{' '}
-                          ARIO)
-                        </Tabs.Trigger>
-                      </Tabs.List>
-                    </Tabs.Root>
+                    <ARIOFundingSelector
+                      fundingSource={fundingSource}
+                      onChange={onFundingSourceChange}
+                    />
                   </div>
                 )}
               </>
@@ -733,7 +728,9 @@ function PaymentOptionsForm({
                   </span>
                 </div>
                 <button
-                  className="py-2 px-6 text-lg text-white rounded bg-dark-grey border border-transparent hover:border-grey"
+                  type="button"
+                  disabled={DISABLE_TURBO_CREDITS_CHECKOUT_UI}
+                  className="py-2 px-6 text-lg text-white rounded bg-dark-grey border border-transparent hover:border-grey disabled:opacity-40 disabled:cursor-not-allowed"
                   onClick={() => setShowTopupModal(true)}
                 >
                   Top-Up

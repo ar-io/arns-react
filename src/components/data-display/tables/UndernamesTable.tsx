@@ -1,4 +1,4 @@
-import { AoANTRecord, AoANTState, sortANTRecords } from '@ar.io/sdk';
+import { ANTRecord, ANTState, sortANTRecords } from '@ar.io/sdk';
 import { Tooltip } from '@src/components/data-display';
 import { ArioSpinner } from '@src/components/data-display/Spinner';
 import { ExternalLinkIcon, PencilIcon, TrashIcon } from '@src/components/icons';
@@ -8,7 +8,8 @@ import ArweaveID, {
 import { AddUndernameModal, EditUndernameModal } from '@src/components/modals';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { SolanaAddress } from '@src/services/solana/SolanaAddress';
+import { SolanaSignature } from '@src/services/solana/SolanaSignature';
 import {
   useArNSState,
   useGlobalState,
@@ -31,8 +32,9 @@ import {
   encodePrimaryName,
   formatForMaxCharCount,
 } from '@src/utils';
-import { MIN_ANT_VERSION, NETWORK_DEFAULTS } from '@src/utils/constants';
+import { NETWORK_DEFAULTS } from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
+import { queryClient } from '@src/utils/network';
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { Plus, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -57,19 +59,19 @@ const UndernamesTable = ({
   state,
   isLoading = false,
 }: {
-  undernames: Record<string, AoANTRecord>;
+  undernames: Record<string, ANTRecord>;
   arnsRecord: {
     name: string;
     version: number;
     undernameLimit: number;
     processId: string;
   };
-  state?: AoANTState | null;
+  state?: ANTState | null;
   isLoading: boolean;
 }) => {
-  const [{ arioProcessId, antAoClient, hyperbeamUrl, antRegistryProcessId }] =
-    useGlobalState();
+  const arioProcessId = '';
   const [, dispatchArNSState] = useArNSState();
+  const [{ dataGateway }] = useGlobalState();
 
   const [{ wallet, walletAddress }] = useWalletState();
   const isOwner = walletAddress
@@ -109,7 +111,11 @@ const UndernamesTable = ({
         throw new Error('Unable to interact with ANT contract - missing ID.');
       }
 
-      if (!wallet?.contractSigner || !walletAddress) {
+      // Solana wallets don't carry an AO contractSigner — accept either.
+      const hasSigner =
+        !!wallet?.contractSigner ||
+        (wallet?.tokenType === 'solana' && !!wallet.solanaSigner);
+      if (!hasSigner || !walletAddress) {
         throw new Error(
           'Unable to interact with ANT contract - missing signer.',
         );
@@ -119,13 +125,11 @@ const UndernamesTable = ({
         processId,
         payload,
         workflowName,
-        signer: wallet?.contractSigner,
+        signer: wallet?.contractSigner as never,
+        wallet,
         owner: walletAddress?.toString(),
         dispatchTransactionState,
         dispatchArNSState,
-        ao: antAoClient,
-        hyperbeamUrl,
-        antRegistryProcessId,
       });
       eventEmitter.emit('success', {
         name: 'Manage Undernames',
@@ -136,7 +140,7 @@ const UndernamesTable = ({
           >
             {workflowName} complete.{' '}
             <ArweaveID
-              id={new ArweaveTransactionID(id)}
+              id={new SolanaSignature(id)}
               type={ArweaveIdTypes.INTERACTION}
               shouldLink
               characterCount={8}
@@ -144,8 +148,18 @@ const UndernamesTable = ({
           </span>
         ),
       });
-      // refresh the row
-      setTableData(tableData);
+      // Invalidate cached ANT state / domain-info queries so the table
+      // reflects the on-chain change. The parent (`Undernames` page) reads
+      // undernames from `useDomainInfo`, which is keyed on the ArNS name —
+      // so invalidating only `['ant', processId, …]` isn't enough; we also
+      // have to invalidate `['domainInfo', name, …]`. `setTableData` alone
+      // is a no-op because `undernames` is owned by the parent.
+      const invalidationKeys = [processId, arnsRecord.name].filter(Boolean);
+      await queryClient.invalidateQueries({
+        predicate: ({ queryKey }) =>
+          invalidationKeys.some((k) => queryKey.includes(k)),
+        refetchType: 'all',
+      });
     } catch (error) {
       eventEmitter.emit('error', error);
     } finally {
@@ -173,20 +187,17 @@ const UndernamesTable = ({
                   message={
                     !arnsRecord
                       ? 'Loading...'
-                      : arnsRecord.version < MIN_ANT_VERSION
-                        ? 'Update ANT to access Primary Names workflow'
-                        : primaryNameData?.name ===
-                            encodePrimaryName(
-                              undername === '@'
-                                ? arnsRecord.name
-                                : undername + '_' + arnsRecord.name,
-                            )
-                          ? 'Remove Primary Name'
-                          : 'Set Primary Name'
+                      : primaryNameData?.name ===
+                          encodePrimaryName(
+                            undername === '@'
+                              ? arnsRecord.name
+                              : undername + '_' + arnsRecord.name,
+                          )
+                        ? 'Remove Primary Name'
+                        : 'Set Primary Name'
                   }
                   icon={
                     <button
-                      disabled={arnsRecord.version < MIN_ANT_VERSION}
                       onClick={() => {
                         if (!arnsRecord || !arnsRecord.processId) return;
                         const targetName = encodePrimaryName(
@@ -343,6 +354,7 @@ const UndernamesTable = ({
               <ArweaveID
                 id={rowValue}
                 shouldLink={true}
+                linkBase={`https://${dataGateway}/`}
                 characterCount={8}
                 type={ArweaveIdTypes.TRANSACTION}
               />
@@ -432,6 +444,7 @@ const UndernamesTable = ({
           isAuthorized ? (
             <div className="w-full flex flex-row text-primary font-semibold border-t-[1px] border-dark-grey text-sm">
               <button
+                data-testid="add-undername-button"
                 className="flex flex-row w-full items-center p-3 bg-background hover:bg-primary-gradient text-primary hover:text-primary fill-primary hover:fill-black transition-all"
                 style={{ gap: '10px' }}
                 onClick={() => setAction(UNDERNAME_TABLE_ACTIONS.CREATE)}
@@ -464,7 +477,7 @@ const UndernamesTable = ({
       )}
       {action === UNDERNAME_TABLE_ACTIONS.EDIT && selectedUndername && (
         <EditUndernameModal
-          antId={new ArweaveTransactionID(arnsRecord.processId)}
+          antId={new SolanaAddress(arnsRecord.processId)}
           undername={selectedUndername}
           closeModal={() => setAction(undefined)}
           payloadCallback={(p) => {

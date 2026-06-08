@@ -1,7 +1,7 @@
-import { AoArNSNameData } from '@ar.io/sdk/web';
+import { ArNSNameData } from '@ar.io/sdk/web';
 import { TRANSACTION_TYPES } from '@src/types';
 
-const TEST_RECORDS: Record<string, AoArNSNameData> = {
+const TEST_RECORDS: Record<string, ArNSNameData> = {
   ardrive: {
     processId: 'I-cxQhfh0Zb9UqQNizC9PiLC41KpUeA9hjiVV02rQRw',
     startTimestamp: 1711122719,

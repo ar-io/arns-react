@@ -9,6 +9,18 @@ import svgr from 'vite-plugin-svgr';
 export default defineConfig({
   base: '',
   esbuild: false,
+  server: {
+    // Allow tunnelled dev hosts (ngrok rotates the subdomain every session).
+    // The leading dot is Vite's wildcard for "any subdomain of this domain".
+    // Localhost variants are accepted by default; listed here for clarity.
+    allowedHosts: [
+      'localhost',
+      '127.0.0.1',
+      '.ngrok-free.app',
+      '.ngrok.app',
+      '.ngrok.io',
+    ],
+  },
   build: {
     sourcemap: true,
     minify: true,
@@ -18,6 +30,7 @@ export default defineConfig({
     esbuildOptions: {
       target: 'esnext',
     },
+    include: ['@ar.io/sdk', '@ar.io/sdk/web'],
     exclude: ['@base-org/account'],
   },
   plugins: [

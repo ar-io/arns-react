@@ -1,5 +1,4 @@
 // NotificationOnlyError is an error that is only shown as a notification and does not emit to sentry
-import { AoANTHandler, AoClient } from '@ar.io/sdk';
 
 export class NotificationOnlyError extends Error {
   constructor(message: string) {
@@ -93,25 +92,23 @@ export class TopUpError extends NotificationOnlyError {
 }
 
 export interface ANTAuditor {
-  availableApis: AoANTHandler[];
-  issues: Record<AoANTHandler, Error[]>;
+  availableApis: string[];
+  issues: Record<string, Error[]>;
 
-  audit(): Promise<Record<AoANTHandler, Error[]>>;
+  audit(): Promise<Record<string, Error[]>>;
 }
 export class ANTAudit implements ANTAuditor {
   readonly processId: string;
-  readonly ao: AoClient;
-  availableApis: AoANTHandler[];
-  issues: Record<AoANTHandler, Error[]>;
-  constructor({ processId, ao }: { processId: string; ao: AoClient }) {
+  availableApis: string[];
+  issues: Record<string, Error[]>;
+  constructor({ processId }: { processId: string }) {
     this.processId = processId;
-    this.ao = ao;
 
     this.availableApis = [];
-    this.issues = {} as any;
+    this.issues = {};
   }
 
-  async audit(): Promise<Record<AoANTHandler, Error[]>> {
+  async audit(): Promise<Record<string, Error[]>> {
     return this.issues;
   }
 }

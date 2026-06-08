@@ -1,5 +1,29 @@
-import { FundFrom } from '@ar.io/sdk';
-import { TransactionDetails } from '@src/components/data-display/TransactionDetails/TransactionDetails';
+import { FundFrom, mARIOToken } from '@ar.io/sdk';
+import {
+  getPrimaryNamePDA,
+  getPrimaryNameReversePDA,
+  hashName,
+} from '@ar.io/sdk/web';
+import {
+  getMigratePrimaryNameReverseInstruction,
+  getRemovePrimaryNameInstructionAsync,
+} from '@ar.io/solana-contracts/core';
+import {
+  getSetComputeUnitLimitInstruction,
+  getSetComputeUnitPriceInstruction,
+} from '@solana-program/compute-budget';
+import {
+  appendTransactionMessageInstructions,
+  createTransactionMessage,
+  fetchEncodedAccount,
+  getSignatureFromTransaction,
+  pipe,
+  sendAndConfirmTransactionFactory,
+  setTransactionMessageFeePayerSigner,
+  setTransactionMessageLifetimeUsingBlockhash,
+  signTransactionMessageWithSigners,
+} from '@solana/kit';
+import { ARIOFundingSelector } from '@src/components/forms/ARIOFundingSelector/ARIOFundingSelector';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
@@ -7,42 +31,37 @@ import ArweaveID, {
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { SolanaSignature } from '@src/services/solana/SolanaSignature';
 import {
   useArNSState,
   useGlobalState,
   useTransactionState,
   useWalletState,
 } from '@src/state';
-import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { dispatchANTUpdate } from '@src/state/actions/dispatchANTUpdate';
 import dispatchArIOInteraction from '@src/state/actions/dispatchArIOInteraction';
 import {
-  ANT_INTERACTION_TYPES,
   ARNS_INTERACTION_TYPES,
   ContractInteraction,
   PrimaryNameRequestPayload,
   RemovePrimaryNamesPayload,
 } from '@src/types';
-import { decodePrimaryName, encodePrimaryName } from '@src/utils';
+import {
+  decodePrimaryName,
+  encodePrimaryName,
+  formatARIOWithCommas,
+} from '@src/utils';
 import eventEmitter from '@src/utils/events';
+import {
+  getActiveSolanaConfig,
+  getSolanaRpc,
+  getSolanaRpcSubscriptions,
+} from '@src/utils/solana';
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowDown } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import DialogModal from '../DialogModal/DialogModal';
-
-/**
- * Three workflows
- * - set primary name
- * use ario contract to create request than approve the request, then verify the primary name
- * - set primary name when it will change the primary name
- * use ario contract to create the request then approve the request with the connected ant, then verify the primary name
- *  should show the comparison between the previous primary name and new primary name
- * - remove primary name
- * use the ant to remove the primary name
- *
- */
 
 enum PRIMARY_NAME_WORKFLOWS {
   REQUEST = 'Set Primary Name',
@@ -75,31 +94,15 @@ function PrimaryNameModal({
   setVisible: (visible: boolean) => void;
 }) {
   const queryClient = useQueryClient();
-  const [
-    {
-      arioProcessId,
-      arioContract,
-      aoClient,
-      aoNetwork,
-      hyperbeamUrl,
-      antRegistryProcessId,
-    },
-  ] = useGlobalState();
+  const [{ arioContract, arioTicker }] = useGlobalState();
   const [{ wallet, walletAddress }] = useWalletState();
   const { data: primaryNameData, isLoading: isLoadingPrimaryNameData } =
     usePrimaryName();
 
   const [{ transactionData }, dispatchTransactionState] = useTransactionState();
   const [, dispatchArNSState] = useArNSState();
-  const [fundingSource, setFundingSource] = useState<FundFrom | undefined>(
-    'balance',
-  );
-  const { data: costDetail } = useCostDetails({
-    ...((transactionData ?? {}) as any),
-    intent: 'Primary-Name-Request',
-    fromAddress: walletAddress?.toString(),
-    fundFrom: fundingSource,
-  });
+
+  const [fundingSource, setFundingSource] = useState<FundFrom>('balance');
 
   const transactionPayload =
     isRemovePrimaryNamesPayload(transactionData) ||
@@ -113,7 +116,6 @@ function PrimaryNameModal({
       ? transactionData.name
       : undefined;
 
-  // if undername, pop the base name, else target name is ArNS name and can be used for querying domain info
   const baseName = targetName?.includes('_')
     ? targetName.split('_').pop()
     : targetName;
@@ -124,12 +126,45 @@ function PrimaryNameModal({
 
   const isLoading = loadingDomain || isLoadingPrimaryNameData;
 
+  const costDetailsParams = useMemo(
+    () => ({
+      intent: 'Primary-Name-Request' as const,
+      name: targetName ?? '',
+      fromAddress: walletAddress?.toString(),
+      fundFrom: fundingSource,
+    }),
+    [targetName, walletAddress, fundingSource],
+  );
+
+  const { data: costDetail, isLoading: isLoadingCostDetail } =
+    useCostDetails(costDetailsParams);
+
+  const totalCost = costDetail
+    ? new mARIOToken(costDetail.tokenCost).toARIO().valueOf()
+    : 0;
+
+  // `fundingPlan.shortfall` is computed against the eligible pool for the
+  // chosen `fundFrom` (see SDK `buildPublicFundingPlan`) — zero when the
+  // user's chosen source can fully cover the cost.
+  const isInsufficientBalance =
+    !!costDetail?.fundingPlan && costDetail.fundingPlan.shortfall > 0;
+
+  const discount = costDetail
+    ? new mARIOToken(
+        costDetail.discounts?.reduce((acc, d) => acc + d.discountTotal, 0) ?? 0,
+      )
+        .toARIO()
+        .valueOf()
+    : 0;
+
   const [workflow, setWorkflow] = useState<
     PRIMARY_NAME_WORKFLOWS | undefined
   >();
 
   useEffect(() => {
-    if (
+    if (isRemovePrimaryNamesPayload(transactionData)) {
+      setWorkflow(PRIMARY_NAME_WORKFLOWS.REMOVE);
+    } else if (
       isPrimaryNameRequest(transactionData) &&
       primaryNameData === undefined
     ) {
@@ -139,8 +174,6 @@ function PrimaryNameModal({
       primaryNameData !== undefined
     ) {
       setWorkflow(PRIMARY_NAME_WORKFLOWS.CHANGE);
-    } else if (isRemovePrimaryNamesPayload(transactionData)) {
-      setWorkflow(PRIMARY_NAME_WORKFLOWS.REMOVE);
     } else {
       setWorkflow(undefined);
     }
@@ -157,7 +190,7 @@ function PrimaryNameModal({
         throw new Error(
           'Wait for primary name data to load before using primary name workflow',
         );
-      if (!wallet?.contractSigner || !walletAddress)
+      if (!wallet?.solanaSigner || !walletAddress)
         throw new Error('Connect to perform Primary Name operations');
 
       if (!transactionPayload || !targetName)
@@ -175,13 +208,11 @@ function PrimaryNameModal({
       let result: ContractInteraction;
 
       switch (workflow) {
-        // change and set are the same workflows interactions-wise so we fall thru here
         case PRIMARY_NAME_WORKFLOWS.CHANGE:
         case PRIMARY_NAME_WORKFLOWS.REQUEST: {
-          // ario contract and ant interactions
           result = await dispatchArIOInteraction({
             workflowName: ARNS_INTERACTION_TYPES.PRIMARY_NAME_REQUEST,
-            signer: wallet.contractSigner,
+            wallet,
             payload: {
               ...transactionPayload,
               name: encodePrimaryName(targetName),
@@ -189,34 +220,99 @@ function PrimaryNameModal({
             },
             owner: walletAddress,
             arioContract: arioContract as any,
-            processId: arioProcessId,
+            processId: domainData.processId,
             fundFrom: fundingSource,
             dispatch: dispatchTransactionState,
-            hyperbeamUrl,
           });
 
           break;
         }
         case PRIMARY_NAME_WORKFLOWS.REMOVE: {
-          result = await dispatchANTInteraction({
-            signer: wallet.contractSigner,
-            owner: walletAddress.toString(),
-            processId: domainData.processId,
-            workflowName: ANT_INTERACTION_TYPES.REMOVE_PRIMARY_NAMES,
-            payload: {
-              arioProcessId: transactionPayload.arioProcessId,
-              names: [encodePrimaryName(targetName)],
-            },
-            dispatchTransactionState,
-            dispatchArNSState,
-            ao: aoClient,
-            hyperbeamUrl,
-            antRegistryProcessId,
-          });
-          queryClient.resetQueries({
-            queryKey: ['primary-name'],
-            exact: false,
-          });
+          dispatchTransactionState({ type: 'setSigning', payload: true });
+          try {
+            const rpc = getSolanaRpc();
+            const rpcSubscriptions = getSolanaRpcSubscriptions();
+            const signer = wallet.solanaSigner;
+            const { programIds } = getActiveSolanaConfig();
+            const coreProgram = programIds.coreProgramId;
+
+            const [primaryNamePda] = coreProgram
+              ? await getPrimaryNamePDA(signer.address, coreProgram)
+              : await getPrimaryNamePDA(signer.address);
+
+            const [primaryNameReversePda] = coreProgram
+              ? await getPrimaryNameReversePDA(targetName, coreProgram)
+              : await getPrimaryNameReversePDA(targetName);
+
+            const ixs: any[] = [];
+
+            const reverseAccount = await fetchEncodedAccount(
+              rpc,
+              primaryNameReversePda,
+              { commitment: 'confirmed' },
+            );
+            if (!reverseAccount.exists) {
+              ixs.push(
+                getMigratePrimaryNameReverseInstruction(
+                  { reverse: primaryNameReversePda, payer: signer },
+                  coreProgram ? { programAddress: coreProgram } : undefined,
+                ),
+              );
+            }
+
+            ixs.push(
+              await getRemovePrimaryNameInstructionAsync(
+                {
+                  primaryName: primaryNamePda,
+                  primaryNameReverse: primaryNameReversePda,
+                  owner: signer,
+                  reverseLookupHash: hashName(targetName),
+                },
+                coreProgram ? { programAddress: coreProgram } : undefined,
+              ),
+            );
+
+            const { value: latestBlockhash } = await rpc
+              .getLatestBlockhash()
+              .send();
+
+            const message = pipe(
+              createTransactionMessage({ version: 0 }),
+              (tx) => setTransactionMessageFeePayerSigner(signer, tx),
+              (tx) =>
+                setTransactionMessageLifetimeUsingBlockhash(
+                  latestBlockhash,
+                  tx,
+                ),
+              (tx) =>
+                appendTransactionMessageInstructions(
+                  [
+                    getSetComputeUnitLimitInstruction({ units: 400_000 }),
+                    getSetComputeUnitPriceInstruction({ microLamports: 0n }),
+                    ...ixs,
+                  ],
+                  tx,
+                ),
+            );
+
+            const signedTx = await signTransactionMessageWithSigners(message);
+            const sendAndConfirm = sendAndConfirmTransactionFactory({
+              rpc: rpc as any,
+              rpcSubscriptions: rpcSubscriptions as any,
+            });
+            await sendAndConfirm(signedTx as any, { commitment: 'confirmed' });
+            const sig = getSignatureFromTransaction(signedTx);
+
+            result = {
+              deployer: walletAddress.toString(),
+              processId: domainData.processId,
+              id: sig,
+              type: 'interaction',
+              payload: transactionPayload,
+            };
+          } finally {
+            dispatchTransactionState({ type: 'setSigning', payload: false });
+          }
           break;
         }
         default:
@@ -232,7 +328,7 @@ function PrimaryNameModal({
                   characterCount={8}
                   shouldLink={true}
                   type={ArweaveIdTypes.INTERACTION}
-                  id={new ArweaveTransactionID(result.id)}
+                  id={new SolanaSignature(result.id)}
                 />
               </span>
             </div>
@@ -248,11 +344,9 @@ function PrimaryNameModal({
       dispatchANTUpdate({
         processId: domainData.processId,
         dispatch: dispatchArNSState,
-        aoNetwork: aoNetwork,
+        wallet,
         walletAddress,
         queryClient,
-        hyperbeamUrl,
-        antRegistryProcessId,
       });
 
       closeModal();
@@ -320,19 +414,40 @@ function PrimaryNameModal({
                 </div>
               </div>
 
-              {/* transaction details */}
-              <div className="flex flex-col w-full">
+              <div className="flex flex-col w-full pt-6 gap-2">
                 {workflow !== PRIMARY_NAME_WORKFLOWS.REMOVE && (
-                  <div className="flex w-full pt-10">
-                    <TransactionDetails
-                      details={{
-                        intent: 'Primary-Name-Request',
-                        ...((transactionData ?? {}) as any),
-                        fromAddress: walletAddress?.toString(),
-                      }}
-                      fundingSourceCallback={(v) => setFundingSource(v)}
+                  <div className="flex flex-col w-full gap-2 border-t border-dark-grey pt-4">
+                    <span className="text-grey">Payment</span>
+                    <ARIOFundingSelector
+                      fundingSource={fundingSource}
+                      onChange={setFundingSource}
                     />
                   </div>
+                )}
+                {discount > 0 && (
+                  <div className="flex flex-row justify-between items-center w-full">
+                    <span className="text-grey">Operator discount</span>
+                    <span className="text-error">
+                      -{formatARIOWithCommas(discount)}&nbsp;{arioTicker}
+                    </span>
+                  </div>
+                )}
+                <div className="flex flex-row justify-between items-center w-full">
+                  <span className="text-grey">Total Cost</span>
+                  {isLoadingCostDetail ? (
+                    <span className="text-grey animate-pulse">Loading...</span>
+                  ) : totalCost > 0 ? (
+                    <span className="text-white font-semibold">
+                      {formatARIOWithCommas(totalCost)}&nbsp;{arioTicker}
+                    </span>
+                  ) : (
+                    <span className="text-grey">--</span>
+                  )}
+                </div>
+                {isInsufficientBalance && (
+                  <span className="text-error text-sm self-end">
+                    Insufficient balance for the selected source
+                  </span>
                 )}
               </div>
             </div>
@@ -341,14 +456,14 @@ function PrimaryNameModal({
         onCancel={closeModal}
         onClose={closeModal}
         onNext={
-          (!isLoading &&
-            costDetail &&
-            costDetail.fundingPlan!.shortfall === 0) ||
-          workflow === PRIMARY_NAME_WORKFLOWS.REMOVE
+          !isLoading &&
+          !isLoadingCostDetail &&
+          costDetail &&
+          (workflow === PRIMARY_NAME_WORKFLOWS.REMOVE || !isInsufficientBalance)
             ? confirm
             : undefined
         }
-        nextText="Confirm"
+        nextText={isInsufficientBalance ? 'Insufficient balance' : 'Confirm'}
         cancelText="Cancel"
         footerClass="border-t-0"
       />

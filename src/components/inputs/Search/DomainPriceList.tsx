@@ -1,5 +1,6 @@
 import { mARIOToken } from '@ar.io/sdk/web';
 import { RefreshAlertIcon } from '@src/components/icons';
+import { useArIoPrice } from '@src/hooks/useArIOPrice';
 import { useArNSDomainPriceList } from '@src/hooks/useArNSDomainPriceList';
 import { useGlobalState } from '@src/state';
 import { formatARIO } from '@src/utils';
@@ -12,6 +13,7 @@ function DomainPiceList({ domain }: { domain: string }) {
     refetch: refetchPriceList,
     isRefetching: isRefetchingPriceList,
   } = useArNSDomainPriceList(domain);
+  const { data: arIoPrice } = useArIoPrice();
 
   if (isLoadingPriceList || isRefetchingPriceList) {
     return (
@@ -20,13 +22,17 @@ function DomainPiceList({ domain }: { domain: string }) {
       </span>
     );
   }
+  const leaseArio = priceList
+    ? new mARIOToken(priceList.lease).toARIO().valueOf()
+    : 0;
   return (
     <>
       {priceList && priceList.lease > 0 ? (
         <span className="text-white align-center">
-          Starting at ${(priceList.turboFiatLease / 100).toFixed(2)} USD, or{' '}
-          {formatARIO(new mARIOToken(priceList.lease).toARIO().valueOf())}{' '}
-          {arioTicker}
+          {arIoPrice !== undefined && (
+            <>Starting at ${(leaseArio * arIoPrice).toFixed(2)} USD, or </>
+          )}
+          {formatARIO(leaseArio)} {arioTicker}
         </span>
       ) : (
         domain.length &&

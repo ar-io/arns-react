@@ -5,12 +5,13 @@ import DomainSettings from '@src/components/forms/DomainSettings/DomainSettings'
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
+import { MetaplexAttributesModal } from '@src/components/modals/ant-management/MetaplexAttributesModal/MetaplexAttributesModal';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
 import { useGlobalState, useModalState, useWalletState } from '@src/state';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { AoAddress } from '@src/types';
-import { Star } from 'lucide-react';
+import { Sparkles, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -20,7 +21,12 @@ import './styles.css';
 function ManageDomain() {
   const { name } = useParams();
   const navigate = useNavigate();
-  const [{ arioProcessId }] = useGlobalState();
+  // arioProcessId was an AO process id used to route ArNS transactions; on
+  // Solana the protocol address comes from env-derived program IDs, but the
+  // legacy transaction payload schema still expects a string. Pass empty —
+  // the dispatcher ignores it for the Solana backend.
+  const arioProcessId = '';
+  useGlobalState();
   const [, dispatchTransactionState] = useTransactionState();
   const [, dispatchModalState] = useModalState();
   const { data: primaryNameData } = usePrimaryName();
@@ -33,6 +39,8 @@ function ManageDomain() {
     : false;
 
   const [logoId, setLogoId] = useState<string | undefined>();
+  const [showMetaplexAttributesModal, setShowMetaplexAttributesModal] =
+    useState(false);
 
   useEffect(() => {
     if (!name) {
@@ -51,14 +59,8 @@ function ManageDomain() {
         className="page gap-3"
         style={{ paddingTop: '10px', paddingBottom: '10px' }}
       >
-        <div
-          className="flex flex-row border-b border-dark-grey pb-2"
-          style={{
-            justifyContent: 'space-between',
-            width: '100%',
-          }}
-        >
-          <h2 className="flex white center" style={{ gap: '16px' }}>
+        <div className="flex w-full items-center justify-between gap-4 border-b border-dark-grey pb-2">
+          <h2 className="flex items-center gap-4 white">
             <AntLogoIcon id={logoId} />
 
             <div className="flex flex-col items-start justify-center">
@@ -87,57 +89,72 @@ function ManageDomain() {
               )}{' '}
             </div>
           </h2>
-          {isOwner && (
-            <Tooltip
-              message={
-                name === primaryNameData?.name
-                  ? 'Remove this name from being the primary name for this wallet address'
-                  : 'Set this name as this wallet addresses primary name'
-              }
-              icon={
-                <button
-                  className={
-                    'flex text-primary bg-primary-thin max-w-fit rounded border border-primary px-3 py-1 gap-3 text-[16px] items-center'
-                  }
-                  onClick={() => {
-                    if (!name) return;
-                    if (primaryNameData?.name === name) {
-                      // remove primary name payload
-                      dispatchTransactionState({
-                        type: 'setTransactionData',
-                        payload: {
-                          names: [name],
-                          arioProcessId,
-                          assetId: '',
-                          functionName: 'removePrimaryNames',
-                        },
-                      });
-                    } else {
-                      dispatchTransactionState({
-                        type: 'setTransactionData',
-                        payload: {
-                          name,
-                          arioProcessId,
-                          assetId: arioProcessId,
-                          functionName: 'primaryNameRequest',
-                        },
-                      });
+          <div className="flex shrink-0 items-center justify-end gap-3">
+            {domainData?.processId && (
+              <Tooltip
+                message="View the Metaplex Core attributes stored on this ANT asset"
+                icon={
+                  <button
+                    className="flex text-primary bg-primary-thin max-w-fit rounded border border-primary px-3 py-1 gap-3 text-[16px] items-center"
+                    onClick={() => setShowMetaplexAttributesModal(true)}
+                  >
+                    <Sparkles className="w-[16px]" /> Metaplex Attributes
+                  </button>
+                }
+              />
+            )}
+            {isOwner && (
+              <Tooltip
+                message={
+                  name === primaryNameData?.name
+                    ? 'Remove this name from being the primary name for this wallet address'
+                    : 'Set this name as this wallet addresses primary name'
+                }
+                icon={
+                  <button
+                    className={
+                      'flex text-primary bg-primary-thin max-w-fit rounded border border-primary px-3 py-1 gap-3 text-[16px] items-center'
                     }
+                    onClick={() => {
+                      if (!name) return;
+                      if (primaryNameData?.name === name) {
+                        // remove primary name payload
+                        dispatchTransactionState({
+                          type: 'setTransactionData',
+                          payload: {
+                            names: [name],
+                            arioProcessId,
+                            assetId: '',
+                            functionName: 'removePrimaryNames',
+                          },
+                        });
+                      } else {
+                        dispatchTransactionState({
+                          type: 'setTransactionData',
+                          payload: {
+                            name,
+                            arioProcessId,
+                            assetId: arioProcessId,
+                            functionName: 'primaryNameRequest',
+                          },
+                        });
+                      }
 
-                    dispatchModalState({
-                      type: 'setModalOpen',
-                      payload: { showPrimaryNameModal: true },
-                    });
-                  }}
-                >
-                  <Star className={`w-[16px]`} />{' '}
-                  {name === primaryNameData?.name
-                    ? 'Remove Primary'
-                    : 'Set as Primary'}
-                </button>
-              }
-            />
-          )}
+                      dispatchModalState({
+                        type: 'setModalOpen',
+                        payload: { showPrimaryNameModal: true },
+                      });
+                    }}
+                  >
+                    <Star className={`w-[16px]`} />{' '}
+                    {name === primaryNameData?.name
+                      ? 'Remove Primary'
+                      : 'Set as Primary'}
+                  </button>
+                }
+              />
+            )}
+          </div>
         </div>
         <div className="w-full ">
           <DomainSettings
@@ -165,6 +182,11 @@ function ManageDomain() {
           </div>
         </div>
       </div>
+      <MetaplexAttributesModal
+        show={showMetaplexAttributesModal}
+        setShow={setShowMetaplexAttributesModal}
+        processId={domainData?.processId}
+      />
     </>
   );
 }

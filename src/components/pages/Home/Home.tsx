@@ -23,11 +23,11 @@ function Home() {
         Get your own smart domain
       </div>
       <span className="flex flex-col items-center pb-2 justify-center align-center text-center gap-[5px] text-md min-h-[45px] text-grey max-w-[500px]">
-        The Arweave Name System (ArNS) connects friendly names to permanent
+        The Ar.io Name System (ArNS) connects friendly names to permanent
         applications, pages, data, or identities.
       </span>
       <div
-        className="flex flex-column flex-center"
+        className="flex flex-col gap-8 flex-center"
         style={{
           width: '100%',
           maxWidth: '900px',

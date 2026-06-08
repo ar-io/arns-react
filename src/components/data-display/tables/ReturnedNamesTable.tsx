@@ -1,34 +1,31 @@
-import { AoReturnedName, mARIOToken } from '@ar.io/sdk';
+import { ReturnedName, getArnsSettingsPDA } from '@ar.io/sdk';
 import { ChevronRightIcon, ExternalLinkIcon } from '@src/components/icons';
 import Switch from '@src/components/inputs/Switch';
 import { Loader } from '@src/components/layout';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
-import { buildCostDetailsQuery } from '@src/hooks/useCostDetails';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
-import { useGlobalState, useWalletState } from '@src/state';
+import { SolanaAddress } from '@src/services/solana/SolanaAddress';
+import { useGlobalState } from '@src/state';
 import { TRANSACTION_TYPES } from '@src/types';
 import {
   camelToReadable,
   decodeDomainToASCII,
   encodeDomainToASCII,
-  formatARIOWithCommas,
   formatDate,
   formatForMaxCharCount,
   isArweaveTransactionID,
+  isValidAoAddress,
   lowerCaseDomain,
 } from '@src/utils';
 import {
   ARNS_PURCHASES_DISABLED,
   ARNS_PURCHASES_DISABLED_TOOLTIP,
   NETWORK_DEFAULTS,
-  START_RNP_PREMIUM,
 } from '@src/utils/constants';
-import { useQueryClient } from '@tanstack/react-query';
 import { ColumnDef, Row, createColumnHelper } from '@tanstack/react-table';
 import { Tooltip as AntdTooltip } from 'antd';
-import { CircleAlertIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { ReactNode } from 'react-markdown';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -40,11 +37,10 @@ import TableView from './TableView';
 type TableData = {
   openRow: ReactNode;
   name: string;
+  characters: number;
   startDate: number;
   closingDate: number;
   initiator: string;
-  leasePrice: number | Error;
-  permabuy: number | Error;
   returnType: string;
   action: ReactNode;
 } & Record<string, any>;
@@ -89,15 +85,25 @@ const ReturnedNamesTable = ({
   loading,
   filter,
 }: {
-  returnedNames?: Array<AoReturnedName & { name: string }>;
+  returnedNames?: Array<ReturnedName & { name: string }>;
   loading: boolean;
   filter?: string;
 }) => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
-  const [{ arioProcessId, arioTicker, arioContract }] = useGlobalState();
-  const [{ walletAddress }] = useWalletState();
+  const [{ solanaConfig }] = useGlobalState();
+
+  // Derive the ArNS config PDA to distinguish lease expiries (protocol-
+  // initiated, initiator === config PDA) from permanent returns (owner-
+  // initiated, initiator === wallet address).
+  const [arnsConfigPda, setArnsConfigPda] = useState<string | undefined>();
+  useEffect(() => {
+    const arnsProgramId = solanaConfig.programIds.arnsProgramId;
+    if (!arnsProgramId) return;
+    getArnsSettingsPDA(arnsProgramId).then(([pda]) =>
+      setArnsConfigPda(pda.toString()),
+    );
+  }, [solanaConfig.programIds.arnsProgramId]);
 
   const [tableData, setTableData] = useState<Array<TableData>>([]);
   const [filteredTableData, setFilteredTableData] = useState<TableData[]>([]);
@@ -125,13 +131,15 @@ const ReturnedNamesTable = ({
         const data: TableData = {
           openRow: <></>,
           name,
+          characters: name.length,
           startDate: startTimestamp,
           closingDate: endTimestamp,
           initiator,
-          leasePrice: -1,
-          permabuy: -1,
-          returnType:
-            initiator === arioProcessId ? 'Lease Expiry' : 'Permanent Return',
+          returnType: !arnsConfigPda
+            ? 'Returned'
+            : initiator === arnsConfigPda
+              ? 'Lease Expiry'
+              : 'Permanent Return',
 
           action: <></>,
           // metadata used for search and other purposes
@@ -142,95 +150,7 @@ const ReturnedNamesTable = ({
 
       setTableData(newTableData);
     }
-  }, [returnedNames, loading]);
-  async function fetchPrice(
-    name: string,
-    type: TRANSACTION_TYPES,
-  ): Promise<number | Error> {
-    try {
-      const res = await queryClient.fetchQuery(
-        buildCostDetailsQuery(
-          {
-            intent: 'Buy-Name',
-            name,
-            type,
-            years: 1,
-            fromAddress: walletAddress?.toString(),
-          },
-          { arioContract, arioProcessId },
-        ),
-      );
-
-      // calculate current price
-      if (!res.returnedNameDetails) {
-        throw new Error('Returned Name Details not found');
-      }
-      const {
-        startTimestamp,
-        endTimestamp,
-        basePrice: endPrice,
-      } = res.returnedNameDetails;
-      const startPrice = endPrice * START_RNP_PREMIUM;
-      const percent =
-        (dateNow - startTimestamp) / (endTimestamp - startTimestamp);
-      return Math.round(startPrice + (endPrice - startPrice) * percent);
-    } catch (error: any) {
-      return new Error(error.message);
-    }
-  }
-  useEffect(() => {
-    async function updatePrices() {
-      // Filter rows that need price updates
-      const rowsToUpdate = tableData.filter(
-        (row) =>
-          row.leasePrice instanceof Error ||
-          row.leasePrice < 0 ||
-          row.permabuy instanceof Error ||
-          row.permabuy < 0,
-      );
-
-      if (rowsToUpdate.length === 0) {
-        // No rows need updates, exit early
-        return;
-      }
-
-      const updatedData = await Promise.all(
-        tableData.map(async (row) => {
-          if (
-            row.leasePrice instanceof Error ||
-            row.leasePrice < 0 ||
-            row.permabuy instanceof Error ||
-            row.permabuy < 0
-          ) {
-            // Fetch lease price
-            const leasePrice = await fetchPrice(
-              row.name,
-              TRANSACTION_TYPES.LEASE,
-            );
-            // Fetch permabuy price
-            const permabuyPrice = await fetchPrice(
-              row.name,
-              TRANSACTION_TYPES.BUY,
-            );
-
-            // Return updated row with fetched prices
-            return {
-              ...row,
-              leasePrice,
-              permabuy: permabuyPrice,
-            };
-          }
-          // Return the row unchanged if no update is needed
-          return row;
-        }),
-      );
-
-      // Set updated table data
-      setTableData(updatedData);
-    }
-
-    updatePrices();
-  }, [tableData]); // Re-run only when `tableData` changes
+  }, [returnedNames, loading, arnsConfigPda]);
 
   useEffect(() => {
     if (filter) {
@@ -243,23 +163,17 @@ const ReturnedNamesTable = ({
   const columns: ColumnDef<TableData, any>[] = [
     'openRow',
     'name',
+    'characters',
     'startDate',
     'closingDate',
     'initiator',
-    'leasePrice',
-    'permabuy',
     'returnType',
     'action',
   ].map((key) =>
     columnHelper.accessor(key as keyof TableData, {
       id: key,
       size: key === 'action' || key === 'openRow' ? 20 : undefined,
-      header:
-        key === 'action' || key === 'openRow'
-          ? ''
-          : key === 'leasePrice'
-            ? 'Price for 1 Year'
-            : camelToReadable(key),
+      header: key === 'action' || key === 'openRow' ? '' : camelToReadable(key),
       sortDescFirst: true,
       sortingFn: 'alphanumeric',
       cell: ({ row }) => {
@@ -319,38 +233,24 @@ const ReturnedNamesTable = ({
             return formatDate(rowValue);
           }
           case 'initiator': {
-            return isArweaveTransactionID(rowValue) ? (
+            if (typeof rowValue !== 'string' || !isValidAoAddress(rowValue)) {
+              return rowValue;
+            }
+            return (
               <ArweaveID
-                id={new ArweaveTransactionID(rowValue)}
+                id={
+                  isArweaveTransactionID(rowValue)
+                    ? new ArweaveTransactionID(rowValue)
+                    : new SolanaAddress(rowValue)
+                }
                 shouldLink
                 characterCount={12}
                 type={ArweaveIdTypes.ADDRESS}
               />
-            ) : (
-              rowValue
             );
           }
-          case 'leasePrice':
-          case 'permabuy': {
-            if (rowValue instanceof Error)
-              return (
-                <Tooltip
-                  message={rowValue.message}
-                  icon={
-                    <span className="text-error">
-                      Price Error{' '}
-                      <CircleAlertIcon width={'18px'} height={'18px'} />
-                    </span>
-                  }
-                />
-              );
-            if (rowValue < 0)
-              return (
-                <span className="text-white animate-pulse">Loading...</span>
-              );
-            return `${formatARIOWithCommas(
-              new mARIOToken(rowValue).toARIO().valueOf(),
-            )} ${arioTicker}`;
+          case 'characters': {
+            return rowValue;
           }
           case 'returnType': {
             return rowValue;
@@ -435,6 +335,8 @@ const ReturnedNamesTable = ({
             type: purchaseType,
           }}
           dateNow={dateNow}
+          startTimestamp={row.original.startDate}
+          endTimestamp={row.original.closingDate}
         />
       </div>
     );

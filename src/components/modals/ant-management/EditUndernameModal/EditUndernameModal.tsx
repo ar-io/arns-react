@@ -1,9 +1,11 @@
-import { ANT, AOProcess, AoANTRecord } from '@ar.io/sdk/web';
+import { ANTRecord } from '@ar.io/sdk/web';
+import { buildAntRead } from '@src/utils/sdk-init';
 import { clamp } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 
 import { useIsMobile } from '../../../../hooks';
 import { ArweaveTransactionID } from '../../../../services/arweave/ArweaveTransactionID';
+import { SolanaAddress } from '../../../../services/solana/SolanaAddress';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { SetRecordPayload, VALIDATION_INPUT_TYPES } from '../../../../types';
 import {
@@ -27,18 +29,20 @@ function EditUndernameModal({
   closeModal,
   payloadCallback,
 }: {
-  antId: ArweaveTransactionID; // process ID if asset type is a contract interaction
+  // ANT mint pubkey (Solana base58) or, on legacy AO, an Arweave tx id.
+  // The component only calls `.toString()` on it.
+  antId: ArweaveTransactionID | SolanaAddress;
   undername: string;
   closeModal: () => void;
   payloadCallback: (payload: SetRecordPayload) => void;
 }) {
-  const [{ arweaveDataProvider, antAoClient, hyperbeamUrl }] = useGlobalState();
+  const [{ arweaveDataProvider }] = useGlobalState();
   const isMobile = useIsMobile();
   const targetIdRef = useRef<HTMLInputElement>(null);
   const ttlRef = useRef<HTMLInputElement>(null);
   const [targetId, setTargetId] = useState<string>('');
   const [ttlSeconds, setTtlSeconds] = useState<number>(MIN_TTL_SECONDS);
-  const [record, setRecord] = useState<AoANTRecord>();
+  const [record, setRecord] = useState<ANTRecord>();
 
   useEffect(() => {
     load(antId);
@@ -47,15 +51,9 @@ function EditUndernameModal({
     }
   }, [antId]);
 
-  async function load(id: ArweaveTransactionID) {
+  async function load(id: ArweaveTransactionID | SolanaAddress) {
     try {
-      const contract = ANT.init({
-        hyperbeamUrl,
-        process: new AOProcess({
-          processId: id.toString(),
-          ao: antAoClient,
-        }),
-      });
+      const contract = await buildAntRead({ processId: id.toString() });
       const undernameRecord = await contract.getRecord({
         undername: undername,
       });

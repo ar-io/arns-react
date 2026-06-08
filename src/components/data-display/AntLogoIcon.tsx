@@ -21,7 +21,7 @@ export function AntLogoIcon({
   icon?: ReactNode;
   style?: CSSProperties;
 }) {
-  const [{ gateway }] = useGlobalState();
+  const [{ dataGateway }] = useGlobalState();
   const [validImage, setValidImage] = useState(true);
   const logoRef = useRef<HTMLImageElement>(null);
 
@@ -47,7 +47,7 @@ export function AntLogoIcon({
       <img
         ref={logoRef}
         className={className ?? 'w-[30px] rounded-full'}
-        src={`https://${gateway}/${id}`}
+        src={`https://${dataGateway}/${id}`}
         alt="ant-logo"
         style={{ display: validImage ? 'block' : 'none', ...(style ?? {}) }}
       />

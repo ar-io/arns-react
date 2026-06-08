@@ -1,5 +1,5 @@
 import { CheckCircleFilled } from '@ant-design/icons';
-import { AoArNSNameData } from '@ar.io/sdk/web';
+import { ArNSNameData } from '@ar.io/sdk/web';
 import DomainDetailsTip from '@src/components/Tooltips/DomainDetailsTip';
 import { Tooltip } from '@src/components/data-display';
 import { ArioSpinner } from '@src/components/data-display/Spinner';
@@ -43,7 +43,7 @@ function HomeSearch() {
   const [validationError, setValidationError] = useState('');
   const [isValidDomain, setIsValidDomain] = useState(false);
   const [domainQuery, setDomainQuery] = useState('');
-  const [domainRecord, setDomainRecord] = useState<AoArNSNameData>();
+  const [domainRecord, setDomainRecord] = useState<ArNSNameData>();
   const [showResults, setShowResults] = useState(true);
   const [isReturnedName, setIsReturnedName] = useState(false);
 
@@ -347,6 +347,7 @@ function HomeSearch() {
                       <button
                         className={`py-2 px-3 text-sm bg-primary font-bold rounded-[4px] text-black disabled:opacity-50 disabled:bg-grey`}
                         disabled={!isValidDomain}
+                        data-testid="home-search-register-available"
                         onClick={() => {
                           navigate(`/register/${lowerCaseDomain(domainQuery)}`);
                         }}
@@ -364,6 +365,7 @@ function HomeSearch() {
                     <button
                       className="text-[12px] text-white whitespace-nowrap flex items-center"
                       style={{ gap: 0 }}
+                      data-testid="home-search-view-details"
                       onClick={() => {
                         navigate(
                           `/manage/names/${lowerCaseDomain(domainQuery)}`,

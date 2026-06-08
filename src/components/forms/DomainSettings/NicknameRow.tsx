@@ -35,8 +35,10 @@ export default function NicknameRow({
       eventEmitter.emit('error', error);
     } finally {
       setEditing(false);
-      setNewNickname(nickname ?? '');
       setShowModal(false);
+      // See DescriptionRow for the rationale — don't reset `newNickname`
+      // to the stale `nickname` prop; the `useEffect([nickname])` above
+      // syncs when the cache refresh lands.
     }
   }
 

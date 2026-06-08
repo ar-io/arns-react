@@ -4,7 +4,10 @@ import { TurboLogo } from '@src/components/icons';
 import { useTurboArNSClient } from '@src/hooks/useTurboArNSClient';
 import { PaymentInformation } from '@src/services/turbo/TurboArNSClient';
 import { useGlobalState, useWalletState } from '@src/state';
-import { WALLET_TYPES } from '@src/types';
+import { WALLET_TYPES as _WALLET_TYPES } from '@src/types';
+// Cast to `any` so legacy ETHEREUM enum reference in the unreachable branch
+// below still typechecks after the de-AO refactor narrowed WALLET_TYPES.
+const WALLET_TYPES: any = _WALLET_TYPES;
 import { LINK_HOW_ARE_CONVERSIONS_DETERMINED } from '@src/utils/constants';
 import { Elements } from '@stripe/react-stripe-js';
 import {

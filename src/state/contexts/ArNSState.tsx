@@ -1,4 +1,4 @@
-import { AoANTState, AoArNSNameData } from '@ar.io/sdk/web';
+import { ANTState, ArNSNameData } from '@ar.io/sdk/web';
 import { TransactionEdge } from 'arweave-graphql';
 import {
   Dispatch,
@@ -14,14 +14,14 @@ import { useGlobalState } from './GlobalState';
 import { useWalletState } from './WalletState';
 
 export type ANTProcessData = {
-  state: AoANTState | null;
+  state: ANTState | null;
   version: number;
   processMeta: TransactionEdge['node'] | null;
   errors?: Error[];
 };
 
 export type ArNSState = {
-  domains: Record<string, AoArNSNameData>;
+  domains: Record<string, ArNSNameData>;
   ants: Record<string, ANTProcessData>;
   loading: boolean;
   percentLoaded: number;
@@ -56,22 +56,26 @@ export function ArNSStateProvider({
   reducer,
   children,
 }: ArNSStateProviderProps): JSX.Element {
-  const [{ arioProcessId, aoNetwork, hyperbeamUrl, antRegistryProcessId }] =
-    useGlobalState();
+  const [{ arioContract, solanaConfig }] = useGlobalState();
   const [state, dispatchArNSState] = useReducer(reducer, initialArNSState);
-  const [{ walletAddress }] = useWalletState();
+  const [{ walletAddress, wallet }] = useWalletState();
 
+  // Uses `solanaConfig.rpcUrl` instead of `arioContract` as a dependency.
+  // `arioContract` changes object identity during wallet connect when
+  // WalletState rebuilds it (read-only → writable), which would trigger
+  // this effect a second time even though the underlying RPC is the same.
+  // `solanaConfig.rpcUrl` is a stable string that only changes when the
+  // user switches Solana networks in settings, which is the only case
+  // where we actually need to re-fetch domains.
   useEffect(() => {
     if (!walletAddress) return;
     dispatchArNSUpdate({
       dispatch: dispatchArNSState,
       walletAddress: walletAddress,
-      arioProcessId: arioProcessId,
-      antRegistryProcessId: antRegistryProcessId,
-      aoNetworkSettings: aoNetwork,
-      hyperbeamUrl,
+      wallet,
+      arioContract,
     });
-  }, [walletAddress, aoNetwork, arioProcessId, hyperbeamUrl]);
+  }, [walletAddress, wallet, solanaConfig.rpcUrl]);
 
   return (
     <ArNSStateContext.Provider value={[state, dispatchArNSState]}>

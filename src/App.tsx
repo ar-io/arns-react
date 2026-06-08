@@ -18,7 +18,6 @@ import Checkout from './components/pages/Register/Checkout';
 import NetworkSettings from './components/pages/Settings/NetworkSettings';
 import DevTools from './components/pages/Settings/devtools/DevTools';
 import useSyncSettings from './hooks/useSyncSettings/useSyncSettings';
-import useWanderEvents from './hooks/useWanderEvents/useWanderEvents';
 import './index.css';
 import { useGlobalState } from './state';
 
@@ -70,7 +69,6 @@ const sentryCreateBrowserRouter =
   Sentry.wrapCreateBrowserRouter(createHashRouter);
 
 function App() {
-  useWanderEvents();
   useSyncSettings();
   const [{ turboNetwork }] = useGlobalState();
 

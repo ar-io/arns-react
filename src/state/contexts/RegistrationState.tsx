@@ -1,4 +1,4 @@
-import { AoANTRead } from '@ar.io/sdk/web';
+import { ANTRead } from '@ar.io/sdk/web';
 import {
   Dispatch,
   createContext,
@@ -16,7 +16,7 @@ export type RegistrationState = {
   resolvedTxID?: ArweaveTransactionID;
   domain: string;
   leaseDuration: number;
-  antContract?: AoANTRead;
+  antContract?: ANTRead;
   targetID?: ArweaveTransactionID;
   antID?: ArweaveTransactionID;
   fee: { ar: number; [x: string]: number | undefined };

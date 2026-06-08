@@ -1,4 +1,5 @@
 import { useGlobalState } from '@src/state';
+import { arioContractCacheKey } from '@src/utils/sdk-init';
 import { useQuery } from '@tanstack/react-query';
 
 export function useIncreaseUndernameCost({
@@ -8,12 +9,12 @@ export function useIncreaseUndernameCost({
   name: string;
   quantity: number;
 }) {
-  const [{ arioProcessId, arioContract }] = useGlobalState();
+  const [{ arioContract }] = useGlobalState();
   return useQuery({
     queryKey: [
       'increaseUndernameCost',
       quantity,
-      arioProcessId.toString(),
+      arioContractCacheKey(arioContract),
       name,
     ],
     queryFn: async () => {

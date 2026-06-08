@@ -6,7 +6,7 @@ import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
+import { SolanaSignature } from '../../../services/solana/SolanaSignature';
 import TransactionSuccessCard from '../../cards/TransactionSuccessCard/TransactionSuccessCard';
 import { CodeSandboxIcon } from '../../icons';
 import './styles.css';
@@ -51,7 +51,7 @@ function ManageANT() {
       >
         {interactionResult ? (
           <TransactionSuccessCard
-            txId={new ArweaveTransactionID(interactionResult.id)}
+            txId={new SolanaSignature(interactionResult.id)}
             title={`${workflowName} completed`}
             close={() => {
               dispatchTransactionState({

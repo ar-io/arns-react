@@ -6,6 +6,7 @@ import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionMo
 import AddControllerModal from '@src/components/modals/ant-management/AddControllerModal/AddControllerModal';
 import RemoveControllersModal from '@src/components/modals/ant-management/RemoveControllerModal/RemoveControllerModal';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { SolanaAddress } from '@src/services/solana/SolanaAddress';
 import { ANT_INTERACTION_TYPES, ContractInteraction } from '@src/types';
 import {
   isArweaveTransactionID,
@@ -80,21 +81,25 @@ export default function ControllersRow({
         value={
           <div className="flex flex-row w-fit overflow-hidden mr-10">
             {controllers.map((c, index) => {
-              if (isValidAoAddress(c)) {
-                return (
-                  <ArweaveID
-                    key={index}
-                    id={isEthAddress(c) ? c : new ArweaveTransactionID(c)}
-                    shouldLink={isArweaveTransactionID(c)}
-                    type={ArweaveIdTypes.ADDRESS}
-                    characterCount={8}
-                    wrapperStyle={{
-                      width: 'fit-content',
-                      whiteSpace: 'nowrap',
-                    }}
-                  />
-                );
-              } else return c;
+              if (!isValidAoAddress(c)) return c;
+              const id = isEthAddress(c)
+                ? c
+                : isArweaveTransactionID(c)
+                  ? new ArweaveTransactionID(c)
+                  : new SolanaAddress(c);
+              return (
+                <ArweaveID
+                  key={index}
+                  id={id}
+                  shouldLink={!isEthAddress(c)}
+                  type={ArweaveIdTypes.ADDRESS}
+                  characterCount={8}
+                  wrapperStyle={{
+                    width: 'fit-content',
+                    whiteSpace: 'nowrap',
+                  }}
+                />
+              );
             })}
           </div>
         }
@@ -119,6 +124,7 @@ export default function ControllersRow({
               title={
                 <div className="flex-col flex" style={{ gap: '10px' }}>
                   <button
+                    data-testid="controllers-add-menu-button"
                     className="flex flex-right white pointer button"
                     onClick={() => {
                       setShowAddModal(true);
@@ -128,6 +134,7 @@ export default function ControllersRow({
                     Add Controller
                   </button>
                   <button
+                    data-testid="controllers-remove-menu-button"
                     className="flex flex-right white pointer button"
                     onClick={() => {
                       setShowRemoveModal(true);
@@ -139,12 +146,17 @@ export default function ControllersRow({
                 </div>
               }
             >
-              <VerticalDotMenuIcon
-                width={'18px'}
-                height={'18px'}
-                fill="var(--text-grey)"
-                className="pointer"
-              />
+              <span
+                data-testid="controllers-row-menu-trigger"
+                className="inline-flex"
+              >
+                <VerticalDotMenuIcon
+                  width={'18px'}
+                  height={'18px'}
+                  fill="var(--text-grey)"
+                  className="pointer"
+                />
+              </span>
             </Tooltip>
           ) : null,
         ]}
@@ -152,7 +164,7 @@ export default function ControllersRow({
       {showAddModal && processId && (
         <AddControllerModal
           closeModal={() => setShowAddModal(false)}
-          antId={new ArweaveTransactionID(processId)}
+          antId={new SolanaAddress(processId)}
           payloadCallback={(c) => {
             setWorkflowName(ANT_INTERACTION_TYPES.SET_CONTROLLER);
             setPayload(c);
@@ -164,7 +176,7 @@ export default function ControllersRow({
       {showRemoveModal && processId && (
         <RemoveControllersModal
           closeModal={() => setShowRemoveModal(false)}
-          antId={new ArweaveTransactionID(processId)}
+          antId={new SolanaAddress(processId)}
           controllers={controllers}
           payloadCallback={(c) => {
             setWorkflowName(ANT_INTERACTION_TYPES.REMOVE_CONTROLLER);

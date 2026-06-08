@@ -45,6 +45,13 @@ jobs:
           VITE_ARIO_PROCESS_ID: ${{ vars.VITE_ARIO_PROCESS_ID }}
           VITE_ARIO_AO_CU_URL: ${{ vars.VITE_ARIO_AO_CU_URL }}
           VITE_ANT_AO_CU_URL: ${{ vars.VITE_ANT_AO_CU_URL }}
+          VITE_SOLANA_NETWORK: ${{ vars.VITE_SOLANA_NETWORK }}
+          VITE_SOLANA_RPC_URL: ${{ vars.VITE_SOLANA_RPC_URL }}
+          VITE_ARIO_CORE_PROGRAM_ID: ${{ vars.VITE_ARIO_CORE_PROGRAM_ID }}
+          VITE_ARIO_GAR_PROGRAM_ID: ${{ vars.VITE_ARIO_GAR_PROGRAM_ID }}
+          VITE_ARIO_ARNS_PROGRAM_ID: ${{ vars.VITE_ARIO_ARNS_PROGRAM_ID }}
+          VITE_ARIO_ANT_PROGRAM_ID: ${{ vars.VITE_ARIO_ANT_PROGRAM_ID }}
+          VITE_ARIO_MINT_ADDRESS: ${{ vars.VITE_ARIO_MINT_ADDRESS }}
 
       # Upload build artifacts for deployment
       - name: Upload build artifacts

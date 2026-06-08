@@ -15,7 +15,12 @@ import Ar from 'arweave/node/ar';
 import { Settings2Icon } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useDisconnect } from 'wagmi';
+// NOTE (de-AO refactor): wagmi's `useDisconnect` was used to force-disconnect
+// EVM wallets via the Ethereum wallet adapter. The Solana-only refactor
+// removed `WagmiProvider` from the app shell, so calling `useDisconnect()`
+// here crashes the navbar with `WagmiProviderNotFoundError` the moment a
+// wallet connects. Stub it out to a no-op until/unless EVM wallets come back.
+const useDisconnect = () => ({ disconnectAsync: async () => {} });
 
 import { useIsMobile } from '../../../hooks';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
@@ -34,8 +39,11 @@ import './styles.css';
 function NavMenuCard() {
   // TODO: all the balance queries here should be refactored to use balance hooks, or a central balance hook
   const queryClient = useQueryClient();
-  const [{ arioContract, arioTicker, arioProcessId, aoNetwork }] =
-    useGlobalState();
+  const [{ arioContract, arioTicker }] = useGlobalState();
+  const arioProcessId = '';
+  const aoNetwork: any = {
+    ARIO: { SCHEDULER: '', CU_URL: '', HYPERBEAM_URL: '' },
+  };
 
   const [{ wallet, walletAddress }, dispatchWalletState] = useWalletState();
   const { disconnectAsync } = useDisconnect();
@@ -67,12 +75,19 @@ function NavMenuCard() {
 
   const [turboTopUpModalOpen, setTurboTopUpModalOpen] = useState(false);
 
+  // Fetch balance when wallet or turbo credits change — NOT on menu toggle.
+  // `buildIOBalanceQuery` has a 1hr staleTime so `fetchQuery` returns cached
+  // data most of the time; re-running it on every menu open/close was
+  // unnecessary RPC traffic.
   useEffect(() => {
     if (walletAddress) {
       resetWalletDetails();
       fetchWalletDetails(walletAddress);
     }
+  }, [wallet, walletAddress, turboCreditBalance, arioTicker]);
 
+  // Click-outside handler — needs showMenu to attach/detach correctly.
+  useEffect(() => {
     if (!menuRef.current) {
       return;
     }
@@ -81,7 +96,7 @@ function NavMenuCard() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [menuRef, showMenu, wallet, walletAddress, turboCreditBalance]);
+  }, [menuRef, showMenu]);
 
   function resetWalletDetails() {
     setWalletDetails({
@@ -392,6 +407,7 @@ function NavMenuCard() {
                   </span>
                   {
                     <button
+                      data-testid="nav-menu-logout-button"
                       className="navbar-link hover flex-row"
                       onClick={() => logout()}
                       style={{

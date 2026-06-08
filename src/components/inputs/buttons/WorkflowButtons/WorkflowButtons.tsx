@@ -32,6 +32,7 @@ function WorkflowButtons({
       style={customNextStyle}
       disabled={!onNext}
       onClick={onNext ? () => onNext() : undefined}
+      data-testid="workflow-next-button"
     >
       {nextText}
     </button>
@@ -54,6 +55,7 @@ function WorkflowButtons({
               style={customBackStyle}
               disabled={!onBack}
               onClick={onBack ? () => onBack() : undefined}
+              data-testid="workflow-back-button"
             >
               {backText}
             </button>

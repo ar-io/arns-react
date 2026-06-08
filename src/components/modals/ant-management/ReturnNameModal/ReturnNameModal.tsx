@@ -1,8 +1,9 @@
+import { ARIOWrite } from '@ar.io/sdk/web';
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
-import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
+import { SolanaSignature } from '@src/services/solana/SolanaSignature';
 import {
   dispatchArNSUpdate,
   useArNSState,
@@ -13,7 +14,6 @@ import {
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
 import { ANT_INTERACTION_TYPES } from '@src/types';
 import eventEmitter from '@src/utils/events';
-import { useQueryClient } from '@tanstack/react-query';
 import { Checkbox } from 'antd';
 import { TriangleAlert } from 'lucide-react';
 import { useState } from 'react';
@@ -32,17 +32,9 @@ export function ReturnNameModal({
   processId: string;
   name: string;
 }) {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [
-    {
-      arioProcessId,
-      antAoClient,
-      aoNetwork,
-      hyperbeamUrl,
-      antRegistryProcessId,
-    },
-  ] = useGlobalState();
+  const [{ arioContract }] = useGlobalState();
+  const arioProcessId = '';
   const [, dispatchArNSState] = useArNSState();
   const [{ signing }, dispatchTransactionState] = useTransactionState();
   const [{ wallet, walletAddress }] = useWalletState();
@@ -51,13 +43,16 @@ export function ReturnNameModal({
 
   async function handleReturn() {
     try {
-      if (!wallet?.contractSigner) {
-        throw new Error('No Wander Signer found');
+      if (wallet?.tokenType !== 'solana' || !wallet.solanaSigner) {
+        throw new Error(
+          'A connected Solana wallet is required to return a name',
+        );
       }
       if (!walletAddress) throw new Error('Must connect to release the ANT');
 
       const result = await dispatchANTInteraction({
-        signer: wallet.contractSigner,
+        wallet,
+        arioContract: arioContract as ARIOWrite,
         payload: {
           name,
           arioProcessId,
@@ -67,9 +62,6 @@ export function ReturnNameModal({
         dispatchTransactionState,
         dispatchArNSState,
         owner: walletAddress.toString(),
-        ao: antAoClient,
-        hyperbeamUrl,
-        antRegistryProcessId,
       });
       eventEmitter.emit('success', {
         message: (
@@ -80,7 +72,7 @@ export function ReturnNameModal({
                 characterCount={8}
                 shouldLink={true}
                 type={ArweaveIdTypes.INTERACTION}
-                id={new ArweaveTransactionID(result.id)}
+                id={new SolanaSignature(result.id)}
               />
             </span>
           </div>
@@ -88,20 +80,14 @@ export function ReturnNameModal({
         name: ANT_INTERACTION_TYPES.RELEASE_NAME,
       });
 
-      queryClient.resetQueries({
-        queryKey: ['domainInfo', name],
-      });
-      queryClient.resetQueries({
-        queryKey: ['domainInfo', processId],
-      });
-
+      // domainInfo resets are handled by dispatchArNSUpdate below.
       dispatchArNSUpdate({
         walletAddress: walletAddress,
+        wallet,
+        arioContract,
         arioProcessId,
-        antRegistryProcessId,
+        antRegistryProcessId: '',
         dispatch: dispatchArNSState,
-        aoNetworkSettings: aoNetwork,
-        hyperbeamUrl,
       });
       setShow(false);
       navigate('/manage');

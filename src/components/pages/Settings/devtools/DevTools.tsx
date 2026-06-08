@@ -1,6 +1,9 @@
 import React, { Suspense, useEffect, useState } from 'react';
 
-import ANTTools from './ANTTools';
+import AclFetcher from './AclFetcher';
+import PdaViewer from './PdaViewer';
+import PrivateKeyLogin from './PrivateKeyLogin';
+import RentAllocation from './RentAllocation';
 import TransferIO from './TransferIO';
 import UserAddress from './UserAddress';
 
@@ -40,8 +43,11 @@ const DevTools = () => {
         <h2 className="text-white text-lg font-semibold">Dev Tools</h2>
       </div>
       <UserAddress />
+      <PrivateKeyLogin />
       <TransferIO />
-      <ANTTools />
+      <AclFetcher />
+      <RentAllocation />
+      <PdaViewer />
       <div className="flex flex-row gap-2 w-full justify-end">
         <button
           onClick={() => setShowTanstackTools(true)}

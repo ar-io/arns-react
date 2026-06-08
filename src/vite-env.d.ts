@@ -13,6 +13,20 @@ interface ImportMetaEnv {
   readonly VITE_ARNS_REGISTRY_ADDRESS: string;
   readonly VITE_ARIO_PROCESS_ID: string;
   readonly VITE_AO_CU_URL: string;
+  // Solana backend (devnet / mainnet)
+  readonly VITE_SOLANA_RPC_URL?: string;
+  readonly VITE_SOLANA_NETWORK?: 'mainnet-beta' | 'devnet';
+  readonly VITE_ARIO_CORE_PROGRAM_ID?: string;
+  readonly VITE_ARIO_GAR_PROGRAM_ID?: string;
+  readonly VITE_ARIO_ARNS_PROGRAM_ID?: string;
+  readonly VITE_ARIO_ANT_PROGRAM_ID?: string;
+  // ARIO SPL mint address override (rarely needed — the active network
+  // preset already supplies the right mint via the SDK).
+  readonly VITE_ARIO_MINT_ADDRESS?: string;
+  // Optional override for the Ethereum mainnet RPC used by wagmi. Defaults
+  // to https://cloudflare-eth.com so that RainbowKit's automatic ENS lookups
+  // don't slam viem's rate-limited public RPC pool.
+  readonly VITE_ETH_MAINNET_RPC_URL?: string;
 }
 
 interface ImportMeta {
