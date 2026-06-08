@@ -143,10 +143,9 @@ function deriveDefaultNetwork(): SolanaNetwork {
   if (explicit) return explicit;
 
   const env = import.meta.env.VITE_ENVIRONMENT as string | undefined;
-  if (env === 'production') return 'mainnet-beta';
   if (env === 'develop') return 'devnet';
 
-  return 'devnet';
+  return 'mainnet-beta';
 }
 
 function buildInitialConfig(): SolanaNetworkConfig {
