@@ -116,12 +116,12 @@
     winston "^3.13.0"
     zod "^3.23.8"
 
-"@ar.io/sdk@^4.0.2-alpha.3":
-  version "4.0.2-alpha.3"
-  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.2-alpha.3.tgz#fbeb991314859f43d89182d77ea6ccc30682463e"
-  integrity sha512-3mBOOkY6n90OVxt14qSrGMKFI92rf4xglhezBAbPep5liVgTIC6LFAdyUBMV35HfE2OfyVEB2NFpyMipMSBlDQ==
+"@ar.io/sdk@^4.0.2-alpha.6":
+  version "4.0.2-alpha.6"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.2-alpha.6.tgz#d0ee913fb0527b767e91e9223c374d0002b2cc2b"
+  integrity sha512-RmaMSN7e3w+elJLE7gNrDR779ilpVRyMGXyJtKWucrUJAJ2YygfrZi3irie9kitrz9WRxZcP2BZU1x5449noag==
   dependencies:
-    "@ar.io/solana-contracts" "1.0.0"
+    "@ar.io/solana-contracts" "1.0.1"
     "@noble/hashes" "^1.8.0"
     "@solana-program/address-lookup-table" "^0.11.0"
     "@solana-program/compute-budget" "^0.15.0"
@@ -133,10 +133,10 @@
     prompts "^2.4.2"
     zod "^3.25.76"
 
-"@ar.io/solana-contracts@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/@ar.io/solana-contracts/-/solana-contracts-1.0.0.tgz#56ec1354542991899c5d641a8221ee2b33b8b99d"
-  integrity sha512-/rmxIyViK9USkedcn4zrHWkg+tGBE160PSbJ2xwEcugtXDSOf5Cc0E6R8YoG7HT5oKkU0QY1QEeSeVvcYgMYBQ==
+"@ar.io/solana-contracts@1.0.1":
+  version "1.0.1"
+  resolved "https://registry.npmjs.org/@ar.io/solana-contracts/-/solana-contracts-1.0.1.tgz#1a16958d54540222b77def81d5d39e7402b8b69c"
+  integrity sha512-zD7OepkzzWb1SIHRDxSo3y+dzRh9gu+43eI2DBJLtQ+7EkT3Py8v9kHQ40UcRC8CReHHTO74RDty6Hwx5JYVGA==
   dependencies:
     "@noble/hashes" "^1.5.0"
     bs58 "^6.0.0"
