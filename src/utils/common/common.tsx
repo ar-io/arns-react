@@ -218,6 +218,17 @@ export function formatARIOWithCommas(ario: number) {
   });
 }
 
+/**
+ * Format a lamport amount as SOL for display (1 SOL = 1e9 lamports),
+ * rounded to the nearest 5th decimal (0.00000).
+ */
+export function formatSolFromLamports(lamports: number) {
+  return (lamports / 1_000_000_000).toLocaleString('en-US', {
+    minimumFractionDigits: 5,
+    maximumFractionDigits: 5,
+  });
+}
+
 export function shuffleArray(array: any[]) {
   const arrayCopy = [...array];
   let currentIndex = arrayCopy.length,

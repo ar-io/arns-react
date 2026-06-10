@@ -1,11 +1,14 @@
 import { ANT } from '@ar.io/sdk/web';
 import WarningCard from '@src/components/cards/WarningCard/WarningCard';
+import { SolanaGasDetails } from '@src/components/data-display/SolanaGasDetails';
 import RadioGroup from '@src/components/inputs/RadioGroup';
 import ValidationInput from '@src/components/inputs/text/ValidationInput/ValidationInput';
 import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
+import { useAntGasEstimate } from '@src/hooks/useAntGasEstimate';
 import useDomainInfo from '@src/hooks/useDomainInfo';
+import { useSolBalance } from '@src/hooks/useSolBalance';
 import { ArweaveTransactionID } from '@src/services/arweave/ArweaveTransactionID';
 import { SolanaAddress } from '@src/services/solana/SolanaAddress';
 import { SolanaSignature } from '@src/services/solana/SolanaSignature';
@@ -80,6 +83,23 @@ export function ReassignNameModal({
     | REASSIGN_NAME_WORKFLOWS.EXISTING
   >(REASSIGN_NAME_WORKFLOWS.NEW_BLANK);
   const [accepted, setAccepted] = useState<boolean>(false);
+
+  // Reassigning to a brand-new ANT spawns one first — that deposits rent
+  // for the spawned accounts (~0.012 SOL) on top of the transaction fees.
+  const { data: reassignGasEstimate, isLoading: isLoadingReassignGas } =
+    useAntGasEstimate({
+      processId,
+      workflow: {
+        workflow: 'reassign-name',
+        spawnsNewAnt: antType !== REASSIGN_NAME_WORKFLOWS.EXISTING,
+        name,
+      },
+    });
+  const { data: solBalance } = useSolBalance();
+  const isInsufficientSolForGas =
+    !!reassignGasEstimate &&
+    solBalance !== undefined &&
+    solBalance < reassignGasEstimate.totalLamports;
 
   function handleClose() {
     setWorkflow(undefined);
@@ -465,6 +485,11 @@ export function ReassignNameModal({
                     </div>
                   </>
                 )}
+                <SolanaGasDetails
+                  gasEstimate={reassignGasEstimate}
+                  isLoading={isLoadingReassignGas}
+                  insufficientSol={isInsufficientSolForGas}
+                />
                 <span className="text-white">
                   This action cannot be undone. Do you wish to continue with the
                   reassignment?
@@ -492,7 +517,7 @@ export function ReassignNameModal({
             </div>
           }
           cancelText="Back"
-          nextText="Confirm"
+          nextText={isInsufficientSolForGas ? 'Insufficient SOL' : 'Confirm'}
           onCancel={() => {
             setWorkflow(antType);
           }}
@@ -500,7 +525,9 @@ export function ReassignNameModal({
           onNext={
             (antType === REASSIGN_NAME_WORKFLOWS.EXISTING
               ? isValidAoAddress(newAntProcessId) && !loadingNewAntInfo
-              : true) && accepted
+              : true) &&
+            accepted &&
+            !isInsufficientSolForGas
               ? () => handleReassign()
               : undefined
           }

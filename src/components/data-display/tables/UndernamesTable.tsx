@@ -497,6 +497,30 @@ const UndernamesTable = ({
       isAuthorized ? (
         <ConfirmTransactionModal
           interactionType={interactionType}
+          gasParams={(() => {
+            const undername = (transactionData as { subDomain?: string })
+              ?.subDomain;
+            if (!undername) return undefined;
+            switch (interactionType) {
+              case ANT_INTERACTION_TYPES.REMOVE_RECORD:
+                return {
+                  processId: arnsRecord.processId,
+                  workflow: { workflow: 'remove-record' as const, undername },
+                };
+              case ANT_INTERACTION_TYPES.SET_RECORD:
+                return {
+                  processId: arnsRecord.processId,
+                  workflow: { workflow: 'set-record' as const, undername },
+                };
+              case ANT_INTERACTION_TYPES.EDIT_RECORD:
+                return {
+                  processId: arnsRecord.processId,
+                  workflow: { workflow: 'edit-record' as const, undername },
+                };
+              default:
+                return undefined;
+            }
+          })()}
           confirm={() =>
             handleInteraction({
               payload: transactionData,

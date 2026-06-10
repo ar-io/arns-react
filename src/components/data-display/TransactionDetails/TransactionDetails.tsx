@@ -2,7 +2,9 @@ import { GetCostDetailsParams, mARIOToken } from '@ar.io/sdk';
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import { useGlobalState } from '@src/state';
 import { formatARIOWithCommas } from '@src/utils';
+
 import { useState } from 'react';
+import { SolanaGasDetails } from '../SolanaGasDetails';
 
 import { FundingSourceSelector } from '../../inputs/FundingSourceSelector/FundingSourceSelector';
 
@@ -101,6 +103,13 @@ export function TransactionDetails({
               {formatARIOWithCommas(totalCost)}&nbsp;{arioTicker}
             </span>
           </span>
+
+          {/* Solana network cost (fee / rent split) — paid in SOL on top
+              of the ARIO cost */}
+          <SolanaGasDetails
+            gasEstimate={costDetail?.gasEstimate}
+            className="items-end whitespace-nowrap text-[14px]"
+          />
         </div>
       </div>
       <div className="flex w-full border-b pb-4 border-dark-grey">
