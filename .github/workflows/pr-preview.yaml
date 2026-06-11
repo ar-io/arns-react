@@ -43,11 +43,11 @@ jobs:
           VITE_ARIO_AO_CU_URL: ${{ vars.VITE_ARIO_AO_CU_URL }}
           VITE_ANT_AO_CU_URL: ${{ vars.VITE_ANT_AO_CU_URL }}
 
-      # Deploy PR preview (pull_request or workflow_dispatch without undername)
       - name: Deploy PR preview
-        uses: permaweb/permaweb-deploy@v0.1.0
+        uses: ar-io/ar-io-deploy@v1
         with:
           deploy-key: ${{ secrets.DEPLOY_KEY }}
+          arns-key: ${{ secrets.ARNS_KEY }}
           arns-name: ${{ secrets.ARNS_NAME }}
           undername: "${{ github.event_name == 'pull_request' && '@' || inputs.undername }}"
           preview: ${{ github.event_name == 'pull_request' }}
