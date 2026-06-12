@@ -98,7 +98,7 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/deploy@^1.0.0":
+"@ar.io/deploy@1.0.0":
   version "1.0.0"
   resolved "https://registry.npmjs.org/@ar.io/deploy/-/deploy-1.0.0.tgz#72bb1062108e7ae8331f47e5c8b28a7275557955"
   integrity sha512-9fULv4X4UCOqoGbeXMmlbiQTGnPhIlFdb4ZSEia2B/SDirEMZ5mCuf7/fZ+1+XLtKh3icZFAxBMQ5SxLaBnqEA==

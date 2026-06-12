@@ -76,7 +76,7 @@
     "wagmi": "^2.19.5"
   },
   "devDependencies": {
-    "@ar.io/deploy": "^1.0.0",
+    "@ar.io/deploy": "1.0.0",
     "@babel/core": "^7.19.6",
     "@babel/preset-env": "^7.19.4",
     "@babel/preset-react": "^7.18.6",
