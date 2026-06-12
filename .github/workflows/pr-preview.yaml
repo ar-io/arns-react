@@ -44,7 +44,7 @@ jobs:
           VITE_ANT_AO_CU_URL: ${{ vars.VITE_ANT_AO_CU_URL }}
 
       - name: Deploy PR preview
-        uses: ar-io/ar-io-deploy@v1
+        uses: ar-io/ar-io-deploy@v1.0.0
         with:
           deploy-key: ${{ secrets.DEPLOY_KEY }}
           arns-key: ${{ secrets.ARNS_KEY }}
