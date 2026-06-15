@@ -88,35 +88,26 @@ jobs:
           firebaseServiceAccount: "${{ secrets.FIREBASE_CI_SERVICE_ACCOUNT }}"
           channelId: live
 
-  publish:
+  deploy-to-arweave:
     needs: build_for_production
     runs-on: ubuntu-latest
     environment: production
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
 
-      # Download build artifacts instead of rebuilding
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: dist-production
           path: dist/
 
-      - run: yarn --frozen-lockfile
-      - run: yarn deploy:arweave
-        env:
-          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
-          VITE_ARNS_NAME: ${{ secrets.ARNS_NAME }}
-          VITE_GITHUB_HASH: ${{ github.sha }}
-          VITE_ARIO_PROCESS_ID: ${{ vars.VITE_ARIO_PROCESS_ID }}
-          VITE_ARNS_REGISTRY_ADDRESS: ${{ vars.VITE_ARNS_REGISTRY_ADDRESS }}
-          VITE_ARWEAVE_HOST: ${{ vars.ARWEAVE_HOST }}
-          VITE_NODE_ENV: production
-          VITE_ARIO_AO_CU_URL: ${{ vars.VITE_ARIO_AO_CU_URL }}
-          VITE_ANT_AO_CU_URL: ${{ vars.VITE_ANT_AO_CU_URL }}
+      - name: Deploy to Arweave
+        uses: ar-io/ar-io-deploy@v1.0.0
+        with:
+          deploy-key: ${{ secrets.DEPLOY_KEY }}
+          arns-key: ${{ secrets.ARNS_KEY }}
+          arns-name: ${{ secrets.ARNS_NAME }}
+          deploy-folder: ./dist
 
       - name: Notify Slack
         uses: rtCamp/action-slack-notify@v2
