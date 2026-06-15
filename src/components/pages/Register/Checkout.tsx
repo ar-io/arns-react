@@ -11,6 +11,7 @@ import {
   COST_DETAIL_STALE_TIME,
   useCostDetails,
 } from '@src/hooks/useCostDetails';
+import { useSolBalance } from '@src/hooks/useSolBalance';
 import { useTurboArNSClient } from '@src/hooks/useTurboArNSClient';
 import { useTurboCreditBalance } from '@src/hooks/useTurboCreditBalance';
 import {
@@ -32,7 +33,7 @@ import {
   BuyRecordPayload,
   TRANSACTION_TYPES,
 } from '@src/types';
-import { formatARIOWithCommas } from '@src/utils';
+import { formatARIOWithCommas, formatSolFromLamports } from '@src/utils';
 import { getBaseChainId } from '@src/utils/baseNetwork';
 import {
   ARNS_PURCHASES_DISABLED,
@@ -71,6 +72,7 @@ function Checkout() {
   const [, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
   const { data: creditsBalance } = useTurboCreditBalance();
+  const { data: solBalance } = useSolBalance();
   const [
     { workflowName, interactionType, transactionData, interactionResult },
     dispatchTransactionState,
@@ -203,6 +205,17 @@ function Checkout() {
     baseArioBalance,
   ]);
 
+  // Paying with ARIO on Solana also costs SOL: transaction fees plus rent
+  // deposits for the accounts the intent creates (Buy-Name spawns an ANT).
+  // Gate the pay button on the wallet actually holding that much.
+  const isInsufficientSolForGas = useMemo(() => {
+    if (paymentMethod !== 'crypto' || isBaseToken(selectedCryptoToken)) {
+      return false;
+    }
+    if (!costDetail?.gasEstimate || solBalance === undefined) return false;
+    return solBalance < costDetail.gasEstimate.totalLamports;
+  }, [costDetail, paymentMethod, selectedCryptoToken, solBalance]);
+
   const fees = useMemo(() => {
     if (paymentMethod === 'card') {
       const discounts =
@@ -265,6 +278,59 @@ function Checkout() {
               ),
             }
           : {}),
+        // Solana network cost — paid in SOL on top of the ARIO token cost,
+        // split the way wallets present it: the transaction fee, plus the
+        // rent deposited for accounts the intent creates (Buy-Name spawns
+        // an ANT, so that spawn dominates). Only present when the SDK
+        // backend quotes gas (Solana).
+        ...(costDetail?.gasEstimate
+          ? {
+              'Network fee (est.):': (
+                <span
+                  className={
+                    isInsufficientSolForGas &&
+                    costDetail.gasEstimate.rentLamports === 0
+                      ? 'text-error'
+                      : 'text-grey'
+                  }
+                >
+                  ~{formatSolFromLamports(costDetail.gasEstimate.feeLamports)}{' '}
+                  SOL
+                  {isInsufficientSolForGas &&
+                  costDetail.gasEstimate.rentLamports === 0
+                    ? ' (insufficient SOL)'
+                    : ''}
+                </span>
+              ),
+              ...(costDetail.gasEstimate.rentLamports > 0
+                ? {
+                    'Storage rent (est.):': (
+                      <span className="text-grey">
+                        ~
+                        {formatSolFromLamports(
+                          costDetail.gasEstimate.rentLamports,
+                        )}{' '}
+                        SOL
+                      </span>
+                    ),
+                    'Total SOL (est.):': (
+                      <span
+                        className={
+                          isInsufficientSolForGas ? 'text-error' : 'text-grey'
+                        }
+                      >
+                        ~
+                        {formatSolFromLamports(
+                          costDetail.gasEstimate.totalLamports,
+                        )}{' '}
+                        SOL
+                        {isInsufficientSolForGas ? ' (insufficient SOL)' : ''}
+                      </span>
+                    ),
+                  }
+                : {}),
+            }
+          : {}),
         'Total due:':
           arioCost > 0 ? (
             <span className="text-white text-bold text-lg">
@@ -305,6 +371,7 @@ function Checkout() {
     selectedCryptoToken,
     turbo,
     baseTokenPrice,
+    isInsufficientSolForGas,
   ]);
 
   const orderSummary = useMemo(() => {
@@ -650,6 +717,7 @@ function Checkout() {
               const payDisabled =
                 (ARNS_PURCHASES_DISABLED && isNewPurchase) ||
                 isInsufficientBalance ||
+                isInsufficientSolForGas ||
                 isLoadingCostDetail ||
                 !isValid ||
                 (!paymentInformation && paymentMethod === 'card') ||
@@ -667,7 +735,9 @@ function Checkout() {
                       ? 'Loading...'
                       : isInsufficientBalance
                         ? 'Insufficient balance'
-                        : 'Pay now'}
+                        : isInsufficientSolForGas
+                          ? 'Insufficient SOL'
+                          : 'Pay now'}
                 </button>
               );
               return ARNS_PURCHASES_DISABLED &&

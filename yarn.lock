@@ -148,14 +148,6 @@
     prompts "^2.4.2"
     zod "^3.25.76"
 
-"@ar.io/solana-contracts@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/@ar.io/solana-contracts/-/solana-contracts-1.0.0.tgz#56ec1354542991899c5d641a8221ee2b33b8b99d"
-  integrity sha512-/rmxIyViK9USkedcn4zrHWkg+tGBE160PSbJ2xwEcugtXDSOf5Cc0E6R8YoG7HT5oKkU0QY1QEeSeVvcYgMYBQ==
-  dependencies:
-    "@noble/hashes" "^1.5.0"
-    bs58 "^6.0.0"
-
 "@ar.io/solana-contracts@1.0.1":
   version "1.0.1"
   resolved "https://registry.npmjs.org/@ar.io/solana-contracts/-/solana-contracts-1.0.1.tgz#1a16958d54540222b77def81d5d39e7402b8b69c"

@@ -1,4 +1,7 @@
+import { SolanaGasDetails } from '@src/components/data-display/SolanaGasDetails';
 import { useANT } from '@src/hooks/useANT/useANT';
+import { useAntGasEstimate } from '@src/hooks/useAntGasEstimate';
+import { useSolBalance } from '@src/hooks/useSolBalance';
 import { Checkbox } from 'antd';
 import { useEffect, useState } from 'react';
 
@@ -30,6 +33,21 @@ function TransferANTModal({
   const [toAddress, setToAddress] = useState<string>('');
   const [isValidAddress, setIsValidAddress] = useState<boolean>();
   const { name = 'N/A' } = useANT(antId.toString());
+
+  // Live network-cost quote once the recipient is known: the sender pays
+  // to bootstrap the recipient's ACL registry accounts (~0.06 SOL) when
+  // they've never owned an ANT; otherwise just the transaction fee.
+  const { data: gasEstimate, isLoading: isLoadingGas } = useAntGasEstimate({
+    processId: antId.toString(),
+    workflow: isValidSolanaAddress(toAddress)
+      ? { workflow: 'transfer', recipient: toAddress }
+      : undefined,
+  });
+  const { data: solBalance } = useSolBalance();
+  const insufficientSol =
+    !!gasEstimate &&
+    solBalance !== undefined &&
+    solBalance < gasEstimate.totalLamports;
 
   useEffect(() => {
     if (!isValidSolanaAddress(toAddress)) {
@@ -172,20 +190,22 @@ function TransferANTModal({
         onCancel={closeModal}
         onClose={closeModal}
         onNext={
-          accepted && isValidSolanaAddress(toAddress)
+          accepted && isValidSolanaAddress(toAddress) && !insufficientSol
             ? () => handlePayloadCallback()
             : undefined
         }
         footer={
           <div className="flex">
-            {/* <TransactionCost
-              fee={{}}
-              feeWrapperStyle={{ alignItems: 'flex-start' }}
-              showBorder={false}
-            /> */}
+            {isValidSolanaAddress(toAddress) && (
+              <SolanaGasDetails
+                gasEstimate={gasEstimate}
+                isLoading={isLoadingGas}
+                insufficientSol={insufficientSol}
+              />
+            )}
           </div>
         }
-        nextText="Next"
+        nextText={insufficientSol ? 'Insufficient SOL' : 'Next'}
         cancelText="Cancel"
       />
     </div>

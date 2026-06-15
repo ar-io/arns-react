@@ -31,6 +31,7 @@ import ArweaveID, {
 import { useCostDetails } from '@src/hooks/useCostDetails';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
+import { useSolBalance } from '@src/hooks/useSolBalance';
 import { SolanaSignature } from '@src/services/solana/SolanaSignature';
 import {
   useArNSState,
@@ -50,6 +51,7 @@ import {
   decodePrimaryName,
   encodePrimaryName,
   formatARIOWithCommas,
+  formatSolFromLamports,
 } from '@src/utils';
 import eventEmitter from '@src/utils/events';
 import {
@@ -148,6 +150,14 @@ function PrimaryNameModal({
   // user's chosen source can fully cover the cost.
   const isInsufficientBalance =
     !!costDetail?.fundingPlan && costDetail.fundingPlan.shortfall > 0;
+
+  // The request/approve flow also costs SOL (transaction fees + rent for
+  // the PrimaryName account) — gate the confirm on holding that much.
+  const { data: solBalance } = useSolBalance();
+  const isInsufficientSolForGas =
+    !!costDetail?.gasEstimate &&
+    solBalance !== undefined &&
+    solBalance < costDetail.gasEstimate.totalLamports;
 
   const discount = costDetail
     ? new mARIOToken(
@@ -444,11 +454,60 @@ function PrimaryNameModal({
                     <span className="text-grey">--</span>
                   )}
                 </div>
+                {/* Solana network cost (fee / rent split) — paid in SOL on
+                    top of the ARIO cost */}
+                {workflow !== PRIMARY_NAME_WORKFLOWS.REMOVE &&
+                  !isLoadingCostDetail &&
+                  costDetail?.gasEstimate && (
+                    <>
+                      <div className="flex flex-row justify-between items-center w-full">
+                        <span className="text-grey">Network fee (est.)</span>
+                        <span
+                          className={
+                            isInsufficientSolForGas &&
+                            costDetail.gasEstimate.rentLamports === 0
+                              ? 'text-error'
+                              : 'text-grey'
+                          }
+                        >
+                          ~
+                          {formatSolFromLamports(
+                            costDetail.gasEstimate.feeLamports,
+                          )}
+                          &nbsp;SOL
+                        </span>
+                      </div>
+                      {costDetail.gasEstimate.rentLamports > 0 && (
+                        <div className="flex flex-row justify-between items-center w-full">
+                          <span className="text-grey">Storage rent (est.)</span>
+                          <span
+                            className={
+                              isInsufficientSolForGas
+                                ? 'text-error'
+                                : 'text-grey'
+                            }
+                          >
+                            ~
+                            {formatSolFromLamports(
+                              costDetail.gasEstimate.rentLamports,
+                            )}
+                            &nbsp;SOL
+                          </span>
+                        </div>
+                      )}
+                    </>
+                  )}
                 {isInsufficientBalance && (
                   <span className="text-error text-sm self-end">
                     Insufficient balance for the selected source
                   </span>
                 )}
+                {workflow !== PRIMARY_NAME_WORKFLOWS.REMOVE &&
+                  isInsufficientSolForGas && (
+                    <span className="text-error text-sm self-end">
+                      Insufficient SOL to cover the network cost
+                    </span>
+                  )}
               </div>
             </div>
           )
@@ -459,11 +518,19 @@ function PrimaryNameModal({
           !isLoading &&
           !isLoadingCostDetail &&
           costDetail &&
-          (workflow === PRIMARY_NAME_WORKFLOWS.REMOVE || !isInsufficientBalance)
+          (workflow === PRIMARY_NAME_WORKFLOWS.REMOVE ||
+            (!isInsufficientBalance && !isInsufficientSolForGas))
             ? confirm
             : undefined
         }
-        nextText={isInsufficientBalance ? 'Insufficient balance' : 'Confirm'}
+        nextText={
+          isInsufficientBalance
+            ? 'Insufficient balance'
+            : workflow !== PRIMARY_NAME_WORKFLOWS.REMOVE &&
+                isInsufficientSolForGas
+              ? 'Insufficient SOL'
+              : 'Confirm'
+        }
         cancelText="Cancel"
         footerClass="border-t-0"
       />
