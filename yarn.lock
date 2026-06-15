@@ -98,21 +98,6 @@
     resize-observer-polyfill "^1.5.1"
     throttle-debounce "^5.0.0"
 
-"@ar.io/sdk@../ar-io-sdk":
-  version "4.0.2-alpha.6"
-  dependencies:
-    "@ar.io/solana-contracts" "1.0.1"
-    "@noble/hashes" "^1.8.0"
-    "@solana-program/address-lookup-table" "^0.11.0"
-    "@solana-program/compute-budget" "^0.15.0"
-    "@solana-program/token" "^0.13.0"
-    "@solana/kit" "^6.8.0"
-    bs58 "^6.0.0"
-    commander "^12.1.0"
-    opossum "^9.0.0"
-    prompts "^2.4.2"
-    zod "^3.25.76"
-
 "@ar.io/sdk@^3.10.1":
   version "3.14.0"
   resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-3.14.0.tgz#aadfd03ca157d017265df39b12c8f57633303ee5"
@@ -130,6 +115,23 @@
     uuid "^11.1.0"
     winston "^3.13.0"
     zod "^3.23.8"
+
+"@ar.io/sdk@^4.0.2-alpha.7":
+  version "4.0.2-alpha.7"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.2-alpha.7.tgz#a04a5ee3f0b6cdea2d1efa1b2963abfd99326d0c"
+  integrity sha512-R04oMiSSWyEIviEnznq3leHpWFySB8GtQQgDPkHaXULQaS5KZAUIg0Qnq+uUP1wvklXFv3nwLuaYtNTOoeQl4A==
+  dependencies:
+    "@ar.io/solana-contracts" "1.0.1"
+    "@noble/hashes" "^1.8.0"
+    "@solana-program/address-lookup-table" "^0.11.0"
+    "@solana-program/compute-budget" "^0.15.0"
+    "@solana-program/token" "^0.13.0"
+    "@solana/kit" "^6.8.0"
+    bs58 "^6.0.0"
+    commander "^12.1.0"
+    opossum "^9.0.0"
+    prompts "^2.4.2"
+    zod "^3.25.76"
 
 "@ar.io/solana-contracts@1.0.1":
   version "1.0.1"
