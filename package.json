@@ -9,8 +9,8 @@
     "build:develop": "yarn clean && cross-env NODE_OPTIONS=--max-old-space-size=32768 VITE_NODE_ENV=develop VITE_ENVIRONMENT=develop vite build",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "publish:arweave": "yarn build && permaweb-deploy --arns-name $VITE_ARNS_NAME ",
-    "deploy:arweave": "permaweb-deploy --arns-name $VITE_ARNS_NAME ",
+    "publish:arweave": "yarn build && ario-deploy deploy --arns-name $VITE_ARNS_NAME",
+    "deploy:arweave": "ario-deploy deploy --arns-name $VITE_ARNS_NAME",
     "clean": "rimraf dist",
     "dev": "cross-env NODE_ENV=prod VITE_GITHUB_HASH=local vite",
     "lint:fix": "biome check --write --unsafe",
@@ -76,6 +76,7 @@
     "wagmi": "^2.19.5"
   },
   "devDependencies": {
+    "@ar.io/deploy": "1.0.0",
     "@babel/core": "^7.19.6",
     "@babel/preset-env": "^7.19.4",
     "@babel/preset-react": "^7.18.6",
@@ -125,7 +126,6 @@
     "lint-staged": "^13.1.0",
     "match-media-mock": "^0.1.1",
     "nyc": "^15.1.0",
-    "permaweb-deploy": "^2.4.0",
     "postcss": "^8.4.41",
     "react-hooks": "^1.0.1",
     "react-test-renderer": "^18.2.0",
