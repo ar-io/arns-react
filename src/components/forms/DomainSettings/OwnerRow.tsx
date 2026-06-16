@@ -132,6 +132,19 @@ export default function OwnerRow({
           cancel={() => setShowConfirmModal(false)}
           confirm={() => handleTransferANT(payload)}
           interactionType={ANT_INTERACTION_TYPES.TRANSFER}
+          gasParams={
+            // The sender pays to bootstrap the recipient's ACL registry
+            // accounts (~0.06 SOL) when they've never owned an ANT.
+            isValidSolanaAddress(payload.target.toString())
+              ? {
+                  processId,
+                  workflow: {
+                    workflow: 'transfer' as const,
+                    recipient: payload.target.toString(),
+                  },
+                }
+              : undefined
+          }
           content={
             <span className="flex" style={{ maxWidth: '500px' }}>
               <ANTCard
