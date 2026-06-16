@@ -8,8 +8,14 @@ and this project adheres to
 
 ## [Unreleased]
 
-## [2.0.0] - 2026-06-08
+## [2.1.0] - 2026-06-16
 
+### Added
+
+- Solana gas views
+
+
+## [2.0.0] - 2026-06-08
 ### Changed
 
 - Ported ALL APIs and workflows to the Solana implementation of the Ar.io network.
