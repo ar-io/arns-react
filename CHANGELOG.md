@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-06-17
+
+### Changed
+
+- Update landing page transaction ID
+
 ## [2.1.0] - 2026-06-16
 
 ### Added
