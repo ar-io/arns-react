@@ -24,6 +24,7 @@ import {
   getSolanaRpc,
   getSolanaRpcSubscriptions,
 } from '@src/utils/solana';
+import { createAntStateForOwner } from '@src/utils/transactionUtils/transactionUtils';
 import { Dispatch } from 'react';
 
 export default async function dispatchArIOInteraction({
@@ -131,8 +132,8 @@ export default async function dispatchArIOInteraction({
             signer: wallet.solanaSigner,
             antProgramId: programIds.antProgramId,
             state: {
+              ...createAntStateForOwner(owner.toString(), payload.targetId),
               name,
-              transactionId: payload.targetId,
             },
           });
           antProcessId = spawnResult.processId;
