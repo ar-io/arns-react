@@ -43,11 +43,11 @@ function AclSync() {
     setScanning(true);
     setTargets(null);
     try {
-      const records = await computeAclDrift({
+      const { driftRecords } = await computeAclDrift({
         owner: address,
         ario: arioContract as ARIORead,
       });
-      const found: AclSyncTarget[] = records.map((r) => ({
+      const found: AclSyncTarget[] = driftRecords.map((r) => ({
         name: r.name,
         mint: r.processId,
       }));

@@ -87,19 +87,30 @@ export async function dispatchArNSUpdate({
       hasMore = res.hasMore;
     }
 
-    // Detect ANTs the wallet owns on-chain (per MPL Core) but that are missing
-    // from its ACL — e.g. acquired via a raw Metaplex Core transfer. These are
-    // absent from `getArNSRecordsForAddress` (it walks the ACL), so we merge
-    // their records in and flag the backing mints so the manage table surfaces
-    // them and the Sync Ownership flow can reconcile them via `syncAcl`.
-    // Best-effort: never let drift detection block the core refresh.
+    // Reconcile the ACL-derived list against ground-truth MPL Core ownership.
+    //
+    // Receiver side: ANTs the wallet owns on-chain but that are missing from
+    // its ACL (e.g. acquired via a raw Metaplex Core transfer) are absent from
+    // `getArNSRecordsForAddress`, so we merge their records in and flag the
+    // backing mints for the Sync Ownership flow (`needsOwnerSync`).
+    //
+    // Sender side: `ownedMints` is the authoritative set of assets the wallet
+    // currently owns. We use it below to drop ANTs the wallet has transferred
+    // away — the ACL and `AntConfig.last_known_owner` both lag a raw transfer,
+    // so without this they'd linger in the list.
+    //
+    // Best-effort: if the owner-scan is unavailable we leave `ownedMints` null
+    // and fall back to the legacy `last_known_owner` check rather than risk
+    // dropping every owned ANT.
     const driftMints = new Set<string>();
+    let ownedMints: Set<string> | null = null;
     try {
-      const driftRecords = await computeAclDrift({
+      const drift = await computeAclDrift({
         owner: walletAddress.toString(),
         ario: arioContract,
       });
-      driftRecords.forEach((record) => {
+      ownedMints = drift.ownedMints;
+      drift.driftRecords.forEach((record) => {
         userDomains[record.name] = record;
         if (record.processId) driftMints.add(record.processId);
       });
@@ -159,20 +170,30 @@ export async function dispatchArNSUpdate({
           }
         ).getANTStates(registeredUserAnts)) as Record<string, ANTState>;
 
+        const address = walletAddress.toString();
         for (const id of registeredUserAnts) {
           const state = states[id] ?? null;
-          // Drop ANTs the wallet neither owns nor controls — EXCEPT drifted
-          // ones. A drifted ANT's `state.Owner` is the stale pre-transfer
-          // `last_known_owner` (the wallet won't match until `syncAcl` runs
-          // `reconcile`), but we verified live MPL Core ownership during drift
-          // detection, so keep it and let the Sync Ownership flow fix it.
           const needsOwnerSync = driftMints.has(id);
-          if (
-            !needsOwnerSync &&
-            state &&
-            state.Owner !== walletAddress.toString() &&
-            !state.Controllers.includes(walletAddress.toString())
-          ) {
+          const controls = state?.Controllers.includes(address) ?? false;
+
+          // Decide whether the wallet still has a relationship to this ANT.
+          //
+          // When the MPL owner-scan succeeded (`ownedMints` set), it's the
+          // ground truth for ownership: keep the ANT only if the wallet owns
+          // its asset OR currently controls it. This drops ANTs the wallet
+          // transferred away even when the ACL / `last_known_owner` still
+          // point at it (the sender side of an out-of-band transfer). A null
+          // `state` can't confirm controllership, so we keep it to avoid
+          // over-dropping on incomplete data.
+          //
+          // When the scan was unavailable (`ownedMints` null), fall back to the
+          // legacy check against the possibly-stale `last_known_owner`.
+          const drop =
+            ownedMints !== null
+              ? state !== null && !ownedMints.has(id) && !controls
+              : state !== null && state.Owner !== address && !controls;
+
+          if (drop) {
             dispatch({ type: 'removeAnts', payload: [id] });
           } else {
             dispatch({

@@ -1,26 +1,23 @@
 /**
- * ACL drift detection + sync.
+ * ACL drift detection.
  *
  * The on-chain ANT ACL (ADR-012 paginated `AclConfig` + `AclPage` PDAs) is an
  * eventually-consistent secondary index of the ANTs a wallet owns/controls.
- * Marketplace transfers move the Metaplex Core asset immediately, but the ACL
- * is only updated when someone calls the `record_acl_*` instructions — so the
- * ACL can lag actual on-chain ownership.
+ * Raw Metaplex Core transfers move the asset immediately, but the ACL is only
+ * updated when someone calls the `record_acl_*` / `remove_acl_*` instructions —
+ * so it lags actual on-chain ownership in both directions:
  *
- * This module finds that drift from the ground-truth side:
+ *   - Receiver side: the new owner's ACL is missing the asset, so the name
+ *     disappears from `getArNSRecordsForAddress` until `syncAcl` records it.
+ *   - Sender side: the old owner's ACL (and `AntConfig.last_known_owner`) still
+ *     point at the asset, so it lingers in their list until reconciled.
  *
- *   1. Enumerate every MPL Core asset the wallet actually owns (a
- *      `getProgramAccounts` owner scan against `MPL_CORE_PROGRAM_ID`) that
- *      carries the `ANT Program` attribute — i.e. the asset is an ANT.
- *   2. Reverse-look-up the ArNS name(s) pointing at each owned asset
- *      (`getArNSRecordsByAntMints`).
- *   3. Read the wallet's ACL (`Owned ∪ Controlled`).
- *   4. Any owned asset that backs an ArNS name but is missing from the ACL is
- *      drifted — calling `syncAttributes({ name })` reconciles it.
- *
- * `syncAttributes` is a permissionless cache-sync on the SDK's ARIO write
- * client; the caller must be the current asset owner (which, by construction,
- * every target here is).
+ * This module establishes ground truth from the MPL Core side via a single
+ * `getProgramAccounts` owner-scan against `MPL_CORE_PROGRAM_ID` (filtered to
+ * assets carrying the `ANT Program` attribute, i.e. ANTs). {@link computeAclDrift}
+ * returns both the drifted-in records (receiver) and the full owned-asset set
+ * (which the refresh uses to drop transferred-away ANTs — sender). Drifted-in
+ * names are reconciled by the SDK's `syncAcl`.
  */
 import {
   type ARIORead,
@@ -140,15 +137,28 @@ export async function fetchAclAssetSet({
   return new Set([...Owned, ...Controlled]);
 }
 
+export type AclDriftResult = {
+  /**
+   * ArNS records whose backing ANT asset the wallet owns on-chain (per MPL
+   * Core) but which are absent from the wallet's ACL — typically the result of
+   * an out-of-band Metaplex Core transfer that bypassed the SDK's ACL
+   * maintenance. NOT returned by `getArNSRecordsForAddress` (it walks the ACL),
+   * so callers must merge them in and flag them for `syncAcl`.
+   */
+  driftRecords: ArNSNameDataWithName[];
+  /**
+   * Every MPL Core ANT asset the wallet currently owns on-chain — the ground
+   * truth for "do I own this ANT?". Callers use it to drop ACL-listed ANTs the
+   * wallet has since transferred away (the ACL / `last_known_owner` lag).
+   */
+  ownedMints: Set<string>;
+};
+
 /**
- * Compute the ArNS records that have drifted out of `owner`'s ACL: names whose
- * backing ANT asset the wallet actually owns on-chain (per MPL Core) but which
- * are absent from the wallet's paginated ACL — typically the result of an
- * out-of-band Metaplex Core transfer that bypassed the SDK's ACL maintenance.
- *
- * These records are NOT returned by `getArNSRecordsForAddress` (it walks the
- * ACL), so callers that want them surfaced — the manage table, the Sync
- * Ownership flow — must merge them in and flag them for `syncAcl`.
+ * Reconcile `owner`'s ACL against ground-truth MPL Core ownership in a single
+ * owner-scan: returns both the names that drifted *out* of the ACL (owned but
+ * unlisted — receiver side) and the full set of assets the wallet actually
+ * owns (used to drop ACL entries the wallet no longer owns — sender side).
  *
  * `ario` must be a Solana ARIO read client (it carries the concrete
  * `getArNSRecordsByAntMints`, which is not on the cross-backend `ARIORead`
@@ -162,9 +172,12 @@ export async function computeAclDrift({
   owner: string;
   ario: ARIORead;
   rpc?: ReturnType<typeof getSolanaRpc>;
-}): Promise<ArNSNameDataWithName[]> {
-  const ownedMints = await scanOwnedAntAssetMints({ owner, rpc });
-  if (ownedMints.length === 0) return [];
+}): Promise<AclDriftResult> {
+  const ownedList = await scanOwnedAntAssetMints({ owner, rpc });
+  const ownedMints = new Set(ownedList);
+  if (ownedList.length === 0) {
+    return { driftRecords: [], ownedMints };
+  }
 
   const [records, aclSet] = await Promise.all([
     (
@@ -173,9 +186,14 @@ export async function computeAclDrift({
           mints: ReadonlyArray<string>;
         }) => Promise<ArNSNameDataWithName[]>;
       }
-    ).getArNSRecordsByAntMints({ mints: ownedMints }),
+    ).getArNSRecordsByAntMints({ mints: ownedList }),
     fetchAclAssetSet({ address: owner, rpc }),
   ]);
 
-  return records.filter((r) => r.processId && !aclSet.has(r.processId));
+  return {
+    driftRecords: records.filter(
+      (r) => r.processId && !aclSet.has(r.processId),
+    ),
+    ownedMints,
+  };
 }
