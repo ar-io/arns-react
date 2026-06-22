@@ -56,6 +56,7 @@ type TableData = {
   version: number;
   antErrors: Error[];
   action: ReactNode;
+  needsOwnerSync: boolean;
 } & Record<string, any>;
 
 const columnHelper = createColumnHelper<TableData>();
@@ -150,6 +151,7 @@ const DomainsTable = ({
           domainRecord: record,
           version: ant?.version ?? 0,
           antErrors: ant?.errors ?? [],
+          needsOwnerSync: ant?.needsOwnerSync ?? false,
         };
         newTableData.push(data);
       });
@@ -233,29 +235,49 @@ const DomainsTable = ({
           }
           case 'name': {
             return (
-              <Tooltip
-                tooltipOverrides={{
-                  overlayClassName: 'w-fit',
-                  overlayInnerStyle: { width: 'fit-content' },
-                }}
-                message={
-                  <span className="w-fit whitespace-nowrap text-white">
-                    {rowValue}
-                  </span>
-                }
-                icon={
-                  <Link
-                    className="link gap-2 w-fit whitespace-nowrap items-center"
-                    to={`https://${encodeDomainToASCII(
-                      row.getValue('name'),
-                    )}.${NETWORK_DEFAULTS.ARNS.HOST}`}
-                    target="_blank"
-                  >
-                    {formatForMaxCharCount(decodeDomainToASCII(rowValue), 20)}{' '}
-                    <ExternalLinkIcon className="size-3 fill-grey" />
-                  </Link>
-                }
-              />
+              <span className="flex w-fit items-center gap-2">
+                <Tooltip
+                  tooltipOverrides={{
+                    overlayClassName: 'w-fit',
+                    overlayInnerStyle: { width: 'fit-content' },
+                  }}
+                  message={
+                    <span className="w-fit whitespace-nowrap text-white">
+                      {rowValue}
+                    </span>
+                  }
+                  icon={
+                    <Link
+                      className="link gap-2 w-fit whitespace-nowrap items-center"
+                      to={`https://${encodeDomainToASCII(
+                        row.getValue('name'),
+                      )}.${NETWORK_DEFAULTS.ARNS.HOST}`}
+                      target="_blank"
+                    >
+                      {formatForMaxCharCount(decodeDomainToASCII(rowValue), 20)}{' '}
+                      <ExternalLinkIcon className="size-3 fill-grey" />
+                    </Link>
+                  }
+                />
+                {row.original.needsOwnerSync && (
+                  <Tooltip
+                    tooltipOverrides={{
+                      overlayInnerStyle: { padding: '15px', maxWidth: 300 },
+                    }}
+                    message={
+                      <span className="block max-w-[300px] text-white">
+                        You own this ANT on-chain but it isn&apos;t in your
+                        registry yet — use “Sync Ownership” to reconcile it.
+                      </span>
+                    }
+                    icon={
+                      <span className="whitespace-nowrap rounded-full border border-warning px-2 py-[1px] text-xs text-warning">
+                        Sync needed
+                      </span>
+                    }
+                  />
+                )}
+              </span>
             );
           }
           case 'role':

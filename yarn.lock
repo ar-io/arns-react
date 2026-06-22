@@ -131,10 +131,10 @@
     prompts "^2.4.2"
     zod "^3.25.76"
 
-"@ar.io/sdk@^4.0.2-alpha.7":
-  version "4.0.2-alpha.7"
-  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.0.2-alpha.7.tgz#a04a5ee3f0b6cdea2d1efa1b2963abfd99326d0c"
-  integrity sha512-R04oMiSSWyEIviEnznq3leHpWFySB8GtQQgDPkHaXULQaS5KZAUIg0Qnq+uUP1wvklXFv3nwLuaYtNTOoeQl4A==
+"@ar.io/sdk@^4.1.0-alpha.1":
+  version "4.1.0-alpha.1"
+  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.1.0-alpha.1.tgz#97c4040562b76628419e4d658995f0aeb9d8c5ff"
+  integrity sha512-ggJqbEqR2NAp4Vs7gzTSocf6Oe6kCl5Rz5q88Oy0v+OSKnAslzvYQ51SacClQ3TYEOiGrXZVSw2JgamP445RbQ==
   dependencies:
     "@ar.io/solana-contracts" "1.0.1"
     "@noble/hashes" "^1.8.0"
@@ -147,6 +147,14 @@
     opossum "^9.0.0"
     prompts "^2.4.2"
     zod "^3.25.76"
+
+"@ar.io/solana-contracts@1.0.0":
+  version "1.0.0"
+  resolved "https://registry.npmjs.org/@ar.io/solana-contracts/-/solana-contracts-1.0.0.tgz#56ec1354542991899c5d641a8221ee2b33b8b99d"
+  integrity sha512-/rmxIyViK9USkedcn4zrHWkg+tGBE160PSbJ2xwEcugtXDSOf5Cc0E6R8YoG7HT5oKkU0QY1QEeSeVvcYgMYBQ==
+  dependencies:
+    "@noble/hashes" "^1.5.0"
+    bs58 "^6.0.0"
 
 "@ar.io/solana-contracts@1.0.1":
   version "1.0.1"

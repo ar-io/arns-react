@@ -1,6 +1,7 @@
 import { ANTState, ARIORead, ArNSNameData } from '@ar.io/sdk/web';
 import { captureException } from '@sentry/react';
 import { AoAddress, ArNSWalletConnector } from '@src/types';
+import { computeAclDrift } from '@src/utils/aclSync';
 import { queryClient } from '@src/utils/network';
 import { buildAntRead, buildArioRead } from '@src/utils/sdk-init';
 import { Dispatch } from 'react';
@@ -86,6 +87,29 @@ export async function dispatchArNSUpdate({
       hasMore = res.hasMore;
     }
 
+    // Detect ANTs the wallet owns on-chain (per MPL Core) but that are missing
+    // from its ACL — e.g. acquired via a raw Metaplex Core transfer. These are
+    // absent from `getArNSRecordsForAddress` (it walks the ACL), so we merge
+    // their records in and flag the backing mints so the manage table surfaces
+    // them and the Sync Ownership flow can reconcile them via `syncAcl`.
+    // Best-effort: never let drift detection block the core refresh.
+    const driftMints = new Set<string>();
+    try {
+      const driftRecords = await computeAclDrift({
+        owner: walletAddress.toString(),
+        ario: arioContract,
+      });
+      driftRecords.forEach((record) => {
+        userDomains[record.name] = record;
+        if (record.processId) driftMints.add(record.processId);
+      });
+    } catch (error) {
+      captureException(error, {
+        tags: { walletAddress: walletAddress.toString(), phase: 'aclDrift' },
+      });
+      console.error(error);
+    }
+
     // ONLY QUERY FOR ANTS THAT WE ARE INTERESTED IN, EG REGISTERED ANTS
     const registeredUserAnts = Array.from(
       new Set(Object.values(userDomains).map((record) => record.processId)),
@@ -107,6 +131,7 @@ export async function dispatchArNSUpdate({
             state: null,
             version: 0,
             processMeta: antMetas?.[id] ?? null,
+            needsOwnerSync: driftMints.has(id),
           };
           return acc;
         },
@@ -136,8 +161,14 @@ export async function dispatchArNSUpdate({
 
         for (const id of registeredUserAnts) {
           const state = states[id] ?? null;
-          // Drop ANTs the wallet neither owns nor controls.
+          // Drop ANTs the wallet neither owns nor controls — EXCEPT drifted
+          // ones. A drifted ANT's `state.Owner` is the stale pre-transfer
+          // `last_known_owner` (the wallet won't match until `syncAcl` runs
+          // `reconcile`), but we verified live MPL Core ownership during drift
+          // detection, so keep it and let the Sync Ownership flow fix it.
+          const needsOwnerSync = driftMints.has(id);
           if (
+            !needsOwnerSync &&
             state &&
             state.Owner !== walletAddress.toString() &&
             !state.Controllers.includes(walletAddress.toString())
@@ -152,6 +183,7 @@ export async function dispatchArNSUpdate({
                   version: 0,
                   processMeta: antMetas[id] ?? null,
                   errors: [],
+                  needsOwnerSync,
                 },
               },
             });

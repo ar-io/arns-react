@@ -5,10 +5,13 @@ import {
   useWalletState,
 } from '@src/state';
 import eventEmitter from '@src/utils/events';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DomainsTable from '../../data-display/tables/DomainsTable';
 import { RefreshIcon, SearchIcon } from '../../icons';
+import SyncOwnershipModal, {
+  type SyncOwnershipItem,
+} from '../../modals/ant-management/SyncOwnershipModal/SyncOwnershipModal';
 import './styles.css';
 
 function Manage() {
@@ -18,6 +21,31 @@ function Manage() {
     useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
   const [search, setSearch] = useState<string>('');
+  const [showSyncModal, setShowSyncModal] = useState(false);
+
+  // ANTs the wallet owns on-chain but that are missing from its ACL, grouped
+  // by mint with the name(s) each backs (see `needsOwnerSync`).
+  const outOfSyncItems = useMemo<SyncOwnershipItem[]>(() => {
+    const mints = Object.entries(ants)
+      .filter(([, ant]) => ant.needsOwnerSync)
+      .map(([mint]) => mint);
+    return mints.map((mint) => ({
+      mint,
+      names: Object.entries(domains)
+        .filter(([, record]) => record.processId === mint)
+        .map(([name]) => name),
+    }));
+  }, [ants, domains]);
+
+  function refresh() {
+    if (!walletAddress) return;
+    dispatchArNSUpdate({
+      dispatch: dispatchArNSState,
+      walletAddress,
+      wallet: wallet ?? undefined,
+      arioContract,
+    });
+  }
 
   return (
     <div className="overflow-auto px-4 md:px-[100px] pb-[30px] pt-[10px]">
@@ -33,12 +61,25 @@ function Manage() {
           >
             Manage Assets
           </h1>
-          <button
-            onClick={() => navigate('/')}
-            className="whitespace-nowrap rounded-[4px] hidden md:block bg-primary px-4 py-2 text-sm text-black font-medium transition-all hover:bg-primary-dark hover:scale-105"
-          >
-            Register a Name
-          </button>
+          <div className="flex items-center gap-3">
+            {outOfSyncItems.length > 0 && (
+              <button
+                onClick={() => setShowSyncModal(true)}
+                className="whitespace-nowrap rounded-[4px] hidden md:flex items-center gap-2 border border-warning px-4 py-2 text-sm text-warning font-medium transition-all hover:bg-warning hover:text-black hover:scale-105"
+              >
+                Sync Ownership
+                <span className="rounded-full bg-warning px-2 text-xs text-black">
+                  {outOfSyncItems.length}
+                </span>
+              </button>
+            )}
+            <button
+              onClick={() => navigate('/')}
+              className="whitespace-nowrap rounded-[4px] hidden md:block bg-primary px-4 py-2 text-sm text-black font-medium transition-all hover:bg-primary-dark hover:scale-105"
+            >
+              Register a Name
+            </button>
+          </div>
         </div>
         <div
           id="manage-table-wrapper"
@@ -75,18 +116,7 @@ function Manage() {
                   }
                   onClick={() =>
                     walletAddress
-                      ? dispatchArNSUpdate({
-                          dispatch: dispatchArNSState,
-                          walletAddress: walletAddress,
-                          // Forward the connected wallet + the global
-                          // ARIO instance so the refresh routes through
-                          // the active backend (Solana when the user
-                          // is connected with Phantom/Solflare, AO
-                          // otherwise) instead of always rebuilding a
-                          // fresh AO client.
-                          wallet: wallet ?? undefined,
-                          arioContract,
-                        })
+                      ? refresh()
                       : eventEmitter.emit('error', {
                           name: 'Manage Assets',
                           message: 'Connect wallet before refreshing',
@@ -113,6 +143,14 @@ function Manage() {
           />
         </div>
       </div>
+
+      {showSyncModal && (
+        <SyncOwnershipModal
+          items={outOfSyncItems}
+          closeModal={() => setShowSyncModal(false)}
+          onSynced={refresh}
+        />
+      )}
     </div>
   );
 }

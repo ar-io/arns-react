@@ -18,6 +18,13 @@ export type ANTProcessData = {
   version: number;
   processMeta: TransactionEdge['node'] | null;
   errors?: Error[];
+  /**
+   * True when the wallet owns this ANT's MPL Core asset on-chain but it is
+   * missing from the wallet's ACL (e.g. an out-of-band Metaplex Core
+   * transfer). Such ANTs need `syncAcl` to converge their on-chain ACL/
+   * ownership state. Surfaced in the manage table and the Sync Ownership flow.
+   */
+  needsOwnerSync?: boolean;
 };
 
 export type ArNSState = {
