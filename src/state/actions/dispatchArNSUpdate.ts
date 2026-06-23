@@ -174,24 +174,38 @@ export async function dispatchArNSUpdate({
         for (const id of registeredUserAnts) {
           const state = states[id] ?? null;
           const needsOwnerSync = driftMints.has(id);
-          const controls = state?.Controllers.includes(address) ?? false;
+          const ownsAsset = ownedMints?.has(id) ?? false;
+          const inControllers = state?.Controllers.includes(address) ?? false;
+
+          // `AntControllers` is seeded with the owner on init (ario-ant
+          // `initialize`: `controllers = vec![owner]`) and is only cleared by
+          // `reconcile`. So after an out-of-band transfer the OLD owner is
+          // still in the controllers list — membership alone can't tell a
+          // legit controller from a stale ex-owner. It's only trustworthy
+          // relative to `last_known_owner` (`state.Owner`): if the wallet IS
+          // `last_known_owner` but no longer owns the asset, it's the stale
+          // ex-owner (sender side) and BOTH its owner and controller entries
+          // are stale — drop it. The wallet is a legit current controller only
+          // when it's in the list AND is not the (now-wrong) `last_known_owner`.
+          const isStaleExOwner = state !== null && state.Owner === address;
+          const controls = inControllers && !isStaleExOwner;
 
           // Decide whether the wallet still has a relationship to this ANT.
           //
           // When the MPL owner-scan succeeded (`ownedMints` set), it's the
           // ground truth for ownership: keep the ANT only if the wallet owns
-          // its asset OR currently controls it. This drops ANTs the wallet
-          // transferred away even when the ACL / `last_known_owner` still
-          // point at it (the sender side of an out-of-band transfer). A null
-          // `state` can't confirm controllership, so we keep it to avoid
-          // over-dropping on incomplete data.
+          // its asset OR is a legit current controller. This drops ANTs the
+          // wallet transferred away even when the ACL / `last_known_owner` /
+          // `AntControllers` all still point at it (sender side of an
+          // out-of-band transfer). A null `state` can't be evaluated, so keep
+          // it to avoid over-dropping on incomplete data.
           //
           // When the scan was unavailable (`ownedMints` null), fall back to the
           // legacy check against the possibly-stale `last_known_owner`.
           const drop =
             ownedMints !== null
-              ? state !== null && !ownedMints.has(id) && !controls
-              : state !== null && state.Owner !== address && !controls;
+              ? state !== null && !ownsAsset && !controls
+              : state !== null && state.Owner !== address && !inControllers;
 
           if (drop) {
             dispatch({ type: 'removeAnts', payload: [id] });

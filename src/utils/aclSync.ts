@@ -117,16 +117,21 @@ export async function scanOwnedAntAssetMints({
 }
 
 /**
- * Read the wallet's on-chain ACL and return the set of asset addresses it
- * knows about (owned ∪ controlled). Empty when the wallet has no `AclConfig`.
+ * Read the wallet's on-chain ACL and return its asset addresses split by role.
+ * The `owned` / `controlled` sets are kept separate because drift-as-owner
+ * detection must check the `owned` set specifically: a wallet that was already
+ * a controller before being transferred ownership has the asset in
+ * `controlled`, so a union check would wrongly treat it as already-synced even
+ * though its owner ACL entry is still missing. Both empty when the wallet has
+ * no `AclConfig`.
  */
-export async function fetchAclAssetSet({
+export async function fetchAclAssetSets({
   address,
   rpc = getSolanaRpc(),
 }: {
   address: string;
   rpc?: ReturnType<typeof getSolanaRpc>;
-}): Promise<Set<string>> {
+}): Promise<{ owned: Set<string>; controlled: Set<string> }> {
   const { programIds } = getActiveSolanaConfig();
   const registry = new SolanaANTRegistryReadable({
     rpc: rpc as any,
@@ -134,7 +139,7 @@ export async function fetchAclAssetSet({
     antProgramId: programIds.antProgramId,
   });
   const { Owned, Controlled } = await registry.accessControlList({ address });
-  return new Set([...Owned, ...Controlled]);
+  return { owned: new Set(Owned), controlled: new Set(Controlled) };
 }
 
 export type AclDriftResult = {
@@ -179,7 +184,7 @@ export async function computeAclDrift({
     return { driftRecords: [], ownedMints };
   }
 
-  const [records, aclSet] = await Promise.all([
+  const [records, aclSets] = await Promise.all([
     (
       ario as unknown as {
         getArNSRecordsByAntMints: (args: {
@@ -187,12 +192,16 @@ export async function computeAclDrift({
         }) => Promise<ArNSNameDataWithName[]>;
       }
     ).getArNSRecordsByAntMints({ mints: ownedList }),
-    fetchAclAssetSet({ address: owner, rpc }),
+    fetchAclAssetSets({ address: owner, rpc }),
   ]);
 
+  // Drift = wallet owns the MPL asset but its ACL OWNER entry is missing.
+  // Check the `owned` set only: an asset the wallet was already a controller
+  // for sits in `controlled`, but the wallet still needs `syncAcl` to record
+  // the owner entry after taking ownership.
   return {
     driftRecords: records.filter(
-      (r) => r.processId && !aclSet.has(r.processId),
+      (r) => r.processId && !aclSets.owned.has(r.processId),
     ),
     ownedMints,
   };
