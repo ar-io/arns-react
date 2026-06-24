@@ -43,7 +43,7 @@ function DomainDetailsTip({
               {decodeDomainToASCII(domain)}
             </span>
             <span className="flex gap-2 text-sm text-grey py-4 border-b-[1px] border-dark-grey whitespace-nowrap">
-              Process ID:
+              Token Address:
               {isValidAoAddress(domainRecord.processId) ? (
                 <ArweaveID
                   id={

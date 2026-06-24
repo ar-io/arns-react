@@ -80,7 +80,7 @@ function TransferANTModal({
             style={{ fontSize: '14px', maxWidth: '575px' }}
           >
             <div className="flex flex-column" style={{ gap: '10px' }}>
-              <span className="grey">Process ID:</span>
+              <span className="grey">Token Address:</span>
               <span className="white">{antId.toString()}</span>
             </div>
             <div className="flex flex-column" style={{ gap: '10px' }}>
