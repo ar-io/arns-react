@@ -64,12 +64,26 @@ function hasAntProgramAttribute(attributes: MetaplexAttribute[]): boolean {
   return attributes.some((a) => a.key === TRAIT_KEY_ANT_PROGRAM);
 }
 
+export type OwnedAntScanResult = {
+  /** Addresses of owned MPL Core assets that parsed as ANTs (`ANT Program`). */
+  mints: string[];
+  /** Raw MPL Core asset accounts the owner-scan returned (pre-parse). */
+  rawCount: number;
+  /** Raw accounts whose layout we failed to parse (the per-asset `catch`). */
+  parseErrors: number;
+};
+
 /**
  * Enumerate every MPL Core asset owned by `owner` that carries the `ANT
- * Program` attribute. Returns the asset addresses (ANT mints).
+ * Program` attribute, via a single `getProgramAccounts` owner scan (account
+ * data is returned inline as base64, so attributes are parsed without a
+ * per-asset round trip).
  *
- * Uses a single `getProgramAccounts` owner scan — the account data is returned
- * inline (base64), so attributes are parsed without a per-asset round trip.
+ * Returns `rawCount` / `parseErrors` alongside the mints so callers can tell a
+ * genuine "owns zero ANTs" (rawCount 0, or some assets parsed) from a degraded
+ * scan where a layout/parser regression silently skipped every asset
+ * (rawCount > 0 but every parse threw) — the latter must NOT be trusted as
+ * ground truth, or it would mass-drop the wallet's ANTs.
  */
 export async function scanOwnedAntAssetMints({
   owner,
@@ -77,7 +91,7 @@ export async function scanOwnedAntAssetMints({
 }: {
   owner: string;
   rpc?: ReturnType<typeof getSolanaRpc>;
-}): Promise<string[]> {
+}): Promise<OwnedAntScanResult> {
   const result = (await (rpc as any)
     .getProgramAccounts(MPL_CORE_PROGRAM_ID, {
       commitment: SOLANA_COMMITMENT,
@@ -102,6 +116,7 @@ export async function scanOwnedAntAssetMints({
     .send()) as ReadonlyArray<ProgramAccount>;
 
   const mints: string[] = [];
+  let parseErrors = 0;
   for (const entry of result) {
     try {
       const data = new Uint8Array(Buffer.from(entry.account.data[0], 'base64'));
@@ -110,10 +125,12 @@ export async function scanOwnedAntAssetMints({
         mints.push(entry.pubkey.toString());
       }
     } catch {
-      // Best-effort: skip any asset whose layout we can't parse.
+      // Parse failure — count it so the caller can detect a degraded scan
+      // (every asset failing) rather than silently treating it as "owns none".
+      parseErrors++;
     }
   }
-  return mints;
+  return { mints, rawCount: result.length, parseErrors };
 }
 
 /**
@@ -155,8 +172,12 @@ export type AclDriftResult = {
    * Every MPL Core ANT asset the wallet currently owns on-chain — the ground
    * truth for "do I own this ANT?". Callers use it to drop ACL-listed ANTs the
    * wallet has since transferred away (the ACL / `last_known_owner` lag).
+   *
+   * `null` when the owner-scan was degraded (raw accounts existed but every one
+   * failed to parse) — callers MUST then fall back to a non-destructive path
+   * rather than treat an empty set as "owns nothing", which would mass-drop.
    */
-  ownedMints: Set<string>;
+  ownedMints: Set<string> | null;
 };
 
 /**
@@ -178,9 +199,34 @@ export async function computeAclDrift({
   ario: ARIORead;
   rpc?: ReturnType<typeof getSolanaRpc>;
 }): Promise<AclDriftResult> {
-  const ownedList = await scanOwnedAntAssetMints({ owner, rpc });
-  const ownedMints = new Set(ownedList);
-  if (ownedList.length === 0) {
+  const scan = await scanOwnedAntAssetMints({ owner, rpc });
+
+  // A degraded scan — raw accounts came back but EVERY one failed to parse —
+  // is indistinguishable from "owns nothing" and must not be trusted as ground
+  // truth, or the sender-side filter would mass-drop the wallet's ANTs. Signal
+  // it with `ownedMints: null` so callers fall back to the legacy check.
+  const degraded = scan.rawCount > 0 && scan.parseErrors === scan.rawCount;
+  if (degraded) {
+    console.debug(
+      '[aclDrift] degraded owner-scan — every asset failed to parse',
+      {
+        owner,
+        rawCount: scan.rawCount,
+        parseErrors: scan.parseErrors,
+      },
+    );
+    return { driftRecords: [], ownedMints: null };
+  }
+
+  const ownedMints = new Set(scan.mints);
+  if (scan.mints.length === 0) {
+    // Reliable empty: the wallet genuinely owns no ANTs (no raw accounts, or
+    // assets parsed cleanly but none were ANTs).
+    console.debug('[aclDrift] no owned ANT assets', {
+      owner,
+      rawCount: scan.rawCount,
+      parseErrors: scan.parseErrors,
+    });
     return { driftRecords: [], ownedMints };
   }
 
@@ -191,7 +237,7 @@ export async function computeAclDrift({
           mints: ReadonlyArray<string>;
         }) => Promise<ArNSNameDataWithName[]>;
       }
-    ).getArNSRecordsByAntMints({ mints: ownedList }),
+    ).getArNSRecordsByAntMints({ mints: scan.mints }),
     fetchAclAssetSets({ address: owner, rpc }),
   ]);
 
@@ -199,10 +245,21 @@ export async function computeAclDrift({
   // Check the `owned` set only: an asset the wallet was already a controller
   // for sits in `controlled`, but the wallet still needs `syncAcl` to record
   // the owner entry after taking ownership.
-  return {
-    driftRecords: records.filter(
-      (r) => r.processId && !aclSets.owned.has(r.processId),
-    ),
-    ownedMints,
-  };
+  const driftRecords = records.filter(
+    (r) => r.processId && !aclSets.owned.has(r.processId),
+  );
+  console.debug('[aclDrift] computed', {
+    owner,
+    rawCount: scan.rawCount,
+    parseErrors: scan.parseErrors,
+    ownedAntMints: scan.mints,
+    recordsForOwnedMints: records.map((r) => ({
+      name: r.name,
+      processId: r.processId,
+    })),
+    aclOwned: [...aclSets.owned],
+    aclControlled: [...aclSets.controlled],
+    driftNames: driftRecords.map((r) => r.name),
+  });
+  return { driftRecords, ownedMints };
 }

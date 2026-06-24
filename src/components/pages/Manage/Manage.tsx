@@ -5,8 +5,8 @@ import {
   useWalletState,
 } from '@src/state';
 import eventEmitter from '@src/utils/events';
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import DomainsTable from '../../data-display/tables/DomainsTable';
 import { RefreshIcon, SearchIcon } from '../../icons';
 import SyncOwnershipModal, {
@@ -22,6 +22,7 @@ function Manage() {
   const [{ walletAddress, wallet }] = useWalletState();
   const [search, setSearch] = useState<string>('');
   const [showSyncModal, setShowSyncModal] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // ANTs the wallet owns on-chain but that are missing from its ACL, grouped
   // by mint with the name(s) each backs (see `needsOwnerSync`).
@@ -46,6 +47,17 @@ function Manage() {
       arioContract,
     });
   }
+
+  // Auto-open the Sync Ownership modal when arriving from the nav notification
+  // (`/manage/names?syncOwnership=1`), once drift has actually been detected.
+  // Consume the param so a refresh/back doesn't reopen it.
+  useEffect(() => {
+    if (searchParams.get('syncOwnership') && outOfSyncItems.length > 0) {
+      setShowSyncModal(true);
+      searchParams.delete('syncOwnership');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, outOfSyncItems, setSearchParams]);
 
   return (
     <div className="overflow-auto px-4 md:px-[100px] pb-[30px] pt-[10px]">

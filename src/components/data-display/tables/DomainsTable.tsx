@@ -189,7 +189,7 @@ const DomainsTable = ({
         key === 'action' || key === 'openRow'
           ? ''
           : key === 'processId'
-            ? 'Process ID'
+            ? 'Token Address'
             : key === 'targetId'
               ? 'Target ID'
               : camelToReadable(key),

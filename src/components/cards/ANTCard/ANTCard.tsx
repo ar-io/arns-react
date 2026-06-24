@@ -23,7 +23,7 @@ import './styles.css';
 
 export const ANT_TRANSACTION_DETAILS = {
   deployedTransactionId: 'Transaction ID',
-  processId: 'Process ID',
+  processId: 'Token Address',
 };
 export const ARNS_METADATA_DETAILS = {
   domain: 'Domain',
@@ -178,7 +178,7 @@ function ANTCard({
   function handleLinkType(key: string) {
     if (key === 'Controller(s)' || key === 'Owner' || key === 'New Owner') {
       return ArweaveIdTypes.ADDRESS;
-    } else if (key === 'Process ID') {
+    } else if (key === 'Token Address') {
       return ArweaveIdTypes.CONTRACT;
     } else if (key === 'Target ID') {
       return ArweaveIdTypes.TRANSACTION;

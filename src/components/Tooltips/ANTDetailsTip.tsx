@@ -41,7 +41,7 @@ function ANTDetailsTip({
       message={
         <div className="flex flex-col p-2">
           <span className="flex text-sm text-grey pb-4 pt-0 border-b-[1px] border-dark-grey whitespace-nowrap gap-2">
-            Process ID:{' '}
+            Token Address:{' '}
             {antId && isValidAoAddress(antId) ? (
               <ArweaveID
                 id={

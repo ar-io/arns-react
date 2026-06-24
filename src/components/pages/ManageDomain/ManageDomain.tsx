@@ -6,12 +6,19 @@ import ArweaveID, {
   ArweaveIdTypes,
 } from '@src/components/layout/ArweaveID/ArweaveID';
 import { MetaplexAttributesModal } from '@src/components/modals/ant-management/MetaplexAttributesModal/MetaplexAttributesModal';
+import SyncOwnershipModal from '@src/components/modals/ant-management/SyncOwnershipModal/SyncOwnershipModal';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
-import { useGlobalState, useModalState, useWalletState } from '@src/state';
+import {
+  dispatchArNSUpdate,
+  useArNSState,
+  useGlobalState,
+  useModalState,
+  useWalletState,
+} from '@src/state';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { AoAddress } from '@src/types';
-import { Sparkles, Star } from 'lucide-react';
+import { RefreshCw, Sparkles, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -26,21 +33,29 @@ function ManageDomain() {
   // legacy transaction payload schema still expects a string. Pass empty —
   // the dispatcher ignores it for the Solana backend.
   const arioProcessId = '';
-  useGlobalState();
+  const [{ arioContract }] = useGlobalState();
   const [, dispatchTransactionState] = useTransactionState();
   const [, dispatchModalState] = useModalState();
+  const [{ ants }, dispatchArNSState] = useArNSState();
   const { data: primaryNameData } = usePrimaryName();
   const { data: domainData } = useDomainInfo({
     domain: name,
   });
-  const [{ walletAddress }] = useWalletState();
+  const [{ walletAddress, wallet }] = useWalletState();
   const isOwner = walletAddress
     ? walletAddress.toString() === domainData?.state?.Owner
+    : false;
+
+  // This name's ANT is owned by the wallet on-chain but its ACL owner entry is
+  // missing (e.g. an out-of-band transfer) — flagged during the ArNS refresh.
+  const needsOwnerSync = domainData?.processId
+    ? (ants[domainData.processId]?.needsOwnerSync ?? false)
     : false;
 
   const [logoId, setLogoId] = useState<string | undefined>();
   const [showMetaplexAttributesModal, setShowMetaplexAttributesModal] =
     useState(false);
+  const [showSyncModal, setShowSyncModal] = useState(false);
 
   useEffect(() => {
     if (!name) {
@@ -77,7 +92,7 @@ function ManageDomain() {
               {domainData?.processId && (
                 <div className="text-sm flex items-center gap-1">
                   <span className="whitespace-nowrap text-sm text-grey">
-                    Process ID:{' '}
+                    Token Address:{' '}
                   </span>
                   <ArweaveID
                     id={domainData.processId as AoAddress}
@@ -90,6 +105,19 @@ function ManageDomain() {
             </div>
           </h2>
           <div className="flex shrink-0 items-center justify-end gap-3">
+            {needsOwnerSync && domainData?.processId && (
+              <Tooltip
+                message="You own this ANT on-chain but its ownership isn't recorded in the registry yet. Sync to reconcile it."
+                icon={
+                  <button
+                    className="flex items-center gap-2 max-w-fit rounded border border-warning px-3 py-1 text-[16px] text-warning hover:bg-warning hover:text-black transition-all"
+                    onClick={() => setShowSyncModal(true)}
+                  >
+                    <RefreshCw className="w-[16px]" /> Sync Ownership
+                  </button>
+                }
+              />
+            )}
             {domainData?.processId && (
               <Tooltip
                 message="View the Metaplex Core attributes stored on this ANT asset"
@@ -187,6 +215,26 @@ function ManageDomain() {
         setShow={setShowMetaplexAttributesModal}
         processId={domainData?.processId}
       />
+      {showSyncModal && domainData?.processId && (
+        <SyncOwnershipModal
+          items={[
+            {
+              mint: domainData.processId.toString(),
+              names: name ? [name] : [],
+            },
+          ]}
+          closeModal={() => setShowSyncModal(false)}
+          onSynced={() => {
+            if (!walletAddress) return;
+            dispatchArNSUpdate({
+              dispatch: dispatchArNSState,
+              walletAddress,
+              wallet: wallet ?? undefined,
+              arioContract,
+            });
+          }}
+        />
+      )}
     </>
   );
 }
