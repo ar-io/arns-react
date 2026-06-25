@@ -46,7 +46,7 @@ export enum DomainSettingsRowTypes {
   ASSOCIATED_NAMES = 'Associated Names',
   STATUS = 'Status',
   NICKNAME = 'Nickname',
-  PROCESS_ID = 'Process ID',
+  TOKEN_ADDRESS = 'Token Address',
   TARGET_ID = 'Target ID',
   TICKER = 'Ticker',
   CONTROLLERS = 'Controllers',
@@ -295,10 +295,10 @@ function DomainSettings({
               }
             />
           ),
-          [DomainSettingsRowTypes.PROCESS_ID]: (
+          [DomainSettingsRowTypes.TOKEN_ADDRESS]: (
             <DomainSettingsRow
-              label="Process ID"
-              key={DomainSettingsRowTypes.PROCESS_ID}
+              label="Token Address"
+              key={DomainSettingsRowTypes.TOKEN_ADDRESS}
               value={
                 data?.processId && !isLoading ? (
                   <ArweaveID

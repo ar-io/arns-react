@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-06-25
+
+### Added
+
+- Sync Ownership workflows
+
 ## [2.1.1] - 2026-06-17
 
 ### Changed

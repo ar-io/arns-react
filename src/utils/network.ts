@@ -57,11 +57,11 @@ export function buildAntStateQuery({
   return {
     queryKey: ['ant', processId, solana ? 'solana' : 'ao'],
     queryFn: async () => {
-      if (!processId) throw new Error('Must provide a process id');
+      if (!processId) throw new Error('Must provide a token address');
       // AO ids are 43-char Arweave txids; Solana ids are 32–44-char base58
       // Metaplex Core asset addresses. Only enforce the Arweave shape on AO.
       if (!solana && !isArweaveTransactionID(processId)) {
-        throw new Error('Must provide a valid process id');
+        throw new Error('Must provide a valid token address');
       }
 
       // Lazy-import sdk-init to avoid a circular import via constants.

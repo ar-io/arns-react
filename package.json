@@ -1,7 +1,7 @@
 {
   "name": "arns-vite-react",
   "private": true,
-  "version": "2.1.1",
+  "version": "2.2.0",
   "homepage": ".",
   "scripts": {
     "build": "yarn clean && cross-env NODE_OPTIONS=--max-old-space-size=32768 vite build",
@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "5.4.0",
-    "@ar.io/sdk": "^4.0.2-alpha.7",
+    "@ar.io/sdk": "^4.1.0-alpha.1",
     "@ardrive/turbo-sdk": "1.39.2",
     "@permaweb/aoconnect": "0.0.69",
     "@radix-ui/react-checkbox": "^1.1.4",

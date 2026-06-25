@@ -1,6 +1,7 @@
 import React, { Suspense, useEffect, useState } from 'react';
 
 import AclFetcher from './AclFetcher';
+import AclSync from './AclSync';
 import PdaViewer from './PdaViewer';
 import PrivateKeyLogin from './PrivateKeyLogin';
 import RentAllocation from './RentAllocation';
@@ -46,6 +47,7 @@ const DevTools = () => {
       <PrivateKeyLogin />
       <TransferIO />
       <AclFetcher />
+      <AclSync />
       <RentAllocation />
       <PdaViewer />
       <div className="flex flex-row gap-2 w-full justify-end">

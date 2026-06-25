@@ -85,6 +85,28 @@ export function createNamesExceedingUndernameLimitNotification({
   };
 }
 
+export function createSyncOwnershipNotification(
+  ants: Record<string, { needsOwnerSync?: boolean }>,
+): Notification | undefined {
+  const antsNeedingSync = Object.values(ants).filter(
+    (ant) => ant.needsOwnerSync,
+  ).length;
+
+  if (!antsNeedingSync) return;
+
+  return {
+    type: 'warning',
+    message: (
+      <span className="w-full">
+        <span className="text-bold">{antsNeedingSync}</span> name
+        {antsNeedingSync === 1 ? '' : 's'} you own need ownership synced.
+      </span>
+    ),
+    link:
+      '/manage/names?' + new URLSearchParams({ syncOwnership: '1' }).toString(),
+  };
+}
+
 function NotificationMenu() {
   const [{ walletAddress }] = useWalletState();
   const [{ domains, ants }] = useArNSState();
@@ -96,6 +118,7 @@ function NotificationMenu() {
         [
           createExpirationNotification(domains),
           createNamesExceedingUndernameLimitNotification({ domains, ants }),
+          createSyncOwnershipNotification(ants),
         ].filter(
           (notification) => notification !== undefined,
         ) as Notification[],

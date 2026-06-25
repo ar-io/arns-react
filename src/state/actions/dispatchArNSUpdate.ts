@@ -1,6 +1,7 @@
 import { ANTState, ARIORead, ArNSNameData } from '@ar.io/sdk/web';
 import { captureException } from '@sentry/react';
 import { AoAddress, ArNSWalletConnector } from '@src/types';
+import { computeAclDrift } from '@src/utils/aclSync';
 import { queryClient } from '@src/utils/network';
 import { buildAntRead, buildArioRead } from '@src/utils/sdk-init';
 import { Dispatch } from 'react';
@@ -86,6 +87,40 @@ export async function dispatchArNSUpdate({
       hasMore = res.hasMore;
     }
 
+    // Reconcile the ACL-derived list against ground-truth MPL Core ownership.
+    //
+    // Receiver side: ANTs the wallet owns on-chain but that are missing from
+    // its ACL (e.g. acquired via a raw Metaplex Core transfer) are absent from
+    // `getArNSRecordsForAddress`, so we merge their records in and flag the
+    // backing mints for the Sync Ownership flow (`needsOwnerSync`).
+    //
+    // Sender side: `ownedMints` is the authoritative set of assets the wallet
+    // currently owns. We use it below to drop ANTs the wallet has transferred
+    // away — the ACL and `AntConfig.last_known_owner` both lag a raw transfer,
+    // so without this they'd linger in the list.
+    //
+    // Best-effort: if the owner-scan is unavailable we leave `ownedMints` null
+    // and fall back to the legacy `last_known_owner` check rather than risk
+    // dropping every owned ANT.
+    const driftMints = new Set<string>();
+    let ownedMints: Set<string> | null = null;
+    try {
+      const drift = await computeAclDrift({
+        owner: walletAddress.toString(),
+        ario: arioContract,
+      });
+      ownedMints = drift.ownedMints;
+      drift.driftRecords.forEach((record) => {
+        userDomains[record.name] = record;
+        if (record.processId) driftMints.add(record.processId);
+      });
+    } catch (error) {
+      captureException(error, {
+        tags: { walletAddress: walletAddress.toString(), phase: 'aclDrift' },
+      });
+      console.error(error);
+    }
+
     // ONLY QUERY FOR ANTS THAT WE ARE INTERESTED IN, EG REGISTERED ANTS
     const registeredUserAnts = Array.from(
       new Set(Object.values(userDomains).map((record) => record.processId)),
@@ -107,6 +142,7 @@ export async function dispatchArNSUpdate({
             state: null,
             version: 0,
             processMeta: antMetas?.[id] ?? null,
+            needsOwnerSync: driftMints.has(id),
           };
           return acc;
         },
@@ -134,14 +170,44 @@ export async function dispatchArNSUpdate({
           }
         ).getANTStates(registeredUserAnts)) as Record<string, ANTState>;
 
+        const address = walletAddress.toString();
         for (const id of registeredUserAnts) {
           const state = states[id] ?? null;
-          // Drop ANTs the wallet neither owns nor controls.
-          if (
-            state &&
-            state.Owner !== walletAddress.toString() &&
-            !state.Controllers.includes(walletAddress.toString())
-          ) {
+          const needsOwnerSync = driftMints.has(id);
+          const ownsAsset = ownedMints?.has(id) ?? false;
+          const inControllers = state?.Controllers.includes(address) ?? false;
+
+          // `AntControllers` is seeded with the owner on init (ario-ant
+          // `initialize`: `controllers = vec![owner]`) and is only cleared by
+          // `reconcile`. So after an out-of-band transfer the OLD owner is
+          // still in the controllers list — membership alone can't tell a
+          // legit controller from a stale ex-owner. It's only trustworthy
+          // relative to `last_known_owner` (`state.Owner`): if the wallet IS
+          // `last_known_owner` but no longer owns the asset, it's the stale
+          // ex-owner (sender side) and BOTH its owner and controller entries
+          // are stale — drop it. The wallet is a legit current controller only
+          // when it's in the list AND is not the (now-wrong) `last_known_owner`.
+          const isStaleExOwner = state !== null && state.Owner === address;
+          const controls = inControllers && !isStaleExOwner;
+
+          // Decide whether the wallet still has a relationship to this ANT.
+          //
+          // When the MPL owner-scan succeeded (`ownedMints` set), it's the
+          // ground truth for ownership: keep the ANT only if the wallet owns
+          // its asset OR is a legit current controller. This drops ANTs the
+          // wallet transferred away even when the ACL / `last_known_owner` /
+          // `AntControllers` all still point at it (sender side of an
+          // out-of-band transfer). A null `state` can't be evaluated, so keep
+          // it to avoid over-dropping on incomplete data.
+          //
+          // When the scan was unavailable (`ownedMints` null), fall back to the
+          // legacy check against the possibly-stale `last_known_owner`.
+          const drop =
+            ownedMints !== null
+              ? state !== null && !ownsAsset && !controls
+              : state !== null && state.Owner !== address && !inControllers;
+
+          if (drop) {
             dispatch({ type: 'removeAnts', payload: [id] });
           } else {
             dispatch({
@@ -152,6 +218,7 @@ export async function dispatchArNSUpdate({
                   version: 0,
                   processMeta: antMetas[id] ?? null,
                   errors: [],
+                  needsOwnerSync,
                 },
               },
             });

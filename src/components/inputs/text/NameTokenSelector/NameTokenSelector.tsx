@@ -446,7 +446,7 @@ function NameTokenSelector({
               Remove
             </button>
           ) : (
-            <Tooltip message="For advanced use cases only, you can register this name with a custom ANT by entering its Process ID." />
+            <Tooltip message="For advanced use cases only, you can register this name with a custom ANT by entering its Token Address." />
           )}
         </span>
       </div>

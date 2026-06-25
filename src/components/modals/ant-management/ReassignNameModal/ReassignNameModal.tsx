@@ -318,7 +318,7 @@ export function ReassignNameModal({
                   </span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className=" text-grey">Old ANT Process ID</span>
+                  <span className=" text-grey">Old ANT Token Address</span>
                   <span className=" text-white">
                     {domainData?.processId ? (
                       <ArweaveID
@@ -340,7 +340,9 @@ export function ReassignNameModal({
                 {antType === REASSIGN_NAME_WORKFLOWS.EXISTING && (
                   <>
                     <div className="flex flex-col  gap-1">
-                      <span className=" text-grey">Destination Process ID</span>
+                      <span className=" text-grey">
+                        Destination Token Address
+                      </span>
                       <span className=" text-white">
                         <ArweaveID
                           id={new SolanaAddress(newAntProcessId)}
@@ -564,7 +566,9 @@ export function ReassignNameModal({
               </ul>
 
               <div className="flex flex-col gap-4">
-                <span className="grey">Enter destination ANT Process ID:</span>
+                <span className="grey">
+                  Enter destination ANT Token Address:
+                </span>
                 <ValidationInput
                   inputId="reassign-name-target-ant-input"
                   inputClassName="name-token-input white"
@@ -593,7 +597,7 @@ export function ReassignNameModal({
                         // `isValidAoAddress` accepts both — `isArweaveTransactionID`
                         // alone would reject every Solana mint.
                         if (!isValidAoAddress(id)) {
-                          throw new Error('Invalid Process ID');
+                          throw new Error('Invalid Token Address');
                         }
                       },
                     },
