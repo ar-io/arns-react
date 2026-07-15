@@ -8,9 +8,11 @@ import { ReassignNameModal } from '@src/components/modals/ant-management/Reassig
 import { ReturnNameModal } from '@src/components/modals/ant-management/ReturnNameModal/ReturnNameModal';
 import useDomainInfo from '@src/hooks/useDomainInfo';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
+import { useTurboArNSClient } from '@src/hooks/useTurboArNSClient';
 import { SolanaAddress } from '@src/services/solana/SolanaAddress';
 import { useArNSState, useGlobalState } from '@src/state';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
+import dispatchCustodialANTRecordInteraction from '@src/state/actions/dispatchCustodialANTRecordInteraction';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { ANT_INTERACTION_TYPES } from '@src/types';
@@ -21,6 +23,7 @@ import {
 } from '@src/utils';
 import {
   DEFAULT_MAX_UNDERNAMES,
+  MIN_TTL_SECONDS,
   SECONDS_IN_GRACE_PERIOD,
 } from '@src/utils/constants';
 import { useQueryClient } from '@tanstack/react-query';
@@ -79,6 +82,7 @@ function DomainSettings({
   const [{ wallet, walletAddress }] = useWalletState();
   const { data: primaryNameData } = usePrimaryName();
   const { data, isLoading, refetch } = useDomainInfo({ domain, antId });
+  const turbo = useTurboArNSClient();
 
   const [showReturnNameModal, setShowReturnNameModal] = useState(false);
   const [showReassignNameModal, setShowReassignNameModal] = useState(false);
@@ -91,6 +95,24 @@ function DomainSettings({
     ? data?.controllers?.includes(walletAddress.toString() ?? '')
     : false;
   const isAuthorized = (isOwner || isController) ?? false;
+
+  // Model A (custodial): ANTs are Solana assets, so a connected NON-Solana
+  // identity (Arweave / Ethereum) can never be the on-chain owner/controller —
+  // the ANT is held by the Turbo custody signer. Such a user manages the name's
+  // records with CREDITS instead of a wallet-signed interaction (which they
+  // physically can't produce). The bundler is the authority: it authorizes each
+  // credit-manage op against the custody mapping and returns a non-leaky 404 if
+  // the caller doesn't custody the ANT — so enabling the UI here is server-gated.
+  // (The custodian's Solana address is not exposed by the bundler, so we detect
+  // structurally rather than by owner-address comparison.)
+  const isCustodial =
+    wallet?.tokenType !== 'solana' &&
+    !!data?.processId &&
+    !isOwner &&
+    !isController;
+  // Only the record-based ops (target `@`, undernames) can be credit-managed;
+  // owner-only ops (transfer/controllers/ticker/…) require claiming the ANT out.
+  const canManageRecords = isAuthorized || isCustodial;
 
   useEffect(() => {
     if (!domain && !antId) {
@@ -141,8 +163,25 @@ function DomainSettings({
     return 'Active';
   }
 
+  // Self-managed (Model B): the user owns the ANT on-chain, so every record edit
+  // is a wallet-signed Solana transaction that costs a little SOL. Surface that
+  // once up front so an owner with an empty SOL balance isn't surprised on their
+  // first edit. (Custodial names are gasless/credit-paid — no note there.)
+  const showSelfManageNote =
+    !isCustodial && isAuthorized && wallet?.tokenType === 'solana';
+
   return (
     <>
+      {showSelfManageNote && (
+        <div
+          className="w-full mt-3 p-3 rounded bg-foreground border border-dark-grey text-sm text-grey"
+          data-testid="self-manage-sol-note"
+        >
+          You own this name&apos;s ANT, so editing its records (target,
+          undernames, controllers, etc.) is signed by your wallet and costs a
+          small amount of SOL for network fees.
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full mt-3">
         {Object.entries({
           // TODO: this should go on a name section, not the ant section
@@ -345,21 +384,36 @@ function DomainSettings({
             <TargetIDRow
               targetId={data?.apexRecord?.transactionId}
               key={DomainSettingsRowTypes.TARGET_ID}
-              editable={isAuthorized}
+              editable={canManageRecords}
+              creditPaid={isCustodial}
               confirm={(targetId: string) =>
-                dispatchANTInteraction({
-                  payload: {
-                    transactionId: targetId,
-                    ttlSeconds: data?.apexRecord?.ttlSeconds,
-                  },
-                  workflowName: ANT_INTERACTION_TYPES.SET_TARGET_ID,
-                  signer: wallet!.contractSigner!,
-                  wallet,
-                  owner: walletAddress!.toString(),
-                  processId: data!.processId,
-                  dispatchTransactionState,
-                  dispatchArNSState,
-                })
+                isCustodial
+                  ? dispatchCustodialANTRecordInteraction({
+                      turbo: turbo!,
+                      wallet,
+                      antId: data!.processId.toString(),
+                      workflowName: ANT_INTERACTION_TYPES.SET_TARGET_ID,
+                      payload: {
+                        transactionId: targetId,
+                        ttlSeconds:
+                          data?.apexRecord?.ttlSeconds ?? MIN_TTL_SECONDS,
+                      },
+                      owner: walletAddress!.toString(),
+                      dispatchTransactionState,
+                    })
+                  : dispatchANTInteraction({
+                      payload: {
+                        transactionId: targetId,
+                        ttlSeconds: data?.apexRecord?.ttlSeconds,
+                      },
+                      workflowName: ANT_INTERACTION_TYPES.SET_TARGET_ID,
+                      signer: wallet!.contractSigner!,
+                      wallet,
+                      owner: walletAddress!.toString(),
+                      processId: data!.processId,
+                      dispatchTransactionState,
+                      dispatchArNSState,
+                    })
               }
             />
           ),
@@ -436,22 +490,36 @@ function DomainSettings({
           [DomainSettingsRowTypes.TTL]: (
             <TTLRow
               ttlSeconds={data?.apexRecord?.ttlSeconds}
-              editable={isAuthorized}
+              editable={canManageRecords}
+              creditPaid={isCustodial}
               key={DomainSettingsRowTypes.TTL}
               confirm={(ttlSeconds: number) =>
-                dispatchANTInteraction({
-                  payload: {
-                    ttlSeconds,
-                    transactionId: data?.apexRecord?.transactionId,
-                  },
-                  workflowName: ANT_INTERACTION_TYPES.SET_TTL_SECONDS,
-                  signer: wallet!.contractSigner!,
-                  wallet,
-                  owner: walletAddress!.toString(),
-                  processId: data!.processId,
-                  dispatchTransactionState,
-                  dispatchArNSState,
-                })
+                isCustodial
+                  ? dispatchCustodialANTRecordInteraction({
+                      turbo: turbo!,
+                      wallet,
+                      antId: data!.processId.toString(),
+                      workflowName: ANT_INTERACTION_TYPES.SET_TTL_SECONDS,
+                      payload: {
+                        ttlSeconds,
+                        transactionId: data?.apexRecord?.transactionId,
+                      },
+                      owner: walletAddress!.toString(),
+                      dispatchTransactionState,
+                    })
+                  : dispatchANTInteraction({
+                      payload: {
+                        ttlSeconds,
+                        transactionId: data?.apexRecord?.transactionId,
+                      },
+                      workflowName: ANT_INTERACTION_TYPES.SET_TTL_SECONDS,
+                      signer: wallet!.contractSigner!,
+                      wallet,
+                      owner: walletAddress!.toString(),
+                      processId: data!.processId,
+                      dispatchTransactionState,
+                      dispatchArNSState,
+                    })
               }
             />
           ),

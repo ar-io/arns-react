@@ -82,6 +82,8 @@ async function maybeInstallEd25519Polyfill() {
 // don't support TLA in build output).
 const ed25519PolyfillReady = maybeInstallEd25519Polyfill();
 
+import { RainbowKitProvider, getDefaultConfig } from '@rainbow-me/rainbowkit';
+import '@rainbow-me/rainbowkit/styles.css';
 import {
   ConnectionProvider,
   WalletProvider,
@@ -92,7 +94,10 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider } from 'antd';
 import React, { useMemo } from 'react';
 import ReactDOM from 'react-dom/client';
+import { WagmiProvider } from 'wagmi';
+import { base, mainnet, polygon } from 'wagmi/chains';
 
+import { WALLETCONNECT_PROJECT_ID } from './utils/constants';
 import { SOLANA_RPC_URL } from './utils/solana';
 
 import App from './App';
@@ -114,6 +119,19 @@ import {
 import { queryClient } from './utils/network';
 // setup sentry
 import './utils/sentry';
+
+/**
+ * Wagmi + RainbowKit config for the Ethereum identity path. Mounted ALONGSIDE
+ * the Solana provider stack (not instead of it) so both identity families
+ * coexist: Solana = Model-B user-owned ANT, Arweave/ETH = Model-A custodial
+ * credit buy. Restored from the pre-Solana-only build (commit `3f43b85`).
+ */
+const wagmiConfig = getDefaultConfig({
+  appName: 'ArNS Registry',
+  projectId: WALLETCONNECT_PROJECT_ID,
+  chains: [mainnet, base, polygon],
+  ssr: false,
+});
 
 /**
  * Solana provider stack.
@@ -154,55 +172,59 @@ function SolanaWalletShell({ children }: { children: React.ReactNode }) {
 ed25519PolyfillReady.finally(() => {
   ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <SolanaWalletShell>
-          <GlobalStateProvider reducer={reducer}>
-            <WalletStateProvider reducer={walletReducer}>
-              <ArNSStateProvider reducer={arnsReducer}>
-                <TransactionStateProvider reducer={transactionReducer}>
-                  <RegistrationStateProvider reducer={registrationReducer}>
-                    <ConfigProvider
-                      theme={{
-                        token: {
-                          colorBgBase: 'var(--primary)',
-                        },
-                        components: {
-                          Button: {
-                            colorBgBase: 'var(--primary)',
-                          },
-                          Progress: {
-                            colorText: 'var(--text-white)',
-                          },
-                          Input: {
-                            addonBg: 'var(--card-bg)',
-                            colorBgContainer: 'var(--bg-color)',
-                            activeBg: 'var(--bg-color)',
-                            hoverBg: 'var(--bg-color)',
-                            colorText: 'var(--text-white)',
-                            colorTextPlaceholder: 'var(--text-grey)',
-                            activeBorderColor: 'var(--primary)',
-                            hoverBorderColor: 'var(--bg-color)',
-                            colorIcon: 'var(--text-grey)',
-                            colorPrimary: 'var(--primary)',
-                            borderRadius: 3,
-                            lineWidth: 0.5,
-                            lineWidthFocus: 1,
-                            lineWidthBold: 0,
-                          },
-                        },
-                      }}
-                    >
-                      <ModalStateProvider reducer={modalReducer}>
-                        <App />
-                      </ModalStateProvider>
-                    </ConfigProvider>
-                  </RegistrationStateProvider>
-                </TransactionStateProvider>
-              </ArNSStateProvider>
-            </WalletStateProvider>
-          </GlobalStateProvider>
-        </SolanaWalletShell>
-      </QueryClientProvider>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <RainbowKitProvider>
+            <SolanaWalletShell>
+              <GlobalStateProvider reducer={reducer}>
+                <WalletStateProvider reducer={walletReducer}>
+                  <ArNSStateProvider reducer={arnsReducer}>
+                    <TransactionStateProvider reducer={transactionReducer}>
+                      <RegistrationStateProvider reducer={registrationReducer}>
+                        <ConfigProvider
+                          theme={{
+                            token: {
+                              colorBgBase: 'var(--primary)',
+                            },
+                            components: {
+                              Button: {
+                                colorBgBase: 'var(--primary)',
+                              },
+                              Progress: {
+                                colorText: 'var(--text-white)',
+                              },
+                              Input: {
+                                addonBg: 'var(--card-bg)',
+                                colorBgContainer: 'var(--bg-color)',
+                                activeBg: 'var(--bg-color)',
+                                hoverBg: 'var(--bg-color)',
+                                colorText: 'var(--text-white)',
+                                colorTextPlaceholder: 'var(--text-grey)',
+                                activeBorderColor: 'var(--primary)',
+                                hoverBorderColor: 'var(--bg-color)',
+                                colorIcon: 'var(--text-grey)',
+                                colorPrimary: 'var(--primary)',
+                                borderRadius: 3,
+                                lineWidth: 0.5,
+                                lineWidthFocus: 1,
+                                lineWidthBold: 0,
+                              },
+                            },
+                          }}
+                        >
+                          <ModalStateProvider reducer={modalReducer}>
+                            <App />
+                          </ModalStateProvider>
+                        </ConfigProvider>
+                      </RegistrationStateProvider>
+                    </TransactionStateProvider>
+                  </ArNSStateProvider>
+                </WalletStateProvider>
+              </GlobalStateProvider>
+            </SolanaWalletShell>
+          </RainbowKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
     </React.StrictMode>,
   );
 });

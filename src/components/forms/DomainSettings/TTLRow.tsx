@@ -21,10 +21,13 @@ export default function TTLRow({
   ttlSeconds,
   confirm,
   editable = false,
+  creditPaid = false,
 }: {
   ttlSeconds?: number;
   confirm: (ttlSeconds: number) => Promise<ContractInteraction>;
   editable?: boolean;
+  /** Custodial (Model A) name: this edit is paid with Turbo Credits. */
+  creditPaid?: boolean;
 }) {
   const [editing, setEditing] = useState<boolean>(false);
   const [newTTL, setNewTTL] = useState<number>(
@@ -127,6 +130,12 @@ export default function TTLRow({
                 seconds of this token to <br />
                 <span className="text-color-warning">{`"${newTTL}"`}.</span>
               </span>
+              {creditPaid && (
+                <span className="text-primary">
+                  This name is held in Turbo custody — the change will be paid
+                  with your Turbo Credits.
+                </span>
+              )}
               <span>Are you sure you want to continue?</span>
             </>
           }

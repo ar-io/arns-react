@@ -4,6 +4,7 @@ import PaymentOptionsForm, {
   PaymentMethod,
 } from '@src/components/forms/PaymentOptionsForm/PaymentOptionsForm';
 import { StepProgressBar } from '@src/components/layout/progress';
+import TurboTopUpModal from '@src/components/modals/turbo/TurboTopUpModal';
 import { useIsMobile } from '@src/hooks';
 import { useArNSIntentPrice } from '@src/hooks/useArNSIntentPrice';
 import { useBaseTokenPrice } from '@src/hooks/useBaseTokenPrice';
@@ -19,11 +20,13 @@ import {
   executeBaseTokenPurchase,
 } from '@src/services/turbo/BaseTokenPurchaseService';
 import {
+  InsufficientCreditsError,
   PaymentInformation,
   TurboArNSIntent,
 } from '@src/services/turbo/TurboArNSClient';
 import { dispatchArNSUpdate, useArNSState } from '@src/state';
 import dispatchArIOInteraction from '@src/state/actions/dispatchArIOInteraction';
+import dispatchArNSPurchaseWithCredits from '@src/state/actions/dispatchArNSPurchaseWithCredits';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { useWalletState } from '@src/state/contexts/WalletState';
@@ -35,6 +38,7 @@ import {
 } from '@src/types';
 import { formatARIOWithCommas, formatSolFromLamports } from '@src/utils';
 import { getBaseChainId } from '@src/utils/baseNetwork';
+import { checkInsufficientSolForGas } from '@src/utils/checkInsufficientSolForGas';
 import {
   ARNS_PURCHASES_DISABLED,
   ARNS_PURCHASES_DISABLED_TOOLTIP,
@@ -50,14 +54,10 @@ import { queryClient } from '@src/utils/network';
 import { Tooltip as AntdTooltip } from 'antd';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// NOTE (de-AO refactor): wagmi hooks crash without a `WagmiProvider`, which
-// the Solana-only refactor removed. Stub them out — the resulting `undefined`
-// values flow into the EVM-funded checkout branches that are unreachable
-// from the Solana-only UI anyway. Re-import from 'wagmi' if/when EVM
-// wallets come back.
-const useAccount = () => ({ connector: undefined, address: undefined }) as any;
-const useBalance = (_args?: unknown) => ({ data: undefined }) as any;
-const useConfig = () => undefined as any;
+// Multi-wallet restored (Model A): the `WagmiProvider` is mounted again in
+// `main.tsx`, so the real wagmi hooks are safe to use for the EVM-funded
+// checkout branches.
+import { useAccount, useBalance, useConfig } from 'wagmi';
 
 // page on route transaction/review
 // on completion routes to transaction/complete
@@ -92,6 +92,9 @@ function Checkout() {
   const [isProcessingBaseToken, setIsProcessingBaseToken] = useState(false);
   const [baseTokenStage, setBaseTokenStage] =
     useState<BaseTokenPurchaseStage | null>(null);
+  // Opened when a credits purchase fails at runtime with a 402 (the balance
+  // went stale / was spent elsewhere between the pre-flight check and paying).
+  const [showTopUpModal, setShowTopUpModal] = useState(false);
 
   // Wagmi hooks for Base token purchases
   const wagmiConfig = useConfig();
@@ -205,16 +208,23 @@ function Checkout() {
     baseArioBalance,
   ]);
 
-  // Paying with ARIO on Solana also costs SOL: transaction fees plus rent
-  // deposits for the accounts the intent creates (Buy-Name spawns an ANT).
-  // Gate the pay button on the wallet actually holding that much.
-  const isInsufficientSolForGas = useMemo(() => {
-    if (paymentMethod !== 'crypto' || isBaseToken(selectedCryptoToken)) {
-      return false;
-    }
-    if (!costDetail?.gasEstimate || solBalance === undefined) return false;
-    return solBalance < costDetail.gasEstimate.totalLamports;
-  }, [costDetail, paymentMethod, selectedCryptoToken, solBalance]);
+  // Paying on Solana also costs SOL — transaction fees plus rent deposits for
+  // the accounts the intent creates (Buy-Name spawns an ANT). This is true
+  // even on the CREDITS path: the ANT is spawned client-side (~0.02 SOL) before
+  // the credit-funded buy, so a wallet with credits but no SOL still can't
+  // complete. Gate the pay button on the wallet actually holding that much for
+  // both the crypto (ARIO) and credits flows. Base-token top-ups pay gas on
+  // the EVM side, so they're exempt.
+  const isInsufficientSolForGas = useMemo(
+    () =>
+      checkInsufficientSolForGas({
+        paymentMethod,
+        isBaseTokenSelected: isBaseToken(selectedCryptoToken),
+        gasEstimateTotalLamports: costDetail?.gasEstimate?.totalLamports,
+        solBalanceLamports: solBalance,
+      }),
+    [costDetail, paymentMethod, selectedCryptoToken, solBalance],
+  );
 
   const fees = useMemo(() => {
     if (paymentMethod === 'card') {
@@ -344,14 +354,35 @@ function Checkout() {
       };
     }
     if (paymentMethod === 'credits') {
+      // Real-world anchor next to the abstract "Credits" figure. USD comes from
+      // the fiat estimate (cents); the ARIO equivalent from the mARIO price.
+      const usdEquiv = intentPrice?.fiatEstimate?.paymentAmount
+        ? intentPrice.fiatEstimate.paymentAmount / 100
+        : undefined;
+      const arioEquiv = intentPrice?.mARIO
+        ? new mARIOToken(Number(intentPrice.mARIO)).toARIO().valueOf()
+        : undefined;
+      const anchorParts = [
+        usdEquiv !== undefined
+          ? `$${formatARIOWithCommas(usdEquiv)} USD`
+          : null,
+        arioEquiv ? `${formatARIOWithCommas(arioEquiv)} ${arioTicker}` : null,
+      ].filter(Boolean);
       return {
         'Total due:':
           intentPrice?.winc && Number(intentPrice?.winc) > 0 ? (
-            <span className="text-white text-bold text-lg">
-              {formatARIOWithCommas(
-                turbo?.wincToCredits(Number(intentPrice?.winc ?? 0)) ?? 0,
-              )}{' '}
-              Credits
+            <span className="flex flex-col items-end">
+              <span className="text-white text-bold text-lg">
+                {formatARIOWithCommas(
+                  turbo?.wincToCredits(Number(intentPrice?.winc ?? 0)) ?? 0,
+                )}{' '}
+                Credits
+              </span>
+              {anchorParts.length > 0 && (
+                <span className="text-grey text-xs">
+                  ≈ {anchorParts.join(' · ')}
+                </span>
+              )}
             </span>
           ) : (
             <span className="text-grey text-bold text-lg animate-pulse">
@@ -572,8 +603,27 @@ function Checkout() {
           setIsProcessingBaseToken(false);
           setBaseTokenStage(null);
         }
+      } else if (paymentMethod === 'credits') {
+        // Turbo Credits: settle through the bundler payment-service REST API
+        // (credits debited server-side, on-chain write server-fronted), NOT
+        // the dead `@ar.io/sdk buyRecord({ fundFrom: 'turbo' })` alias. Covers
+        // buy / extend-lease / increase-undername / upgrade — same intent path.
+        await dispatchArNSPurchaseWithCredits({
+          turbo,
+          workflowName: workflowName as ARNS_INTERACTION_TYPES,
+          intent: costDetailsParams.intent as TurboArNSIntent,
+          payload: {
+            ...transactionData,
+          },
+          owner: walletAddress,
+          wallet,
+          paidBy: creditsBalance?.receivedApprovals.map(
+            (approval) => approval.payingAddress,
+          ),
+          dispatch: dispatchTransactionState,
+        });
       } else {
-        // Standard payment flow (ARIO, fiat, credits)
+        // Standard payment flow (ARIO crypto, fiat)
         await dispatchArIOInteraction({
           arioContract: arioContract as ARIOWrite,
           workflowName: workflowName as ARNS_INTERACTION_TYPES,
@@ -587,12 +637,9 @@ function Checkout() {
           dispatch: dispatchTransactionState,
           signer: wallet?.contractSigner,
           wallet,
-          fundFrom:
-            paymentMethod === 'card'
-              ? 'fiat'
-              : paymentMethod === 'credits'
-                ? 'turbo'
-                : fundingSource,
+          // credits are handled above via `dispatchArNSPurchaseWithCredits`;
+          // here paymentMethod is 'card' (fiat) or 'crypto' (funding source).
+          fundFrom: paymentMethod === 'card' ? 'fiat' : fundingSource,
           paidBy: creditsBalance?.receivedApprovals.map(
             (approval) => approval.payingAddress,
           ),
@@ -601,7 +648,14 @@ function Checkout() {
         });
       }
     } catch (error) {
-      eventEmitter.emit('error', error);
+      // A runtime 402 on the credits path is not a dead-end: the wallet just
+      // needs more credits. Route to Top-Up (same modal as the pre-flight
+      // insufficient-balance button) instead of a generic error toast.
+      if (error instanceof InsufficientCreditsError) {
+        setShowTopUpModal(true);
+      } else {
+        eventEmitter.emit('error', error);
+      }
     } finally {
       if (walletAddress) {
         // Refresh the user's ArNS / ANT slice (resets `domainInfo`,
@@ -623,6 +677,10 @@ function Checkout() {
         // connect otherwise.
         queryClient.resetQueries({ queryKey: ['ario-liquid-balance'] });
         queryClient.resetQueries({ queryKey: ['ario-delegated-stake'] });
+        // A credits purchase debits the wallet's Turbo Credit balance
+        // server-side; that query has a 2-min staleTime, so invalidate it to
+        // reflect the debit immediately (navbar pill + next checkout).
+        queryClient.invalidateQueries({ queryKey: ['turbo-credit-balance'] });
       }
     }
   }
@@ -757,6 +815,9 @@ function Checkout() {
           </div>
         </div>
       </div>
+      {showTopUpModal && (
+        <TurboTopUpModal onClose={() => setShowTopUpModal(false)} />
+      )}
     </div>
   );
 }
