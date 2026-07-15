@@ -1,6 +1,10 @@
 import { ARIO } from '@ar.io/sdk/web';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { SolanaWalletConnector } from '@src/services/wallets';
+import {
+  EthWalletConnector,
+  SolanaWalletConnector,
+  WanderWalletConnector,
+} from '@src/services/wallets';
 import { getSolanaRpc, getSolanaRpcSubscriptions } from '@src/utils/solana';
 import React, {
   Dispatch,
@@ -10,6 +14,7 @@ import React, {
   useReducer,
   useRef,
 } from 'react';
+import { useAccount, useConfig } from 'wagmi';
 
 import { useEffectOnce } from '../../hooks/useEffectOnce/useEffectOnce';
 import { AoAddress, ArNSWalletConnector, WALLET_TYPES } from '../../types';
@@ -60,6 +65,12 @@ export function WalletStateProvider({
 
   const { walletAddress, wallet } = state;
 
+  // Ethereum (wagmi) session — used to rehydrate an `EthWalletConnector` when
+  // the user previously connected an EVM wallet (Model A). Safe to call now
+  // that `main.tsx` mounts the `WagmiProvider` again.
+  const wagmiConfig = useConfig();
+  const ethAccount = useAccount();
+
   useEffect(() => {
     if (!walletAddress) {
       wallet?.disconnect();
@@ -76,8 +87,15 @@ export function WalletStateProvider({
     if (solanaConfig.programIds.antProgramId)
       programIds.antProgramId = solanaConfig.programIds.antProgramId;
 
-    const signer = wallet?.solanaSigner;
-    console.debug('[WalletState] init Solana ARIO', {
+    // Only the Solana identity (Model B — user-owned ANT) contributes a signer
+    // to the on-chain ARIO client. For Arweave / Ethereum (Model A) the bundler
+    // custodies the ANT and settles the buy server-side, so we intentionally do
+    // NOT wire their signer into `ARIO.init`. A read-only Solana ARIO client is
+    // still built so name resolution / lookups keep working for every identity.
+    const signer =
+      wallet?.tokenType === 'solana' ? wallet?.solanaSigner : undefined;
+    console.debug('[WalletState] init ARIO', {
+      tokenType: wallet?.tokenType,
       hasSigner: !!signer,
       walletAddress,
       network: solanaConfig.network,
@@ -121,11 +139,18 @@ export function WalletStateProvider({
   //   override the active address without disconnecting the wallet, and an
   //   address-based gate would refire this effect and clobber the override
   //   back to the adapter's publicKey on the next render.
+  // - We also bail when a non-Solana (Arweave / ETH) wallet is already
+  //   connected so the Solana adapter's autoConnect can't clobber it.
   const solanaWallet = useWallet();
   const wiredPublicKeyRef = useRef<string | undefined>(undefined);
   useEffect(() => {
     if (!solanaWallet.connected || !solanaWallet.publicKey) {
       wiredPublicKeyRef.current = undefined;
+      return;
+    }
+    // Don't override an active non-Solana identity with the Solana adapter's
+    // rehydrated session.
+    if (wallet && wallet.tokenType !== 'solana') {
       return;
     }
     const addr = solanaWallet.publicKey.toBase58();
@@ -165,8 +190,99 @@ export function WalletStateProvider({
     wallet,
   ]);
 
+  // Rehydrate an Arweave (Wander / injected `window.arweaveWallet`) identity.
+  // The extension fires `arweaveWalletLoaded` once injected; we also try on
+  // mount for the case where it injected before React hydrated.
+  useEffect(() => {
+    window.addEventListener('arweaveWalletLoaded', reconnectArweaveIfSelected);
+    return () => {
+      window.removeEventListener(
+        'arweaveWalletLoaded',
+        reconnectArweaveIfSelected,
+      );
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function reconnectArweaveIfSelected() {
+    const walletType = window.localStorage.getItem('walletType');
+    if (walletType !== WALLET_TYPES.WANDER) return;
+    try {
+      const connector = new WanderWalletConnector();
+      const address = await connector.getWalletAddress();
+      await connector.updatePermissions();
+      dispatchWalletState({
+        type: 'setWalletAndAddress',
+        payload: {
+          wallet: connector,
+          walletAddress: address,
+        },
+      });
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
+  }
+
+  // Rehydrate an Ethereum identity once wagmi restores the session (mirrors the
+  // `arweaveWalletLoaded` behaviour for Arweave). Only when the user last chose
+  // ETH and no other wallet is already wired.
+  useEffect(() => {
+    const walletType = window.localStorage.getItem('walletType');
+    if (
+      walletType === WALLET_TYPES.ETHEREUM &&
+      ethAccount.isConnected &&
+      ethAccount.address &&
+      ethAccount.connector &&
+      (!wallet || wallet.tokenType === 'ethereum') &&
+      ethAccount.address !== walletAddress
+    ) {
+      try {
+        const connector = new EthWalletConnector(
+          wagmiConfig,
+          ethAccount.connector,
+        );
+        dispatchWalletState({
+          type: 'setWalletAndAddress',
+          payload: {
+            wallet: connector,
+            walletAddress: ethAccount.address as never,
+          },
+        });
+      } catch (error) {
+        eventEmitter.emit('error', error);
+      }
+    }
+  }, [
+    ethAccount.isConnected,
+    ethAccount.address,
+    ethAccount.connector,
+    wallet,
+    walletAddress,
+    wagmiConfig,
+  ]);
+
+  // Handle external Ethereum wallet disconnection (user disconnects from the
+  // extension) so app state doesn't retain a stale ETH identity.
+  useEffect(() => {
+    if (
+      !ethAccount.isConnected &&
+      wallet instanceof EthWalletConnector &&
+      walletAddress
+    ) {
+      localStorage.removeItem('walletType');
+      dispatchWalletState({
+        type: 'setWalletAndAddress',
+        payload: {
+          wallet: undefined,
+          walletAddress: undefined,
+        },
+      });
+    }
+  }, [ethAccount.isConnected, wallet, walletAddress]);
+
   useEffect(() => {
     updateIfConnected();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffectOnce(() => {
@@ -185,9 +301,12 @@ export function WalletStateProvider({
 
   async function updateIfConnected() {
     // Solana wallet rehydration is driven by `<WalletProvider autoConnect>`
-    // and the `ConnectWalletModal` picker effect — there's nothing to do
-    // here. We simply flip the `walletStateInitialized` flag so the rest
+    // and the `ConnectWalletModal` picker effect. Arweave/ETH rehydration is
+    // driven by the effects above. Here we additionally attempt an eager
+    // Arweave reconnect (covers the case where the extension injected before
+    // this component mounted), then flip `walletStateInitialized` so the rest
     // of the app stops waiting on us.
+    await reconnectArweaveIfSelected();
     dispatchWalletState({
       type: 'setWalletStateInitialized',
     });

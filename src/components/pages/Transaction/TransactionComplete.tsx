@@ -18,6 +18,7 @@ import { ANTCard } from '../../cards';
 import ActionCard from '../../cards/ActionCard/ActionCard';
 import { ArrowLeft, SettingsIcon } from '../../icons';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
+import CustodialNameNotice from '../../notices/CustodialNameNotice';
 import { getTransactionCompleteAnnouncement } from './transaction-announcements';
 
 function TransactionComplete() {
@@ -94,6 +95,12 @@ function TransactionComplete() {
             interactionType: localData.interactionType,
           })}
         </div>
+
+        {localData.interactionResult?.payload?.custodial ? (
+          <CustodialNameNotice
+            antId={localData.interactionResult?.payload?.custodialAntId}
+          />
+        ) : null}
 
         <div className="flex-column center" style={{ gap: '20px' }}>
           <div

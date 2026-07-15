@@ -64,14 +64,22 @@ function makeWallet() {
   } as any;
 }
 
-function makeArgs(executeArNSIntent: jest.Mock) {
+function makeArweaveWallet() {
+  return {
+    tokenType: 'arweave',
+    // Model A authenticates with a turbo signer; no solanaSigner.
+    turboSigner: { sign: jest.fn() },
+  } as any;
+}
+
+function makeArgs(executeArNSIntent: jest.Mock, wallet = makeWallet()) {
   return {
     turbo: { executeArNSIntent } as any,
     workflowName: 'buyRecord' as any,
     intent: 'Buy-Name' as any,
     payload: { name: 'MyCoolName', type: 'lease', years: 1 },
     owner: { toString: () => OWNER } as any,
-    wallet: makeWallet(),
+    wallet,
     dispatch: jest.fn(),
   };
 }
@@ -137,5 +145,45 @@ describe('dispatchArNSPurchaseWithCredits (money safety)', () => {
 
     // ANT retained so topping up + retrying reuses it (no second spawn).
     expect(getPendingArNSPurchase()?.processId).toBe('ANT-SPAWNED');
+  });
+
+  // ---- Model A (custodial, Arweave identity) ----
+  it('Model A (arweave): does NOT spawn an ANT and buys with processId omitted', async () => {
+    const execute = jest.fn(async ({ processId, onStatus }: any) => {
+      onStatus?.({ phase: 'submitted', nonce: 'nonce-a' });
+      return {
+        nonce: 'nonce-a',
+        messageId: 'tx-custodial',
+        // Bundler reports the custodial ANT it provisioned.
+        receipt: { processId: 'ANT-CUSTODIAL' },
+        processId,
+      };
+    });
+
+    const interaction = await dispatchArNSPurchaseWithCredits(
+      makeArgs(execute, makeArweaveWallet()),
+    );
+
+    // No client-side ANT spawn for Model A.
+    expect(spawnMock).not.toHaveBeenCalled();
+    expect(execute).toHaveBeenCalledTimes(1);
+    const call = execute.mock.calls[0][0];
+    expect(call.processId).toBeUndefined(); // omitted → bundler custodies
+    expect(call.tokenType).toBe('arweave');
+    expect(call.signer).toBeDefined();
+    // Interaction is flagged custodial and carries the bundler's ANT id.
+    expect(interaction.payload.custodial).toBe(true);
+    expect(interaction.payload.custodialAntId).toBe('ANT-CUSTODIAL');
+    expect(interaction.processId).toBe('ANT-CUSTODIAL');
+    expect(getPendingArNSPurchase()).toBeUndefined();
+  });
+
+  it('Model A (arweave): throws a clear error when no turbo signer is present', async () => {
+    const execute = jest.fn();
+    const wallet = { tokenType: 'arweave' } as any; // no turboSigner
+    await expect(
+      dispatchArNSPurchaseWithCredits(makeArgs(execute, wallet)),
+    ).rejects.toThrow(/arweave wallet is required/i);
+    expect(execute).not.toHaveBeenCalled();
   });
 });

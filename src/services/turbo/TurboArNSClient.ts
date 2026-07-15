@@ -130,7 +130,12 @@ export interface AuthenticatedArNSPurchaseClient {
     name: string;
     type?: 'lease' | 'permabuy';
     years?: number;
-    processId: string;
+    /**
+     * ANT the name resolves to. Required for Model B (user-owned ANT); OMITTED
+     * for Model A (custodial) — the bundler provisions + custodies the ANT
+     * server-side. The published SDK/CLI make this optional.
+     */
+    processId?: string;
     paidBy?: string[];
   }): Promise<ArNSPurchaseResult>;
   extendArNSLease(params: {
@@ -199,8 +204,21 @@ export type ExecuteArNSIntentParams = {
    * Solana wallet adapter (e.g. `window.solana`) used to build the
    * authenticated turbo-sdk client that signs the request nonce. Not required
    * when `resumeNonce` is supplied (a resume only polls, it never re-submits).
+   * Only used for the Solana (Model B) path.
    */
   walletAdapter?: unknown;
+  /**
+   * Connected wallet's token type. Drives which authenticated turbo-sdk client
+   * is built: `solana` uses the wallet adapter; `arweave`/`ethereum` (Model A —
+   * custodial) use {@link signer}. Defaults to `solana` for back-compat.
+   */
+  tokenType?: TokenType;
+  /**
+   * arbundles-compatible turbo signer (e.g. `ArconnectSigner` /
+   * `InjectedEthereumSigner`) used to build the authenticated client for the
+   * Arweave / Ethereum (Model A) path. Ignored for Solana.
+   */
+  signer?: unknown;
   /**
    * Inject a pre-built authenticated client (used by tests). When omitted, one
    * is constructed from `walletAdapter`.
@@ -456,6 +474,8 @@ export class TurboArNSClient {
     processId,
     paidBy,
     walletAdapter,
+    tokenType,
+    signer,
     purchaseClient,
     resumeNonce,
     onStatus,
@@ -467,7 +487,8 @@ export class TurboArNSClient {
     if (!nonce) {
       onStatus?.({ phase: 'submitting' });
       const client =
-        purchaseClient ?? this.buildAuthenticatedArNSClient(walletAdapter);
+        purchaseClient ??
+        this.buildAuthenticatedArNSClient({ walletAdapter, tokenType, signer });
       try {
         const result = await this.submitArNSPurchase(client, {
           intent,
@@ -477,6 +498,7 @@ export class TurboArNSClient {
           increaseQty,
           processId,
           paidBy,
+          tokenType,
         });
         // Prefer the top-level nonce; fall back to the receipt's copy.
         nonce = result.nonce ?? result.purchaseReceipt?.nonce;
@@ -503,13 +525,42 @@ export class TurboArNSClient {
   }
 
   /**
-   * Build the authenticated turbo-sdk client that signs the request nonce with
-   * the connected Solana wallet. Mirrors the proven Solana authed pattern used
-   * for logo uploads (`useUploadArNSLogo`).
+   * Build the authenticated turbo-sdk client that signs the request nonce for
+   * the connected identity. Identity-agnostic:
+   *
+   * - **Solana (Model B)** — build from the wallet adapter (`window.solana`),
+   *   mirroring the proven Solana authed pattern used for logo uploads
+   *   (`useUploadArNSLogo`). The user's wallet owns the ANT.
+   * - **Arweave / Ethereum (Model A — custodial)** — build from an
+   *   arbundles-compatible `signer` (`ArconnectSigner` / `InjectedEthereumSigner`
+   *   exposed by the wallet connector's `turboSigner`). The bundler custodies
+   *   the ANT; only the buy params + custody UX differ, not this client.
    */
-  private buildAuthenticatedArNSClient(
-    walletAdapter: unknown,
-  ): AuthenticatedArNSPurchaseClient {
+  private buildAuthenticatedArNSClient({
+    walletAdapter,
+    tokenType = 'solana',
+    signer,
+  }: {
+    walletAdapter?: unknown;
+    tokenType?: TokenType;
+    signer?: unknown;
+  }): AuthenticatedArNSPurchaseClient {
+    if (tokenType === 'arweave' || tokenType === 'ethereum') {
+      if (!signer) {
+        throw new Error(
+          `A connected ${tokenType} wallet signer is required to pay with Turbo Credits.`,
+        );
+      }
+      return TurboFactory.authenticated({
+        token: tokenType,
+        signer: signer as any,
+        paymentServiceConfig: {
+          url: this.paymentUrl,
+        },
+      } as any) as unknown as AuthenticatedArNSPurchaseClient;
+    }
+
+    // Solana (default): use the injected wallet adapter.
     const adapter =
       walletAdapter ??
       (typeof window !== 'undefined' ? (window as any).solana : undefined);
@@ -538,6 +589,7 @@ export class TurboArNSClient {
       increaseQty,
       processId,
       paidBy,
+      tokenType = 'solana',
     }: {
       intent: TurboArNSIntent;
       name: string;
@@ -546,12 +598,16 @@ export class TurboArNSClient {
       increaseQty?: number;
       processId?: string;
       paidBy?: string[];
+      tokenType?: TokenType;
     },
   ): Promise<ArNSPurchaseResult> {
     const domain = lowerCaseDomain(name);
     switch (intent) {
       case 'Buy-Name': {
-        if (!processId) {
+        // Model B (Solana) MUST supply the client-spawned ANT's processId.
+        // Model A (Arweave / Ethereum — custodial) OMITS it so the bundler
+        // provisions + custodies the ANT server-side.
+        if (tokenType === 'solana' && !processId) {
           throw new Error(
             'A processId (ANT) is required to buy an ArNS name with credits.',
           );
@@ -560,7 +616,9 @@ export class TurboArNSClient {
           name: domain,
           type,
           years,
-          processId,
+          // Only forward processId when present (Model B). Omitting it for
+          // Model A triggers the bundler's custodial provisioning path.
+          ...(processId ? { processId } : {}),
           paidBy,
         });
       }
@@ -728,5 +786,29 @@ export class TurboArNSClient {
 
   public wincToCredits(winc: number) {
     return winc / 1_000_000_000_000;
+  }
+
+  /**
+   * Claim / transfer a **custodially-held** ArNS name (Model A) out to a
+   * wallet-controlled owner via the credit-authed bundler endpoint
+   * `POST /v1/arns/transfer/:antId`.
+   *
+   * STUB: not wired in this PR. The endpoint + signed-request-header auth land
+   * with the claim/exit work. Kept here as the single seam the UI calls, so the
+   * "Claim / transfer out" button can be enabled without touching call sites.
+   *
+   * @todo Build the authenticated client from the connected wallet's signer and
+   *       POST the transfer, then poll to terminal like `executeArNSIntent`.
+   */
+  public async transferCustodialArNSName(_params: {
+    antId: string;
+    toAddress: string;
+    tokenType?: TokenType;
+    signer?: unknown;
+    walletAdapter?: unknown;
+  }): Promise<never> {
+    throw new Error(
+      'Claiming a custodial ArNS name to your own wallet is not available yet.',
+    );
   }
 }

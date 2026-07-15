@@ -61,26 +61,40 @@ export default async function dispatchArNSPurchaseWithCredits({
   const name: string = payload.name;
   const lowered = lowerCaseDomain(name);
 
-  // Model B (Solana) requires a connected wallet + signer to spawn the ANT and
-  // sign the request nonce the bundler verifies.
-  if (wallet?.tokenType !== 'solana' || !wallet.solanaSigner) {
+  if (!wallet) {
     throw new Error(
-      'A connected Solana wallet with a signer is required to pay with Turbo Credits.',
+      'A connected wallet is required to pay with Turbo Credits.',
     );
   }
 
   const strategy = resolveCustodyStrategy(wallet.tokenType);
-  if (strategy.isStub) {
-    // Model A (Arweave / ETH / keyless) — designed, not yet built. Fail loudly.
-    throw new Error(
-      `Paying with credits for ${wallet.tokenType} wallets is not available yet. ` +
-        'Connect a Solana wallet to pay with Turbo Credits.',
-    );
+
+  // Per-model identity readiness check.
+  if (strategy.model === 'B-user-owned') {
+    // Model B (Solana) requires a connected wallet + signer to spawn the ANT
+    // and sign the request nonce the bundler verifies.
+    if (wallet.tokenType !== 'solana' || !wallet.solanaSigner) {
+      throw new Error(
+        'A connected Solana wallet with a signer is required to pay with Turbo Credits.',
+      );
+    }
+  } else {
+    // Model A (Arweave / Ethereum — custodial). The bundler custodies the ANT;
+    // we only need a turbo signer to authenticate the credit-debited request.
+    if (!wallet.turboSigner) {
+      throw new Error(
+        `A connected ${wallet.tokenType} wallet is required to pay with Turbo Credits.`,
+      );
+    }
   }
 
+  // Solana wallet adapter — only used for the Model B authed client. Undefined
+  // (and unused) for Model A.
   const walletAdapter =
-    (typeof window !== 'undefined' ? (window as any).solana : undefined) ??
-    (wallet as any).solanaWallet;
+    strategy.model === 'B-user-owned'
+      ? ((typeof window !== 'undefined' ? (window as any).solana : undefined) ??
+        (wallet as any).solanaWallet)
+      : undefined;
 
   const onStatus = (status: ArNSSettlementStatus) => {
     switch (status.phase) {
@@ -153,7 +167,9 @@ export default async function dispatchArNSPurchaseWithCredits({
       const spawnResult = await ANT.spawn({
         rpc: getSolanaRpc(),
         rpcSubscriptions: getSolanaRpcSubscriptions(),
-        signer: wallet.solanaSigner,
+        // Guaranteed defined here: this block only runs for Model B (Solana),
+        // whose readiness check above asserts a `solanaSigner`.
+        signer: wallet.solanaSigner!,
         antProgramId: programIds.antProgramId,
         state: {
           ...createAntStateForOwner(owner.toString(), payload.targetId),
@@ -180,9 +196,14 @@ export default async function dispatchArNSPurchaseWithCredits({
       type: payload.type,
       years: payload.years,
       increaseQty: payload.qty,
+      // Model B passes the client-spawned ANT; Model A leaves it undefined so
+      // the bundler custodially provisions one.
       processId,
       paidBy,
       walletAdapter,
+      tokenType: wallet.tokenType,
+      // Model A (Arweave / ETH) authenticates with the wallet's turbo signer.
+      signer: wallet.turboSigner,
       resumeNonce,
       onStatus: (status) => {
         // Persist the nonce the instant it exists so a reload can resume.
@@ -207,12 +228,25 @@ export default async function dispatchArNSPurchaseWithCredits({
 
     clearPendingArNSPurchase();
 
+    // Model A: the ANT is provisioned server-side, so its processId isn't known
+    // client-side until the bundler reports it on the settlement receipt. Prefer
+    // the client-spawned id (Model B), then the receipt's custodial ANT id.
+    const custodialAntId =
+      (result.receipt?.processId as string | undefined) ??
+      (result.receipt?.antProcessId as string | undefined) ??
+      (result.receipt?.antId as string | undefined);
+    const resolvedProcessId = processId ?? custodialAntId;
+
     const interaction: ContractInteraction = {
       deployer: owner.toString(),
-      processId: (processId ?? '').toString(),
+      processId: (resolvedProcessId ?? '').toString(),
       id: result.messageId,
       type: 'interaction',
-      payload,
+      payload: {
+        ...payload,
+        custodial: strategy.model === 'A-custodial',
+        ...(custodialAntId ? { custodialAntId } : {}),
+      },
     };
 
     dispatch({ type: 'setWorkflowName', payload: workflowName });

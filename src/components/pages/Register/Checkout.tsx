@@ -54,14 +54,10 @@ import { queryClient } from '@src/utils/network';
 import { Tooltip as AntdTooltip } from 'antd';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// NOTE (de-AO refactor): wagmi hooks crash without a `WagmiProvider`, which
-// the Solana-only refactor removed. Stub them out — the resulting `undefined`
-// values flow into the EVM-funded checkout branches that are unreachable
-// from the Solana-only UI anyway. Re-import from 'wagmi' if/when EVM
-// wallets come back.
-const useAccount = () => ({ connector: undefined, address: undefined }) as any;
-const useBalance = (_args?: unknown) => ({ data: undefined }) as any;
-const useConfig = () => undefined as any;
+// Multi-wallet restored (Model A): the `WagmiProvider` is mounted again in
+// `main.tsx`, so the real wagmi hooks are safe to use for the EVM-funded
+// checkout branches.
+import { useAccount, useBalance, useConfig } from 'wagmi';
 
 // page on route transaction/review
 // on completion routes to transaction/complete

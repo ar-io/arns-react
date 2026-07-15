@@ -113,6 +113,13 @@ export interface ArNSWalletConnector {
 
 export enum WALLET_TYPES {
   SOLANA = 'Solana',
+  // Restored for the Model-A (custodial credit-buy) multi-wallet path. Arweave
+  // identities (Wander / injected `window.arweaveWallet`) and Ethereum wallets
+  // pay with Turbo Credits while the bundler custodies the ANT. `SOLANA` remains
+  // the Model-B (user-owned ANT) path.
+  WANDER = 'Wander',
+  ARWEAVE = 'Arweave',
+  ETHEREUM = 'Ethereum',
 }
 
 export interface KVCache {

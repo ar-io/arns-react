@@ -46,12 +46,9 @@ import {
 } from '@src/utils/constants';
 import { AlertCircle, RefreshCw, Wallet } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-// NOTE (de-AO refactor): wagmi hooks crash without a `WagmiProvider`, which
-// the Solana-only refactor removed. Stub them out — the EVM crypto top-up
-// branches that read these values are unreachable from the Solana-only UI.
-const useAccount = () => ({ address: undefined }) as any;
-const useBalance = (_args?: unknown) => ({ data: undefined }) as any;
-const useWalletClient = () => ({ data: undefined }) as any;
+// Multi-wallet restored (Model A): the `WagmiProvider` is mounted again in
+// `main.tsx`, so the real wagmi hooks are safe to use here.
+import { useAccount, useBalance, useWalletClient } from 'wagmi';
 
 // Fallback value for winc per GiB when upload cost data is unavailable
 const WINC_PER_GIB_FALLBACK = 1e12;

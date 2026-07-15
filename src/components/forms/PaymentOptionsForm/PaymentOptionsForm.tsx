@@ -36,12 +36,9 @@ import {
 import { Tabs } from 'radix-ui';
 import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
 import { isEmail } from 'validator';
-// NOTE (de-AO refactor): wagmi hooks crash without a `WagmiProvider`, which
-// the Solana-only refactor removed. Stub them out — the EVM-funded payment
-// branches are unreachable from the Solana-only UI but the wagmi hook
-// calls themselves still ran on every render and crashed the form.
-const useAccount = () => ({ connector: undefined, address: undefined }) as any;
-const useBalance = (_args?: unknown) => ({ data: undefined }) as any;
+// Multi-wallet restored (Model A): the `WagmiProvider` is mounted again in
+// `main.tsx`, so the real wagmi hooks are safe to use here.
+import { useAccount, useBalance } from 'wagmi';
 
 export type PaymentMethod = 'card' | 'crypto' | 'credits';
 export type ARIOCryptoOptions = 'ARIO' | 'dARIO' | 'tARIO';

@@ -305,4 +305,95 @@ describe('TurboArNSClient.executeArNSIntent', () => {
       expect(call).toBeGreaterThanOrEqual(2);
     });
   });
+
+  // ---- Model A (custodial) — identity-agnostic authenticated client ----
+  describe('identity-agnostic client + Model A custodial buy', () => {
+    it('Model A (arweave, injected client): buys WITHOUT a processId', async () => {
+      const client = makeClient();
+      const purchaseClient = makePurchaseClient();
+      mockStatusSequence([{ messageId: 'tx-custodial' }]);
+
+      const res = await client.executeArNSIntent(
+        baseParams({
+          intent: 'Buy-Name',
+          name: 'CoolName',
+          type: 'lease',
+          years: 1,
+          tokenType: 'arweave',
+          // No processId — the bundler custodially provisions the ANT.
+          purchaseClient,
+        }),
+      );
+
+      expect(purchaseClient.buyArNSName).toHaveBeenCalledTimes(1);
+      const arg = purchaseClient.buyArNSName.mock.calls[0][0];
+      expect(arg).not.toHaveProperty('processId'); // omitted for Model A
+      expect(arg.name).toBe('coolname');
+      expect(res.messageId).toBe('tx-custodial');
+    });
+
+    it('Model B (solana) still REQUIRES a processId for Buy-Name', async () => {
+      const client = makeClient();
+      const purchaseClient = makePurchaseClient();
+      mockStatusSequence([{ messageId: 'never' }]);
+
+      await expect(
+        client.executeArNSIntent(
+          baseParams({
+            intent: 'Buy-Name',
+            tokenType: 'solana',
+            purchaseClient,
+          }),
+        ),
+      ).rejects.toThrow(/processId/i);
+      expect(purchaseClient.buyArNSName).not.toHaveBeenCalled();
+    });
+
+    it('builds an arweave-signed authenticated client from the wallet signer', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { TurboFactory } = require('@ardrive/turbo-sdk');
+      const buyArNSName = jest.fn(async () => ({
+        nonce: NONCE,
+        purchaseReceipt: { nonce: NONCE },
+      }));
+      TurboFactory.authenticated.mockReturnValueOnce({
+        buyArNSName,
+        extendArNSLease: jest.fn(),
+        increaseArNSUndernameLimit: jest.fn(),
+        upgradeArNSName: jest.fn(),
+      });
+      mockStatusSequence([{ messageId: 'tx-arweave' }]);
+
+      const client = makeClient();
+      const fakeSigner = { sign: jest.fn() };
+      const res = await client.executeArNSIntent(
+        baseParams({
+          intent: 'Buy-Name',
+          name: 'ArweaveName',
+          tokenType: 'arweave',
+          signer: fakeSigner,
+        }),
+      );
+
+      expect(TurboFactory.authenticated).toHaveBeenCalledWith(
+        expect.objectContaining({ token: 'arweave', signer: fakeSigner }),
+      );
+      expect(buyArNSName).toHaveBeenCalledTimes(1);
+      expect((buyArNSName as jest.Mock).mock.calls[0][0]).not.toHaveProperty(
+        'processId',
+      );
+      expect(res.messageId).toBe('tx-arweave');
+    });
+
+    it('throws a clear error when a Model A (ethereum) signer is missing', async () => {
+      const client = makeClient();
+      mockStatusSequence([{ messageId: 'never' }]);
+
+      await expect(
+        client.executeArNSIntent(
+          baseParams({ intent: 'Upgrade-Name', tokenType: 'ethereum' }),
+        ),
+      ).rejects.toThrow(/signer is required/i);
+    });
+  });
 });

@@ -52,20 +52,19 @@ export function resolveCustodyStrategy(
         isStub: false,
       };
 
-    // ---- Model A seam (Arweave / Ethereum / keyless) — Phase 2/3 ----
+    // ---- Model A (Arweave / Ethereum / keyless) — custodial ----
     // These identities can't own a Solana ANT directly, so the bundler
     // provisions + custodies it (ARNS_PROVISIONING_ENABLED) and later exposes a
     // claim/exit transfer. The settlement client is identity-agnostic; only the
-    // buy params + custody UX differ. Not wired in Phase 1 — the app is
-    // Solana-only today (WagmiProvider removed, ETH hooks stubbed), so the
-    // blocker is app-side wallet support, not the bundler. Marked `isStub` so
-    // the Checkout credits path fails loudly instead of silently mis-settling.
+    // buy params (no client `processId`) + custody UX differ. Now WIRED:
+    // multi-wallet is restored, so an Arweave (or ETH) identity pays with
+    // credits while Turbo holds the ANT. `isStub: false`.
     default:
       return {
         model: 'A-custodial',
         ownsAnt: false,
         requiresClientAntSpawn: false,
-        isStub: true,
+        isStub: false,
       };
   }
 }
