@@ -332,6 +332,48 @@ export type ArNSTransferResult = {
   confirmed: boolean;
 };
 
+/**
+ * The subset of the turbo-sdk authenticated client used to MANAGE a
+ * custodially-held ArNS name's records with credits (Model A). Declared
+ * structurally so it can be injected in tests without standing up the whole SDK.
+ *
+ * The concrete SDK client builds an ACTION-BOUND, single-use signed message for
+ * each op (`set-record`/`remove-record` + antId + fields + a fresh nonce), so a
+ * captured signature can't be replayed against a different ANT/undername. We
+ * never hand-roll that message.
+ */
+export interface AuthenticatedArNSRecordClient {
+  setArNSRecord(params: {
+    antId: string;
+    undername?: string;
+    transactionId: string;
+    ttlSeconds: number;
+  }): Promise<{
+    antId: string;
+    undername: string;
+    transactionId: string;
+    ttlSeconds: number;
+    messageId: string;
+  }>;
+  removeArNSRecord(params: { antId: string; undername: string }): Promise<{
+    antId: string;
+    undername: string;
+    messageId: string;
+  }>;
+}
+
+/** Result of a credit-paid custodial ArNS record set/remove. */
+export type ArNSRecordResult = {
+  antId: string;
+  undername: string;
+  /** Present for a set (omitted for a remove). */
+  transactionId?: string;
+  /** Present for a set (omitted for a remove). */
+  ttlSeconds?: number;
+  /** Solana tx id of the on-chain record write. */
+  messageId: string;
+};
+
 export class TurboArNSClient {
   public readonly turboUploader;
   public readonly uploadUrl;
@@ -972,6 +1014,144 @@ export class TurboArNSClient {
     const message = error instanceof Error ? error.message : String(error);
     if (status === 404 || /\(Status 404\)/.test(message)) {
       return new CustodialANTNotFoundError();
+    }
+    if (status === 401 || /\(Status 401\)/.test(message)) {
+      return new CustodyTransferUnauthorizedError();
+    }
+    return error instanceof Error ? error : new Error(message);
+  }
+
+  /**
+   * Set an ArNS record (target `@` or an undername) on a **custodially-held**
+   * (Model A) ANT by debiting the connected identity's Turbo Credits via the
+   * bundler `POST /v1/arns/manage/:antId/set-record`.
+   *
+   * Distinct from the wallet-signed `dispatchANTInteraction` path (Model B): the
+   * user does NOT own the ANT — Turbo does — so a wallet interaction physically
+   * can't work. Instead the user's credit-identity signer authenticates an
+   * ACTION-BOUND, single-use request (built by the SDK, bound to this exact
+   * antId+op+fields) and the bundler, as the on-chain owner, writes the record.
+   *
+   * Security:
+   * - The bundler authorizes against the `user_ant` custody mapping; a caller
+   *   who doesn't custody the ANT gets a deliberately non-leaky `404`
+   *   ({@link CustodialANTNotFoundError}) — we never reveal another owner's name.
+   * - A `401` (bad signature) maps to {@link CustodyTransferUnauthorizedError}.
+   */
+  public async setCustodialArNSRecord({
+    antId,
+    undername = '@',
+    transactionId,
+    ttlSeconds,
+    tokenType,
+    signer,
+    walletAdapter,
+    recordClient,
+  }: {
+    antId: string;
+    undername?: string;
+    transactionId: string;
+    ttlSeconds: number;
+    tokenType?: TokenType;
+    signer?: unknown;
+    walletAdapter?: unknown;
+    recordClient?: AuthenticatedArNSRecordClient;
+  }): Promise<ArNSRecordResult> {
+    if (!antId) {
+      throw new Error('An ANT id is required to manage a custodial name.');
+    }
+    if (!transactionId) {
+      throw new Error('A target transaction id is required to set a record.');
+    }
+
+    const client =
+      recordClient ??
+      (this.buildAuthenticatedTurboClient({
+        walletAdapter,
+        tokenType,
+        signer,
+      }) as AuthenticatedArNSRecordClient);
+
+    try {
+      const result = await client.setArNSRecord({
+        antId,
+        undername,
+        transactionId,
+        ttlSeconds,
+      });
+      return {
+        antId: result.antId ?? antId,
+        undername: result.undername ?? undername,
+        transactionId: result.transactionId ?? transactionId,
+        ttlSeconds: result.ttlSeconds ?? ttlSeconds,
+        messageId: result.messageId,
+      };
+    } catch (error) {
+      throw this.mapCustodyManageError(error);
+    }
+  }
+
+  /**
+   * Remove an undername record from a **custodially-held** (Model A) ANT by
+   * debiting the connected identity's Turbo Credits via the bundler
+   * `POST /v1/arns/manage/:antId/remove-record`. See {@link setCustodialArNSRecord}
+   * for the identity/security model.
+   */
+  public async removeCustodialArNSRecord({
+    antId,
+    undername,
+    tokenType,
+    signer,
+    walletAdapter,
+    recordClient,
+  }: {
+    antId: string;
+    undername: string;
+    tokenType?: TokenType;
+    signer?: unknown;
+    walletAdapter?: unknown;
+    recordClient?: AuthenticatedArNSRecordClient;
+  }): Promise<ArNSRecordResult> {
+    if (!antId) {
+      throw new Error('An ANT id is required to manage a custodial name.');
+    }
+    if (!undername || undername === '@') {
+      throw new Error('A non-apex undername is required to remove a record.');
+    }
+
+    const client =
+      recordClient ??
+      (this.buildAuthenticatedTurboClient({
+        walletAdapter,
+        tokenType,
+        signer,
+      }) as AuthenticatedArNSRecordClient);
+
+    try {
+      const result = await client.removeArNSRecord({ antId, undername });
+      return {
+        antId: result.antId ?? antId,
+        undername: result.undername ?? undername,
+        messageId: result.messageId,
+      };
+    } catch (error) {
+      throw this.mapCustodyManageError(error);
+    }
+  }
+
+  /**
+   * Normalize a custodial-manage error. A bundler `404` (not-your-ANT, or the
+   * ANT doesn't exist — deliberately conflated) → {@link CustodialANTNotFoundError}
+   * with manage-appropriate copy; a `401` (bad signature) →
+   * {@link CustodyTransferUnauthorizedError}.
+   */
+  private mapCustodyManageError(error: unknown): Error {
+    const status = (error as { status?: number })?.status;
+    const message = error instanceof Error ? error.message : String(error);
+    if (status === 404 || /\(Status 404\)/.test(message)) {
+      return new CustodialANTNotFoundError(
+        'This name is not held in your Turbo custody, so its records cannot be managed from this account.',
+      );
     }
     if (status === 401 || /\(Status 401\)/.test(message)) {
       return new CustodyTransferUnauthorizedError();

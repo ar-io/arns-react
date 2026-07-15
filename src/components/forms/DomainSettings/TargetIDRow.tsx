@@ -22,10 +22,13 @@ export default function TargetIDRow({
   targetId,
   confirm,
   editable = false,
+  creditPaid = false,
 }: {
   targetId?: string;
   confirm: (targetId: string) => Promise<ContractInteraction>;
   editable?: boolean;
+  /** Custodial (Model A) name: this edit is paid with Turbo Credits. */
+  creditPaid?: boolean;
 }) {
   const [editing, setEditing] = useState<boolean>(false);
   const [newTargetId, setNewTargetId] = useState<string>(targetId ?? '');
@@ -131,6 +134,15 @@ export default function TargetIDRow({
                   {`"${newTargetId}"`}.
                 </span>
               </span>
+              {creditPaid && (
+                <span
+                  className="text-primary"
+                  data-testid="target-id-credit-paid-note"
+                >
+                  This name is held in Turbo custody — the change will be paid
+                  with your Turbo Credits.
+                </span>
+              )}
               <span>Are you sure you want to continue?</span>
             </>
           }

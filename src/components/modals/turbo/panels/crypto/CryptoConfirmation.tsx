@@ -13,6 +13,7 @@
 import { mARIOToken } from '@ar.io/sdk/web';
 import {
   ARIOToTokenAmount,
+  ARToTokenAmount,
   ETHToTokenAmount,
   POLToTokenAmount,
   TokenType,
@@ -355,12 +356,47 @@ function CryptoConfirmation({
         // Direct payment via Turbo SDK
         if (
           (walletType === WALLET_TYPES.WANDER ||
+            walletType === WALLET_TYPES.ARWEAVE ||
             walletType === WALLET_TYPES.ARWEAVE_APP ||
             walletType === WALLET_TYPES.BEACON) &&
-          window.arweaveWallet &&
           (tokenType === 'arweave' || tokenType === 'ario')
         ) {
-          throw new Error('ArConnect wallet is not supported in Solana mode');
+          // Arweave identity (Model A): fund credits with AR or ARIO using the
+          // wallet's arbundles turbo signer (ArconnectSigner). Credits land on
+          // the connected Arweave address (the signer's own address) — mirrors
+          // the ETH-ARIO branch below, just with the Arweave signer/token.
+          if (!wallet?.turboSigner) {
+            setPaymentError(
+              'Wallet signer not available. Please reconnect your wallet and try again.',
+            );
+            setIsProcessing(false);
+            return;
+          }
+
+          const turboSigner = wallet.turboSigner as any;
+          // Ensure public key is set (required for data-item / fund signing).
+          if (!turboSigner.publicKey && turboSigner.setPublicKey) {
+            await turboSigner.setPublicKey();
+          }
+
+          const turboClient = TurboFactory.authenticated({
+            signer: turboSigner,
+            token: tokenType,
+            paymentServiceConfig: {
+              url: turboNetwork.PAYMENT_URL,
+            },
+          });
+
+          const tokenAmount =
+            tokenType === 'ario'
+              ? ARIOToTokenAmount(cryptoAmount)
+              : ARToTokenAmount(cryptoAmount);
+          await turboClient.topUpWithTokens({
+            tokenAmount,
+          });
+
+          onComplete();
+          return;
         } else if (walletType === WALLET_TYPES.ETHEREUM) {
           // ARIO payments for ETH wallets use the InjectedEthereumSigner (AO-based token)
           if (tokenType === 'ario') {

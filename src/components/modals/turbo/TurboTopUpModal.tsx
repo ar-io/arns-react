@@ -4,10 +4,6 @@ import { TurboLogo } from '@src/components/icons';
 import { useTurboArNSClient } from '@src/hooks/useTurboArNSClient';
 import { PaymentInformation } from '@src/services/turbo/TurboArNSClient';
 import { useGlobalState, useWalletState } from '@src/state';
-import { WALLET_TYPES as _WALLET_TYPES } from '@src/types';
-// Cast to `any` so legacy ETHEREUM enum reference in the unreachable branch
-// below still typechecks after the de-AO refactor narrowed WALLET_TYPES.
-const WALLET_TYPES: any = _WALLET_TYPES;
 import { LINK_HOW_ARE_CONVERSIONS_DETERMINED } from '@src/utils/constants';
 import { Elements } from '@stripe/react-stripe-js';
 import {
@@ -49,7 +45,6 @@ type PaymentMethod = 'fiat' | 'crypto';
 
 function BaseTurboTopUpModal({ onClose }: { onClose: () => void }) {
   const [{ wallet, walletAddress }] = useWalletState();
-  const walletType = window.localStorage.getItem('walletType');
   const turbo = useTurboArNSClient();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('fiat');
 
@@ -74,14 +69,20 @@ function BaseTurboTopUpModal({ onClose }: { onClose: () => void }) {
   );
   const [cryptoQuote, setCryptoQuote] = useState<CryptoTopupQuote>();
 
-  // Set default token based on wallet type
+  // Set the default crypto token from the CONNECTED identity, not a hardcoded
+  // Solana/Arweave assumption. Fiat top-up is identity-agnostic (it credits
+  // `walletAddress` under `wallet.tokenType` — see the payment-intent effect
+  // below); this only seeds the crypto tab's initial token.
   useEffect(() => {
-    if (walletType === WALLET_TYPES.ETHEREUM) {
+    if (wallet?.tokenType === 'ethereum') {
       setSelectedToken('ethereum');
+    } else if (wallet?.tokenType === 'arweave') {
+      setSelectedToken('arweave');
     } else {
+      // Solana (Model B) offers no crypto top-up tokens here; harmless default.
       setSelectedToken('arweave');
     }
-  }, [walletType]);
+  }, [wallet]);
 
   // Update payment intent for fiat
   useEffect(() => {

@@ -39,6 +39,7 @@ import {
   ArNSPurchaseFailedError,
   AuthenticatedArNSCustodyClient,
   AuthenticatedArNSPurchaseClient,
+  AuthenticatedArNSRecordClient,
   CustodialANTNotFoundError,
   CustodyTransferUnauthorizedError,
   ExecuteArNSIntentParams,
@@ -545,5 +546,210 @@ describe('TurboArNSClient.executeArNSIntent', () => {
         }),
       ).rejects.toBeInstanceOf(CustodyTransferUnauthorizedError);
     });
+  });
+
+  // ---- Model A (custodial) — credit-paid record management ----
+  describe('setCustodialArNSRecord / removeCustodialArNSRecord', () => {
+    const ANT_ID = 'ANT-custodial-1';
+    const TX_ID = 'abcdefghijklmnopqrstuvwxyz0123456789-_ABCDE';
+
+    function makeRecordClient(
+      overrides?: Record<string, any>,
+    ): jest.Mocked<AuthenticatedArNSRecordClient> {
+      return {
+        setArNSRecord: jest.fn(async (p: any) => ({
+          antId: p.antId,
+          undername: p.undername ?? '@',
+          transactionId: p.transactionId,
+          ttlSeconds: p.ttlSeconds,
+          messageId: 'tx-set',
+        })),
+        removeArNSRecord: jest.fn(async (p: any) => ({
+          antId: p.antId,
+          undername: p.undername,
+          messageId: 'tx-remove',
+        })),
+        ...overrides,
+      } as any;
+    }
+
+    it('sets the apex @ record via the injected record client', async () => {
+      const client = makeClient();
+      const recordClient = makeRecordClient();
+
+      const res = await client.setCustodialArNSRecord({
+        antId: ANT_ID,
+        transactionId: TX_ID,
+        ttlSeconds: 900,
+        tokenType: 'arweave',
+        recordClient,
+      });
+
+      expect(recordClient.setArNSRecord).toHaveBeenCalledWith({
+        antId: ANT_ID,
+        undername: '@',
+        transactionId: TX_ID,
+        ttlSeconds: 900,
+      });
+      expect(res).toEqual({
+        antId: ANT_ID,
+        undername: '@',
+        transactionId: TX_ID,
+        ttlSeconds: 900,
+        messageId: 'tx-set',
+      });
+    });
+
+    it('sets an undername record with the provided undername', async () => {
+      const client = makeClient();
+      const recordClient = makeRecordClient();
+
+      await client.setCustodialArNSRecord({
+        antId: ANT_ID,
+        undername: 'blog',
+        transactionId: TX_ID,
+        ttlSeconds: 3600,
+        recordClient,
+      });
+
+      expect(recordClient.setArNSRecord).toHaveBeenCalledWith({
+        antId: ANT_ID,
+        undername: 'blog',
+        transactionId: TX_ID,
+        ttlSeconds: 3600,
+      });
+    });
+
+    it('removes an undername record', async () => {
+      const client = makeClient();
+      const recordClient = makeRecordClient();
+
+      const res = await client.removeCustodialArNSRecord({
+        antId: ANT_ID,
+        undername: 'blog',
+        recordClient,
+      });
+
+      expect(recordClient.removeArNSRecord).toHaveBeenCalledWith({
+        antId: ANT_ID,
+        undername: 'blog',
+      });
+      expect(res).toEqual({
+        antId: ANT_ID,
+        undername: 'blog',
+        messageId: 'tx-remove',
+      });
+    });
+
+    it('refuses to remove the apex @ record', async () => {
+      const client = makeClient();
+      const recordClient = makeRecordClient();
+
+      await expect(
+        client.removeCustodialArNSRecord({
+          antId: ANT_ID,
+          undername: '@',
+          recordClient,
+        }),
+      ).rejects.toThrow(/non-apex undername/i);
+      expect(recordClient.removeArNSRecord).not.toHaveBeenCalled();
+    });
+
+    it('requires an antId to set a record', async () => {
+      const client = makeClient();
+      const recordClient = makeRecordClient();
+
+      await expect(
+        client.setCustodialArNSRecord({
+          antId: '',
+          transactionId: TX_ID,
+          ttlSeconds: 900,
+          recordClient,
+        }),
+      ).rejects.toThrow(/ANT id is required/i);
+      expect(recordClient.setArNSRecord).not.toHaveBeenCalled();
+    });
+
+    it('maps a 404 to a non-leaky CustodialANTNotFoundError', async () => {
+      const client = makeClient();
+      const recordClient = makeRecordClient({
+        setArNSRecord: jest.fn(async () => {
+          throw Object.assign(
+            new Error('Failed request (Status 404): not found'),
+            { status: 404 },
+          );
+        }),
+      });
+
+      await expect(
+        client.setCustodialArNSRecord({
+          antId: ANT_ID,
+          transactionId: TX_ID,
+          ttlSeconds: 900,
+          recordClient,
+        }),
+      ).rejects.toBeInstanceOf(CustodialANTNotFoundError);
+    });
+
+    it('maps a 401 to a CustodyTransferUnauthorizedError', async () => {
+      const client = makeClient();
+      const recordClient = makeRecordClient({
+        removeArNSRecord: jest.fn(async () => {
+          throw Object.assign(
+            new Error('Failed request (Status 401): bad signature'),
+            { status: 401 },
+          );
+        }),
+      });
+
+      await expect(
+        client.removeCustodialArNSRecord({
+          antId: ANT_ID,
+          undername: 'blog',
+          recordClient,
+        }),
+      ).rejects.toBeInstanceOf(CustodyTransferUnauthorizedError);
+    });
+  });
+
+  // ---- Identity-agnostic fiat top-up ----
+  describe('getTopupPaymentIntent (identity-agnostic fiat top-up)', () => {
+    afterEach(() => {
+      (global as any).fetch = undefined;
+    });
+
+    it.each([
+      ['arweave', '7gI4LqBxQSyTRu5e2Zfgyw2UEMgsUsxsoW2KajneFC8'],
+      ['ethereum', '0x1F98431c8aD98523631AE4a59f267346ea31F984'],
+      ['solana', SOLANA_ADDRESS],
+    ] as const)(
+      'credits the connected %s identity address with its native token',
+      async (token, address) => {
+        const client = makeClient();
+        const fetchMock = jest.fn(async () => ({
+          status: 200,
+          json: async () => ({
+            topUpQuote: { quotedPaymentAmount: 1000 },
+            paymentSession: { id: 'pi_1' },
+          }),
+        }));
+        (global as any).fetch = fetchMock;
+
+        const res = await client.getTopupPaymentIntent({
+          address,
+          amount: 1000,
+          token,
+        });
+
+        expect(res.paymentSession).toEqual({ id: 'pi_1' });
+        const calledUrl = (fetchMock.mock.calls[0] as any[])[0] as string;
+        // The connected identity's native address is the credit destination,
+        // and its token drives the destination-address type — no Solana default.
+        expect(calledUrl).toContain(
+          `/top-up/payment-intent/${address}/usd/1000`,
+        );
+        expect(calledUrl).toContain(`token=${token}`);
+      },
+    );
   });
 });

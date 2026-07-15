@@ -8,6 +8,7 @@ import ArweaveID, {
 import { AddUndernameModal, EditUndernameModal } from '@src/components/modals';
 import ConfirmTransactionModal from '@src/components/modals/ConfirmTransactionModal/ConfirmTransactionModal';
 import { usePrimaryName } from '@src/hooks/usePrimaryName';
+import { useTurboArNSClient } from '@src/hooks/useTurboArNSClient';
 import { SolanaAddress } from '@src/services/solana/SolanaAddress';
 import { SolanaSignature } from '@src/services/solana/SolanaSignature';
 import {
@@ -18,6 +19,7 @@ import {
   useWalletState,
 } from '@src/state';
 import dispatchANTInteraction from '@src/state/actions/dispatchANTInteraction';
+import dispatchCustodialANTRecordInteraction from '@src/state/actions/dispatchCustodialANTRecordInteraction';
 import {
   ANT_INTERACTION_TYPES,
   SetRecordPayload,
@@ -74,6 +76,7 @@ const UndernamesTable = ({
   const [{ dataGateway }] = useGlobalState();
 
   const [{ wallet, walletAddress }] = useWalletState();
+  const turbo = useTurboArNSClient();
   const isOwner = walletAddress
     ? state?.Owner === walletAddress.toString()
     : false;
@@ -81,6 +84,19 @@ const UndernamesTable = ({
     ? state?.Controllers.includes(walletAddress.toString())
     : false;
   const isAuthorized = (isOwner || isController) ?? false;
+
+  // Model A (custodial): ANTs are Solana assets, so a connected NON-Solana
+  // identity can never own/control one — the ANT is Turbo-held and the user
+  // manages undernames with CREDITS. The bundler authorizes each op against the
+  // custody mapping (non-owner → non-leaky 404), so enabling the UI here is
+  // server-gated-safe. (The custodian address is not exposed, so detect
+  // structurally rather than by owner-address comparison.)
+  const isCustodial =
+    wallet?.tokenType !== 'solana' &&
+    !!arnsRecord.processId &&
+    !isOwner &&
+    !isController;
+  const canManage = isAuthorized || isCustodial;
 
   const [, dispatchTransactionState] = useTransactionState();
   const [, dispatchModalState] = useModalState();
@@ -111,26 +127,51 @@ const UndernamesTable = ({
         throw new Error('Unable to interact with ANT contract - missing ID.');
       }
 
-      // Solana wallets don't carry an AO contractSigner — accept either.
-      const hasSigner =
-        !!wallet?.contractSigner ||
-        (wallet?.tokenType === 'solana' && !!wallet.solanaSigner);
-      if (!hasSigner || !walletAddress) {
+      if (!walletAddress) {
         throw new Error(
           'Unable to interact with ANT contract - missing signer.',
         );
       }
 
-      const { id } = await dispatchANTInteraction({
-        processId,
-        payload,
-        workflowName,
-        signer: wallet?.contractSigner as never,
-        wallet,
-        owner: walletAddress?.toString(),
-        dispatchTransactionState,
-        dispatchArNSState,
-      });
+      let id: string;
+      if (isCustodial) {
+        // Custodial (Model A): pay with credits — the user doesn't own the ANT.
+        if (!turbo || !wallet?.turboSigner) {
+          throw new Error(
+            'A connected wallet is required to manage this name with credits.',
+          );
+        }
+        ({ id } = await dispatchCustodialANTRecordInteraction({
+          turbo,
+          wallet,
+          antId: processId,
+          payload,
+          workflowName,
+          owner: walletAddress.toString(),
+          dispatchTransactionState,
+        }));
+      } else {
+        // Model B (self-owned): wallet-signed ANT interaction.
+        // Solana wallets don't carry an AO contractSigner — accept either.
+        const hasSigner =
+          !!wallet?.contractSigner ||
+          (wallet?.tokenType === 'solana' && !!wallet.solanaSigner);
+        if (!hasSigner) {
+          throw new Error(
+            'Unable to interact with ANT contract - missing signer.',
+          );
+        }
+        ({ id } = await dispatchANTInteraction({
+          processId,
+          payload,
+          workflowName,
+          signer: wallet?.contractSigner as never,
+          wallet,
+          owner: walletAddress?.toString(),
+          dispatchTransactionState,
+          dispatchArNSState,
+        }));
+      }
       eventEmitter.emit('success', {
         name: 'Manage Undernames',
         message: (
@@ -180,7 +221,7 @@ const UndernamesTable = ({
           targetId: record.transactionId,
           ttlSeconds: record.ttlSeconds,
           priority: record.index,
-          action: isAuthorized ? (
+          action: canManage ? (
             <span className="flex justify-end pr-3 gap-3">
               {isOwner && (
                 <Tooltip
@@ -440,18 +481,30 @@ const UndernamesTable = ({
           return '';
         }}
         addOnAfterTable={
-          // controllers and owners can add undernames
-          isAuthorized ? (
-            <div className="w-full flex flex-row text-primary font-semibold border-t-[1px] border-dark-grey text-sm">
-              <button
-                data-testid="add-undername-button"
-                className="flex flex-row w-full items-center p-3 bg-background hover:bg-primary-gradient text-primary hover:text-primary fill-primary hover:fill-black transition-all"
-                style={{ gap: '10px' }}
-                onClick={() => setAction(UNDERNAME_TABLE_ACTIONS.CREATE)}
-              >
-                <Plus className="size-4 text-primary fill-black" />
-                Add Undername
-              </button>
+          // controllers and owners can add undernames; custodial (Model A)
+          // names add them with credits
+          canManage ? (
+            <div className="w-full flex flex-col border-t-[1px] border-dark-grey">
+              {isCustodial && (
+                <span
+                  className="w-full px-3 pt-2 text-xs text-primary"
+                  data-testid="undernames-credit-paid-note"
+                >
+                  Held in Turbo custody — undername changes are paid with your
+                  Turbo Credits.
+                </span>
+              )}
+              <div className="w-full flex flex-row text-primary font-semibold text-sm">
+                <button
+                  data-testid="add-undername-button"
+                  className="flex flex-row w-full items-center p-3 bg-background hover:bg-primary-gradient text-primary hover:text-primary fill-primary hover:fill-black transition-all"
+                  style={{ gap: '10px' }}
+                  onClick={() => setAction(UNDERNAME_TABLE_ACTIONS.CREATE)}
+                >
+                  <Plus className="size-4 text-primary fill-black" />
+                  Add Undername
+                </button>
+              </div>
             </div>
           ) : (
             <></>
@@ -494,10 +547,13 @@ const UndernamesTable = ({
       {arnsRecord.processId &&
       transactionData &&
       interactionType &&
-      isAuthorized ? (
+      canManage ? (
         <ConfirmTransactionModal
           interactionType={interactionType}
           gasParams={(() => {
+            // Custodial (Model A) ops are credit-paid, not SOL-gas-paid, and the
+            // gas estimate reads the ANT as if the user owned it — skip it.
+            if (isCustodial) return undefined;
             const undername = (transactionData as { subDomain?: string })
               ?.subDomain;
             if (!undername) return undefined;
