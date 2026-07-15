@@ -1,16 +1,26 @@
-import { TurboArNSIntent } from './TurboArNSClient';
+import type { TurboArNSIntent } from './TurboArNSClient';
 
 /**
- * A credit-paid ArNS purchase that has been submitted (credits debited, on-chain
- * write in flight) but not yet observed reaching a terminal state. Persisted so
- * a page reload / tab close resumes POLLING the same nonce rather than orphaning
- * — or, worse, re-charging — a paid purchase. See UI_INTEGRATION_PLAN §3.4.
+ * A credit-paid ArNS purchase that has progressed past a costly, non-repeatable
+ * step and must survive a reload / tab close / failed attempt. Persisted so a
+ * retry resumes rather than repeats work that costs money:
  *
- * The nonce is the server-side idempotency + status key, so resuming is a pure
- * read (`GET /v1/arns/purchase/:nonce`); it never re-submits.
+ * - `processId` is captured the instant a Model-B ANT is spawned client-side
+ *   (real SOL, ~0.02). A retry MUST reuse this ANT instead of spawning another,
+ *   or every failed attempt bleeds SOL and orphans an ANT.
+ * - `nonce` is the server-side idempotency + status key captured once the
+ *   purchase is submitted (credits debited, on-chain write in flight). Resuming
+ *   is a pure read (`GET /v1/arns/purchase/:nonce`); it never re-submits, so it
+ *   can never double-debit.
+ *
+ * At least one of `nonce` / `processId` is always present. See
+ * UI_INTEGRATION_PLAN §3.4.
  */
 export type PendingArNSPurchase = {
-  nonce: string;
+  /** Idempotency + status key. Absent before the purchase is submitted. */
+  nonce?: string;
+  /** Client-spawned ANT (Model B). Absent for non-Buy intents. */
+  processId?: string;
   intent: TurboArNSIntent;
   name: string;
   owner: string;
@@ -50,7 +60,8 @@ export function getPendingArNSPurchase(): PendingArNSPurchase | undefined {
     if (!raw) return undefined;
     const parsed = JSON.parse(raw) as PendingArNSPurchase;
     if (
-      !parsed?.nonce ||
+      // At least one durable key must be present to be worth resuming.
+      (!parsed?.nonce && !parsed?.processId) ||
       !parsed?.name ||
       typeof parsed.savedAt !== 'number' ||
       Date.now() - parsed.savedAt > MAX_AGE_MS

@@ -568,7 +568,6 @@ function PaymentOptionsForm({
             <Tabs.Trigger
               value="credits"
               disabled={DISABLE_TURBO_CREDITS_CHECKOUT_UI}
-              title="Turbo credits checkout is temporarily disabled for this build."
               className="flex gap-3 p-3 data-[state=active]:bg-foreground rounded border border-[#222224] data-[state=active]:border-grey text-white items-center flex-1 whitespace-nowrap transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="flex gap-3 items-center">
@@ -720,6 +719,20 @@ function PaymentOptionsForm({
                 {turboCreditBalance} Credits
               </span>
             </div>{' '}
+            {/*
+              Model B truth-in-advertising: even when the purchase is paid in
+              credits, the name's ANT is created on Solana client-side, which
+              costs a small amount of native SOL for network fees + rent. Tell
+              the user up front so a credits-rich / SOL-empty wallet isn't
+              surprised by a blocked "Pay now".
+            */}
+            <div className="flex items-start gap-2 mt-4 p-3 rounded bg-foreground border border-dark-grey">
+              <Info className="size-4 text-grey flex-shrink-0 mt-0.5" />
+              <span className="text-xs text-grey">
+                Paying with credits still requires a small amount of SOL (~0.02)
+                for network fees to create your name&apos;s ANT.
+              </span>
+            </div>
             {isInsufficientBalance && (
               <div className="flex size-full flex-col items-start justify-between">
                 {' '}
