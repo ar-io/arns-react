@@ -220,6 +220,15 @@ function PrimaryNameModal({
       switch (workflow) {
         case PRIMARY_NAME_WORKFLOWS.CHANGE:
         case PRIMARY_NAME_WORKFLOWS.REQUEST: {
+          // NOTE: `fundingSource` is an ARIO source only (Liquid / Staked —
+          // see `ARIOFundingSelector`); it is NEVER `'turbo'`. Setting a primary
+          // name is paid in ARIO from the wallet, NOT in Turbo Credits: the
+          // credit-settlement path (`TurboArNSIntent`) explicitly excludes
+          // `Primary-Name-Request`, and the bundler payment-service exposes no
+          // credit purchase for it. Do NOT pass `fundFrom: 'turbo'` here — that
+          // is the dead `@ar.io/sdk` alias that would silently pay ARIO while
+          // implying credits. If a credit primary-name flow is ever added, wire
+          // it through `dispatchArNSPurchaseWithCredits`, not this call.
           result = await dispatchArIOInteraction({
             workflowName: ARNS_INTERACTION_TYPES.PRIMARY_NAME_REQUEST,
             wallet,

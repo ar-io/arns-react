@@ -164,19 +164,19 @@
     "@noble/hashes" "^1.5.0"
     bs58 "^6.0.0"
 
-"@ardrive/turbo-sdk@1.39.2":
-  version "1.39.2"
-  resolved "https://registry.yarnpkg.com/@ardrive/turbo-sdk/-/turbo-sdk-1.39.2.tgz#6be800b76a77742f2e20547e3506dbe45e1310d8"
-  integrity sha512-1F3c7U8nDvM/gZXuBldLGRxIcV6CVP0u/58VCXeCYUh2kkggD9Y3fCUeHoiUc0Kd+4sFOKnM5XhmgDHpb5wRXQ==
+"@ardrive/turbo-sdk@1.42.0-alpha.3":
+  version "1.42.0-alpha.3"
+  resolved "https://registry.yarnpkg.com/@ardrive/turbo-sdk/-/turbo-sdk-1.42.0-alpha.3.tgz#abcd41ee7d96fec44d9024999676886ce84738e5"
+  integrity sha512-MtYkLbmWRI+LmlL2Ax9jE9SaUheSASr29HehdYiY6i38alElCH7o89vdtosrHPOV4708i41gICxveBGM3m1cxA==
   dependencies:
     "@cosmjs/proto-signing" "^0.33.1"
     "@cosmjs/stargate" "^0.33.1"
     "@dha-team/arbundles" "^1.0.1"
     "@ethersproject/signing-key" "^5.7.0"
     "@permaweb/aoconnect" "0.0.57"
-    "@solana/web3.js" "^1.91.7"
+    "@solana/spl-token" "^0.4.14"
+    "@solana/web3.js" "^1.95.5"
     arweave "^1.15.1"
-    axios "^1.13.2"
     bignumber.js "^9.1.2"
     bs58 "^5.0.0"
     cli-progress "^3.12.0"
@@ -4870,7 +4870,17 @@
   dependencies:
     "@solana/errors" "6.8.0"
 
-"@solana/buffer-layout@^4.0.1":
+"@solana/buffer-layout-utils@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@solana/buffer-layout-utils/-/buffer-layout-utils-0.3.0.tgz#88a5d69fd5606fee198f719d37065b43796a396e"
+  integrity sha512-MuQOCC1j0np1xH9yAv0ZWWfwvr7Bt7Sz4LId11Wi4wDdAmJ+lobE+vHg/mZmGcihF0BIkqVBNxGmlv8QE5DrtA==
+  dependencies:
+    "@solana/buffer-layout" "^4.0.0"
+    "@solana/web3.js" "^1.32.0"
+    bigint-buffer "^1.1.5"
+    bignumber.js "^9.0.1"
+
+"@solana/buffer-layout@^4.0.0", "@solana/buffer-layout@^4.0.1":
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/@solana/buffer-layout/-/buffer-layout-4.0.1.tgz#b996235eaec15b1e0b5092a8ed6028df77fa6c15"
   integrity sha512-E1ImOIAD1tBZFRdjeM4/pzTiTApC0AOBGwyAMS4fwIodCWArzJ3DWdoh8cKxeFM2fElkxBh2Aqts1BPC373rHA==
@@ -4910,7 +4920,7 @@
     "@solana/codecs-numbers" "6.8.0"
     "@solana/errors" "6.8.0"
 
-"@solana/codecs@6.8.0":
+"@solana/codecs@2.0.0-rc.1", "@solana/codecs@6.8.0":
   version "6.8.0"
   resolved "https://registry.npmjs.org/@solana/codecs/-/codecs-6.8.0.tgz#7ba706eb14401cb9e206a74111d901ba216a61b5"
   integrity sha512-qCSAaw1qszeQflavkIM7c21qJ3BHReP/qgDelZbhsEXpZc852CCZM00FOIWuxePr6X+JjSNqJquxwdDSoZe7Bw==
@@ -5227,6 +5237,31 @@
     "@solana/transaction-messages" "6.8.0"
     "@solana/transactions" "6.8.0"
 
+"@solana/spl-token-group@^0.0.7":
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/@solana/spl-token-group/-/spl-token-group-0.0.7.tgz#83c00f0cd0bda33115468cd28b89d94f8ec1fee4"
+  integrity sha512-V1N/iX7Cr7H0uazWUT2uk27TMqlqedpXHRqqAbVO2gvmJyT0E0ummMEAVQeXZ05ZhQ/xF39DLSdBp90XebWEug==
+  dependencies:
+    "@solana/codecs" "2.0.0-rc.1"
+
+"@solana/spl-token-metadata@^0.1.6":
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/@solana/spl-token-metadata/-/spl-token-metadata-0.1.6.tgz#d240947aed6e7318d637238022a7b0981b32ae80"
+  integrity sha512-7sMt1rsm/zQOQcUWllQX9mD2O6KhSAtY1hFR2hfFwgqfFWzSY9E9GDvFVNYUI1F0iQKcm6HmePU9QbKRXTEBiA==
+  dependencies:
+    "@solana/codecs" "2.0.0-rc.1"
+
+"@solana/spl-token@^0.4.14":
+  version "0.4.15"
+  resolved "https://registry.yarnpkg.com/@solana/spl-token/-/spl-token-0.4.15.tgz#d9e9ca30a15d4b73579f9423d4422e0baa77721f"
+  integrity sha512-3Lof3mNov8NVQ3PalIWb1Jgr/TZ6lYM+/sexv2TLqdhNFVth2OfWmH3d7QucgMjSbokkjNiNlRr6I8Fd269uaw==
+  dependencies:
+    "@solana/buffer-layout" "^4.0.0"
+    "@solana/buffer-layout-utils" "^0.3.0"
+    "@solana/spl-token-group" "^0.0.7"
+    "@solana/spl-token-metadata" "^0.1.6"
+    buffer "^6.0.3"
+
 "@solana/subscribable@6.8.0":
   version "6.8.0"
   resolved "https://registry.npmjs.org/@solana/subscribable/-/subscribable-6.8.0.tgz#d8086e659acb69628343ad4484a4c51bb8fecb6f"
@@ -5377,6 +5412,27 @@
     "@wallet-standard/app" "^1.1.0"
     "@wallet-standard/base" "^1.1.0"
 
+"@solana/web3.js@^1.32.0", "@solana/web3.js@^1.95.5", "@solana/web3.js@^1.98.1", "@solana/web3.js@^1.98.4":
+  version "1.98.4"
+  resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.98.4.tgz#df51d78be9d865181ec5138b4e699d48e6895bbe"
+  integrity sha512-vv9lfnvjUsRiq//+j5pBdXig0IQdtzA0BRZ3bXEP4KaIyF1CcaydWqgyzQgfZMNIsWNWmG+AUHwPy4AHOD6gpw==
+  dependencies:
+    "@babel/runtime" "^7.25.0"
+    "@noble/curves" "^1.4.2"
+    "@noble/hashes" "^1.4.0"
+    "@solana/buffer-layout" "^4.0.1"
+    "@solana/codecs-numbers" "^2.1.0"
+    agentkeepalive "^4.5.0"
+    bn.js "^5.2.1"
+    borsh "^0.7.0"
+    bs58 "^4.0.1"
+    buffer "6.0.3"
+    fast-stable-stringify "^1.0.0"
+    jayson "^4.1.1"
+    node-fetch "^2.7.0"
+    rpc-websockets "^9.0.2"
+    superstruct "^2.0.2"
+
 "@solana/web3.js@^1.91.7":
   version "1.95.2"
   resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.95.2.tgz#6f8a0362fa75886a21550dbec49aad54481463a6"
@@ -5388,27 +5444,6 @@
     "@solana/buffer-layout" "^4.0.1"
     agentkeepalive "^4.5.0"
     bigint-buffer "^1.1.5"
-    bn.js "^5.2.1"
-    borsh "^0.7.0"
-    bs58 "^4.0.1"
-    buffer "6.0.3"
-    fast-stable-stringify "^1.0.0"
-    jayson "^4.1.1"
-    node-fetch "^2.7.0"
-    rpc-websockets "^9.0.2"
-    superstruct "^2.0.2"
-
-"@solana/web3.js@^1.98.1", "@solana/web3.js@^1.98.4":
-  version "1.98.4"
-  resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.98.4.tgz#df51d78be9d865181ec5138b4e699d48e6895bbe"
-  integrity sha512-vv9lfnvjUsRiq//+j5pBdXig0IQdtzA0BRZ3bXEP4KaIyF1CcaydWqgyzQgfZMNIsWNWmG+AUHwPy4AHOD6gpw==
-  dependencies:
-    "@babel/runtime" "^7.25.0"
-    "@noble/curves" "^1.4.2"
-    "@noble/hashes" "^1.4.0"
-    "@solana/buffer-layout" "^4.0.1"
-    "@solana/codecs-numbers" "^2.1.0"
-    agentkeepalive "^4.5.0"
     bn.js "^5.2.1"
     borsh "^0.7.0"
     bs58 "^4.0.1"
@@ -7281,7 +7316,7 @@ axios@^1.1.3:
     form-data "^4.0.0"
     proxy-from-env "^1.1.0"
 
-axios@^1.12.2, axios@^1.13.2:
+axios@^1.12.2:
   version "1.13.2"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.13.2.tgz#9ada120b7b5ab24509553ec3e40123521117f687"
   integrity sha512-VPk9ebNqPcy5lRGuSlKx752IlDatOjT9paPlm8A7yOuW2Fbvp4X3JznJtT4f0GzGLLiWE9W8onz51SqLYwzGaA==
@@ -7463,6 +7498,11 @@ bignumber.js@^9.0.0, bignumber.js@^9.0.2, bignumber.js@^9.1.2:
   version "9.1.2"
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.1.2.tgz#b7c4242259c008903b13707983b5f4bbd31eda0c"
   integrity sha512-2/mKyZH9K85bzOEfhXDBFZTGd1CTs+5IHpeFQo9luiBG7hghdC851Pj2WAhb6E3R6b9tZj/XKhbg4fum+Kepug==
+
+bignumber.js@^9.0.1:
+  version "9.3.1"
+  resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.3.1.tgz#759c5aaddf2ffdc4f154f7b493e1c8770f88c4d7"
+  integrity sha512-Ko0uX15oIUS7wJ3Rb30Fs6SkVbLmPBAKdlm7q9+ak9bbIeFf0MwuBsQV6z7+X768/cHsfg+WlysDWJcmthjsjQ==
 
 binary-extensions@^2.0.0:
   version "2.3.0"
