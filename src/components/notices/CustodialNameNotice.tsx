@@ -277,7 +277,10 @@ export function CustodialNameNotice({
             above, moving it out of Turbo custody.{' '}
             <strong>
               This is permanent — an incorrect address loses the name.
-            </strong>
+            </strong>{' '}
+            After claiming, you manage this name yourself: record edits will
+            need your Solana wallet&apos;s signature and a little SOL for
+            network fees (they&apos;re no longer gasless credit-paid).
           </div>
 
           <label

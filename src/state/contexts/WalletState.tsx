@@ -94,12 +94,6 @@ export function WalletStateProvider({
     // still built so name resolution / lookups keep working for every identity.
     const signer =
       wallet?.tokenType === 'solana' ? wallet?.solanaSigner : undefined;
-    console.debug('[WalletState] init ARIO', {
-      tokenType: wallet?.tokenType,
-      hasSigner: !!signer,
-      walletAddress,
-      network: solanaConfig.network,
-    });
     const contract = signer
       ? ARIO.init({
           rpc: getSolanaRpc(),
@@ -167,10 +161,6 @@ export function WalletStateProvider({
         signTransaction: solanaWallet.signTransaction as never,
       });
       localStorage.setItem('walletType', WALLET_TYPES.SOLANA);
-      console.info(
-        '[WalletState] auto-reconnect SolanaWalletConnector for',
-        addr,
-      );
       dispatchWalletState({
         type: 'setWalletAndAddress',
         payload: {

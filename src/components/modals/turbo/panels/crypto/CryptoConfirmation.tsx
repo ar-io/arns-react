@@ -675,11 +675,9 @@ function CryptoConfirmation({
         token: tokenType as any,
       });
 
-      console.log('Retrying submitFundTransaction with txId:', failedTxId);
       const response = await turboClient.submitFundTransaction({
         txId: failedTxId,
       });
-      console.log('Retry response:', response);
 
       if (response.status === 'failed') {
         setPaymentError(

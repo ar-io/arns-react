@@ -163,8 +163,25 @@ function DomainSettings({
     return 'Active';
   }
 
+  // Self-managed (Model B): the user owns the ANT on-chain, so every record edit
+  // is a wallet-signed Solana transaction that costs a little SOL. Surface that
+  // once up front so an owner with an empty SOL balance isn't surprised on their
+  // first edit. (Custodial names are gasless/credit-paid — no note there.)
+  const showSelfManageNote =
+    !isCustodial && isAuthorized && wallet?.tokenType === 'solana';
+
   return (
     <>
+      {showSelfManageNote && (
+        <div
+          className="w-full mt-3 p-3 rounded bg-foreground border border-dark-grey text-sm text-grey"
+          data-testid="self-manage-sol-note"
+        >
+          You own this name&apos;s ANT, so editing its records (target,
+          undernames, controllers, etc.) is signed by your wallet and costs a
+          small amount of SOL for network fees.
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full mt-3">
         {Object.entries({
           // TODO: this should go on a name section, not the ant section
