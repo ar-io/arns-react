@@ -99,6 +99,7 @@ function TransactionComplete() {
         {localData.interactionResult?.payload?.custodial ? (
           <CustodialNameNotice
             antId={localData.interactionResult?.payload?.custodialAntId}
+            name={localData.interactionResult?.payload?.name}
           />
         ) : null}
 

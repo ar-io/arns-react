@@ -37,9 +37,13 @@ jest.mock('@src/utils/constants', () => ({
 
 import {
   ArNSPurchaseFailedError,
+  AuthenticatedArNSCustodyClient,
   AuthenticatedArNSPurchaseClient,
+  CustodialANTNotFoundError,
+  CustodyTransferUnauthorizedError,
   ExecuteArNSIntentParams,
   InsufficientCreditsError,
+  InvalidTransferTargetError,
   TurboArNSClient,
 } from './TurboArNSClient';
 
@@ -394,6 +398,152 @@ describe('TurboArNSClient.executeArNSIntent', () => {
           baseParams({ intent: 'Upgrade-Name', tokenType: 'ethereum' }),
         ),
       ).rejects.toThrow(/signer is required/i);
+    });
+  });
+
+  // ---- Claim / exit — custodial ANT self-custody transfer ----
+  describe('transferCustodialArNSName (claim/exit)', () => {
+    const ANT_ID = 'ANT-custodial-1';
+    // A valid Solana pubkey (base58, 32 bytes) — the exit target.
+    const TARGET = '7T9x6CWBfdC8UUVsifNS3bWbroSvuFi7g8vebXHAxcxB';
+
+    function makeTransferClient(
+      impl?: () => Promise<any>,
+    ): jest.Mocked<AuthenticatedArNSCustodyClient> {
+      return {
+        transferArNSAnt: jest.fn(
+          impl ??
+            (async () => ({
+              antId: ANT_ID,
+              target: TARGET,
+              name: 'mycoolname',
+              messageId: 'tx-transfer',
+              confirmed: true,
+            })),
+        ),
+      } as any;
+    }
+
+    it('calls transferArNSAnt with { antId, target } and normalizes the result', async () => {
+      const client = makeClient();
+      const transferClient = makeTransferClient();
+
+      const res = await client.transferCustodialArNSName({
+        antId: ANT_ID,
+        target: TARGET,
+        tokenType: 'arweave',
+        transferClient,
+      });
+
+      expect(transferClient.transferArNSAnt).toHaveBeenCalledTimes(1);
+      expect(transferClient.transferArNSAnt).toHaveBeenCalledWith({
+        antId: ANT_ID,
+        target: TARGET,
+      });
+      expect(res).toEqual({
+        antId: ANT_ID,
+        target: TARGET,
+        name: 'mycoolname',
+        messageId: 'tx-transfer',
+        confirmed: true,
+      });
+    });
+
+    it('treats a null messageId (thrown-but-landed) as unconfirmed but successful', async () => {
+      const client = makeClient();
+      const transferClient = makeTransferClient(async () => ({
+        antId: ANT_ID,
+        target: TARGET,
+        messageId: null,
+        confirmed: false,
+      }));
+
+      const res = await client.transferCustodialArNSName({
+        antId: ANT_ID,
+        target: TARGET,
+        transferClient,
+      });
+
+      expect(res.messageId).toBeNull();
+      expect(res.confirmed).toBe(false);
+    });
+
+    it('rejects a malformed target BEFORE signing (no request is made)', async () => {
+      const client = makeClient();
+      const transferClient = makeTransferClient();
+
+      await expect(
+        client.transferCustodialArNSName({
+          antId: ANT_ID,
+          target: 'not-a-real-address!!',
+          transferClient,
+        }),
+      ).rejects.toBeInstanceOf(InvalidTransferTargetError);
+      expect(transferClient.transferArNSAnt).not.toHaveBeenCalled();
+    });
+
+    it('rejects an empty target BEFORE signing', async () => {
+      const client = makeClient();
+      const transferClient = makeTransferClient();
+
+      await expect(
+        client.transferCustodialArNSName({
+          antId: ANT_ID,
+          target: '   ',
+          transferClient,
+        }),
+      ).rejects.toBeInstanceOf(InvalidTransferTargetError);
+      expect(transferClient.transferArNSAnt).not.toHaveBeenCalled();
+    });
+
+    it('requires an antId', async () => {
+      const client = makeClient();
+      const transferClient = makeTransferClient();
+
+      await expect(
+        client.transferCustodialArNSName({
+          antId: '',
+          target: TARGET,
+          transferClient,
+        }),
+      ).rejects.toThrow(/ANT id is required/i);
+      expect(transferClient.transferArNSAnt).not.toHaveBeenCalled();
+    });
+
+    it('maps a 404 to a non-leaky CustodialANTNotFoundError', async () => {
+      const client = makeClient();
+      const transferClient = makeTransferClient(async () => {
+        throw Object.assign(
+          new Error('Failed request (Status 404): ANT not found'),
+          { status: 404 },
+        );
+      });
+
+      await expect(
+        client.transferCustodialArNSName({
+          antId: ANT_ID,
+          target: TARGET,
+          transferClient,
+        }),
+      ).rejects.toBeInstanceOf(CustodialANTNotFoundError);
+    });
+
+    it('maps a 401 to a CustodyTransferUnauthorizedError', async () => {
+      const client = makeClient();
+      const transferClient = makeTransferClient(async () => {
+        throw Object.assign(
+          new Error('Failed request (Status 401): bad signature'),
+          { status: 401 },
+        );
+      });
+
+      await expect(
+        client.transferCustodialArNSName({
+          antId: ANT_ID,
+          target: TARGET,
+          transferClient,
+        }),
+      ).rejects.toBeInstanceOf(CustodyTransferUnauthorizedError);
     });
   });
 });

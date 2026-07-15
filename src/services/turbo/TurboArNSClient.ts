@@ -260,6 +260,78 @@ export class ArNSPurchaseFailedError extends Error {
   }
 }
 
+/**
+ * Thrown when a claim/exit target is not a valid Solana pubkey. ANTs are Solana
+ * assets, so the self-custody exit target MUST be a base58 Solana address that
+ * decodes to 32 bytes — anything else is rejected client-side BEFORE a signature
+ * is produced (a signed request for a junk target only wastes a single-use nonce).
+ */
+export class InvalidTransferTargetError extends Error {
+  public readonly code = 'INVALID_TRANSFER_TARGET' as const;
+  constructor(
+    message = 'The transfer target must be a valid Solana wallet address.',
+  ) {
+    super(message);
+    this.name = 'InvalidTransferTargetError';
+  }
+}
+
+/**
+ * Thrown when the bundler responds `404` to a custodial transfer — the caller
+ * does not custody that ANT (or it does not exist). The bundler deliberately
+ * conflates "not found" and "not yours" into one `404` so it never reveals that
+ * an ANT exists under another owner; we surface a single non-leaky message.
+ */
+export class CustodialANTNotFoundError extends Error {
+  public readonly code = 'CUSTODIAL_ANT_NOT_FOUND' as const;
+  constructor(
+    message = 'This name is not held in your Turbo custody, so it cannot be transferred from this account.',
+  ) {
+    super(message);
+    this.name = 'CustodialANTNotFoundError';
+  }
+}
+
+/** Thrown when the bundler rejects the action-bound signature (`401`). */
+export class CustodyTransferUnauthorizedError extends Error {
+  public readonly code = 'CUSTODY_TRANSFER_UNAUTHORIZED' as const;
+  constructor(
+    message = 'The transfer request could not be authenticated. Please reconnect your wallet and try again.',
+  ) {
+    super(message);
+    this.name = 'CustodyTransferUnauthorizedError';
+  }
+}
+
+/**
+ * The subset of the turbo-sdk authenticated client used for the custodial
+ * self-custody exit. Declared structurally so it can be injected in tests
+ * without standing up the whole SDK.
+ */
+export interface AuthenticatedArNSCustodyClient {
+  transferArNSAnt(params: { antId: string; target: string }): Promise<{
+    antId: string;
+    target: string;
+    name?: string;
+    /** Solana tx id of the on-chain transfer; `null` when thrown-but-landed. */
+    messageId: string | null;
+    /** `false` when the transfer landed on-chain but the confirm RPC failed. */
+    confirmed?: boolean;
+  }>;
+}
+
+/** Result of a successful custodial ANT transfer (self-custody exit). */
+export type ArNSTransferResult = {
+  antId: string;
+  /** Solana pubkey that now owns the ANT. */
+  target: string;
+  name?: string;
+  /** Solana tx id of the on-chain transfer; `null` when thrown-but-landed. */
+  messageId: string | null;
+  /** `false` when the transfer landed on-chain but the confirm RPC failed. */
+  confirmed: boolean;
+};
+
 export class TurboArNSClient {
   public readonly turboUploader;
   public readonly uploadUrl;
@@ -545,10 +617,33 @@ export class TurboArNSClient {
     tokenType?: TokenType;
     signer?: unknown;
   }): AuthenticatedArNSPurchaseClient {
+    return this.buildAuthenticatedTurboClient({
+      walletAdapter,
+      tokenType,
+      signer,
+    }) as unknown as AuthenticatedArNSPurchaseClient;
+  }
+
+  /**
+   * Build the raw authenticated turbo-sdk client for the connected identity.
+   * The concrete client exposes BOTH the credit-purchase methods and the
+   * custodial ANT methods (`transferArNSAnt`, `setArNSRecord`, …); callers cast
+   * it to the narrow interface they use. Identity handling is identical to the
+   * purchase path — the same signer authenticates every credit-authed request.
+   */
+  private buildAuthenticatedTurboClient({
+    walletAdapter,
+    tokenType = 'solana',
+    signer,
+  }: {
+    walletAdapter?: unknown;
+    tokenType?: TokenType;
+    signer?: unknown;
+  }): unknown {
     if (tokenType === 'arweave' || tokenType === 'ethereum') {
       if (!signer) {
         throw new Error(
-          `A connected ${tokenType} wallet signer is required to pay with Turbo Credits.`,
+          `A connected ${tokenType} wallet signer is required to authenticate this request.`,
         );
       }
       return TurboFactory.authenticated({
@@ -557,7 +652,7 @@ export class TurboArNSClient {
         paymentServiceConfig: {
           url: this.paymentUrl,
         },
-      } as any) as unknown as AuthenticatedArNSPurchaseClient;
+      } as any);
     }
 
     // Solana (default): use the injected wallet adapter.
@@ -566,7 +661,7 @@ export class TurboArNSClient {
       (typeof window !== 'undefined' ? (window as any).solana : undefined);
     if (!adapter) {
       throw new Error(
-        'A connected Solana wallet is required to pay with Turbo Credits.',
+        'A connected Solana wallet is required to authenticate this request.',
       );
     }
     return TurboFactory.authenticated({
@@ -575,7 +670,7 @@ export class TurboArNSClient {
       paymentServiceConfig: {
         url: this.paymentUrl,
       },
-    } as any) as unknown as AuthenticatedArNSPurchaseClient;
+    } as any);
   }
 
   /** Map an ArNS intent to the matching turbo-sdk per-intent purchase method. */
@@ -791,24 +886,96 @@ export class TurboArNSClient {
   /**
    * Claim / transfer a **custodially-held** ArNS name (Model A) out to a
    * wallet-controlled owner via the credit-authed bundler endpoint
-   * `POST /v1/arns/transfer/:antId`.
+   * `POST /v1/arns/transfer/:antId?target=<solanaPubkey>`.
    *
-   * STUB: not wired in this PR. The endpoint + signed-request-header auth land
-   * with the claim/exit work. Kept here as the single seam the UI calls, so the
-   * "Claim / transfer out" button can be enabled without touching call sites.
+   * This is the self-custody escape hatch: the buyer's credit-identity signer
+   * (solana / arweave / ethereum — whichever bought the name) authenticates an
+   * **action-bound, single-use** request; the bundler confirms the caller
+   * custodies the ANT, then Turbo (the on-chain owner) transfers it to `target`.
+   * On success the bundler clears the `user_ant` custody mapping, so the name is
+   * fully self-custodied.
    *
-   * @todo Build the authenticated client from the connected wallet's signer and
-   *       POST the transfer, then poll to terminal like `executeArNSIntent`.
+   * Security:
+   * - `target` MUST be a valid Solana pubkey (ANTs are Solana assets). Validated
+   *   BEFORE any signature is produced — a junk target never burns a nonce.
+   * - The signed message is built by the SDK (`arns\ntransfer\n{antId}\n{target}`
+   *   + a fresh nonce), so it is bound to this exact antId+target and cannot be
+   *   replayed against a different ANT/recipient. We never hand-roll that string.
+   * - The request is NOT retried on 5xx (single-use nonce). The bundler
+   *   reconciles a "thrown-but-landed" transfer server-side.
+   * - A `404` ("not found" == "not yours", deliberately conflated) maps to a
+   *   typed {@link CustodialANTNotFoundError} so the UI never leaks another
+   *   owner's name; a `401` maps to {@link CustodyTransferUnauthorizedError}.
    */
-  public async transferCustodialArNSName(_params: {
+  public async transferCustodialArNSName({
+    antId,
+    target,
+    tokenType,
+    signer,
+    walletAdapter,
+    transferClient,
+  }: {
+    /** Custodial ANT id (Solana Metaplex Core asset) to move out of custody. */
     antId: string;
-    toAddress: string;
+    /** Destination Solana pubkey that will own the ANT. */
+    target: string;
+    /** Connected wallet's token type (drives which authed client is built). */
     tokenType?: TokenType;
+    /** arbundles-compatible turbo signer for arweave/ethereum identities. */
     signer?: unknown;
+    /** Solana wallet adapter for the solana identity. */
     walletAdapter?: unknown;
-  }): Promise<never> {
-    throw new Error(
-      'Claiming a custodial ArNS name to your own wallet is not available yet.',
-    );
+    /** Inject a pre-built authenticated client (tests). */
+    transferClient?: AuthenticatedArNSCustodyClient;
+  }): Promise<ArNSTransferResult> {
+    if (!antId) {
+      throw new Error('An ANT id is required to transfer a custodial name.');
+    }
+    // Target MUST be a real Solana pubkey — reject malformed/empty up front,
+    // before we ask the wallet to sign (a signed junk request wastes a nonce).
+    if (!target || !isValidSolanaAddress(target)) {
+      throw new InvalidTransferTargetError();
+    }
+
+    const client =
+      transferClient ??
+      (this.buildAuthenticatedTurboClient({
+        walletAdapter,
+        tokenType,
+        signer,
+      }) as AuthenticatedArNSCustodyClient);
+
+    try {
+      const result = await client.transferArNSAnt({ antId, target });
+      return {
+        antId: result.antId ?? antId,
+        target: result.target ?? target,
+        name: result.name,
+        messageId: result.messageId ?? null,
+        // The SDK types omit `confirmed`; the bundler returns it. Treat a
+        // returned messageId as confirmed when the flag is absent.
+        confirmed: result.confirmed ?? result.messageId != null,
+      };
+    } catch (error) {
+      throw this.mapCustodyTransferError(error);
+    }
+  }
+
+  /**
+   * Normalize a custodial-transfer error. A bundler `404` (not-your-ANT) →
+   * {@link CustodialANTNotFoundError}; a `401` (bad signature) →
+   * {@link CustodyTransferUnauthorizedError}. Surfaced by the turbo-sdk as a
+   * `FailedRequestError` carrying `.status` (and a "(Status NNN)" message).
+   */
+  private mapCustodyTransferError(error: unknown): Error {
+    const status = (error as { status?: number })?.status;
+    const message = error instanceof Error ? error.message : String(error);
+    if (status === 404 || /\(Status 404\)/.test(message)) {
+      return new CustodialANTNotFoundError();
+    }
+    if (status === 401 || /\(Status 401\)/.test(message)) {
+      return new CustodyTransferUnauthorizedError();
+    }
+    return error instanceof Error ? error : new Error(message);
   }
 }
