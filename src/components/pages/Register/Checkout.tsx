@@ -24,6 +24,7 @@ import {
 } from '@src/services/turbo/TurboArNSClient';
 import { dispatchArNSUpdate, useArNSState } from '@src/state';
 import dispatchArIOInteraction from '@src/state/actions/dispatchArIOInteraction';
+import dispatchArNSPurchaseWithCredits from '@src/state/actions/dispatchArNSPurchaseWithCredits';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useTransactionState } from '@src/state/contexts/TransactionState';
 import { useWalletState } from '@src/state/contexts/WalletState';
@@ -572,8 +573,27 @@ function Checkout() {
           setIsProcessingBaseToken(false);
           setBaseTokenStage(null);
         }
+      } else if (paymentMethod === 'credits') {
+        // Turbo Credits: settle through the bundler payment-service REST API
+        // (credits debited server-side, on-chain write server-fronted), NOT
+        // the dead `@ar.io/sdk buyRecord({ fundFrom: 'turbo' })` alias. Covers
+        // buy / extend-lease / increase-undername / upgrade — same intent path.
+        await dispatchArNSPurchaseWithCredits({
+          turbo,
+          workflowName: workflowName as ARNS_INTERACTION_TYPES,
+          intent: costDetailsParams.intent as TurboArNSIntent,
+          payload: {
+            ...transactionData,
+          },
+          owner: walletAddress,
+          wallet,
+          paidBy: creditsBalance?.receivedApprovals.map(
+            (approval) => approval.payingAddress,
+          ),
+          dispatch: dispatchTransactionState,
+        });
       } else {
-        // Standard payment flow (ARIO, fiat, credits)
+        // Standard payment flow (ARIO crypto, fiat)
         await dispatchArIOInteraction({
           arioContract: arioContract as ARIOWrite,
           workflowName: workflowName as ARNS_INTERACTION_TYPES,
@@ -587,12 +607,9 @@ function Checkout() {
           dispatch: dispatchTransactionState,
           signer: wallet?.contractSigner,
           wallet,
-          fundFrom:
-            paymentMethod === 'card'
-              ? 'fiat'
-              : paymentMethod === 'credits'
-                ? 'turbo'
-                : fundingSource,
+          // credits are handled above via `dispatchArNSPurchaseWithCredits`;
+          // here paymentMethod is 'card' (fiat) or 'crypto' (funding source).
+          fundFrom: paymentMethod === 'card' ? 'fiat' : fundingSource,
           paidBy: creditsBalance?.receivedApprovals.map(
             (approval) => approval.payingAddress,
           ),

@@ -1,4 +1,4 @@
-import { Intent, MessageResult } from '@ar.io/sdk/web';
+import { Intent } from '@ar.io/sdk/web';
 import {
   ARIOToTokenAmount,
   ARToTokenAmount,
@@ -33,10 +33,11 @@ export interface TurboArNSClientConfig {
   paymentUrl?: string;
   gatewayUrl?: string;
   walletsUrl?: string;
-  // `signer` and `ao` are vestigial after the de-AO refactor — the Stripe-
-  // funded ArNS purchase flow (`executeArNSIntent`) is currently AO-coupled
-  // and gated behind a tooltip in the UI. Phase 9 keeps the field for
-  // back-compat; Solana support requires the Turbo payment service update.
+  // `signer` and `ao` are vestigial after the de-AO refactor. Credit-paid ArNS
+  // purchases (`executeArNSIntent`) now settle through the bundler
+  // payment-service REST API — the authenticated turbo-sdk client is built
+  // on demand from the connected Solana wallet adapter, not from these fields.
+  // The Stripe (`card`) path remains gated in the UI.
   signer?: any;
   walletAddress?: string;
   stripe: Stripe;
@@ -118,6 +119,128 @@ export type TurboArNSIntentPriceParams = {
   currency?: CurrencyMap['type'];
   promoCode?: string;
 };
+
+/**
+ * The subset of the turbo-sdk authenticated client used to settle an ArNS
+ * purchase with Turbo Credits. Declared structurally so it can be injected in
+ * tests without standing up the whole SDK.
+ */
+export interface AuthenticatedArNSPurchaseClient {
+  buyArNSName(params: {
+    name: string;
+    type?: 'lease' | 'permabuy';
+    years?: number;
+    processId: string;
+    paidBy?: string[];
+  }): Promise<ArNSPurchaseResult>;
+  extendArNSLease(params: {
+    name: string;
+    years: number;
+    paidBy?: string[];
+  }): Promise<ArNSPurchaseResult>;
+  increaseArNSUndernameLimit(params: {
+    name: string;
+    increaseQty: number;
+    paidBy?: string[];
+  }): Promise<ArNSPurchaseResult>;
+  upgradeArNSName(params: {
+    name: string;
+    paidBy?: string[];
+  }): Promise<ArNSPurchaseResult>;
+}
+
+/** Shape returned by the turbo-sdk `*ArNSName`/`*ArNSLease` purchase methods. */
+export type ArNSPurchaseResult = {
+  /** UUID that is both the idempotency key and the status-lookup key. */
+  nonce: string;
+  purchaseReceipt?: { nonce: string; messageId?: string } & Record<
+    string,
+    unknown
+  >;
+  arioWriteResult?: { id: string };
+};
+
+/**
+ * Progress phases emitted while settling an ArNS purchase with credits, so the
+ * UI can surface a signing/polling message without echoing raw chain errors.
+ */
+export type ArNSSettlementPhase =
+  | 'submitting'
+  | 'submitted'
+  | 'resumed'
+  | 'polling'
+  | 'success';
+
+export type ArNSSettlementStatus = {
+  phase: ArNSSettlementPhase;
+  nonce?: string;
+  messageId?: string;
+};
+
+export type ArNSSettlementResult = {
+  /** UUID nonce used for the purchase (idempotency + status key). */
+  nonce: string;
+  /** Solana transaction id of the on-chain ArNS write. Drives success nav. */
+  messageId: string;
+  /** The terminal purchase record from the status endpoint. */
+  receipt: Record<string, unknown>;
+};
+
+export type ExecuteArNSIntentParams = {
+  intent: TurboArNSIntent;
+  name: string;
+  type?: 'lease' | 'permabuy';
+  years?: number;
+  increaseQty?: number;
+  /** ANT (Metaplex Core asset) the name resolves to — required for Buy-Name. */
+  processId?: string;
+  paidBy?: string[];
+  /**
+   * Solana wallet adapter (e.g. `window.solana`) used to build the
+   * authenticated turbo-sdk client that signs the request nonce. Not required
+   * when `resumeNonce` is supplied (a resume only polls, it never re-submits).
+   */
+  walletAdapter?: unknown;
+  /**
+   * Inject a pre-built authenticated client (used by tests). When omitted, one
+   * is constructed from `walletAdapter`.
+   */
+  purchaseClient?: AuthenticatedArNSPurchaseClient;
+  /**
+   * Resume polling an already-submitted purchase (e.g. after a page reload)
+   * instead of submitting a fresh one. The nonce is the server-side
+   * idempotency key, so resuming never risks a double debit.
+   */
+  resumeNonce?: string;
+  onStatus?: (status: ArNSSettlementStatus) => void;
+  pollIntervalMs?: number;
+  pollTimeoutMs?: number;
+};
+
+/**
+ * Thrown when the bundler responds `402` — the wallet lacks the Turbo Credits
+ * to cover the purchase. Deterministic (not retried); the UI should route to
+ * the Top-Up flow rather than showing a generic error.
+ */
+export class InsufficientCreditsError extends Error {
+  public readonly code = 'INSUFFICIENT_CREDITS' as const;
+  constructor(message = 'Insufficient Turbo Credits for this purchase.') {
+    super(message);
+    this.name = 'InsufficientCreditsError';
+  }
+}
+
+/** Thrown when the purchase terminally fails on-chain (`failedDate` set). */
+export class ArNSPurchaseFailedError extends Error {
+  public readonly code = 'ARNS_PURCHASE_FAILED' as const;
+  constructor(
+    message = 'The ArNS purchase failed to settle on-chain.',
+    public readonly nonce?: string,
+  ) {
+    super(message);
+    this.name = 'ArNSPurchaseFailedError';
+  }
+}
 
 export class TurboArNSClient {
   public readonly turboUploader;
@@ -302,59 +425,234 @@ export class TurboArNSClient {
   }
 
   /**
-   * Stripe-funded direct ArNS purchase ("buy a name with a credit card").
+   * Settle an ArNS purchase (buy / extend / increase-undernames / upgrade) by
+   * debiting the connected wallet's Turbo Credit balance via the bundler
+   * payment-service REST API (`POST /v1/arns/purchase/:intent/:name`), then
+   * poll the status endpoint to a terminal state.
    *
-   * **Currently disabled on the Solana-only build.**
+   * This is the **credits** settlement path (Model B — the user owns the ANT,
+   * whose `processId` is passed for `Buy-Name`). It replaces the dead
+   * `@ar.io/sdk buyRecord({ fundFrom: 'turbo' })` alias, which never debited
+   * credits (it paid ARIO straight from the wallet's token account).
    *
-   * The Turbo payment service still settles ArNS purchases by emitting an
-   * AO message (`Buy-Name`/`Extend-Lease`/`Increase-Undername-Limit`) on
-   * the AO ARIO process. Until the service learns to relay those intents
-   * to the Solana ARIO programs, this flow can't complete on Solana — the
-   * payment would clear but no on-chain mutation would happen, leaving
-   * the user with neither funds nor a name.
-   *
-   * The UI gates this behind a tooltip on the credit-card payment option
-   * (see `TransactionDetails`/`PaymentDetails`), and the dispatcher
-   * (`dispatchArIOInteraction`) throws if `fundFrom === 'fiat'` is reached
-   * on Solana. The class method is preserved as documentation + a hook
-   * for re-enabling once the service ships Solana support.
+   * Resilience (see arns-spike RED_TEAM_REVIEW / UI_INTEGRATION_PLAN §3):
+   * - The turbo-sdk purchase method mints a UUID nonce which is BOTH the
+   *   idempotency key and the status key; we capture it immediately and never
+   *   blind-re-call the mint method (that would risk a double debit). The SDK's
+   *   own HTTP retry reuses the same signed nonce, so it is debit-safe.
+   * - `resumeNonce` lets a page reload resume POLLING an already-submitted
+   *   purchase instead of orphaning (or re-charging) it.
+   * - A `402` maps to a typed {@link InsufficientCreditsError} so the caller can
+   *   route to Top-Up rather than showing a generic failure.
+   * - Polling tolerates transient network blips (non-terminal); only a
+   *   `messageId` (success) or `failedDate` (failure) is terminal.
    */
   public async executeArNSIntent({
-    paymentMethodId,
-    email,
-    ...intentParams
-  }: TurboArNSIntentPriceParams & {
-    processId?: string;
-    paymentMethodId: string;
-    email?: string;
-    address: string;
-  }): Promise<MessageResult<MessageResult>> {
-    // Suppress unused-destructure warnings.
-    void paymentMethodId;
-    void email;
-    void intentParams;
+    intent,
+    name,
+    type,
+    years,
+    increaseQty,
+    processId,
+    paidBy,
+    walletAdapter,
+    purchaseClient,
+    resumeNonce,
+    onStatus,
+    pollIntervalMs = 2500,
+    pollTimeoutMs = 120_000,
+  }: ExecuteArNSIntentParams): Promise<ArNSSettlementResult> {
+    let nonce = resumeNonce;
+
+    if (!nonce) {
+      onStatus?.({ phase: 'submitting' });
+      const client =
+        purchaseClient ?? this.buildAuthenticatedArNSClient(walletAdapter);
+      try {
+        const result = await this.submitArNSPurchase(client, {
+          intent,
+          name,
+          type,
+          years,
+          increaseQty,
+          processId,
+          paidBy,
+        });
+        // Prefer the top-level nonce; fall back to the receipt's copy.
+        nonce = result.nonce ?? result.purchaseReceipt?.nonce;
+      } catch (error) {
+        throw this.mapArNSPurchaseError(error);
+      }
+      if (!nonce) {
+        throw new Error(
+          'ArNS purchase did not return a nonce; cannot track settlement.',
+        );
+      }
+      onStatus?.({ phase: 'submitted', nonce });
+    } else {
+      onStatus?.({ phase: 'resumed', nonce });
+    }
+
+    return this.pollArNSPurchaseToTerminal({
+      nonce,
+      name,
+      onStatus,
+      pollIntervalMs,
+      pollTimeoutMs,
+    });
+  }
+
+  /**
+   * Build the authenticated turbo-sdk client that signs the request nonce with
+   * the connected Solana wallet. Mirrors the proven Solana authed pattern used
+   * for logo uploads (`useUploadArNSLogo`).
+   */
+  private buildAuthenticatedArNSClient(
+    walletAdapter: unknown,
+  ): AuthenticatedArNSPurchaseClient {
+    const adapter =
+      walletAdapter ??
+      (typeof window !== 'undefined' ? (window as any).solana : undefined);
+    if (!adapter) {
+      throw new Error(
+        'A connected Solana wallet is required to pay with Turbo Credits.',
+      );
+    }
+    return TurboFactory.authenticated({
+      walletAdapter: adapter,
+      token: 'solana',
+      paymentServiceConfig: {
+        url: this.paymentUrl,
+      },
+    } as any) as unknown as AuthenticatedArNSPurchaseClient;
+  }
+
+  /** Map an ArNS intent to the matching turbo-sdk per-intent purchase method. */
+  private submitArNSPurchase(
+    client: AuthenticatedArNSPurchaseClient,
+    {
+      intent,
+      name,
+      type,
+      years,
+      increaseQty,
+      processId,
+      paidBy,
+    }: {
+      intent: TurboArNSIntent;
+      name: string;
+      type?: 'lease' | 'permabuy';
+      years?: number;
+      increaseQty?: number;
+      processId?: string;
+      paidBy?: string[];
+    },
+  ): Promise<ArNSPurchaseResult> {
+    const domain = lowerCaseDomain(name);
+    switch (intent) {
+      case 'Buy-Name': {
+        if (!processId) {
+          throw new Error(
+            'A processId (ANT) is required to buy an ArNS name with credits.',
+          );
+        }
+        return client.buyArNSName({
+          name: domain,
+          type,
+          years,
+          processId,
+          paidBy,
+        });
+      }
+      case 'Extend-Lease': {
+        if (years === undefined) {
+          throw new Error('years is required to extend an ArNS lease.');
+        }
+        return client.extendArNSLease({ name: domain, years, paidBy });
+      }
+      case 'Increase-Undername-Limit': {
+        if (increaseQty === undefined) {
+          throw new Error(
+            'increaseQty is required to increase the undername limit.',
+          );
+        }
+        return client.increaseArNSUndernameLimit({
+          name: domain,
+          increaseQty,
+          paidBy,
+        });
+      }
+      case 'Upgrade-Name':
+        return client.upgradeArNSName({ name: domain, paidBy });
+      default:
+        throw new Error(
+          `Unsupported ArNS intent for credit settlement: ${String(intent)}`,
+        );
+    }
+  }
+
+  /**
+   * Poll `GET /v1/arns/purchase/:nonce` to a terminal state. `messageId` ⇒
+   * success; `failedDate` ⇒ failure. Transient network errors are non-terminal.
+   */
+  private async pollArNSPurchaseToTerminal({
+    nonce,
+    name,
+    onStatus,
+    pollIntervalMs,
+    pollTimeoutMs,
+  }: {
+    nonce: string;
+    name: string;
+    onStatus?: (status: ArNSSettlementStatus) => void;
+    pollIntervalMs: number;
+    pollTimeoutMs: number;
+  }): Promise<ArNSSettlementResult> {
+    const deadline = Date.now() + pollTimeoutMs;
+
+    while (Date.now() < deadline) {
+      onStatus?.({ phase: 'polling', nonce });
+      let record: Record<string, any> | undefined;
+      try {
+        record = (await this.getIntentStatus(nonce)) as Record<string, any>;
+      } catch {
+        // Transient network/parse error — non-terminal, keep polling.
+        record = undefined;
+      }
+
+      const messageId = record?.messageId as string | undefined;
+      if (messageId) {
+        onStatus?.({ phase: 'success', nonce, messageId });
+        return { nonce, messageId, receipt: record ?? {} };
+      }
+      if (record?.failedDate) {
+        throw new ArNSPurchaseFailedError(
+          `The purchase of '${name}' failed to settle on-chain.`,
+          nonce,
+        );
+      }
+
+      await sleep(pollIntervalMs);
+    }
+
     throw new Error(
-      'Credit-card payments for ArNS purchases are temporarily unavailable on Solana. ' +
-        'The Turbo payment service still settles via AO and needs Solana support before this flow can be re-enabled.',
+      `Timed out waiting for the '${name}' purchase to settle (nonce ${nonce}). ` +
+        'Your credits are safe; the purchase may still complete — check back shortly.',
     );
-    /* Original AO-coupled implementation preserved for reference once the
-     * Turbo payment service ships Solana support. Re-enable by deleting the
-     * throw above and uncommenting:
-     *
-     * const intent = await this.getArNSPaymentIntent(intentParams);
-     * if (!intent.paymentSession.client_secret) {
-     *   throw new Error('No client secret found on payment intent');
-     * }
-     * const result = await this.stripe.confirmCardPayment(
-     *   intent.paymentSession.client_secret,
-     *   { payment_method: paymentMethodId, receipt_email: email },
-     * );
-     * if (result.error) throw new Error(result.error.message);
-     *
-     * // poll getIntentStatus until success/failed, then:
-     * // const messageResult = await this.ao.result({ process: this.arioProcessId, message: messageId });
-     * // return { id: messageId, result: messageResult };
-     */
+  }
+
+  /**
+   * Normalize a purchase error. A bundler `402` (surfaced by the turbo-sdk as a
+   * `FailedRequestError` with `status === 402`, or a "(Status 402)" message)
+   * becomes a typed {@link InsufficientCreditsError}.
+   */
+  private mapArNSPurchaseError(error: unknown): Error {
+    const status = (error as { status?: number })?.status;
+    const message = error instanceof Error ? error.message : String(error);
+    if (status === 402 || /\(Status 402\)/.test(message)) {
+      return new InsufficientCreditsError();
+    }
+    return error instanceof Error ? error : new Error(message);
   }
 
   public async getWincForToken(

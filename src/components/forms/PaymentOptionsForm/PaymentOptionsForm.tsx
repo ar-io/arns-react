@@ -53,7 +53,9 @@ export type CryptoOptions = ARIOCryptoOptions | BaseTokenType;
  * when those paths are ready.
  */
 const DISABLE_CREDIT_CARD_CHECKOUT_UI = true;
-const DISABLE_TURBO_CREDITS_CHECKOUT_UI = true;
+// Turbo Credits checkout is now wired to the bundler payment-service
+// (`POST /v1/arns/purchase/...`) via `dispatchArNSPurchaseWithCredits`.
+const DISABLE_TURBO_CREDITS_CHECKOUT_UI = false;
 const DISABLE_BASE_CRYPTO_CHECKOUT_UI = true;
 
 const FormEntry: FC<{

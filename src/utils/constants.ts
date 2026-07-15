@@ -124,6 +124,29 @@ export const PAYMENT_SERVICE_FQDN =
     ? prodPaymentServiceFqdn
     : devPaymentServiceFqdn;
 
+// Full payment-service origin used by the Turbo clients. In dev/default we
+// point at the locally-running ar-io-bundler payment-service (:4001), which is
+// the source of truth for ArNS purchases paid with Turbo Credits
+// (`POST /v1/arns/purchase/...`). Prod keeps the hosted ArDrive payment
+// service. Overridable at runtime via Settings → NetworkSettings.
+export const devPaymentServiceUrl =
+  import.meta.env.VITE_PAYMENT_SERVICE_URL || 'http://localhost:4001';
+export const prodPaymentServiceUrl = `https://${prodPaymentServiceFqdn}`;
+
+export const PAYMENT_SERVICE_URL =
+  import.meta.env.VITE_NODE_ENV === 'production'
+    ? prodPaymentServiceUrl
+    : devPaymentServiceUrl;
+
+// The Turbo upload service + gateway are likewise pointable at any bundler
+// (e.g. a self-hosted ar-io-bundler such as upload.services.perma.online) via
+// env, defaulting to the hosted ArDrive services. Overridable at runtime via
+// Settings → NetworkSettings.
+export const UPLOAD_SERVICE_URL =
+  import.meta.env.VITE_UPLOAD_SERVICE_URL || 'https://turbo.ardrive.io';
+export const TURBO_GATEWAY_URL =
+  import.meta.env.VITE_GATEWAY_URL || 'https://turbo-gateway.com';
+
 // PUBLISHABLE KEYS
 export const devStripePublishableKey =
   'pk_test_51JUAtwC8apPOWkDLh2FPZkQkiKZEkTo6wqgLCtQoClL6S4l2jlbbc5MgOdwOUdU9Tn93NNvqAGbu115lkJChMikG00XUfTmo2z';
@@ -167,10 +190,10 @@ export const NETWORK_DEFAULTS = {
     HOST: 'turbo-gateway.com',
   },
   TURBO: {
-    UPLOAD_URL: 'https://turbo.ardrive.io',
-    PAYMENT_URL: `https://${PAYMENT_SERVICE_FQDN}`,
-    GATEWAY_URL: 'https://turbo-gateway.com',
-    WALLETS_URL: `https://${PAYMENT_SERVICE_FQDN}/info`,
+    UPLOAD_URL: UPLOAD_SERVICE_URL,
+    PAYMENT_URL: PAYMENT_SERVICE_URL,
+    GATEWAY_URL: TURBO_GATEWAY_URL,
+    WALLETS_URL: `${PAYMENT_SERVICE_URL}/info`,
     STRIPE_PUBLISHABLE_KEY,
   },
 };
