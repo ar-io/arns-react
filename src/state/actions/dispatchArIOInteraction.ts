@@ -115,31 +115,36 @@ export default async function dispatchArIOInteraction({
           );
         }
 
-        // Spawn the ANT first. On Solana this mints a Metaplex Core asset
-        // and bootstraps the ACL atomically.
-        let antProcessId: string;
-        if (payload.processId) {
-          antProcessId = payload.processId;
-        } else {
-          dispatch({
-            type: 'setSigningMessage',
-            payload: `Spawning new ANT for new ArNS name '${name}'`,
-          });
-          const { programIds } = getActiveSolanaConfig();
-          const spawnResult = await ANT.spawn({
-            rpc: getSolanaRpc(),
-            rpcSubscriptions: getSolanaRpcSubscriptions(),
-            signer: wallet.solanaSigner,
-            antProgramId: programIds.antProgramId,
-            state: {
-              ...createAntStateForOwner(owner.toString(), payload.targetId),
-              name,
-            },
-          });
-          antProcessId = spawnResult.processId;
-        }
+        // The user's existing ANT, when they chose to reuse one on the
+        // registration form. Undefined means "mint a fresh ANT for this name".
+        const existingAntProcessId: string | undefined = payload.processId;
 
         if (isReturnedName) {
+          // `buyReturnedName` does NOT support atomic ANT spawning (unlike
+          // `buyRecord`); it requires a real `processId`. So for returned names
+          // we still spawn the ANT first.
+          let antProcessId: string;
+          if (existingAntProcessId) {
+            antProcessId = existingAntProcessId;
+          } else {
+            dispatch({
+              type: 'setSigningMessage',
+              payload: `Spawning new ANT for returned name '${name}'`,
+            });
+            const { programIds } = getActiveSolanaConfig();
+            const spawnResult = await ANT.spawn({
+              rpc: getSolanaRpc(),
+              rpcSubscriptions: getSolanaRpcSubscriptions(),
+              signer: wallet.solanaSigner,
+              antProgramId: programIds.antProgramId,
+              state: {
+                ...createAntStateForOwner(owner.toString(), payload.targetId),
+                name,
+              },
+            });
+            antProcessId = spawnResult.processId;
+          }
+
           dispatch({
             type: 'setSigningMessage',
             payload: `Purchasing returned name '${name}' from auction`,
@@ -156,18 +161,42 @@ export default async function dispatchArIOInteraction({
             referrer: APP_NAME,
             paidBy,
           });
+          payload.processId = antProcessId;
         } else {
+          // Atomic purchase (ar.io SDK >= 4.1.0-alpha.5): when no `processId` is
+          // supplied, `buyRecord` mints a fresh ANT and assigns the name to it
+          // in the SAME transaction, returning the new ANT id as
+          // `result.result.processId`. The SDK routes balance/credit-funded
+          // buys inline (one signature) and only falls back to a multi-tx
+          // Address Lookup Table for large stake-funded plans that exceed the
+          // 1232-byte tx limit. Only pass `processId` when reusing an existing
+          // ANT; otherwise omit it and let the SDK spawn.
+          dispatch({
+            type: 'setSigningMessage',
+            payload: existingAntProcessId
+              ? `Purchasing '${name}'`
+              : `Purchasing '${name}' and spawning its ANT`,
+          });
           result = await arioContract.buyRecord({
             name: lowered,
             type,
             years,
-            processId: antProcessId,
+            ...(existingAntProcessId
+              ? { processId: existingAntProcessId }
+              : {}),
             fundFrom: originalFundFrom,
             referrer: APP_NAME,
             paidBy,
           });
+          // Surface the ANT (reused, or freshly spawned and reported by the
+          // SDK) so the Checkout success screen and transaction history can
+          // link to it.
+          payload.processId =
+            existingAntProcessId ??
+            (result as any)?.result?.processId ??
+            undefined;
         }
-        payload.processId = antProcessId;
+
         dispatch({
           type: 'setSigningMessage',
           payload: `Successfully purchased '${name}'`,

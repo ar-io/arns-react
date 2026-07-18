@@ -131,10 +131,10 @@
     prompts "^2.4.2"
     zod "^3.25.76"
 
-"@ar.io/sdk@^4.1.0-alpha.1":
-  version "4.1.0-alpha.1"
-  resolved "https://registry.npmjs.org/@ar.io/sdk/-/sdk-4.1.0-alpha.1.tgz#97c4040562b76628419e4d658995f0aeb9d8c5ff"
-  integrity sha512-ggJqbEqR2NAp4Vs7gzTSocf6Oe6kCl5Rz5q88Oy0v+OSKnAslzvYQ51SacClQ3TYEOiGrXZVSw2JgamP445RbQ==
+"@ar.io/sdk@^4.1.0-alpha.6":
+  version "4.1.0-alpha.6"
+  resolved "https://registry.yarnpkg.com/@ar.io/sdk/-/sdk-4.1.0-alpha.6.tgz#635e803bbf6c794aaf28ad06d13660d959f19cab"
+  integrity sha512-2OYXbh+MO06CFPlPs0QtsYp5LN9ZbWTMA/6E2GhUGVniGxviRpEwFhN5D31lK3mQur1Nfw8ku9idqPWs3sLLbg==
   dependencies:
     "@ar.io/solana-contracts" "1.0.1"
     "@noble/hashes" "^1.8.0"
