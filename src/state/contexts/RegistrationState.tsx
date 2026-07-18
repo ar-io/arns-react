@@ -20,7 +20,6 @@ export type RegistrationState = {
   targetID?: ArweaveTransactionID;
   antID?: ArweaveTransactionID;
   fee: { ar: number; [x: string]: number | undefined };
-  targetId?: ArweaveTransactionID;
   isRegistered: boolean;
   stage: number;
   isSearching: boolean;
