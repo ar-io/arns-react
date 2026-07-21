@@ -138,7 +138,7 @@ export default async function dispatchArIOInteraction({
               signer: wallet.solanaSigner,
               antProgramId: programIds.antProgramId,
               state: {
-                ...createAntStateForOwner(owner.toString(), payload.targetId),
+                ...createAntStateForOwner(owner.toString()),
                 name,
               },
             });
@@ -195,6 +195,13 @@ export default async function dispatchArIOInteraction({
             existingAntProcessId ??
             (result as any)?.result?.processId ??
             undefined;
+
+          if (!payload.processId) {
+            console.error(
+              '[dispatchArIOInteraction] Atomic buyRecord succeeded but no processId was returned by the SDK. Transaction ID:',
+              result?.id,
+            );
+          }
         }
 
         dispatch({

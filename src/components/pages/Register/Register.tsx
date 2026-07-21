@@ -1,6 +1,5 @@
 import { CheckCircleFilled } from '@ant-design/icons';
 import { mARIOToken } from '@ar.io/sdk/web';
-import Tooltip from '@src/components/Tooltips/Tooltip';
 import { Accordion } from '@src/components/data-display';
 import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import { useArIoPrice } from '@src/hooks/useArIOPrice';

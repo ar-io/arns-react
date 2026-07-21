@@ -356,7 +356,6 @@ export type BuyRecordPayload = {
   years?: number;
   type: TRANSACTION_TYPES;
   qty?: number; // the cost displayed to the user when buying a record
-  targetId?: ArweaveTransactionID;
   antModuleId: string;
   antRegistryId: string;
 };
