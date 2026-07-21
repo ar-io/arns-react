@@ -103,13 +103,14 @@ function RegisterNameForm() {
       });
       return;
     }
+
+    const contract = await buildAntRead({ processId: id.toString() });
+    if (!contract) throw new Error('Contract not found');
+
     dispatchRegisterState({
       type: 'setANTID',
       payload: id,
     });
-
-    const contract = await buildAntRead({ processId: id.toString() });
-    if (!contract) throw new Error('Contract not found');
   }
 
   if (!registrationType) {
@@ -415,7 +416,11 @@ function RegisterNameForm() {
             >
               <div className="flex flex-column" style={{ gap: '1em' }}>
                 <NameTokenSelector
-                  selectedTokenCallback={(id) => handleANTId(id)}
+                  selectedTokenCallback={(id) => {
+                    handleANTId(id).catch((error) => {
+                      eventEmitter.emit('error', error);
+                    });
+                  }}
                 />
               </div>
             </Accordion>
