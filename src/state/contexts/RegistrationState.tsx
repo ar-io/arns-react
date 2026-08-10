@@ -17,10 +17,8 @@ export type RegistrationState = {
   domain: string;
   leaseDuration: number;
   antContract?: ANTRead;
-  targetID?: ArweaveTransactionID;
   antID?: ArweaveTransactionID;
   fee: { ar: number; [x: string]: number | undefined };
-  targetId?: ArweaveTransactionID;
   isRegistered: boolean;
   stage: number;
   isSearching: boolean;

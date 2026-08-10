@@ -194,7 +194,6 @@ function TransactionReview() {
           compact={true}
           overrides={{
             ...antProps.overrides,
-            targetId: (transactionData as any)?.targetId?.toString(),
           }}
         />
 

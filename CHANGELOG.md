@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-07-18
+
+### Changed
+
+- Updated purchase flow to atomically spawn MPL core ANT + purchase ArNS name
+
 ## [2.2.0] - 2026-06-25
 
 ### Added
