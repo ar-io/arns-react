@@ -693,7 +693,7 @@ function Checkout() {
             <DomainCheckoutCard
               domain={transaction?.name}
               antId={transaction?.processId}
-              targetId={transaction?.targetId?.toString()}
+              targetId={undefined}
               orderSummary={orderSummary}
               fees={fees}
               quoteEndTimestamp={quoteEndTimestamp}

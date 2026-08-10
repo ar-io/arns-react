@@ -1,17 +1,15 @@
 import { CheckCircleFilled } from '@ant-design/icons';
 import { mARIOToken } from '@ar.io/sdk/web';
-import Tooltip from '@src/components/Tooltips/Tooltip';
 import { Accordion } from '@src/components/data-display';
 import { useLatestANTVersion } from '@src/hooks/useANTVersions';
 import { useArIoPrice } from '@src/hooks/useArIOPrice';
 import { useCostDetails } from '@src/hooks/useCostDetails';
-import { ValidationError } from '@src/utils/errors';
 import { buildAntRead } from '@src/utils/sdk-init';
 import emojiRegex from 'emoji-regex';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { useIsFocused, useRegistrationStatus } from '../../../hooks';
+import { useRegistrationStatus } from '../../../hooks';
 import { ArweaveTransactionID } from '../../../services/arweave/ArweaveTransactionID';
 import { useGlobalState } from '../../../state/contexts/GlobalState';
 import { useRegistrationState } from '../../../state/contexts/RegistrationState';
@@ -21,7 +19,6 @@ import {
   ARNS_INTERACTION_TYPES,
   BuyRecordPayload,
   TRANSACTION_TYPES,
-  VALIDATION_INPUT_TYPES,
 } from '../../../types';
 import {
   decodeDomainToASCII,
@@ -29,7 +26,6 @@ import {
   formatARIO,
   formatARIOWithCommas,
   formatDate,
-  isArweaveTransactionID,
 } from '../../../utils';
 import {
   ARNS_PURCHASES_DISABLED,
@@ -41,20 +37,19 @@ import eventEmitter from '../../../utils/events';
 import Counter from '../../inputs/Counter/Counter';
 import WorkflowButtons from '../../inputs/buttons/WorkflowButtons/WorkflowButtons';
 import NameTokenSelector from '../../inputs/text/NameTokenSelector/NameTokenSelector';
-import ValidationInput from '../../inputs/text/ValidationInput/ValidationInput';
 import Loader from '../../layout/Loader/Loader';
 import { StepProgressBar } from '../../layout/progress';
 import PageLoader from '../../layout/progress/PageLoader/PageLoader';
 import './styles.css';
 
 function RegisterNameForm() {
-  const [{ arweaveDataProvider, arioTicker }] = useGlobalState();
+  const [{ arioTicker }] = useGlobalState();
   // Legacy AO fields kept as no-op placeholders for the existing payload
   // shapes; the Solana dispatchers ignore them.
   const arioProcessId = '';
   const antRegistryProcessId = '';
   const [
-    { domain, leaseDuration, registrationType, antID, targetId },
+    { domain, leaseDuration, registrationType, antID },
     dispatchRegisterState,
   ] = useRegistrationState();
   const { data: costDetails } = useCostDetails({
@@ -81,11 +76,7 @@ function RegisterNameForm() {
   const { isLoading: isValidatingRegistration } = useRegistrationStatus(
     name ?? domain,
   );
-  const [newTargetId, setNewTargetId] = useState<string>();
-  const targetIdFocused = useIsFocused('target-id-input');
   const navigate = useNavigate();
-  const [hasValidationErrors, setHasValidationErrors] =
-    useState<boolean>(false);
   const [validatingNext, setValidatingNext] = useState<boolean>(false);
   const {
     data: antVersion,
@@ -112,13 +103,14 @@ function RegisterNameForm() {
       });
       return;
     }
+
+    const contract = await buildAntRead({ processId: id.toString() });
+    if (!contract) throw new Error('Contract not found');
+
     dispatchRegisterState({
       type: 'setANTID',
       payload: id,
     });
-
-    const contract = await buildAntRead({ processId: id.toString() });
-    if (!contract) throw new Error('Contract not found');
   }
 
   if (!registrationType) {
@@ -152,12 +144,6 @@ function RegisterNameForm() {
       }
 
       setValidatingNext(true);
-
-      if (hasValidationErrors) {
-        throw new ValidationError(
-          'Please fix the errors above before continuing.',
-        );
-      }
     } catch (error: any) {
       eventEmitter.emit('error', error);
       setValidatingNext(false);
@@ -179,7 +165,6 @@ function RegisterNameForm() {
           ? leaseDuration
           : undefined,
       type: registrationType,
-      targetId,
       // antModuleId is the AO Lua module ID; on Solana there's no module
       // (ANTs are Metaplex Core NFTs). Cast through `any` to satisfy the
       // legacy `BuyRecordPayload` shape until the consumer type is split
@@ -430,72 +415,12 @@ function RegisterNameForm() {
               key="1"
             >
               <div className="flex flex-column" style={{ gap: '1em' }}>
-                <div
-                  className="name-token-input-wrapper"
-                  style={{
-                    border:
-                      targetIdFocused || newTargetId
-                        ? 'solid 1px var(--text-white)'
-                        : 'solid 1px var(--text-faded)',
-                    position: 'relative',
-                  }}
-                >
-                  <ValidationInput
-                    inputId={'target-id-input'}
-                    value={newTargetId ?? ''}
-                    setValue={(v: string) => {
-                      setNewTargetId(v.trim());
-                      if (isArweaveTransactionID(v.trim())) {
-                        dispatchRegisterState({
-                          type: 'setTargetId',
-                          payload: new ArweaveTransactionID(v.trim()),
-                        });
-                      }
-                      if (v.trim().length === 0) {
-                        setHasValidationErrors(false);
-                      }
-                    }}
-                    wrapperCustomStyle={{
-                      width: '100%',
-                      hieght: '45px',
-                      borderRadius: '0px',
-                      backgroundColor: 'var(--card-bg)',
-                      boxSizing: 'border-box',
-                    }}
-                    inputClassName={`white name-token-input`}
-                    inputCustomStyle={{
-                      paddingLeft: '10px',
-                      background: 'transparent',
-                    }}
-                    maxCharLength={43}
-                    placeholder={'Arweave Transaction ID (Target ID)'}
-                    validationPredicates={{
-                      [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-                        fn: (id: string) =>
-                          arweaveDataProvider.validateArweaveId(id),
-                      },
-                    }}
-                    showValidationChecklist={false}
-                    showValidationIcon={true}
-                    validityCallback={(validity: boolean) => {
-                      setHasValidationErrors(!validity);
-                    }}
-                  />
-
-                  <span
-                    className="flex flex-row text grey flex-center"
-                    style={{
-                      width: 'fit-content',
-                      height: 'fit-content',
-                      wordBreak: 'keep-all',
-                      // padding: '1px',
-                    }}
-                  >
-                    <Tooltip message="The Target ID is the Arweave Transaction ID that will be resolved at the root of this ArNS name" />
-                  </span>
-                </div>
                 <NameTokenSelector
-                  selectedTokenCallback={(id) => handleANTId(id)}
+                  selectedTokenCallback={(id) => {
+                    handleANTId(id).catch((error) => {
+                      eventEmitter.emit('error', error);
+                    });
+                  }}
                 />
               </div>
             </Accordion>
