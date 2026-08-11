@@ -116,7 +116,6 @@ The app integrates with the AO (Arweave Operating System) ecosystem:
 Hash-based routing using React Router v6 (`createHashRouter`):
 
 - Routes defined in `src/App.tsx` with lazy loading for pages
-- Sentry integration via `wrapCreateBrowserRouter`
 - Main routes:
   - `/` — Home/search
   - `/connect` — Wallet connection modal
@@ -235,14 +234,14 @@ Import `eventEmitter` from `src/utils/events.ts` to emit notifications.
 
 ### Error Types (`src/utils/errors.ts`)
 
-- **NotificationOnlyError**: Shows notification but does NOT emit to Sentry
+- **NotificationOnlyError**: Shows notification only (no external error reporting)
   - Subclasses: `ValidationError`, `WanderError`, `ArweaveAppError`,
     `MetamaskError`, `EthereumWalletError`, `BeaconError`, `InsufficientFundsError`,
     `WalletNotInstalledError`, `UpgradeRequiredError`, `ANTStateError`
-- **Standard Error**: Automatically reported to Sentry for unhandled errors
+- **Standard Error**: Logged to console for debugging
 
 Use `NotificationOnlyError` for expected/user-facing errors. Use standard
-`Error` for unexpected errors that should be tracked.
+`Error` for unexpected errors that should be logged.
 
 ## Build and Deployment
 
@@ -250,15 +249,13 @@ Use `NotificationOnlyError` for expected/user-facing errors. Use standard
 
 - TypeScript compilation followed by Vite build
 - Source maps enabled
-- Sentry plugin integration for error tracking (disabled when deploying to
-  Permaweb)
 - Large memory allocation: `--max-old-space-size=32768`
 
 ### Environment Variables
 
 - Defined in Vite config, not exposed via process.env for security
 - Key variables: `VITE_ARWEAVE_HOST`, `VITE_ARWEAVE_GRAPHQL_URL`,
-  `VITE_HYPERBEAM_URL`, `VITE_SENTRY_*`, `VITE_ARNS_NAME`
+  `VITE_HYPERBEAM_URL`, `VITE_ARNS_NAME`
 - Build-time variables: `VITE_ENVIRONMENT` (production/develop),
   `VITE_NODE_ENV`, `VITE_GITHUB_HASH` (set to `local` in dev)
 

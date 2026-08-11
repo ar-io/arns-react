@@ -112,8 +112,6 @@ import {
   walletReducer,
 } from './state';
 import { queryClient } from './utils/network';
-// setup sentry
-import './utils/sentry';
 
 /**
  * Solana provider stack.
