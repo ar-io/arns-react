@@ -10,6 +10,10 @@ and this project adheres to
 
 ## [2.3.1] - 2026-08-10
 
+### Changed
+
+- Upgraded `@ar.io/sdk` to 4.1.1 (fixes atomic ArNS registration bug)
+
 ### Fixed
 
 - Prevent double-click submission on all transaction confirm/pay buttons
