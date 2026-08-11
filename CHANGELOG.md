@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.3.2] - 2026-08-11
+
+### Removed
+
+- Removed Sentry error tracking integration (`@sentry/react`, `@sentry/vite-plugin`)
+
 ## [2.3.1] - 2026-08-10
 
 ### Changed
@@ -23,10 +29,6 @@ and this project adheres to
   (includes orphaned ANT process ID for reuse on retry)
 - Changed silent console.error to thrown error when atomic buyRecord succeeds
   but SDK omits the ANT process ID
-
-### Removed
-
-- Removed Sentry error tracking integration (`@sentry/react`, `@sentry/vite-plugin`)
 
 ## [2.3.0] - 2026-07-18
 
