@@ -513,8 +513,8 @@ function PrimaryNameModal({
             </div>
           )
         }
-        onCancel={closeModal}
-        onClose={closeModal}
+        onCancel={!signing ? closeModal : undefined}
+        onClose={!signing ? closeModal : undefined}
         onNext={
           !isLoading &&
           !isLoadingCostDetail &&
