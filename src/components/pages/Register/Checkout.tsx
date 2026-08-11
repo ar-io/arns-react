@@ -74,7 +74,13 @@ function Checkout() {
   const { data: creditsBalance } = useTurboCreditBalance();
   const { data: solBalance } = useSolBalance();
   const [
-    { workflowName, interactionType, transactionData, interactionResult },
+    {
+      workflowName,
+      interactionType,
+      transactionData,
+      interactionResult,
+      signing,
+    },
     dispatchTransactionState,
   ] = useTransactionState();
   const transaction = transactionData as BuyRecordPayload;
@@ -716,6 +722,7 @@ function Checkout() {
                 workflowName === ARNS_INTERACTION_TYPES.UPGRADE_NAME;
               const payDisabled =
                 (ARNS_PURCHASES_DISABLED && isNewPurchase) ||
+                signing ||
                 isInsufficientBalance ||
                 isInsufficientSolForGas ||
                 isLoadingCostDetail ||

@@ -152,15 +152,29 @@ export default async function dispatchArIOInteraction({
           // `buyReturnedName` is Solana-only — same pattern as the
           // `releaseName`/`reassignName` casts in `dispatchANTInteraction`.
           // Phase 7 should hoist it onto the shared `ARIOWrite` interface.
-          result = await (arioContract as any).buyReturnedName({
-            name: lowered,
-            type,
-            years,
-            processId: antProcessId,
-            fundFrom: originalFundFrom,
-            referrer: APP_NAME,
-            paidBy,
-          });
+          try {
+            result = await (arioContract as any).buyReturnedName({
+              name: lowered,
+              type,
+              years,
+              processId: antProcessId,
+              fundFrom: originalFundFrom,
+              referrer: APP_NAME,
+              paidBy,
+            });
+          } catch (buyError: any) {
+            // If we spawned a fresh ANT but the purchase failed, tell the
+            // user about the orphaned ANT so they can reuse it on retry.
+            if (!existingAntProcessId) {
+              const msg = buyError?.message ?? String(buyError);
+              throw new Error(
+                `Failed to purchase returned name '${name}': ${msg}. ` +
+                  `A new ANT was already created (${antProcessId}). ` +
+                  `You can reuse it by selecting it under Advanced Options when retrying.`,
+              );
+            }
+            throw buyError;
+          }
           payload.processId = antProcessId;
         } else {
           // Atomic purchase (ar.io SDK >= 4.1.0-alpha.5): when no `processId` is
@@ -197,9 +211,8 @@ export default async function dispatchArIOInteraction({
             undefined;
 
           if (!payload.processId) {
-            console.error(
-              '[dispatchArIOInteraction] Atomic buyRecord succeeded but no processId was returned by the SDK. Transaction ID:',
-              result?.id,
+            throw new Error(
+              `Name '${name}' was purchased (tx: ${result?.id}) but the SDK did not return the ANT process ID. Check the transaction on-chain or contact support.`,
             );
           }
         }

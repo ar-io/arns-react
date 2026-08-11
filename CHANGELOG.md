@@ -8,6 +8,22 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.3.1] - 2026-08-10
+
+### Changed
+
+- Upgraded `@ar.io/sdk` to 4.1.1 (fixes atomic ArNS registration bug)
+
+### Fixed
+
+- Prevent double-click submission on all transaction confirm/pay buttons
+  (Checkout, TransactionReview, PrimaryNameModal, ReassignNameModal,
+  ReturnNameModal)
+- Improved error messaging when returned-name purchase fails after ANT spawn
+  (includes orphaned ANT process ID for reuse on retry)
+- Changed silent console.error to thrown error when atomic buyRecord succeeds
+  but SDK omits the ANT process ID
+
 ## [2.3.0] - 2026-07-18
 
 ### Changed
