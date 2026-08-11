@@ -48,6 +48,7 @@ Object.assign(process.env, {
   VITE_ARWEAVE_GRAPHQL_URL:
     process.env.VITE_ARWEAVE_GRAPHQL_URL ?? 'https://arweave.net/graphql',
   VITE_NODE_ENV: process.env.VITE_NODE_ENV ?? 'test',
+  VITE_AO_CU_URL: process.env.VITE_AO_CU_URL ?? 'https://cu.ardrive.io',
   VITE_ARIO_AO_CU_URL:
     process.env.VITE_ARIO_AO_CU_URL ?? 'https://cu.ardrive.io',
   VITE_ANT_AO_CU_URL: process.env.VITE_ANT_AO_CU_URL ?? 'https://cu.ardrive.io',
