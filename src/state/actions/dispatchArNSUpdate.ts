@@ -1,5 +1,4 @@
 import { ANTState, ARIORead, ArNSNameData } from '@ar.io/sdk/web';
-import { captureException } from '@sentry/react';
 import { AoAddress, ArNSWalletConnector } from '@src/types';
 import { computeAclDrift } from '@src/utils/aclSync';
 import { queryClient } from '@src/utils/network';
@@ -115,9 +114,6 @@ export async function dispatchArNSUpdate({
         if (record.processId) driftMints.add(record.processId);
       });
     } catch (error) {
-      captureException(error, {
-        tags: { walletAddress: walletAddress.toString(), phase: 'aclDrift' },
-      });
       console.error(error);
     }
 
@@ -230,14 +226,11 @@ export async function dispatchArNSUpdate({
           payload: registeredUserAnts.length,
         });
       } catch (error: any) {
-        captureException(error, {
-          tags: { walletAddress: walletAddress.toString() },
-        });
         console.error(error);
       }
     }
   } catch (error) {
-    captureException(error);
+    console.error(error);
   } finally {
     dispatch({ type: 'setLoading', payload: false });
     dispatch({ type: 'setPercentLoaded', payload: undefined });

@@ -40,17 +40,16 @@ Object.defineProperty(global, 'crypto', {
   },
 });
 
-// Mock import.meta for tests
-global.import = {
-  meta: {
-    env: {
-      VITE_ARWEAVE_HOST: 'arweave.net',
-      VITE_ARWEAVE_GRAPHQL_URL: 'https://arweave.net/graphql',
-      VITE_HYPERBEAM_URL: undefined,
-      VITE_ARIO_PROCESS_ID: undefined,
-      VITE_NODE_ENV: 'test',
-      VITE_ARIO_AO_CU_URL: 'https://cu.ardrive.io',
-      VITE_ANT_AO_CU_URL: 'https://cu.ardrive.io',
-    },
-  },
-};
+// import.meta.env defaults for tests.
+// The AST transformer in tests/common/import-meta-transformer.js rewrites
+// `import.meta.env.X` → `process.env.X`, so set values here.
+Object.assign(process.env, {
+  VITE_ARWEAVE_HOST: process.env.VITE_ARWEAVE_HOST ?? 'arweave.net',
+  VITE_ARWEAVE_GRAPHQL_URL:
+    process.env.VITE_ARWEAVE_GRAPHQL_URL ?? 'https://arweave.net/graphql',
+  VITE_NODE_ENV: process.env.VITE_NODE_ENV ?? 'test',
+  VITE_AO_CU_URL: process.env.VITE_AO_CU_URL ?? 'https://cu.ardrive.io',
+  VITE_ARIO_AO_CU_URL:
+    process.env.VITE_ARIO_AO_CU_URL ?? 'https://cu.ardrive.io',
+  VITE_ANT_AO_CU_URL: process.env.VITE_ANT_AO_CU_URL ?? 'https://cu.ardrive.io',
+});

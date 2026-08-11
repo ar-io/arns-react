@@ -1,4 +1,4 @@
-// NotificationOnlyError is an error that is only shown as a notification and does not emit to sentry
+// NotificationOnlyError is an error that is only shown as a notification
 
 export class NotificationOnlyError extends Error {
   constructor(message: string) {

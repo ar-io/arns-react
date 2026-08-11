@@ -60,9 +60,9 @@ moment in the mind is worth nine in the fire.
 
 When using the notification API you can import the `eventEmitter` from the
 `events.ts` file. From the `errors.ts` file you can import
-`NotificationOnlyError` which will not emit the error to sentry, otherwise for
-errors that should be reported, such as unhandled errors, use the `Error` object
-or create a custom error that extends it in the `errors.ts` file.
+`NotificationOnlyError` for expected/user-facing errors that should only show a
+notification. For unexpected errors, use the `Error` object or create a custom
+error that extends it in the `errors.ts` file.
 
 ### Smartweave Contract Deploys
 

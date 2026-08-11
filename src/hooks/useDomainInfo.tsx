@@ -6,7 +6,6 @@ import {
   ARIORead,
   ArNSNameData,
 } from '@ar.io/sdk/web';
-import { captureException } from '@sentry/react';
 import { isInGracePeriod } from '@src/components/layout/Navbar/NotificationMenu/NotificationMenu';
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
@@ -107,7 +106,7 @@ export function buildDomainInfoQuery({
       const state = await queryClient
         .fetchQuery(buildAntStateQuery({ processId, solana: true } as any))
         .catch((e) => {
-          captureException(e);
+          console.error(e);
           errors.push(
             new ANTStateError(
               e?.message ?? 'Unknown Error - Unable to fetch ANT state',

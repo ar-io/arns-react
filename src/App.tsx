@@ -1,5 +1,4 @@
 import { Logger } from '@ar.io/sdk/web';
-import * as Sentry from '@sentry/react';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import React, { Suspense, useMemo } from 'react';
@@ -65,9 +64,6 @@ const Prices = React.lazy(() => import('./components/pages/Prices/Prices'));
 
 const RNPPage = React.lazy(() => import('./components/pages/RNPPage/RNPPage'));
 
-const sentryCreateBrowserRouter =
-  Sentry.wrapCreateBrowserRouter(createHashRouter);
-
 function App() {
   useSyncSettings();
   const [{ turboNetwork }] = useGlobalState();
@@ -76,7 +72,7 @@ function App() {
     return loadStripe(turboNetwork.STRIPE_PUBLISHABLE_KEY);
   }, [turboNetwork.STRIPE_PUBLISHABLE_KEY]);
 
-  const router = sentryCreateBrowserRouter(
+  const router = createHashRouter(
     createRoutesFromElements(
       <>
         <Route element={<Layout />} errorElement={<NotFound />}>
