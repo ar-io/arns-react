@@ -81,14 +81,12 @@ export function buildDomainInfoQuery({
       // of scanning the entire ArNS registry via getArNSRecords.
       const record =
         domain && arioContract
-          ? await queryClient
-              .fetchQuery(
-                buildArNSRecordQuery({
-                  name: lowerCaseDomain(domain),
-                  arioContract,
-                }),
-              )
-              .catch(() => null)
+          ? await queryClient.fetchQuery(
+              buildArNSRecordQuery({
+                name: lowerCaseDomain(domain),
+                arioContract,
+              }),
+            )
           : undefined;
 
       if (!antId && !record?.processId) {
@@ -198,7 +196,10 @@ export default function useDomainInfo({
     ...query,
     refetch: () => {
       const keyNames = ['ant', 'ant-info', 'arns-record', 'domainInfo'];
-      const keyVals = [antId, domain];
+      const normalizedDomain = domain ? lowerCaseDomain(domain) : undefined;
+      const keyVals = [antId, domain, normalizedDomain].filter(
+        (value): value is string => value !== undefined,
+      );
       queryClient.invalidateQueries({
         predicate: (query) =>
           keyNames.some((name) => query.queryKey.includes(name)) &&
