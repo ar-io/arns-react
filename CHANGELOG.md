@@ -8,6 +8,21 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.3.4] - 2026-08-11
+
+### Fixed
+
+- Fixed lease expiry dates showing as 1970 and status as "Expired" on manage
+  page — SDK's `getArNSRecord` (singular) returns timestamps in seconds while
+  the app expects milliseconds
+- Fixed Turbo credit balance 404 for Solana users by passing wallet `tokenType`
+  explicitly instead of guessing from address format
+- Fixed atomic `buyRecord` defaulting new names' `@` record target to the ar.io
+  logo instead of the landing page (now passes `antState` with `LANDING_PAGE_TXID`)
+- Optimized manage domain page load: replaced full ArNS registry scan (~4k+
+  accounts) with a single PDA record lookup, parallelized ANT state and write
+  instance initialization, and used filtered associated-names query
+
 ## [2.3.3] - 2026-08-11
 
 ### Fixed
