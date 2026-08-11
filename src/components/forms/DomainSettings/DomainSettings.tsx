@@ -114,6 +114,7 @@ function DomainSettings({
       queryClient.invalidateQueries({
         predicate: ({ queryKey }) =>
           queryKey.includes('arns-records') ||
+          queryKey[0] === 'arns-record' ||
           (queryKey[0] === 'domainInfo' &&
             ((!!domain && queryKey.includes(domain)) ||
               (!!antProcessId && queryKey.includes(antProcessId)))) ||
