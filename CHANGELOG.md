@@ -24,6 +24,10 @@ and this project adheres to
 - Changed silent console.error to thrown error when atomic buyRecord succeeds
   but SDK omits the ANT process ID
 
+### Removed
+
+- Removed Sentry error tracking integration (`@sentry/react`, `@sentry/vite-plugin`)
+
 ## [2.3.0] - 2026-07-18
 
 ### Changed
