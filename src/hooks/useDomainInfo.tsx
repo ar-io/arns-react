@@ -197,7 +197,7 @@ export default function useDomainInfo({
   return {
     ...query,
     refetch: () => {
-      const keyNames = ['ant', 'ant-info', 'domainInfo'];
+      const keyNames = ['ant', 'ant-info', 'arns-record', 'domainInfo'];
       const keyVals = [antId, domain];
       queryClient.invalidateQueries({
         predicate: (query) =>
