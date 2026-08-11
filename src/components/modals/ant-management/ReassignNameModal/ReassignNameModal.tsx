@@ -529,6 +529,7 @@ export function ReassignNameModal({
               ? isValidAoAddress(newAntProcessId) && !loadingNewAntInfo
               : true) &&
             accepted &&
+            !signing &&
             !isInsufficientSolForGas
               ? () => handleReassign()
               : undefined

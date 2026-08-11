@@ -155,7 +155,7 @@ export function ReturnNameModal({
         nextText="Confirm"
         onCancel={!signing ? () => setShow(false) : undefined}
         onClose={!signing ? () => setShow(false) : undefined}
-        onNext={accepted ? () => handleReturn() : undefined}
+        onNext={accepted && !signing ? () => handleReturn() : undefined}
         footerClass={'py-10'}
       />
     </div>

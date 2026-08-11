@@ -42,7 +42,13 @@ function TransactionReview() {
   const [, dispatchArNSState] = useArNSState();
   const [{ walletAddress, wallet }] = useWalletState();
   const [
-    { workflowName, interactionType, transactionData, interactionResult },
+    {
+      workflowName,
+      interactionType,
+      transactionData,
+      interactionResult,
+      signing,
+    },
     dispatchTransactionState,
   ] = useTransactionState();
   const isMobile = useIsMobile();
@@ -214,6 +220,7 @@ function TransactionReview() {
         >
           <WorkflowButtons
             onNext={
+              signing ||
               !costDetail ||
               (costDetail.fundingPlan?.shortfall &&
                 costDetail.fundingPlan?.shortfall > 0)

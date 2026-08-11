@@ -101,7 +101,8 @@ function PrimaryNameModal({
   const { data: primaryNameData, isLoading: isLoadingPrimaryNameData } =
     usePrimaryName();
 
-  const [{ transactionData }, dispatchTransactionState] = useTransactionState();
+  const [{ transactionData, signing }, dispatchTransactionState] =
+    useTransactionState();
   const [, dispatchArNSState] = useArNSState();
 
   const [fundingSource, setFundingSource] = useState<FundFrom>('balance');
@@ -517,6 +518,7 @@ function PrimaryNameModal({
         onNext={
           !isLoading &&
           !isLoadingCostDetail &&
+          !signing &&
           costDetail &&
           (workflow === PRIMARY_NAME_WORKFLOWS.REMOVE ||
             (!isInsufficientBalance && !isInsufficientSolForGas))
