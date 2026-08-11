@@ -10,11 +10,14 @@ and this project adheres to
 
 ## [2.3.4] - 2026-08-11
 
+### Changed
+
+- Upgraded `@ar.io/sdk` to 4.1.2 (fixes `getArNSRecord` timestamp conversion)
+
 ### Fixed
 
 - Fixed lease expiry dates showing as 1970 and status as "Expired" on manage
-  page — SDK's `getArNSRecord` (singular) returns timestamps in seconds while
-  the app expects milliseconds
+  page (resolved upstream in SDK 4.1.2)
 - Fixed Turbo credit balance 404 for Solana users by passing wallet `tokenType`
   explicitly instead of guessing from address format
 - Fixed atomic `buyRecord` defaulting new names' `@` record target to the ar.io

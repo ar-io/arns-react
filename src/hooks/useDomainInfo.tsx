@@ -79,11 +79,7 @@ export function buildDomainInfoQuery({
 
       // Fast path: look up the single record by name (one PDA read) instead
       // of scanning the entire ArNS registry via getArNSRecords.
-      // NOTE: SDK bug — `getArNSRecord` (singular) returns timestamps in
-      // seconds (raw from on-chain), while `getArNSRecords` (plural)
-      // converts them to milliseconds via `secToMs`. Normalise here so
-      // the rest of the app can assume milliseconds.
-      const rawRecord =
+      const record =
         domain && arioContract
           ? await queryClient.fetchQuery(
               buildArNSRecordQuery({
@@ -92,15 +88,6 @@ export function buildDomainInfoQuery({
               }),
             )
           : undefined;
-      const record = rawRecord
-        ? {
-            ...rawRecord,
-            startTimestamp: rawRecord.startTimestamp * 1000,
-            ...('endTimestamp' in rawRecord && rawRecord.endTimestamp
-              ? { endTimestamp: rawRecord.endTimestamp * 1000 }
-              : {}),
-          }
-        : undefined;
 
       if (!antId && !record?.processId) {
         throw new Error('No ANT id or record found');
