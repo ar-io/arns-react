@@ -8,7 +8,7 @@ and this project adheres to
 
 ## [Unreleased]
 
-## [2.3.4] - 2026-08-11
+## [2.3.5] - 2026-08-11
 
 ### Changed
 
@@ -18,6 +18,11 @@ and this project adheres to
 
 - Fixed lease expiry dates showing as 1970 and status as "Expired" on manage
   page (resolved upstream in SDK 4.1.2)
+
+## [2.3.4] - 2026-08-11
+
+### Fixed
+
 - Fixed Turbo credit balance 404 for Solana users by passing wallet `tokenType`
   explicitly instead of guessing from address format
 - Fixed atomic `buyRecord` defaulting new names' `@` record target to the ar.io
