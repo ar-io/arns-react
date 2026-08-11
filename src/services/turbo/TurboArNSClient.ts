@@ -39,6 +39,8 @@ export interface TurboArNSClientConfig {
   // back-compat; Solana support requires the Turbo payment service update.
   signer?: any;
   walletAddress?: string;
+  /** Explicit token type from the connected wallet — avoids fragile address-format guessing. */
+  tokenType?: TokenType;
   stripe: Stripe;
   ao?: any;
 }
@@ -138,6 +140,7 @@ export class TurboArNSClient {
     walletsUrl = NETWORK_DEFAULTS.TURBO.WALLETS_URL,
     signer,
     walletAddress,
+    tokenType,
     stripe,
     ao = connect(NETWORK_DEFAULTS.AO.ARIO),
   }: TurboArNSClientConfig) {
@@ -149,6 +152,17 @@ export class TurboArNSClient {
     this.walletAddress = walletAddress;
     this.stripe = stripe;
     this.ao = ao;
+    // Prefer the explicit tokenType from the wallet connector; fall back to
+    // address-format detection only when the caller didn't supply one.
+    const resolvedToken: TokenType | undefined =
+      tokenType ??
+      (isArweaveTransactionID(this.walletAddress)
+        ? 'arweave'
+        : isEthAddress(this.walletAddress ?? '')
+          ? 'ethereum'
+          : isValidSolanaAddress(this.walletAddress ?? '')
+            ? 'solana'
+            : undefined);
     this.turboUploader = TurboFactory.unauthenticated({
       paymentServiceConfig: {
         url: this.paymentUrl,
@@ -157,13 +171,7 @@ export class TurboArNSClient {
         url: this.uploadUrl,
       },
       gatewayUrl: this.gatewayUrl,
-      token: isArweaveTransactionID(this.walletAddress)
-        ? 'arweave'
-        : isEthAddress(this.walletAddress ?? '')
-          ? 'ethereum'
-          : isValidSolanaAddress(this.walletAddress ?? '')
-            ? 'solana'
-            : undefined,
+      token: resolvedToken,
     });
     this.arioProcessId =
       this.paymentUrl === devPaymentServiceFqdn

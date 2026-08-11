@@ -20,6 +20,7 @@ export function useTurboArNSClient() {
     }
     return new TurboArNSClient({
       walletAddress: walletAddress?.toString(),
+      tokenType: wallet?.tokenType,
       paymentUrl: turboNetwork.PAYMENT_URL,
       stripe,
     });

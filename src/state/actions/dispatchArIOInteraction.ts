@@ -1,6 +1,7 @@
 import {
   ANT,
   ARIOWrite,
+  ArNSBuyAntState,
   FundFrom,
   MessageResult,
   PrimaryName,
@@ -197,7 +198,11 @@ export default async function dispatchArIOInteraction({
             years,
             ...(existingAntProcessId
               ? { processId: existingAntProcessId }
-              : {}),
+              : {
+                  antState: createAntStateForOwner(
+                    owner.toString(),
+                  ) as ArNSBuyAntState,
+                }),
             fundFrom: originalFundFrom,
             referrer: APP_NAME,
             paidBy,
@@ -336,7 +341,7 @@ export default async function dispatchArIOInteraction({
   } finally {
     dispatch({ type: 'setSigning', payload: false });
     // Invalidate balances + every cache that backs the affected name.
-    // `useDomainInfo` internally `fetchQuery`s both `arns-records` and
+    // `useDomainInfo` internally `fetchQuery`s both `arns-record` and
     // `['ant', processId, …]` with long staleTimes, so just busting the
     // outer `domainInfo` key isn't enough — the nested `fetchQuery`s
     // would just return the stale cached values (e.g. an out-of-date
@@ -349,6 +354,7 @@ export default async function dispatchArIOInteraction({
         queryKey.includes('ario-delegated-stake') ||
         queryKey.includes('turbo-credit-balance') ||
         queryKey.includes('arns-records') ||
+        queryKey[0] === 'arns-record' ||
         queryKey.includes('domainInfo') ||
         queryKey[0] === 'ant' ||
         queryKey[0] === 'ant-info' ||
