@@ -197,7 +197,9 @@ export default async function dispatchArIOInteraction({
             years,
             ...(existingAntProcessId
               ? { processId: existingAntProcessId }
-              : {}),
+              : {
+                  antState: createAntStateForOwner(owner.toString()),
+                }),
             fundFrom: originalFundFrom,
             referrer: APP_NAME,
             paidBy,
