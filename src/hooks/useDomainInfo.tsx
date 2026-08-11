@@ -10,14 +10,12 @@ import { isInGracePeriod } from '@src/components/layout/Navbar/NotificationMenu/
 import { useGlobalState } from '@src/state/contexts/GlobalState';
 import { useWalletState } from '@src/state/contexts/WalletState';
 import { ArNSWalletConnector } from '@src/types';
+import { lowerCaseDomain } from '@src/utils';
 import { ANTStateError } from '@src/utils/errors';
-import {
-  buildAntStateQuery,
-  buildArNSRecordsQuery,
-  queryClient,
-} from '@src/utils/network';
+import { buildAntStateQuery, queryClient } from '@src/utils/network';
 import { useQuery } from '@tanstack/react-query';
 import { TransactionEdge } from 'arweave-graphql';
+import { buildArNSRecordQuery } from './useArNSRecord';
 
 export type DomainInfo = {
   arnsRecord?: ArNSNameData;
@@ -75,21 +73,21 @@ export function buildDomainInfoQuery({
     queryFn: async () => {
       const errors: Error[] = [];
 
-      const arnsRecords =
-        domain && arioContract
-          ? await queryClient.fetchQuery(
-              buildArNSRecordsQuery({
-                arioContract,
-                filters: { processId: antId },
-              }),
-            )
-          : undefined;
-
       if (!domain && !antId) {
         throw new Error('No domain or antId provided');
       }
 
-      const record = arnsRecords?.find((r) => r.name === domain);
+      // Fast path: look up the single record by name (one PDA read) instead
+      // of scanning the entire ArNS registry via getArNSRecords.
+      const record =
+        domain && arioContract
+          ? await queryClient.fetchQuery(
+              buildArNSRecordQuery({
+                name: lowerCaseDomain(domain),
+                arioContract,
+              }),
+            )
+          : undefined;
 
       if (!antId && !record?.processId) {
         throw new Error('No ANT id or record found');
@@ -100,26 +98,38 @@ export function buildDomainInfoQuery({
         throw new Error('No processId found');
       }
 
+      // Kick off ANT state + ANT write-instance fetch in parallel.
       const { buildAnt } = await import('@src/utils/sdk-init');
-      const antProcess = await buildAnt({ wallet, processId });
+      const [state, antProcess] = await Promise.all([
+        queryClient
+          .fetchQuery(buildAntStateQuery({ processId, solana: true } as any))
+          .catch((e) => {
+            console.error(e);
+            errors.push(
+              new ANTStateError(
+                e?.message ?? 'Unknown Error - Unable to fetch ANT state',
+              ),
+            );
+            return null;
+          }),
+        buildAnt({ wallet, processId }),
+      ]);
 
-      const state = await queryClient
-        .fetchQuery(buildAntStateQuery({ processId, solana: true } as any))
-        .catch((e) => {
-          console.error(e);
-          errors.push(
-            new ANTStateError(
-              e?.message ?? 'Unknown Error - Unable to fetch ANT state',
-            ),
-          );
-          return null;
-        });
-
-      const associatedNames = arnsRecords
-        ? arnsRecords
-            .filter((r) => r.processId === processId.toString())
-            .map((r) => r.name)
-        : [];
+      // Associated names: look up all records pointing at this ANT. Now that
+      // we have the real processId the SDK uses a targeted memcmp filter
+      // (one gPA per mint) instead of scanning every record on-chain.
+      let associatedNames: string[] = [];
+      if (arioContract) {
+        try {
+          const { items } = await arioContract.getArNSRecords({
+            filters: { processId },
+          });
+          associatedNames = items.map((r) => r.name);
+        } catch {
+          // Non-critical — the manage page still works without it.
+          associatedNames = domain ? [domain] : [];
+        }
+      }
 
       const {
         Name: name,
@@ -134,7 +144,7 @@ export function buildDomainInfoQuery({
       ).length;
 
       const results: DomainInfo = {
-        arnsRecord: record,
+        arnsRecord: record ?? undefined,
         associatedNames,
         processId,
         antProcess,
@@ -185,8 +195,11 @@ export default function useDomainInfo({
   return {
     ...query,
     refetch: () => {
-      const keyNames = ['ant', 'ant-info', 'domainInfo'];
-      const keyVals = [antId, domain];
+      const keyNames = ['ant', 'ant-info', 'arns-record', 'domainInfo'];
+      const normalizedDomain = domain ? lowerCaseDomain(domain) : undefined;
+      const keyVals = [antId, domain, normalizedDomain].filter(
+        (value): value is string => value !== undefined,
+      );
       queryClient.invalidateQueries({
         predicate: (query) =>
           keyNames.some((name) => query.queryKey.includes(name)) &&
