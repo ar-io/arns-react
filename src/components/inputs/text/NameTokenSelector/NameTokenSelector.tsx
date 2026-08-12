@@ -10,13 +10,24 @@ import { SolanaAddress } from '../../../../services/solana/SolanaAddress';
 import { useGlobalState } from '../../../../state/contexts/GlobalState';
 import { useWalletState } from '../../../../state/contexts/WalletState';
 import { AoAddress, VALIDATION_INPUT_TYPES } from '../../../../types';
-import { isArweaveTransactionID, wrapAntId } from '../../../../utils';
-import { ARWEAVE_TX_LENGTH } from '../../../../utils/constants';
+import { isValidSolanaAddress, wrapAntId } from '../../../../utils';
+import {
+  SOLANA_ADDRESS_ENTRY_REGEX,
+  SOLANA_ADDRESS_MAX_LENGTH,
+} from '../../../../utils/constants';
 import eventEmitter from '../../../../utils/events';
 import { CloseIcon, HamburgerOutlineIcon } from '../../../icons';
 import { Loader } from '../../../layout';
 import ValidationInput from '../ValidationInput/ValidationInput';
 import './styles.css';
+
+/**
+ * An ANT id. Solana mint pubkeys are the norm post-de-AO; the Arweave arm
+ * remains for legacy ids. `wrapAntId` returns this union, so the token-list
+ * flow must carry it end to end — annotating these as Arweave-only was
+ * merely papered over by a cast.
+ */
+type AntId = ArweaveTransactionID | SolanaAddress;
 
 type NameTokenDetails = {
   [id: string]: {
@@ -103,7 +114,7 @@ function NameTokenSelector({
 
   async function getTokenList(
     address: AoAddress | undefined,
-    imports: Array<ArweaveTransactionID | SolanaAddress> = [],
+    imports: Array<AntId> = [],
   ) {
     try {
       setLoading(true);
@@ -111,11 +122,11 @@ function NameTokenSelector({
         throw new Error('No address provided');
       }
 
-      const fetchedprocessIds: Array<ArweaveTransactionID> = [];
+      const fetchedprocessIds: Array<AntId> = [];
 
       const validImports = imports.length
         ? await Promise.all(
-            imports.map(async (id: ArweaveTransactionID) => {
+            imports.map(async (id: AntId) => {
               try {
                 const contract = await buildAntRead({
                   processId: id.toString(),
@@ -136,8 +147,8 @@ function NameTokenSelector({
               }
             }),
           ).then(
-            (ids: Array<ArweaveTransactionID | undefined>) =>
-              ids.filter((id) => !!id) as ArweaveTransactionID[],
+            (ids: Array<AntId | undefined>) =>
+              ids.filter((id) => !!id) as AntId[],
           )
         : [];
 
@@ -155,7 +166,7 @@ function NameTokenSelector({
       );
 
       const contracts: {
-        processId: ArweaveTransactionID;
+        processId: AntId;
         names: Record<string, ArNSNameData>;
         owner: string;
         controllers: string[];
@@ -364,7 +375,11 @@ function NameTokenSelector({
           showValidationIcon={true}
           setValue={(v) => handleTokenSearch(v)}
           value={searchText ?? ''}
-          maxCharLength={ARWEAVE_TX_LENGTH}
+          // An ANT id is a Solana mint pubkey (base58, 32–44 chars), not an
+          // Arweave TX ID. The previous 43-char cap silently swallowed the
+          // paste for most addresses.
+          maxCharLength={SOLANA_ADDRESS_MAX_LENGTH}
+          customPattern={SOLANA_ADDRESS_ENTRY_REGEX}
           placeholder={
             selectedToken
               ? selectedToken.name?.length
@@ -373,9 +388,11 @@ function NameTokenSelector({
               : 'Add an Ar.io Name Token (ANT)'
           }
           validationPredicates={{
-            [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
-              fn: (id: string) => {
-                return arweaveDataProvider.validateArweaveId(id);
+            [VALIDATION_INPUT_TYPES.SOLANA_ADDRESS]: {
+              fn: async (id: string) => {
+                if (!isValidSolanaAddress(id)) {
+                  throw new Error('Invalid Token Address');
+                }
               },
             },
           }}
@@ -407,7 +424,7 @@ function NameTokenSelector({
           ) : searchText && validImport === false ? (
             <></>
           ) : searchText &&
-            isArweaveTransactionID(searchText) &&
+            isValidSolanaAddress(searchText) &&
             !Object.keys(tokens ?? []).includes(searchText) ? (
             <button
               className="outline-button flex flex-row center pointer"
