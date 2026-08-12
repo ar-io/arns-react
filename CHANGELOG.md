@@ -8,6 +8,31 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.3.6] - 2026-08-12
+
+### Fixed
+
+- Fixed pasting a Solana ANT address being silently ignored when bringing your
+  own ANT. A 32-byte Solana pubkey base58-encodes to 43 or 44 characters, but
+  these inputs still enforced Arweave's fixed 43-character transaction ID
+  length, so most addresses were rejected. `ValidationInput` discards input
+  that exceeds `maxCharLength` or fails `customPattern` without surfacing an
+  error, so the field simply appeared to ignore the paste.
+  - Name reassignment ("Use existing ANT"): the destination ANT address field
+    capped entry at 43 characters via `ARNS_TX_ID_ENTRY_REGEX`.
+  - Name registration (Advanced Options): the ANT selector capped entry at 43
+    characters, validated input as an Arweave transaction ID, and gated its
+    "Import" button on `isArweaveTransactionID` — so bringing your own ANT
+    could not be completed at all.
+- Both inputs now validate against the base58 Solana address format and accept
+  the full 32–44 character range.
+
+### Changed
+
+- Added `SOLANA_ADDRESS_ENTRY_REGEX` and `SOLANA_ADDRESS_MAX_LENGTH` for inputs
+  that accept Solana addresses. Arweave data pointers (target IDs, undername
+  records, logos) keep the existing 43-character constants.
+
 ## [2.3.5] - 2026-08-11
 
 ### Changed
