@@ -530,7 +530,13 @@ export function ReassignNameModal({
           onClose={!signing ? () => handleClose() : undefined}
           onNext={
             (antType === REASSIGN_NAME_WORKFLOWS.EXISTING
-              ? isValidSolanaAddress(newAntProcessId) && !loadingNewAntInfo
+              ? isValidSolanaAddress(newAntProcessId) &&
+                !loadingNewAntInfo &&
+                // A well-formed address is not proof the ANT exists. Without
+                // this, a syntactically valid pubkey with no ANT record
+                // settles to `loading=false, data=undefined` and would let
+                // an irreversible reassign proceed to a bogus destination.
+                !!newAntInfo
               : true) &&
             accepted &&
             !signing &&

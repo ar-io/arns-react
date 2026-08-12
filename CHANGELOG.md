@@ -26,6 +26,10 @@ and this project adheres to
     could not be completed at all.
 - Both inputs now validate against the base58 Solana address format and accept
   the full 32–44 character range.
+- Name reassignment no longer enables confirmation for a well-formed address
+  that has no ANT record. The destination lookup settles to "not loading, no
+  data" in that case, which previously let an irreversible reassignment
+  proceed toward a nonexistent destination.
 
 ### Changed
 
