@@ -26,8 +26,12 @@ import {
   isArweaveTransactionID,
   isEthAddress,
   isValidAoAddress,
+  isValidSolanaAddress,
 } from '@src/utils';
-import { ARNS_TX_ID_ENTRY_REGEX } from '@src/utils/constants';
+import {
+  SOLANA_ADDRESS_ENTRY_REGEX,
+  SOLANA_ADDRESS_MAX_LENGTH,
+} from '@src/utils/constants';
 import eventEmitter from '@src/utils/events';
 import {
   getActiveSolanaConfig,
@@ -70,7 +74,7 @@ export function ReassignNameModal({
   );
   const [newAntProcessId, setNewAntProcessId] = useState<string>('');
   const { data: newAntInfo, isLoading: loadingNewAntInfo } = useDomainInfo(
-    isValidAoAddress(newAntProcessId)
+    isValidSolanaAddress(newAntProcessId)
       ? {
           antId: newAntProcessId,
         }
@@ -509,7 +513,7 @@ export function ReassignNameModal({
                     checked={accepted}
                     style={{ color: 'white' }}
                     disabled={
-                      !isValidAoAddress(newAntProcessId) &&
+                      !isValidSolanaAddress(newAntProcessId) &&
                       antType === REASSIGN_NAME_WORKFLOWS.EXISTING
                     }
                   />
@@ -526,7 +530,7 @@ export function ReassignNameModal({
           onClose={!signing ? () => handleClose() : undefined}
           onNext={
             (antType === REASSIGN_NAME_WORKFLOWS.EXISTING
-              ? isValidAoAddress(newAntProcessId) && !loadingNewAntInfo
+              ? isValidSolanaAddress(newAntProcessId) && !loadingNewAntInfo
               : true) &&
             accepted &&
             !signing &&
@@ -583,28 +587,28 @@ export function ReassignNameModal({
                   showValidationOutline={true}
                   showValidationChecklist={true}
                   validationListStyle={{ display: 'none' }}
-                  maxCharLength={44}
+                  maxCharLength={SOLANA_ADDRESS_MAX_LENGTH}
                   value={newAntProcessId}
                   catchInvalidInput={true}
-                  customPattern={ARNS_TX_ID_ENTRY_REGEX}
+                  // Destination ANT id is a Solana mint pubkey: base58,
+                  // 32–44 chars. The previous `ARNS_TX_ID_ENTRY_REGEX`
+                  // capped entry at 43 chars, which silently swallowed the
+                  // paste for most addresses.
+                  customPattern={SOLANA_ADDRESS_ENTRY_REGEX}
                   setValue={(t) => {
                     setNewAntProcessId(t);
                   }}
                   validationPredicates={{
-                    [VALIDATION_INPUT_TYPES.ARWEAVE_ID]: {
+                    [VALIDATION_INPUT_TYPES.SOLANA_ADDRESS]: {
                       fn: async (id: string) => {
-                        // Destination ANT id is a Solana mint pubkey (base58,
-                        // 32–44 chars) on Solana, or an Arweave tx id on AO.
-                        // `isValidAoAddress` accepts both — `isArweaveTransactionID`
-                        // alone would reject every Solana mint.
-                        if (!isValidAoAddress(id)) {
+                        if (!isValidSolanaAddress(id)) {
                           throw new Error('Invalid Token Address');
                         }
                       },
                     },
                   }}
                 />
-                {!isValidAoAddress(newAntProcessId) &&
+                {!isValidSolanaAddress(newAntProcessId) &&
                 newAntProcessId.length ? (
                   <span className="text-error h-[10px]">
                     Invalid ANT Configuration
@@ -744,7 +748,7 @@ export function ReassignNameModal({
         onClose={!signing ? () => handleClose() : undefined}
         onNext={
           workflow === REASSIGN_NAME_WORKFLOWS.EXISTING
-            ? isValidAoAddress(newAntProcessId)
+            ? isValidSolanaAddress(newAntProcessId)
               ? () => {
                   setAntType(workflow);
                   setWorkflow(REASSIGN_NAME_WORKFLOWS.REVIEW);
