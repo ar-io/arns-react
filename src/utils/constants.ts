@@ -80,6 +80,25 @@ export const ALPHA_NUMERIC_REGEX = new RegExp('^[a-zA-Z0-9]$');
 export const ARNS_TX_ID_REGEX = new RegExp('^[a-zA-Z0-9\\-_s+]{43}$');
 export const ARNS_TX_ID_ENTRY_REGEX = new RegExp('^[a-zA-Z0-9\\-_s+]{1,43}$');
 export const ARWEAVE_TX_LENGTH = 43;
+
+/**
+ * Solana pubkey (ANT mint address, wallet address) constraints for text
+ * inputs. A 32-byte pubkey base58-encodes to 43 or 44 characters, and the
+ * large majority land on 44 — so the Arweave-derived 43-char cap
+ * (`ARWEAVE_TX_LENGTH` / `ARNS_TX_ID_ENTRY_REGEX`) silently rejected most
+ * pasted ANT addresses. `ValidationInput` discards input that exceeds
+ * `maxCharLength` or fails `customPattern` without surfacing an error, so
+ * the field simply appeared to ignore the paste.
+ *
+ * Use these for any input that accepts a Solana address. Arweave TX IDs
+ * (data pointers: target IDs, undername records, logos) keep the 43-char
+ * constants — those really are Arweave transactions.
+ */
+export const SOLANA_ADDRESS_MAX_LENGTH = 44;
+/** Base58 alphabet — excludes `0`, `O`, `I` and `l`. */
+export const SOLANA_ADDRESS_ENTRY_REGEX = new RegExp(
+  `^[1-9A-HJ-NP-Za-km-z]{1,${SOLANA_ADDRESS_MAX_LENGTH}}$`,
+);
 export const EMAIL_REGEX = new RegExp(
   "([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|\"([]!#-[^-~ \t]|(\\[\t -~]))+\")@([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|[[\t -Z^-~]*])", // eslint-disable-line
 );
