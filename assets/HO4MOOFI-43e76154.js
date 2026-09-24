@@ -1,0 +1,2 @@
+import{c,T as l,P as m,a as i,D as u,Q as v}from"./B4MFY5CR-72435136.js";import{g as p,c as d,a as e}from"./production-30cb11c8.js";import"./index-19a218e8.js";var f=a=>{const[r,t]=c({prefix:"TanstackQueryDevtools"}),n=p(),s=d(()=>{const o=r.theme_preference||l;return o!=="system"?o:n()});return e(v.Provider,{value:a,get children(){return e(m,{localStore:r,setLocalStore:t,get children(){return e(i.Provider,{value:s,get children(){return e(u,{localStore:r,setLocalStore:t})}})}})}})},g=f;export{g as default};
+//# sourceMappingURL=HO4MOOFI-43e76154.js.map
