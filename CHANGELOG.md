@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-09-24
+
 ### Added
 
 - A one-time popup and a persistent top banner encouraging users to move to
