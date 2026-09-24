@@ -54,6 +54,7 @@ import {
   setKeywords,
   setSettingsRowValue,
   signInWithPrivateKey,
+  skipConsoleNotice,
   transferAnt,
 } from './helpers';
 
@@ -76,6 +77,8 @@ test.describe('Buy & manage ArNS names — multi-actor (Solana localnet)', () =>
       lease: [1, 2, 3, 4, 5].map((y) => freshDomain(`pw-l${y}`)),
       permabuy: freshDomain('pw-perm'),
     };
+
+    await skipConsoleNotice(page);
 
     // ── Phase 1: owner-1 signs in and funds itself ─────────────────────
     await signInWithPrivateKey(page, 'owner-1');

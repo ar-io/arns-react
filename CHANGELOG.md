@@ -8,6 +8,20 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-09-24
+
+### Added
+
+- A one-time popup and a persistent top banner encouraging users to move to
+  [Ar.io Console](https://console.ar.io/), which covers ArNS plus file uploads
+  and page/website deploys. This app will stop being supported in the coming
+  months.
+  - The popup is skipped on checkout, register, transaction, and extend/upgrade
+    pages so it never interrupts a purchase.
+  - Dismissal is stored under a versioned `localStorage` key
+    (`CONSOLE_MIGRATION_NOTICE_KEY`); bump it to show the popup to everyone
+    again.
+
 ## [2.3.6] - 2026-08-12
 
 ### Fixed

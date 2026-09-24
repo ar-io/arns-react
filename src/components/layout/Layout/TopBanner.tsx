@@ -1,41 +1,22 @@
-import { useIsMobile } from '@src/hooks';
-import { SOLANA_MIGRATION_LINK } from '@src/utils/constants';
+import { getConsoleLink } from '@src/utils/constants';
 import { ExternalLinkIcon } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 const TopBanner = () => {
-  const isMobile = useIsMobile();
-
   return (
     <div
-      style={{
-        textAlign: 'center',
-        backgroundColor: 'var(--accent)',
-        color: 'var(--text-black)',
-        padding: isMobile ? '12px 15px' : '12px 18px',
-        fontSize: '14px',
-      }}
+      data-testid="console-migration-banner"
+      className="w-full bg-primary px-4 py-2.5 text-center text-sm leading-snug text-black"
     >
-      <strong>Ar.io is migrating to Solana!</strong> Purchases are paused and
-      will resume shortly. Register before the June 1, 2026 snapshot!{' '}
-      <Link
-        to={SOLANA_MIGRATION_LINK}
+      The ArNS app is moving to Ar.io Console.{' '}
+      <a
+        href={getConsoleLink('banner')}
         target="_blank"
         rel="noreferrer"
-        className="link hover"
-        style={{
-          display: 'inline',
-          color: 'var(--text-black)',
-          textDecoration: 'underline',
-          fontWeight: 600,
-        }}
+        className="inline-flex items-center gap-1 whitespace-nowrap font-bold underline underline-offset-2"
       >
-        Learn More{' '}
-        <ExternalLinkIcon
-          size={14}
-          style={{ display: 'inline', verticalAlign: 'middle' }}
-        />
-      </Link>
+        Try Console
+        <ExternalLinkIcon size={14} />
+      </a>
     </div>
   );
 };

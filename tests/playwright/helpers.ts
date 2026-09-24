@@ -34,6 +34,17 @@ export const WALLET_PUBKEYS: Record<WalletRole, string> = {
   'controller-1': '9c5GFpf6KbbNKWTK5LoK3qDZLnBJmReePm8gd7muYcDM',
 };
 
+/**
+ * Pre-dismiss the Ar.io Console migration popup so it doesn't cover the
+ * flows under test. Must run before the first navigation. Keep the key in
+ * sync with `CONSOLE_MIGRATION_NOTICE_KEY` in `src/utils/constants.ts`.
+ */
+export async function skipConsoleNotice(page: Page) {
+  await page.addInitScript(() => {
+    localStorage.setItem('arns-console-notice-v1', 'e2e');
+  });
+}
+
 export function readPrivateKey(role: WalletRole): string {
   return readFileSync(join(FIXTURES_DIR, WALLET_FILES[role]), 'utf-8').trim();
 }

@@ -15,6 +15,8 @@ logo images, GraphQL), but not for contract state.
 
 ## Development Commands
 
+Node 24 (`.nvmrc`), Yarn 1.
+
 ```bash
 yarn                  # Install
 yarn dev              # Dev server (NODE_ENV=prod, VITE_GITHUB_HASH=local)
@@ -43,7 +45,16 @@ npx cross-env NODE_ENV=test jest src/utils/searchUtils/searchUtils.test.ts
 
 `NODE_ENV=test` is required — Jest uses `tsconfig.test.json` and a custom
 `import.meta` AST transformer (`tests/common/import-meta-transformer.js`) to make
-Vite's `import.meta.env` work under CommonJS.
+Vite's `import.meta.env` work under CommonJS. Jest collects `*.test.ts(x)` from
+anywhere except `tests/common/` and `tests/playwright/` (Playwright's `testDir`).
+
+Playwright's `globalSetup` (`tests/playwright/setup.ts`) spawns `yarn preview`
+itself, so `yarn build` first. Specs hit `process.env.URL`, defaulting to
+`http://localhost:4173/`. After sign-in, navigate with `navigate()` from
+`tests/playwright/helpers.ts`, never `page.goto` — a hard reload wipes the
+in-memory devtools keypair, which is deliberately not persisted. Call
+`skipConsoleNotice(page)` before the first navigation, or the Console
+migration popup covers the page.
 
 Biome is the source of truth for lint/format. `.eslintrc` and `.prettierrc` are
 vestigial — don't wire new tooling to them.
@@ -86,6 +97,15 @@ scan against `MPL_CORE_PROGRAM_ID`, filtered by the `ANT Program` Metaplex
 attribute. If names appear missing or stale in Manage, this is the first place to
 look.
 
+Fresh purchases drift too. With no `processId`, the SDK's `buyRecord` spawns the
+ANT and buys the name in one transaction, then records the owner's ACL entries
+in a *separate*, best-effort transaction whose failure is only logged. A rejected
+or failed follow-up leaves a just-bought name flagged `needsOwnerSync`, which
+surfaces as the "Sync Ownership" button in Manage.
+
+The ACL is not an authorization source: the ANT program checks writes against the
+live Metaplex Core owner and the controller list.
+
 ### Wallets — Solana only
 
 `WALLET_TYPES` has a single member: `SOLANA`. Wallet discovery goes through
@@ -103,6 +123,13 @@ app's `ArNSWalletConnector` interface over the adapter. Its important output is
 `walletAdapterToKitSigner.ts` — which is what gets handed to the SDK.
 `PrivateKeySolanaWalletConnector` backs the devtools-only private-key login at
 `/settings/devtools`.
+
+`solanaSigner` is a kit `TransactionModifyingSigner`, not a partial signer:
+Phantom rewrites transactions on real origins (priority fee, Lighthouse guard
+instructions), so the bridge returns the wallet's rewritten message together with
+its signature. Transaction assembly, compute-budget and priority-fee pinning, and
+multi-signer ordering all live in the SDK's `sendAndConfirm`
+(`@ar.io/sdk`, `solana/send`), not in this repo.
 
 `ArNSWalletConnector` still carries `contractSigner` / `turboSigner` fields from
 the multi-chain era; the Solana connector leaves them `undefined`.
@@ -147,10 +174,11 @@ React Context + reducer per domain, all nested in `main.tsx` (order matters —
   `solanaConfig` changes, persists `walletType`.
 
 Write flows go through `src/state/actions/` — `dispatchANTInteraction`,
-`dispatchArIOInteraction`, `dispatchArNSUpdate`, `dispatchArIOContract`. These
-require a connected Solana wallet with a signer and throw otherwise. Interaction
-names are the `ANT_INTERACTION_TYPES` / `ARNS_INTERACTION_TYPES` enums in
-`src/types.ts`.
+`dispatchArIOInteraction`, `dispatchArIOContract`. These require a connected
+Solana wallet with a signer and throw otherwise. `dispatchArNSUpdate` is the read
+side: it reloads the wallet's names and ANT states (merging in ACL drift) and
+resets their query caches. Interaction names are the `ANT_INTERACTION_TYPES` /
+`ARNS_INTERACTION_TYPES` enums in `src/types.ts`.
 
 ### Data fetching
 
@@ -158,6 +186,14 @@ React Query for all server state. `queryClient` in `src/utils/network.ts`
 (`gcTime` 1 day, `staleTime` 5 min, `refetchOnWindowFocus: false` — deliberately
 tuned to stop refetch storms). An IndexedDB persister is implemented
 (`createIDBPersister`) but not currently wired up in `main.tsx`.
+
+Per-name queries override that default: `useDomainInfo` and the ANT state
+queries (`['ant', processId, …]`) use `staleTime: Infinity`, so a write that
+doesn't bust them leaves the UI showing old values. Post-write invalidation
+happens when `TransactionState.interactionResult` changes (`TransactionState`
+and `DomainSettings` both react to it) and in `dispatchArNSUpdate`. A new write
+flow must set `interactionResult` the way the dispatch actions do, or invalidate
+explicitly.
 
 Domain logic lives in `src/hooks/use<Feature>.tsx`. Arweave data retrieval goes
 through `ArweaveCompositeDataProvider` / `SimpleArweaveDataProvider` in
@@ -197,8 +233,10 @@ Motion for animation. Per-component `styles.css`.
 
 ### File organization
 
-- **Components**: one folder each, containing `<ComponentName>.tsx`, `styles.css`,
-  and `__tests__/`. Test files named `<component-name>.test.ts(x)`.
+- **Components**: one folder each, containing `<ComponentName>.tsx` and
+  `styles.css`. The README asks for tests in `__tests__/` named
+  `<component-name>.test.ts(x)`, but most existing tests sit beside the source
+  file instead — either is picked up.
 - **Utils**: `src/utils/`, with colocated or sibling tests.
 - **Types for external libs that don't export what we need**: `src/types/`.
 - **Images**: `assets/images/{dark,light,common}/`.
@@ -240,17 +278,22 @@ Flows on *existing* ANTs are unaffected: `EXTEND_LEASE`, `INCREASE_UNDERNAMES`.
 
 ### Environment variables
 
-Vite only exposes an explicit allowlist — never widen the `define` block in
-`vite.config.ts` to the whole `process.env`.
+Every `VITE_`-prefixed variable set at build time is inlined into the public
+bundle through `import.meta.env`, so never give a secret that prefix. Separately,
+the `define` block in `vite.config.ts` shims `process.env` with `URL` only —
+never widen it to the whole `process.env`, or CI secrets leak into the bundle.
 
 - Solana: `VITE_SOLANA_NETWORK`, `VITE_SOLANA_RPC_URL`,
   `VITE_ARIO_CORE_PROGRAM_ID`, `VITE_ARIO_GAR_PROGRAM_ID`,
   `VITE_ARIO_ARNS_PROGRAM_ID`, `VITE_ARIO_ANT_PROGRAM_ID`,
   `VITE_ARIO_MINT_ADDRESS`
-- Arweave/Turbo: `VITE_ARWEAVE_HOST`, `VITE_ARWEAVE_GRAPHQL_URL`,
-  `VITE_HYPERBEAM_URL`, `VITE_ARNS_NAME`
+- Arweave: `VITE_ARWEAVE_HOST`, `VITE_ARWEAVE_GRAPHQL_URL`, `VITE_HYPERBEAM_URL`
 - Build: `VITE_ENVIRONMENT` (production/develop), `VITE_NODE_ENV`,
   `VITE_GITHUB_HASH`
+- Legacy AO, still read in `constants.ts` and still passed by CI:
+  `VITE_ARIO_PROCESS_ID`, `VITE_ARIO_AO_CU_URL`, `VITE_ANT_AO_CU_URL`
+- `VITE_ARNS_NAME` is a shell variable for `publish:arweave`; app code doesn't
+  read it.
 
 `VITE_SOLANA_RPC_URL` is read with `||`, not `??`, on purpose — CI injects `""`
 when the secret is unset.
@@ -271,10 +314,10 @@ and `vite.config.ts`; Jest mirrors them in `moduleNameMapper`).
 ### Jest specifics
 
 `transformIgnorePatterns` explicitly un-ignores `@ar.io`, `@permaweb`,
-`arbundles`, `@dha-team/arbundles`, `arweave-wallet-connector`, and `wagmi` —
-these ship ESM that must be transformed. Add new ESM-only deps here when they
-break tests. `@ar.io/solana-contracts` subpaths are remapped to their built
-`lib/*/index.js`.
+`arbundles`, `@dha-team/arbundles`, `arweave-wallet-connector`, `@wagmi`, and
+`wagmi` — these ship ESM that must be transformed. Add new ESM-only deps here
+when they break tests. `@ar.io/solana-contracts` subpaths are remapped to their
+built `lib/*/index.js`.
 
 ## Git hooks
 
@@ -286,3 +329,10 @@ break tests. `@ar.io/solana-contracts` subpaths are remapped to their built
 
 `.github/workflows/`: `build_and_test.yml`, `pr-preview.yaml`,
 `staging_deploy.yml`, `production.yml`.
+
+- PRs gate on `lint:check` and `build` only. The Playwright job has
+  `if: github.ref_name == 'main'`, so it's skipped on every PR, and `yarn test`
+  is commented out in `build_and_test.yml` and `production.yml`. Neither suite
+  blocks a merge — run both locally.
+- `pr-preview.yaml` passes no `VITE_SOLANA_*` or program-ID variables, so preview
+  builds fall back to the defaults in `src/utils/solana.ts`.
