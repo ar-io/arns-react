@@ -48,7 +48,12 @@ function ConsoleMigrationModal() {
 
   useEffect(() => {
     if (isDismissed()) return;
-    if (SUPPRESSED_ROUTES.some((route) => route.test(pathname))) return;
+    // Close without recording a dismissal (e.g. Back button into checkout),
+    // so the popup can return on the next browsing page.
+    if (SUPPRESSED_ROUTES.some((route) => route.test(pathname))) {
+      setOpen(false);
+      return;
+    }
     setOpen(true);
   }, [pathname]);
 
@@ -65,10 +70,13 @@ function ConsoleMigrationModal() {
         <Dialog.Overlay className="fixed inset-0 z-[2100] bg-black/60 backdrop-blur-[2px]" />
         <Dialog.Content
           data-testid="console-migration-modal"
-          // Radix focuses the close button on open, which paints a focus ring
-          // before the user has done anything. Focus trap still applies.
-          onOpenAutoFocus={(e) => e.preventDefault()}
-          className="fixed left-1/2 top-1/2 z-[2100] flex max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-[440px] -translate-x-1/2 -translate-y-1/2 flex-col gap-5 overflow-y-auto rounded-lg border border-dark-grey bg-metallic-grey p-6 text-white shadow-one sm:p-8"
+          // Focus the dialog itself rather than Radix's default (the close
+          // button), which would paint a focus ring before any interaction.
+          onOpenAutoFocus={(e) => {
+            e.preventDefault();
+            (e.currentTarget as HTMLElement).focus();
+          }}
+          className="fixed left-1/2 top-1/2 z-[2100] flex max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-[440px] -translate-x-1/2 -translate-y-1/2 flex-col gap-5 overflow-y-auto rounded-lg outline-none border border-dark-grey bg-metallic-grey p-6 text-white shadow-one sm:p-8"
         >
           <Dialog.Close
             aria-label="Close"
