@@ -330,8 +330,9 @@ built `lib/*/index.js`.
 `.github/workflows/`: `build_and_test.yml`, `pr-preview.yaml`,
 `staging_deploy.yml`, `production.yml`.
 
-- CI gates on `lint:check`, `build`, and Playwright. `yarn test` is commented
-  out in `build_and_test.yml` and `production.yml`, so Jest failures block
-  nothing — run it locally.
+- PRs gate on `lint:check` and `build` only. The Playwright job has
+  `if: github.ref_name == 'main'`, so it's skipped on every PR, and `yarn test`
+  is commented out in `build_and_test.yml` and `production.yml`. Neither suite
+  blocks a merge — run both locally.
 - `pr-preview.yaml` passes no `VITE_SOLANA_*` or program-ID variables, so preview
   builds fall back to the defaults in `src/utils/solana.ts`.
