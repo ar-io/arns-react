@@ -96,7 +96,7 @@ function ConsoleMigrationModal() {
 
           <Dialog.Description className="text-sm leading-relaxed text-light-grey">
             Everything you do here now lives in Ar.io Console, along with more
-            tools for building on Arweave.
+            tools for building on Ar.io.
           </Dialog.Description>
 
           <ul className="flex flex-col gap-2 text-sm text-white">
