@@ -108,6 +108,10 @@ function ConsoleMigrationModal() {
             ))}
           </ul>
 
+          <p className="text-sm leading-relaxed text-light-grey">
+            Your names come with you. Just connect the same wallet.
+          </p>
+
           <p className="rounded-md border border-dark-grey bg-foreground px-4 py-3 text-sm leading-relaxed text-light-grey">
             This app still works, but we'll stop supporting it in the coming
             months.
