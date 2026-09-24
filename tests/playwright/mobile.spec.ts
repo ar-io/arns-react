@@ -18,3 +18,21 @@ test('test', async ({ page }) => {
   await expect(notFoundPage).not.toBeVisible();
   await expect(page.getByText('Ar.io Name System')).toBeVisible();
 });
+
+test('console migration popup shows once and can be dismissed', async ({
+  page,
+}) => {
+  test.setTimeout(60000);
+
+  await page.goto(url);
+  const modal = page.getByTestId('console-migration-modal');
+  await expect(modal).toBeVisible();
+  await expect(page.getByTestId('console-migration-banner')).toBeVisible();
+
+  await modal.getByRole('button', { name: 'Not now' }).click();
+  await expect(modal).not.toBeVisible();
+
+  await page.reload();
+  await expect(page.getByText('Ar.io Name System')).toBeVisible();
+  await expect(modal).not.toBeVisible();
+});

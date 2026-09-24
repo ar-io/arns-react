@@ -463,3 +463,16 @@ export const BASE_NAME_FEES: Record<number, number> = {
 // Pricing multipliers
 export const LEASE_MULTIPLIER = 1.2; // ARF + (ARF * 0.2 * 1) = ARF * 1.2
 export const PERMABUY_MULTIPLIER = 21; // ARF + (ARF * 0.2 * 20) = ARF * 21
+
+// Ar.io Console replaces this app. The notice key carries a version so the
+// popup can be re-shown to everyone (e.g. once an end-of-support date is set)
+// by bumping the suffix.
+export const ARIO_CONSOLE_URL = 'https://console.ar.io/';
+export const CONSOLE_MIGRATION_NOTICE_KEY = 'arns-console-notice-v1';
+
+export function getConsoleLink(medium: 'popup' | 'banner'): string {
+  const url = new URL(ARIO_CONSOLE_URL);
+  url.searchParams.set('utm_source', 'arns-app');
+  url.searchParams.set('utm_medium', medium);
+  return url.toString();
+}
